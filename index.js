@@ -1,0 +1,54 @@
+// external
+const bodyParser = require('body-parser');
+const express = require("express");
+
+
+const cors = require("cors");
+require("dotenv").config();
+const multer = require("multer")
+const form = multer();
+// internal
+const ConnectDb = require("./config/db");
+const categoryRoutes = require("./routes/categoryRoutes");
+const productsRoutes = require("./routes/productRoute");
+const couponRoutes = require("./routes/couponRoute");
+// const userRoute = require("./routes/userRoute");
+const orderRouter = require("./routes/orderRoute");
+const userOrderRoute = require("./routes/userOrderRoute");
+const userdataRoute = require("./routes/userdataRoute");
+// app init
+const app = express();
+// middleware
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json());
+app.use(cors());
+app.use(form.any())
+// run db
+ConnectDb();
+// routes
+
+app.use("/api/products", productsRoutes);
+app.use("/api/earncrop", categoryRoutes);
+app.use("/api/redeemcrop", categoryRoutes);
+app.use("/api/category", categoryRoutes);
+app.use('/api/coupon', couponRoutes);
+// app.use('/api/user', userRoute);
+app.use('/api/order', orderRouter);
+app.use('/api/user-order', userOrderRoute);
+app.use('/api/userdata', userdataRoute);
+
+// root route
+app.get("/", (req, res) =>
+{ res.send("Apps worked successfully");
+console.log("wgwgwgo;k")
+});
+
+
+// use express's default error handling middleware
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  res.status(400).json({ message: err.message });
+});
+
+const PORT = process.env.PORT || 7000;
+app.listen(PORT, () => console.log(`server running on port ${PORT}`));

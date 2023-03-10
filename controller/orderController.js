@@ -1,0 +1,53 @@
+const stripe = require("stripe")(process.env.STRIPE_KEY);
+const Order = require("../models/Order");
+const {User} = require("../models/User");
+
+// create-payment-intent
+module.exports.paymentIntent = async (req, res) => {
+  try {
+    const product = req.body;
+    const price = Number(product.price);
+    const amount = price * 100;
+    // Create a PaymentIntent with the order amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+      currency: "usd",
+      amount: amount,
+      payment_method_types: ["card"],
+    });
+    res.status(200).send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.addOrder = async (req, res) => {
+  try {
+    const orderItems = req.body;
+    const croppoints=orderItems.points
+     const userid=orderItems.user;
+
+    const newOrders = new Order(orderItems);
+    const userData=await User.findOne(
+      {
+        _id: userid       
+      });
+
+      const points= userData.croppoints + croppoints;
+
+    const result=await User.updateOne({_id: userid }, {$set: { croppoints:points }});
+    console.log(result);
+    const order = await newOrders.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Order added successfully",
+      order: order,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//adding the croppoints is remaining
