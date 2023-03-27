@@ -39,6 +39,7 @@ module.exports.getEarnCategory = async (req,res) => {
       success:true,
       categories:result,
     })
+    console.log(result,"earn")
   } catch (error) {
     res.status(500).send({
       message:error.message
@@ -54,6 +55,7 @@ module.exports.getRedeemCategory = async (req,res) => {
       success:true,
       categories:result,
     })
+    console.log(result,"earn")
   } catch (error) {
     res.status(500).send({
       message:error.message
@@ -68,6 +70,7 @@ module.exports.getShowingCategory = async (req,res) => {
       success:true,
       categories:result,
     })
+    console.log(result,"result")
   } catch (error) {
     res.status(500).send({
       message:error.message

@@ -7,7 +7,6 @@ module.exports.getOrderByUser = async (req, res) => {
  const userdata=await User.findOne({email:req.user.email});
 
  let userid=userdata._id;
- console.log(userid,"rgrr");
   try {
     const { page, limit } = req.query;
 

@@ -3,9 +3,11 @@ const Order = require("../models/Order");
 const {User} = require("../models/User");
 
 // create-payment-intent
-module.exports.paymentIntent = async (req, res) => {
+module.exports.paymentIntent = async (req, res) => {  
   try {
     const product = req.body;
+    const token = req.headers?.authorization?.split(" ")?.[1];
+
     const price = Number(product.price);
     const amount = price * 100;
     // Create a PaymentIntent with the order amount and currency
@@ -14,6 +16,10 @@ module.exports.paymentIntent = async (req, res) => {
       amount: amount,
       payment_method_types: ["card"],
     });
+   if(paymentIntent.client_secret)
+   {
+     const results=await User.updateOne({"token": token }, {$push: { auditTrail:`The payment is successfully paid` }});
+   }
     res.status(200).send({
       clientSecret: paymentIntent.client_secret,
     });
@@ -37,9 +43,8 @@ module.exports.addOrder = async (req, res) => {
       const points= userData.croppoints + croppoints;
 
     const result=await User.updateOne({_id: userid }, {$set: { croppoints:points }});
-    console.log(result);
+    const results=await User.updateOne({_id: userid }, {$push: { auditTrail:`The order is conformed` }});
     const order = await newOrders.save();
-
     res.status(200).send({
       success: true,
       message: "Order added successfully",

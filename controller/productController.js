@@ -54,6 +54,7 @@ module.exports.getShowingProducts = async (req,res) => {
     })
   }
 }
+
 // getDiscountProduct
 module.exports.getDiscountProduct = async (req,res) => {
   try {
@@ -83,6 +84,7 @@ module.exports.getSingleProduct = async (req,res) => {
 
 // get related products
 module.exports.getRelatedProducts = async (req,res) => {
+
   const {tags} = req.query;
   const queryTags = tags?.split(",")
   try {
@@ -94,6 +96,33 @@ module.exports.getRelatedProducts = async (req,res) => {
   } catch (err) {
     res.status(500).send({
       message:err.message
+    })
+  }
+}
+
+module.exports.getProductsByCatagory = async (req, res) => {
+
+  const category = req.body.category;
+  console.log(category,"categories")
+  try {
+    // let product = []
+    // await category.map(async (cate) => {
+    //   let children = cate;
+    //   let products = await Product.find({children});
+    //   products.forEach(element => {
+    //     product.push(element)
+    //   })
+  //})  
+    const result = await Product.find(  {$and: [
+      { status:"active" },
+      { parent: category }
+    ] });
+      return res.status(200).json({result})
+    
+  } catch (error) {s
+    console.log(error)
+    res.status(500).send({
+      message: error.message
     })
   }
 }

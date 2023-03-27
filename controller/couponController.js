@@ -30,7 +30,7 @@ const addAllCoupon = async (req, res) => {
 const getAllCoupons = async (req, res) => {
   try {
     const coupons = await Coupon.find({}).sort({ _id: -1 });
-    res.send(coupons);
+    res.send({data:coupons});
   } catch (err) {
     res.status(500).send({
       message: err.message,

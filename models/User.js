@@ -128,7 +128,8 @@ const UserSchema=new mongoose.Schema({
   biometricterms:{type:Boolean, default:false},
   notification:{type:Boolean, default:false} , 
   promocode:{type:String,default:null},
-  refercode:{type:String,required:true},        
+  refercode:{type:String,required:true}, 
+  login_method:{type:Number,required:true,default:2},        
 // bioMetricData:{type:Boolean,default:false},
    loyaltyList:{type:Number,default:null},
    interestList:{type:Number,default:null}, 
@@ -146,6 +147,7 @@ const UserSchema=new mongoose.Schema({
    smsNotification:{type:Boolean, default:true},
    emailNotification:{type:Boolean, default:true}, 
    feedback:{type:String,default:null},
+   auditTrail: [{}],
 //    auditTrail:{
 //     startDate:Date,
 //     endDate:Date,
@@ -155,25 +157,44 @@ const UserSchema=new mongoose.Schema({
 // likedProduct:Array,
 // newsLetterSubscription:String,
 // productRated:Object,
-// signUpDate:{type:Date, default: Date.now},
-// TierChangeDate:Date,
-// lastUpdatedDate:Date,                
+ signUpDate:{type:Date},
+ lastUpdatedDate:{type:Date},
+ TierChangeDate:{type:Date}, 
+ status: { type: String, default:"active" },               
 });
 
 const OtpSchema=new mongoose.Schema({
 email:{type:String},
 otp:{type:Number}
+});
+
+const tokenSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  token: {
+    type:String,
+    required: true
+  },
+  type:{
+    type:String,
+    required: true
+  },
+  expiration: {type:Date,default:null},
+  createdate:{type:Date,default:null}
+});
+
+const NewsletterSchema=new mongoose.Schema({
+  email:{type:String,required:true},
 })
-const TokenSchema=new mongoose.Schema({
-  token:{type:Object},
-  email:{type:String}
-  })
 
 //validate password
 //sending data to the userRouter file
 
-const User=mongoose.model('user',UserSchema)
-const Otp=mongoose.model('otp',OtpSchema)
-const Token=mongoose.model('token',OtpSchema)
-module.exports = {User,Otp,Token}
+const Newsletter=mongoose.model('Newsletter_customer',NewsletterSchema)
+const User=mongoose.model('users_customer',UserSchema)
+const Otp=mongoose.model('otps_customer',OtpSchema)
+const Token=mongoose.model('token1_customer',tokenSchema)
+module.exports = {User,Otp,Token,Newsletter}
 

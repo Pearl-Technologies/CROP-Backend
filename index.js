@@ -16,6 +16,9 @@ const couponRoutes = require("./routes/couponRoute");
 const orderRouter = require("./routes/orderRoute");
 const userOrderRoute = require("./routes/userOrderRoute");
 const userdataRoute = require("./routes/userdataRoute");
+const cartRoute=require("./routes/cartRoute");
+const wishlistRoute=require("./routes/wishlistRoute");
+
 // app init
 const app = express();
 // middleware
@@ -36,11 +39,12 @@ app.use('/api/coupon', couponRoutes);
 app.use('/api/order', orderRouter);
 app.use('/api/user-order', userOrderRoute);
 app.use('/api/userdata', userdataRoute);
+ app.use('/api/cart', cartRoute);
+ app.use('/api/wishlist', wishlistRoute);
 
 // root route
 app.get("/", (req, res) =>
 { res.send("Apps worked successfully");
-console.log("wgwgwgo;k")
 });
 
 
@@ -50,5 +54,5 @@ app.use((err, req, res, next) => {
   res.status(400).json({ message: err.message });
 });
 
-const PORT = process.env.PORT || 7000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));

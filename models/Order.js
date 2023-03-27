@@ -50,7 +50,7 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    Points:{
+    points:{
       type: Number,
       required: true,
       default: 0,
@@ -89,7 +89,7 @@ const orderSchema = new mongoose.Schema(
 const Order =
   mongoose.models.Order ||
   mongoose.model(
-    "Order",
+    "orders_customer",
     orderSchema.plugin(AutoIncrement, {
       inc_field: "invoice",
       start_seq: 10000,

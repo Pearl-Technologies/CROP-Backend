@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const valid = require("validator");
+// const Category = require("/Category.js");
 
 const productSchema = mongoose.Schema({
   croppoints:{
@@ -80,9 +81,13 @@ const productSchema = mongoose.Schema({
     default: 'active',
     enum: ['active', 'inActive'],
   },
+  // category: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: Category
+  // }
 },{
   timestamps: true
 })
 
-const Product = mongoose.model('products',productSchema);
+const Product = mongoose.model('products_customer',productSchema);
 module.exports = {Product};

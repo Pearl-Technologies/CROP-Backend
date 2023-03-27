@@ -3,6 +3,7 @@ const router = express.Router();
 const {Otp}= require("../models/User");
 const {User} = require("../models/User");
 const {Token} = require("../models/User");
+const {Newsletter} = require("../models/User");
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken');
 const multer = require('multer');
@@ -41,14 +42,9 @@ router.put("/uploadpicture",async(req,res)=>
     const filesName = fs.createWriteStream(pathName + '/uploads/' + req.files[0].originalname)
     filesName.write(req.files[0].buffer);
     filesName.end();   
-    // filesName.on('finish',() => {
-    //     return res.status(200).send({message:"File Saved"})
-    // })
- //uploading a file in th form where the files stored in th server not in the database
+
     var obj = pathName + '/uploads/' + req.files[0].originalname;
-    console.log(obj)
         let token=req.headers.authorization;
-        console.log(token);
         const result= await User.updateOne({"token":token},{$set:{
            avatar:obj
        }});  
@@ -68,6 +64,9 @@ router.get('/',async (req,res)=>{
 
 router.put('/resendotp',async(req,res) =>{  
     const email=req.body.email;
+    const phone=req.body.phone;
+    if(email)
+    {
     var otp=Math.floor(100000 + Math.random() * 900000)
 
     const transporter = nodemailer.createTransport({
@@ -89,15 +88,33 @@ router.put('/resendotp',async(req,res) =>{
         text:`OTP GENERATED ${otp}`
     }
     
-    transporter.sendMail(mailOptions, (err, result) => {
+    transporter.sendMail(mailOptions,async (err, result) => {
         if (err){
-            console.log(err)
             res.status(500).send({message:"Enter the correct email id",status:"false",data:[]});   
         } else{
+            const result=  await Otp.updateOne({email:email }, {$set: {otp : otp,status:false}}); 
             res.status(200).send({message:"otp sent successsfully",status:"true",data:[]});       
-            const result=  Otp.updateOne({email:email }, {$set: {otp : otp}});          
+                     
         }
         })
+    }
+    else
+    {
+        //Phone OTP
+        client.verify.v2
+       .services(verifySid)
+       .verifications.create({ to:phone, channel: "sms" })
+       .then((verification) =>  {
+       res.status(200).send({message:'Otp sent successfully to ur phone number',status:"true",data:[]})
+      })
+       .then(() => {
+         const readline = require("readline").createInterface({
+           input: process.stdin,
+           output: process.stdout,
+         })
+         })
+         }
+
 })
 
 router.post('/emailphone',async(req,res) =>{   
@@ -106,8 +123,6 @@ router.post('/emailphone',async(req,res) =>{
     const email=req.body.email;
 
     //Add the status true when the otp is verified in the database
-
-    console.log(phone,email)
 
     var bool1=0;
     var bool2=0;
@@ -128,7 +143,7 @@ router.post('/emailphone',async(req,res) =>{
      }
   if(bool1===0)
   {
-    const emailExist=await Otp.findOne({email:email});  
+    const emailExist=await User.findOne({email:email});  
     if(emailExist)
     return res.status(409).send({message:"User with given email already exist",status:false})
   }
@@ -157,29 +172,33 @@ const mailOptions =
     text:`OTP GENERATED ${otp}`
 }
 
-transporter.sendMail(mailOptions, (err, result) => {
+transporter.sendMail(mailOptions, async(err, result) => {
     if (err){
-        console.log(err)
         res.status(500).send({message:"Enter the correct email id",status:"false",data:[]});   
     } else{
-        res.status(200).send({message:"otp sent successsfully",status:"true",data:[]});       
+        res.status(200).send({message:"otp sent successsfully",status:"true",data:[]}); 
+        const emailExists=await Otp.findOne({email:email});  
+         if(emailExists)
+         {
+            const result= await Otp.updateOne({email:email }, {$set: {otp : otp, status:false  }});       
+         }
+         else{
         const otpdata = new Otp({
             email:email,
-            otp:otp         
-         }).save();   
-         console.log(otpdata)            
+            otp:otp,
+            status:false         
+         }).save();     
+        }         
     }
     })
     }
     else
     {
    //Phone OTP
-   console.log(phone,"phone")
    client.verify.v2
   .services(verifySid)
   .verifications.create({ to:phone, channel: "sms" })
   .then((verification) =>  {
-  console.log(verification);
   res.status(200).send({message:'Otp sent successfully to ur phone number',status:"true",data:[]})
  })
   .then(() => {
@@ -196,10 +215,8 @@ router.post('/emailphoneverify',async(req,res) =>{
         const otp=req.body.otp; 
         const phone=req.body.phone;
         const email=req.body.email;
-        console.log(phone,otp,email);
         if(email==="")
         {
-            console.log(phone,otp)
             client.verify.v2
             .services(verifySid)
             .verificationChecks.create({ to: phone, code: otp })
@@ -210,11 +227,12 @@ router.post('/emailphoneverify',async(req,res) =>{
         else
         {
             const userData=await Otp.findOne({email:email});
-            console.log(userData.otp,otp)
             //if the email id is not present send the error message
             if(userData.otp==otp)
             {
-                return res.status(200).send({message:"valid otp",status:"true",data:[]})
+                const result= await Otp.updateOne({email:email }, {$set: {status:true }}); 
+                
+            return res.status(200).send({message:"valid otp",status:"true",data:[]})
             }       
             else
             {
@@ -227,9 +245,9 @@ router.put('/resetpassword',async(req,res) =>{
    
     const newpin = await bcrypt.hash(req.body.newpin.toString(), 10); 
     let token=req.headers.authorization
-    console.log(token)
-    let oldpassword=await User.findOne({"token":token})
-    console.log(oldpassword)
+
+    let oldpassword=await User.findOne({token:token})
+
 
     if(oldpassword.password===req.body.oldpin)
     {
@@ -241,6 +259,7 @@ router.put('/resetpassword',async(req,res) =>{
         return res.status(500).send({message:"Both new and old password are same",status:"false",data:[]})
     }
     const updatedata= await User.updateOne({"token": token }, {$set: {password : newpin}}); 
+
     if(updatedata)
     {
         res.status(200).send({message:"Pin changed successfully",status:"true"})
@@ -252,9 +271,6 @@ router.put('/resetpassword',async(req,res) =>{
 
 router.post('/signup',async (req,res) =>{
 
-    //crop ponis not be static the admin has to decide the point value for referalj
-
-    console.log(req.body)
      try{       
        // checking whether the given mail id is exist in database r not
         const phoneExist=await User.findOne({mobileNumber:req.body.phone});
@@ -299,30 +315,31 @@ router.post('/signup',async (req,res) =>{
                 terms:req.body.terms,
                 notification:req.body.notification,
                 promocode:req.body.promocode, 
-                refercode:referid        
+                refercode:referid,
+                signUpDate:Date.now,
+                auditTrail: `You have successfully  registered ur profile on ${Date.now} `,       
             }).save();
-       
-         "www.railmitra.app/refer?id=123456"
          //saving data in the database
          res.send({message:"Register successfully",
          status:"true",data:{"refercode":referid,"cropid":cropnumber,"croppoints":0}
         });
 
      }catch(err){
-        console.log(err)
+     
         //if any internal error occurs it will show error message
         res.status(500).send({message:"Register error",status:"false",data:[]});
      }    
 });
 
 router.post('/promocode',async (req,res) =>{ 
-     var promo=req.body.promo;
-      console.log(req.body.promo);
+      var promo=req.body.promo;
 
       if(promo==="")
       {
         res.status(200).send({message:"promocode available",status:"true"})
       }
+      else
+      {
     const userData=await User.findOne({refercode: promo});  
     if(userData)
     {
@@ -332,39 +349,103 @@ router.post('/promocode',async (req,res) =>{
     {
         res.status(500).send({message:"promocode not available",status:"false"})
     }
+}
     })
 
-router.get('/details',async (req,res) =>{      
-    try{
+
+
+ router.put('/logout',async(req,res)=>{
+        
+        try{
             let token=req.headers.authorization;
-            console.log(token,"detailstoken");
-            const userData=await User.findOne({"token":token});  
-            console.log(userData ,"details");
-           res.status(200).send({
-           status:"true",data:userData
+            const result= await User.updateOne({"token" : token }, {$set: {"token" : "null"}});      
+           res.status(200).send({ 
+           status:"true",message:"Logout successfully"
           });
        }
        catch(err){
-          //if any internal error occurs it will show error message
           res.status(500).send({message:"Internal Server error",status:"false",data:[]});
-       }    
-         
+       }            
+    })
+ 
+    router.get('/tokenCheck',async(req,res)=>{    
+
+        try{
+            let token=req.headers.authorization;
+            const result= await User.findOne({"token" : token });      
+            if (result){
+                res.status(200).send({ 
+                    status:"true",message:"Token active"
+                   });
+            }
+            else{
+                res.status(500).send({ 
+                    status:"false",message:"Token Inactive"
+                   });
+            }
+       }
+       catch(err){
+          res.status(500).send({message:"Internal Server error",status:"false",data:[]});
+       }            
+    })
+ 
+ router.get('/details',async (req,res) =>{      
+    try{
+            let token=req.headers.authorization;
+            const userData=await User.findOne({"token":token});  
+           res.status(200).send({
+            data:userData,
+           status:"true"
+          });
+       }
+       catch(err){
+          res.status(500).send({message:"Internal Server error",status:"false",data:[]});
+       }            
     })
    
 router.post('/login',async (req,res) =>{
-    
-    console.log(req.body);
+
     try{
+            let cropid=req.body.cropid;
+            let phone=req.body.phone;
+            let email=req.body.email;
+            console.log(email,"email")
+
         //getting email from the database and compare with the given email id
+     
         const userData=await User.findOne({
            email:req.body.email
         });  
-        console.log(userData)
         //if the email id is not present send the error message
-        if(!userData.email)
+        if(!userData.email)  
         {
         return res.status(409).send({message:"Wrong credentials!",status:false})
         }
+    
+
+//        if(phone)
+//         {
+//         const userData=await User.findOne({
+//            mobileNumber:req.body.phone
+//         });  
+//         //if the email id is not present send the error message
+//         if(!userData.mobileNumber)  
+//         {
+//         return res.status(409).send({message:"Wrong credentials!",status:false})
+//         }
+//     }
+
+//     if(cropid)
+//     {
+//     const userData=await User.findOne({
+//         cropid:req.body.cropid
+//     });  
+//     //if the email id is not present send the error message
+//     if(!userData.cropid)  
+//     {
+//     return res.status(409).send({message:"Wrong credentials!",status:false})
+//     }
+// }
         //comparing the password with database password
         const isPasswordValid = await bcrypt.compare(req.body.password, userData.password);
 
@@ -372,12 +453,26 @@ router.post('/login',async (req,res) =>{
         {
             return res.status(409).send({message:"given password not exist"})
         }
+        // if(userData.token!=="null")
+        // {
+        //     return res.status(500).send({message:"You already logged in"})
+        // }
           //jwt joken is created when the email and password r correct so that it will generate the token for that user(email)
-        var userToken =await jwt.sign({email:userData.email},'vigneshraaj');
+            
+          var userToken =await jwt.sign({email:userData.email},'vigneshraaj');
         //   res.header('token',userToken).json(userToken);
-        console.log(userToken)
-        console.log("Data",userData)
-        const result= await User.updateOne({email : userData.email }, {$set: {token : userToken}});      
+
+        //  const token = jwt.sign({email:userData.email}, 'vigneshraaj', { expiresIn: '1h' });
+        //  await Token.insertOne({ token, exp: Math.floor(Date.now() / 1000) + 3600 });
+
+        var method = 0;
+        if(req.body.login_method === 1) {
+            method = 1;
+        }
+        else {
+            method = 2;
+        }
+        const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});      
         res.status(200).send({token:userToken,message:"Login successfull",status:"true",data:{userData}});
 
     }catch(err){
@@ -385,14 +480,7 @@ router.post('/login',async (req,res) =>{
     }
 })
 
-//after login creating the jwt token for valid user
-// const validUser=(req,res,next)=>{
-//     var token=req.header('token');
-//     req.token=token;
-//     next();
-// }
-
-router.put('/forget',async(req,res) =>{
+    router.put('/forget',async(req,res) =>{
 
              let email=req.body.email;
             try{
@@ -403,11 +491,9 @@ router.put('/forget',async(req,res) =>{
                     return res.status(409).send({message:"given email not exist"})
                     }                  
                      //updating the password in the database
-                    var userEmail = req.body.email;
-                    console.log(userEmail);    
+                    var userEmail = req.body.email; 
                     var otp=Math.floor(100000 + Math.random() * 900000)
-                    const result= await Otp.updateOne({email : userEmail }, {$set: {otp : otp}});     
-                    console.log(result);     
+                    const result= await Otp.updateOne({email : userEmail }, {$set: {otp : otp}});         
 
                     const transporter = nodemailer.createTransport({
                         // service: "Gmail",
@@ -427,7 +513,7 @@ router.put('/forget',async(req,res) =>{
                     }
                     transporter.sendMail(mailOptions, (err, result) => {
                         if (err){
-                            console.log(err)
+            
                             res.json('Oops error occurred')
                             res.status(500).send({message:"OTP not sent successfully",status:"false",data:[]});
                         } else{
@@ -449,8 +535,7 @@ router.put('/forgetpassword',async(req,res) =>{
              //updating the password in the database
             const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-            const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});     
-            console.log(result);    
+            const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});        
             res.status(200).send({message:"Password changed Successfully",status:"true",data:[]});
         }               
         catch(err){
@@ -461,29 +546,26 @@ router.put('/forgetpassword',async(req,res) =>{
 
 router.get('/profile',async(req,res) =>{  
 
-    let token=req.headers.authorization
-    console.log("token",token);
-    var base64;
     try{
-        const profile=await User.findOne({"token":token})
-
+        let token=req.headers.authorization
+        var base64;
+        const profile=await User.findOne({token:token})
+    
         if(profile.avatar===null)
         {       
               base64=null;      
-              console.log(base64,"bse")   
         }
         else
         {
             const imageBuffer = fs.readFileSync(profile.avatar)
-            base64 = imageBuffer.toString('base64')  
-            console.log(base64,"base") 
+            base64 = imageBuffer.toString('base64') 
         }     
        
        var details={
         "name":profile.name,
         "mobileNumber":profile.mobileNumber,
         "Email":profile.email,
-        "refercode":profile.referid,
+        "refercode":profile.refercode,
         "dob":profile.dob, 
         "gender":profile.gender, 
         "address":profile.address,
@@ -493,21 +575,20 @@ router.get('/profile',async(req,res) =>{
         "image":base64
 
        }
-         res.status(200).send({profile:details,
+
+         res.status(200).json({"profile":details,
          status:"true",data:[]
         });
      }
 
  catch(err){
-        res.status(500).send({message:"Internal server error",status:"false",data:[]});
+        res.status(500).send({message:"Internal server error",status:"false",data:[err]});
      }    
 })
 
 router.put('/updateprofile',async(req,res) =>{  
 
     let token=req.headers.authorization
-    const date=req.body.dob;
-    console.log(req.body.dob)
     
     try{
           const result= await User.updateOne({"token":token},{$set:{
@@ -519,23 +600,25 @@ router.put('/updateprofile',async(req,res) =>{
              address:req.body.address,
              agegroup:req.body.agegroup,
              loyaltyList:req.body.loyaltyList,
-             interestList:req.body.interestList
+             lastUpdatedDate:Date.now,
+             interestList:req.body.interestList,
+             auditTrail: `${req.body.name} have successfully updated his profile on ${Date.now} `,
+
+            
      }});  
          res.send({message:"Updated successfully",
          status:"true",data:[]
         });
      }catch(err){
-        //if any internal error occurs it will show error message
+
         res.status(500).send({message:"Internal Server error",status:"false",data:[]});
      }    
 })
 router.post('/community',async(req,res)=>{
 
-    console.log(req.body)
     let token=req.headers.authorization
-    console.log(token)
-    let data=await User.findOne({"token":token})
-    console.log(data)
+  
+    // let data=await User.findOne({"token":token})
 
     const updatedata= await User.updateOne({"token": token }, {$set: { mktNotification:req.body.market,
     smsNotification:req.body.sms,
@@ -553,7 +636,7 @@ router.post('/community',async(req,res)=>{
 router.get('/showcommunity',async(req,res)=>{
 
     let token=req.headers.authorization
-    console.log(token)
+   
     const communitydata=await User.findOne({"token":token})
     if(communitydata)
     {
@@ -577,10 +660,6 @@ router.post('/biometric',async(req,res)=>{
 
     const isPasswordValid = await bcrypt.compare(req.body.pin, biometricdata.password);
 
-    // if(terms===false)
-    //    {
-    //     res.status(500).send({message:"check terms and conditions",status:"false"})
-    //    }
 
         if(!isPasswordValid)
         {
@@ -591,7 +670,7 @@ router.post('/biometric',async(req,res)=>{
     const updatebiometric=await User.updateOne({"token": token }, {$set: { biometricterms:req.body.biometric }}); 
 
     const userdata=await User.findOne({"token":token})
-    console.log(userdata)
+
 
         if(userdata.biometricterms===true)
         {
@@ -618,9 +697,9 @@ router.get('/biometricterms',async(req,res)=>{
 router.post('/feedback',async(req,res)=>{
 
     let token=req.headers.authorization;
-    console.log(token);
+    
     let feedback=req.body.feedback;
-    console.log(feedback);
+ 
 
     const updatedata= await User.updateOne({"token": token }, {$set: { feedback:feedback, }}); 
         if(updatedata)
@@ -635,34 +714,37 @@ router.post('/feedback',async(req,res)=>{
 router.put('/levels',async(req,res)=>{
 
     let token=req.headers.authorization
-    console.log(req.headers)
+
     const points=req.body.croppoints;
-    console.log(points,"points");
 
     //Changing levels according to croppoints5
     if(points===0)
     {
-        const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Base" }}); 
+        const updatelevels=await User.updateOne({"token": token },
+         {$set: { UserTier:"Base" ,auditTrail:"The usertier changed to Base"}}); 
         res.send({status:"true"})
-        console.log("base");
+        
     }
     else if(points<=30)
     {
-        const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Silver" }}); 
+        const updatelevels=await User.updateOne({"token": token }, 
+        {$set: { UserTier:"Silver",auditTrail:"The usertier changed to Silver" }}); 
         res.send({status:"true"})
-        console.log("Silver");
+    
     }
    else if(points<=60)
     {
-        const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Gold" }}); 
+        const updatelevels=await User.updateOne({"token": token }, 
+        {$set: { UserTier:"Gold",auditTrail:"The usertier changed to Gold" }}); 
         res.send({status:"true"})
-        console.log("Gold");
+        
     }
-    else if(points<=90)
+    else if(points<=1000)
     {
-        const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Platinum" }}); 
+        const updatelevels=await User.updateOne({"token": token }, 
+        {$set: { UserTier:"Platinum",auditTrail:"The usertier changed to Platinum" }}); 
         res.send({status:"true"})
-        console.log("Platinum");
+     
     }
     // else if(points<=2800)
     // {
@@ -671,14 +753,34 @@ router.put('/levels',async(req,res)=>{
     else {
         const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Diamond" }});
         res.send({status:"true"})
-        console.log("Diamond",token);
+      
       }
+      //comment one the mate website
+})
+//comment on the page
+
+router.post('/newsletter',async(req,res)=>{
+    console.log(req.body.email)
+ 
+    const userdata=await Newsletter.findOne({email:req.body.email});
+
+    if(userdata)
+    {
+        res.status(200).send({message:"The given mail-ID already exist",status:"false"})
+    }
+
+    const user = new Newsletter({   
+        email:req.body.email    
+    }).save();
+    
+    res.status(200).send({message:"Your email is added to newsletter",status:"true"})
+  
 })
 
 router.post('/mate',async(req,res)=>{
+
     let refercode=req.body.refercode;
     let email=req.body.email;
-    console.log(refercode,email);
 
     const userdata=await User.findOne({email:email});
 
@@ -705,7 +807,6 @@ router.post('/mate',async(req,res)=>{
     }
     transporter.sendMail(mailOptions, (err, result) => {
         if (err){
-            console.log(err)
             res.json('Oops error occurred')
             res.status(200).send({message:"Mail sent successfully",status:"true",data:[]});
         } else{          
