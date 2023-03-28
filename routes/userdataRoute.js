@@ -242,9 +242,10 @@ router.post('/emailphoneverify',async(req,res) =>{
 })
 
 router.put('/resetpassword',async(req,res) =>{
-   
+ 
     const newpin = await bcrypt.hash(req.body.newpin.toString(), 10); 
-    let token=req.headers.authorization
+    const token = req.headers?.authorization?.split(" ")?.[1];
+    console.log(token)
 
     let oldpassword=await User.findOne({token:token})
 
@@ -390,6 +391,7 @@ router.post('/promocode',async (req,res) =>{
     })
  
  router.get('/details',async (req,res) =>{      
+
     try{
             let token=req.headers.authorization;
             const userData=await User.findOne({"token":token});  
@@ -402,9 +404,8 @@ router.post('/promocode',async (req,res) =>{
           res.status(500).send({message:"Internal Server error",status:"false",data:[]});
        }            
     })
-   
-router.post('/login',async (req,res) =>{
 
+router.post('/login',async (req,res) =>{
     try{
             let cropid=req.body.cropid;
             let phone=req.body.phone;
@@ -422,7 +423,6 @@ router.post('/login',async (req,res) =>{
         return res.status(409).send({message:"Wrong credentials!",status:false})
         }
     
-
 //        if(phone)
 //         {
 //         const userData=await User.findOne({

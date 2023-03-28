@@ -129,6 +129,7 @@ const UserSchema=new mongoose.Schema({
   notification:{type:Boolean, default:false} , 
   promocode:{type:String,default:null},
   refercode:{type:String,required:true}, 
+  status:{type:String,required:true}, 
   login_method:{type:Number,required:true,default:2},        
 // bioMetricData:{type:Boolean,default:false},
    loyaltyList:{type:Number,default:null},
@@ -162,7 +163,6 @@ const UserSchema=new mongoose.Schema({
  TierChangeDate:{type:Date}, 
  status: { type: String, default:"active" },               
 });
-
 const OtpSchema=new mongoose.Schema({
 email:{type:String},
 otp:{type:Number}
