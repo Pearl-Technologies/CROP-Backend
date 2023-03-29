@@ -9,9 +9,9 @@ const MONGO_URI = process.env.MONGO_URI;
 
 //   const connect = client.db(databasename);
 //   // Connect to collection
-//   const collection = connect.collection("orders_customer");
+//   const collection = connect.collection("products_customers");
 //   // Rename the collection name
-//   collection.rename("orders_customers");
+//   collection.rename("business_products");
 //   console.log("Updation successful");
 // }).catch((err) => {
 //   console.log(err.Message);
