@@ -1,8 +1,6 @@
 // external
 const bodyParser = require('body-parser');
 const express = require("express");
-
-
 const cors = require("cors");
 require("dotenv").config();
 const multer = require("multer")
@@ -48,8 +46,7 @@ app.use("/api/products", productsRoutes);
 // root route
 app.get("/", (req, res) =>
 { 
-  console.log("jhgyfgiyfi");
-  res.send("Apps worked successfullysss");
+  res.send("Apps worked successfully");
 });
 
 
