@@ -47,7 +47,9 @@ app.use("/api/products", productsRoutes);
 
 // root route
 app.get("/", (req, res) =>
-{ res.send("Apps worked successfully");
+{ 
+  console.log("jhgyfgiyfi");
+  res.send("Apps worked successfullysss");
 });
 
 
