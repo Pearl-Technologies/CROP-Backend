@@ -1,4 +1,4 @@
-const AccountBalance = require("../../model/admin/adminAccountBalance");
+const AccountBalance = require("../../models/admin/adminAccountBalance");
 
 const getAccountBalance = async (req, res) => {
   try {

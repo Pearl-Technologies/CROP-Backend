@@ -1,4 +1,4 @@
-const adminBusinessComplain = require("../../model/admin/admin_business_complain");
+const adminBusinessComplain = require("../../models/admin/admin_business_complain");
 
 const createBusinessComplain = async (req, res) => {
   try {

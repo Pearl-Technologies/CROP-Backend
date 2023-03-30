@@ -1,4 +1,4 @@
-const basePrice = require("../../model/admin/basePrice");
+const basePrice = require("../../models/admin/basePrice");
 const { validationResult } = require("express-validator");
 
 const setBasePrice = async (req, res) => {

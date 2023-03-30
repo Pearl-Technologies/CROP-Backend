@@ -1,4 +1,4 @@
-const {adminCustomerSurvey, adminBusinessSurvey} = require("../../model/admin/admin_survey");
+const {adminCustomerSurvey, adminBusinessSurvey} = require("../../models/admin/admin_survey");
 
 const getCustomerSurvey = async (req, res) => {
   try {

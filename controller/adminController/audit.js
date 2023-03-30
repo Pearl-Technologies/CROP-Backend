@@ -1,4 +1,4 @@
-const audit = require("../../model/admin/admin_audit");
+const audit = require("../../models/admin/admin_audit");
 
 const createAudit = async (req, res) => {
   try {

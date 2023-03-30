@@ -1,4 +1,4 @@
-const adminMilestone = require("../../model/admin/admin_milestone");
+const adminMilestone = require("../../models/admin/admin_milestone");
 
 const createMilestoneData = async (req, res) => {
   try {

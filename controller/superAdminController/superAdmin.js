@@ -1,4 +1,4 @@
-const superAdmin = require('../../model/superAdminModel/superAdmin');
+const superAdmin = require('../../models/superAdminModel/superAdmin');
 const {validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
