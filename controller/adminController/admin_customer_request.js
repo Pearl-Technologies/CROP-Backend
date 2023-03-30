@@ -1,4 +1,4 @@
-const adminCustomerRequest = require("../../model/admin/admin_customer_request");
+const adminCustomerRequest = require("../../models/admin/admin_customer_request");
 
 const createCustomerRequest = async (req, res) => {
   try {

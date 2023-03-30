@@ -1,4 +1,4 @@
-const Crop = require("../../model/admin/crop");
+const Crop = require("../../models/admin/crop");
 
 const CropTransaction = async (req, res) => {
   try {

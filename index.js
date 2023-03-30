@@ -19,6 +19,8 @@ const cartRoute=require("./routes/cartRoute");
 const wishlistRoute=require("./routes/wishlistRoute");
 const businessRoutes = require("./routes/business/business");
 const productsRoutes = require("./routes/business/product");
+const admin = require("./routes/admin")
+const superAdmin = require("./routes/superAdmin")
 
 // app init
 const app = express();
@@ -43,6 +45,8 @@ app.use('/api/cart', cartRoute);
 app.use('/api/wishlist', wishlistRoute);
 app.use("/api/business", businessRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/admin", admin);
+app.use("/api/superAdmin", superAdmin);
 
 
 // root route

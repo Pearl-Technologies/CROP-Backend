@@ -1,4 +1,4 @@
-const adminStoreProp = require("../../model/admin/admin_store_props");
+const adminStoreProp = require("../../models/admin/admin_store_props");
 
 const getPropValues = async (req, res) => {
   try {

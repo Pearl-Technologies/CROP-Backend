@@ -1,4 +1,4 @@
-const prop = require("../../model/admin/prop");
+const prop = require("../../models/admin/prop");
 
 const PropTransaction = async (req, res) => {
   try {

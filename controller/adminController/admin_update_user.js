@@ -1,4 +1,4 @@
-const admin = require('../../model/superAdminModel/user');
+const admin = require('../../models/superAdminModel/user');
 const {validationResult } = require("express-validator");
 
 const updateAdminUser = (async(req, res)=>{
