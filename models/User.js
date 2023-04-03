@@ -116,8 +116,10 @@ const UserSchema=new mongoose.Schema({
     
   token:{type:String},
   name: {type:Object,required:true},
+  propid:{type:Number,required:true},
   cropid:{type:Number,required:true},
   croppoints:{type:Number, default:0},
+  proppoints:{type:Number, default:0},
   password: { type: String, required: true },
   mobileNumber:{type:String,default:null},
   email:{type:String,default:null},
@@ -137,13 +139,7 @@ const UserSchema=new mongoose.Schema({
    dob:{type:Date,default:null},  
    agegroup:{type:String,default:null},
    avatar: {type:String,default:null},
-   address:[{address:{
-   line1:{type:String},
-    line2:{type:String},
-   line3:{type:String},
-    state:{type:String},
-    pin:{type:String}
-    }},],
+   address:[{}],
    mktNotification:{type:Boolean, default:true},
    smsNotification:{type:Boolean, default:true},
    emailNotification:{type:Boolean, default:true}, 
@@ -158,6 +154,7 @@ const UserSchema=new mongoose.Schema({
 // likedProduct:Array,
 // newsLetterSubscription:String,
 // productRated:Object,
+
  signUpDate:{type:Date},
  lastUpdatedDate:{type:Date},
  TierChangeDate:{type:Date}, 

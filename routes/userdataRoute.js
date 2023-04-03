@@ -303,12 +303,17 @@ router.post('/signup',async (req,res) =>{
             const referid=shortid.generate();
             //generate unique crop id             
             var crop= await User.findOne().sort({"cropid":-1}).limit(1);
+            var prop= await User.findOne().sort({"propid":-1}).limit(1);
             var result=crop.cropid
-            var cropnumber=result+1;    
+            var cropnumber=result+1;  
+            
+            var results=prop.propid
+            var propnumber=results+1; 
 
             const user = new User({
                 name:req.body.name,
                 cropid:cropnumber,
+                propid:propnumber,
                 password:hashedPassword,
                 mobileNumber:req.body.mobileNumber,
                 email:req.body.email,
