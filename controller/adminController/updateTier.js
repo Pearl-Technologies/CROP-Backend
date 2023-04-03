@@ -1,5 +1,5 @@
-const customer = require("../../model/customerModel/customer");
-const business = require("../../model/businessModel/business");
+const customer = require("../../models/customerModel/customer");
+const business = require("../../models/businessModel/business");
 const updateTier = async (req, res) => {
   try {
     const { _id, type, tier } = req.body;
@@ -27,4 +27,4 @@ const updateTier = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-module.exports = updateTier;
+// module.exports = updateTier;

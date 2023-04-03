@@ -1,4 +1,4 @@
-const adminBusinessRequest = require("../../model/admin/admin_business_request");
+const adminBusinessRequest = require("../../models/admin/admin_business_request");
 
 const createBusinessRequest = async (req, res) => {
   try {

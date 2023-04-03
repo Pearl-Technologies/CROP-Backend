@@ -1,4 +1,4 @@
-const product = require("../../model/businessModel/product");
+const product = require("../../models/businessModel/product");
 const { validationResult } = require("express-validator");
 
 const publishOffer = async (req, res) => {

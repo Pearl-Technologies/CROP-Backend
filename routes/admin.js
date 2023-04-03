@@ -5,7 +5,8 @@ const verifyToken = require("../middleware/verifyToken");
 const {
   adminLogin,
   adminPasswordReset,
-  getAdminData} = require("../controller/superAdminController/user");
+  getAdminData,
+} = require("../controller/superAdminController/user");
 const {
   getAccountBalance,
   updateAccountBalance,
@@ -19,7 +20,7 @@ const {
   PropTransaction,
   GetAllProp,
 } = require("../controller/adminController/prop");
-const updateTier = require("../controller/adminController/updateTier");
+// const updateTier = require("../controller/adminController/updateTier");
 const {
   setBasePrice,
   getBasePrice,
@@ -28,7 +29,7 @@ const {
 const {
   publishOffer,
 } = require("../controller/adminController/publishedOffer");
-const { getAllProducts } = require("../controller/businessController/product");
+// const { getAllProducts } = require("../controller/businessController/product");
 const {
   createAudit,
   getAuditReport,
@@ -74,6 +75,15 @@ const {
   savePropValues,
 } = require("../controller/adminController/admin_store_props");
 const updateAdminUser = require("../controller/adminController/admin_update_user");
+
+//customer 
+const {getAllCustomer, getAllOrders} =require("../controller/adminController/CustomerData/customer");
+
+//
+
+//Business
+const {getAllBusiness} = require("../controller/adminController/BusinessData/business");
+//
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
@@ -90,7 +100,9 @@ const fileFilter = (req, file, cb) => {
     cb(null, false);
   }
 };
-let upload = multer({storage, fileFilter})
+
+
+let upload = multer({ storage, fileFilter });
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -130,9 +142,9 @@ router.post("/updateBasePrice", verifyToken, updateBasePrice);
 router.post("/publishOffer", publishOffer);
 router.post("/getAccountBalance", getAccountBalance);
 router.post("/updateAccountBalance", updateAccountBalance);
-router.post("/updateTier", updateTier);
+// router.post("/updateTier", updateTier);
 router.post("/saveAccountBalance", saveAccountBalance);
-router.post("/getAllProducts", getAllProducts);
+// router.post("/getAllProducts", getAllProducts);
 router.post("/createAudit", createAudit);
 router.post("/getAuditReport", getAuditReport);
 router.post("/createMilestoneData", createMilestoneData);
@@ -160,9 +172,15 @@ router.post("/savePropValues", savePropValues);
 router.post("/updateStoreProp", updateStoreProp);
 router.post("/getPropValues", getPropValues);
 // router.post("/updateAdminUser", verifyToken, updateAdminUser);
-router.route("/updateAdminUser"). post(upload.single('photo'), verifyToken, updateAdminUser);
+// router.route("/updateAdminUser"). post(upload.single('photo'), verifyToken, updateAdminUser);
 router.post("/getAdminData", verifyToken, getAdminData);
+//customer data
+router.post("/getAllCustomer", getAllCustomer)
+router.post("/getAllOrders", getAllOrders)
+//
+//Business data
 
-// router.post("/", (req, res)=>res.send("admin"))
+router.post("/getAllBusiness", getAllBusiness)
+
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const adminDefaultData = require("../../model/admin/admin_default_data");
+const adminDefaultData = require("../../models/admin/admin_default_data");
 
 const createData = async (req, res) => {
   try {
