@@ -62,12 +62,12 @@ router.put("/deleteCart",async(req,res) => {
     let token=req.headers.authorization;
 
     const userData=await User.findOne({"token":token}); 
-    const user_id=userData._id.valueOf()
-  
+    const user=userData._id.valueOf();
+    
     try 
     {
          await Wishlist.updateOne(
-            {user_id: user_id },
+            {user_id: user },
             { $pull: { Wishlist: { _id: product_id } } },
           );
         res.status(200).send({
