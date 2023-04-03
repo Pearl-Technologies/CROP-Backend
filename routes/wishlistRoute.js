@@ -91,8 +91,8 @@ router.get("/getCart",async(req,res) => {
     const user_id=userData._id.valueOf();
      console.log(user_id)
 
-        const newCart = await Wishlist.findOne({user_id:user_id});
-        res.status(200).send({data:newCart.Wishlist,status:"true"})         
+    const newCart = await Wishlist.findOne({user_id:user_id});
+    res.status(200).send({data:newCart.Wishlist,status:"true"})         
        
 });
 

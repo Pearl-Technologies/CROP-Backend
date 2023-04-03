@@ -23,7 +23,7 @@ router.post("/add-all", addAllProducts);
 router.get("/show", getShowingProducts);
 // get discount products
 router.get("/discount", getDiscountProduct);
-router.get("/categoryproducts", getProductsByCatagory);
+router.post("/categoryproducts", getProductsByCatagory);
 router.get("/get-products-by-sub-category/:subCategoryId", getProductsBySubCatagory);
 router.get("/get-all-products-by-business", authorization, getAllProductsByBusiness);
 router.get("/relatedProduct", getRelatedProducts);
