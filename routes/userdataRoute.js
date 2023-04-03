@@ -244,10 +244,10 @@ router.post('/emailphoneverify',async(req,res) =>{
 router.put('/resetpassword',async(req,res) =>{
  
     const newpin = await bcrypt.hash(req.body.newpin.toString(), 10); 
-    const token = req.headers?.authorization?.split(" ")?.[1];
+    const token = req.headers?.authorization
     console.log(token)
 
-    let oldpassword=await User.findOne({token:token})
+    let oldpassword=await User.findOne({"token":token})
 
 
     if(oldpassword.password===req.body.oldpin)
