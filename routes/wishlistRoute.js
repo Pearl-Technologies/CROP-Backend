@@ -5,34 +5,33 @@ const {Product} = require("../models/businessModel/product")
 const {User} = require("../models/User");
 const mongoose = require('mongoose');
 
-
 router.put("/cartdetails",async(req,res) => {
-    try {
+    try 
+    {
         let token=req.headers.authorization;
+
         const userData=await User.findOne({"token":token}); 
-        const user_id=userData._id.valueOf();
+        const user=userData._id.valueOf();
         const products=req.body.products
-        console.log(products)
 
         const userdetails=await Wishlist.findOne({
-            user_id:user_id
+            user_id:user
          });  
 
          if(userdetails)  
          {
-            const result= await Wishlist.updateOne({user_id : user_id }, { $push: { Wishlist: products } });     
-            console.log(result);  
+            const result= await Wishlist.updateOne({user_id : user }, { $push: { Wishlist: products } });     
             return res.status(200).send({status:true})
          }
          else
          {
-            const newCart = new Wishlist({user_id: mongoose.Types.ObjectId(user_id),Wishlist:products});
+            const newCart = new Wishlist({user_id: mongoose.Types.ObjectId(user),Wishlist:products});
             await newCart.save();
             res.status(200).send({
             message:'Wishlist Added Successfully',
             status:"true"
         });             
-         }         
+       }         
     }
     catch(err) {
         res.status(500).send({
@@ -84,14 +83,14 @@ router.put("/deleteCart",async(req,res) => {
         })
     }
 });
+
 router.get("/getCart",async(req,res) => {
+
     let token=req.headers.authorization;
-
     const userData=await User.findOne({"token":token}); 
-    const user_id=userData._id.valueOf();
-     console.log(user_id)
-
-    const newCart = await Wishlist.findOne({user_id:user_id});
+    const user=userData._id.valueOf();
+    const newCart = await Wishlist.findOne({user_id:user});
+    console.log(newCart)
     res.status(200).send({data:newCart.Wishlist,status:"true"})         
        
 });

@@ -30,7 +30,6 @@ router.get("/relatedProduct", getRelatedProducts);
 router.get("/:id", getSingleProduct);
 router.put("/:id", updateProduct);
 
-
 // router.get("/get-products-by-category", getProductsByCatagory);
 
 // router.put("/abc", async (req, res) =>{

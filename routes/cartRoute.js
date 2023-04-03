@@ -56,7 +56,8 @@ router.put("/cartdetails", async (req, res) => {
             await newCart.save();
             res.status(200).send({
                 message: 'Cart Added Successfully',
-                status: "true"
+                status: "true",
+
             });
         }
     }
