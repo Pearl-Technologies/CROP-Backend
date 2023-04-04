@@ -1,6 +1,38 @@
 const {Product} = require("../../models/businessModel/product")
+const {User} = require("../../models/User");
 
 // addAllProducts
+
+module.exports.LikeProduct = async (req,res) => {
+  let token=req.headers.authorization;
+
+  try {
+
+    const result=await User.findOne({"token":token})
+
+    if(result)
+    {
+      const likeProducts = await Product.updateOne( { _id: data }, { $inc: { like: 1 } } )
+      res.status(200).send({
+      message:"U have successfully liked the product",
+      status:true
+    })  
+    }
+    else{
+      res.status(500).send({
+        message:"Invalid credentials",
+      status:false
+      })
+    }
+
+
+  } catch (err) {
+    res.status(500).send({
+      message:"Invalid credentials",
+      status:false
+    })
+  }
+}
 
 module.exports.addProduct = async (req,res) => {
   try {

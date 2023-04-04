@@ -131,7 +131,7 @@ const UserSchema=new mongoose.Schema({
   notification:{type:Boolean, default:false} , 
   promocode:{type:String,default:null},
   refercode:{type:String,required:true}, 
-  status:{type:String,required:true}, 
+  status:{type:Boolean,required:true, default: true}, 
   login_method:{type:Number,required:true,default:2},        
 // bioMetricData:{type:Boolean,default:false},
    loyaltyList:{type:Number,default:null},
@@ -139,7 +139,13 @@ const UserSchema=new mongoose.Schema({
    dob:{type:Date,default:null},  
    agegroup:{type:String,default:null},
    avatar: {type:String,default:null},
-   address:[{}],
+   address:[{address:{
+    line1:{type:String},
+     line2:{type:String},
+    line3:{type:String},
+     state:{type:String},
+     pin:{type:String}
+     }},],
    mktNotification:{type:Boolean, default:true},
    smsNotification:{type:Boolean, default:true},
    emailNotification:{type:Boolean, default:true}, 
@@ -155,9 +161,9 @@ const UserSchema=new mongoose.Schema({
 // newsLetterSubscription:String,
 // productRated:Object,
 
- signUpDate:{type:Date},
- lastUpdatedDate:{type:Date},
- TierChangeDate:{type:Date}, 
+ signUpDate:{type:String},
+ lastUpdatedDate:{type:String},
+ TierChangeDate:{type:String}, 
  status: { type: String, default:"active" },               
 });
 const OtpSchema=new mongoose.Schema({

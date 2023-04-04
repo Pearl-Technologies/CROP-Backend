@@ -61,6 +61,7 @@ const productSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
+
   apply: { type: String, required: true },
   availDate: {
     fromDate: { type: Date },

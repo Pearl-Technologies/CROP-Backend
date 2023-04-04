@@ -11,10 +11,11 @@ const cartSchema = mongoose.Schema({
   },
 
   cart: [{}],
-  statuscode: {
-    type: Number,
-    required: true,
-  },
+
+  // statuscode: {
+  //   type: Number,
+  //   required: true,
+  // },
  
   // user_id:{
   //   type:Number

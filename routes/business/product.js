@@ -9,6 +9,7 @@ const {
   getProductsByCatagory,
   getProductsBySubCatagory,
   updateProduct,
+  LikeProduct,
   getAllProductsByBusiness,
 } = require("../../controller/businessController/product");
 const authorization = require("../../middleware/verifyToken")
@@ -23,6 +24,7 @@ router.post("/add-all", addAllProducts);
 router.get("/show", getShowingProducts);
 // get discount products
 router.get("/discount", getDiscountProduct);
+router.put("/likeproduct,",LikeProduct)
 router.post("/categoryproducts", getProductsByCatagory);
 router.get("/get-products-by-sub-category/:subCategoryId", getProductsBySubCatagory);
 router.get("/get-all-products-by-business", authorization, getAllProductsByBusiness);

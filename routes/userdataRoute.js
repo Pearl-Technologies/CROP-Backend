@@ -245,9 +245,9 @@ router.put('/resetpassword',async(req,res) =>{
  
     const newpin = await bcrypt.hash(req.body.newpin.toString(), 10); 
     const token = req.headers?.authorization
-    console.log(token)
 
     let oldpassword=await User.findOne({"token":token})
+    console.log(oldpassword)
 
 
     if(oldpassword.password===req.body.oldpin)
@@ -273,14 +273,16 @@ router.put('/resetpassword',async(req,res) =>{
 router.post('/signup',async (req,res) =>{
 
      try{       
-       // checking whether the given mail id is exist in database r not
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString();
+
+        // checking whether the given mail id is exist in database r not
         const phoneExist=await User.findOne({mobileNumber:req.body.phone});
         const emailExist=await User.findOne({email:req.body.email});
         if(phoneExist)
         return res.status(409).send({message:"User with given phone number already exist"})
         if(emailExist)
         return res.status(409).send({message:"User with given email already exist"})
-
         //hashing the password
         const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10); 
                
@@ -322,14 +324,13 @@ router.post('/signup',async (req,res) =>{
                 notification:req.body.notification,
                 promocode:req.body.promocode, 
                 refercode:referid,
-                signUpDate:Date.now,
-                auditTrail: `You have successfully  registered ur profile on ${Date.now} `,       
+                signUpDate:formattedDate,
+                auditTrail: `You have successfully registered your profile on ${formattedDate}`,       
             }).save();
          //saving data in the database
          res.send({message:"Register successfully",
-         status:"true",data:{"refercode":referid,"cropid":cropnumber,"croppoints":0}
+         status:"true",data:{"refercode":referid,"cropid":cropnumber,"croppoints":0,"propid":propnumber,}
         });
-
      }catch(err){
      
         //if any internal error occurs it will show error message
@@ -338,8 +339,8 @@ router.post('/signup',async (req,res) =>{
 });
 
 router.post('/promocode',async (req,res) =>{ 
-      var promo=req.body.promo;
 
+      var promo=req.body.promo;
       if(promo==="")
       {
         res.status(200).send({message:"promocode available",status:"true"})
@@ -355,10 +356,8 @@ router.post('/promocode',async (req,res) =>{
     {
         res.status(500).send({message:"promocode not available",status:"false"})
     }
-}
+  }
     })
-
-
 
  router.put('/logout',async(req,res)=>{
         
@@ -540,7 +539,8 @@ router.put('/forgetpassword',async(req,res) =>{
              //updating the password in the database
             const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-            const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});        
+            const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});  
+
             res.status(200).send({message:"Password changed Successfully",status:"true",data:[]});
         }               
         catch(err){
@@ -554,7 +554,7 @@ router.get('/profile',async(req,res) =>{
     try{
         let token=req.headers.authorization
         var base64;
-        const profile=await User.findOne({token:token})
+        const profile=await User.findOne({"token":token})
     
         if(profile.avatar===null)
         {       
@@ -565,7 +565,7 @@ router.get('/profile',async(req,res) =>{
             const imageBuffer = fs.readFileSync(profile.avatar)
             base64 = imageBuffer.toString('base64') 
         }     
-       
+             
        var details={
         "name":profile.name,
         "mobileNumber":profile.mobileNumber,
@@ -594,6 +594,8 @@ router.get('/profile',async(req,res) =>{
 router.put('/updateprofile',async(req,res) =>{  
 
     let token=req.headers.authorization
+    const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString();
     
     try{
           const result= await User.updateOne({"token":token},{$set:{
@@ -605,11 +607,10 @@ router.put('/updateprofile',async(req,res) =>{
              address:req.body.address,
              agegroup:req.body.agegroup,
              loyaltyList:req.body.loyaltyList,
-             lastUpdatedDate:Date.now,
+             lastUpdatedDate:formattedDate,
              interestList:req.body.interestList,
-             auditTrail: `${req.body.name} have successfully updated his profile on ${Date.now} `,
-
-            
+             auditTrail: `${req.body.name} have successfully updated his profile on ${formattedDate} `,
+           
      }});  
          res.send({message:"Updated successfully",
          status:"true",data:[]
@@ -722,32 +723,35 @@ router.put('/levels',async(req,res)=>{
 
     const points=req.body.croppoints;
 
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString();
+
     //Changing levels according to croppoints5
     if(points===0)
     {
         const updatelevels=await User.updateOne({"token": token },
-         {$set: { UserTier:"Base" ,auditTrail:"The usertier changed to Base"}}); 
+         {$set: { UserTier:"Base" ,auditTrail:`The usertier changed to Base on ${formattedDate}`}}); 
         res.send({status:"true"})
         
     }
     else if(points<=30)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Silver",auditTrail:"The usertier changed to Silver" }}); 
+        {$set: { UserTier:"Silver",auditTrail:`The usertier changed to Silver on ${formattedDate}` }}); 
         res.send({status:"true"})
     
     }
    else if(points<=60)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Gold",auditTrail:"The usertier changed to Gold" }}); 
+        {$set: { UserTier:"Gold",auditTrail:`The usertier changed to Gold on ${formattedDate}` }}); 
         res.send({status:"true"})
         
     }
     else if(points<=1000)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Platinum",auditTrail:"The usertier changed to Platinum" }}); 
+        {$set: { UserTier:"Platinum",auditTrail:`The usertier changed to Platinum on ${formattedDate}` }}); 
         res.send({status:"true"})
      
     }
@@ -756,7 +760,8 @@ router.put('/levels',async(req,res)=>{
     //     const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Diamond" }});
     //     res.send({status:"true"})
     else {
-        const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Diamond" }});
+        const updatelevels=await User.updateOne({"token": token }, 
+        {$set: { UserTier:"Diamond",auditTrail:`The usertier changed to Diamond on ${formattedDate}` }});
         res.send({status:"true"})
       
       }

@@ -10,6 +10,6 @@ const verifyToken = require('../middleware/verifyToken');
 router.get('/:id', userOrderController.getOrderById);
 
 //get all order by a user
-router.get('/',verifyToken, userOrderController.getOrderByUser);
+router.post('/',verifyToken, userOrderController.getOrderByUser);
 
 module.exports = router;
