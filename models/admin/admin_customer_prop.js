@@ -7,6 +7,7 @@ const adminCustomerProp = mongoose.model("admin_customer_prop", {
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users_customers",
+    required:true
   },
 });
 

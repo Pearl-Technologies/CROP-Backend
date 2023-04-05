@@ -3,10 +3,13 @@ const admin = mongoose.model('Admin_admin', {
     name: {type:String, required:true},
     email:{type:String, required:true, unique:true},
     password:{type:String, required:true},
-    imageUrl:{type:String},
-    birthDate:{type:String},
-    agegroup:{type:String},
-    gender:{type:String},
+    imageUrl:	{
+      data: {type:Buffer, default:""}, 
+      contentType: {type:String, default:""}
+    },
+    birthDate:{type:String, defalut:""},
+    gender:{type:String, default:""},
+    phone:{type:Number, default:null},
     invoiceCycle: {type:String, default: "N"},
     businessTier: {type:String, default: "N"},
     customerTier: {type:String, default: "N"},

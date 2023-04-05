@@ -8,7 +8,7 @@ const setBasePrice = async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
   try {
-    const { daily, weekly, monthly, top_offers, 
+    const { weekday, weekend, publicHoliday, weekly, monthly, top_offers, 
       top_promo,
       top_storeOffer,
       massNotification,
@@ -17,8 +17,8 @@ const setBasePrice = async (req, res) => {
       earnPropValuation,
       redeemCropValuation,
       redeemPropValuation,
-      purchasePropValuation } = req.body;
-      const user = req.user.user.id
+      purchasePropValuation, user } = req.body;
+      // const user = req.user.user.id
     //create a new user
     let findBasePrice = await basePrice.find({});
 
@@ -26,7 +26,9 @@ const setBasePrice = async (req, res) => {
       return res.status(400).json({ success: false, message: "base price is already exist plese update" });
     }
     await basePrice.create({
-      daily,
+      weekday, 
+      weekend, 
+      publicHoliday,
       weekly,
       monthly,
       top_offers,
@@ -75,8 +77,8 @@ const updateBasePrice = async (req, res) => {
   console.log(req.body);
 
   try {
-    const { _id, daily, weekly, monthly, top_offers, top_promo, top_storeOffer, massNotification, surveyDesign, earnCropValuation, earnPropValuation, redeemCropValuation, redeemPropValuation, purchasePropValuation } = req.body;
-    let user = req.user.user.id;
+    const { _id, weekday, weekend, publicHoliday, weekly, monthly, top_offers, top_promo, top_storeOffer, massNotification, surveyDesign, earnCropValuation, earnPropValuation, redeemCropValuation, redeemPropValuation, purchasePropValuation, user } = req.body;
+    // let user = req.user.user.id;
     
     let findBasePrice = await basePrice.findOne({_id});
   
@@ -84,8 +86,14 @@ const updateBasePrice = async (req, res) => {
       return res.status(400).json({ success: false, message: "base price is not exist plese set One" });
     }
     const newData = {};
-    if (daily) {
-      newData.daily = daily;
+    if (weekday) {
+      newData.weekday = weekday;
+    }
+    if (weekend) {
+      newData.weekend = weekend;
+    }
+    if (publicHoliday) {
+      newData.publicHoliday = publicHoliday;
     }
     if (weekly) {
       newData.weekly = weekly;

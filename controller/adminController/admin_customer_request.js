@@ -32,29 +32,22 @@ const getCustomerRequest = async (req, res) => {
   }
 };
 const updateCustomerRequest = async (req, res) => {
-const {_id, description, expectedOutcoms, requestType, preferredMediumContact, requestNumber } = req.body();
+const {_id, requestStatus, requestResponse } = req.body;
   try {
     let newData = {};
-    if(description){
-      newData.description = description;
+    if(requestStatus){
+      newData.requestStatus = requestStatus;
     }
-    if(expectedOutcoms){
-      newData.expectedOutcoms = expectedOutcoms;
+    if(requestResponse){
+      newData.requestResponse = requestResponse;
     }
-    if(requestType){
-      newData.requestType = requestType;
-    }
-    if(preferredMediumContact){
-      newData.preferredMediumContact = preferredMediumContact;
-    }
-    if(requestNumber){
-      newData.requestNumber = requestNumber;
-    }
+    newData.requestUpdateDate = Date.now()
+    
     const findComplain = await adminCustomerRequest.findOne({_id})
-    if(!findComplain.length){
+    if(!findComplain){
       return res.status('400').send("sorry no record found")
     }
-    const updateRequest = await adminCustomerRequest.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
+    await adminCustomerRequest.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
     res.json({ success: true, message:"updated" });
   } catch (error) {
     console.error(error.message);

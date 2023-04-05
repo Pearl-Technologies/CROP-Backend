@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const basePrice = mongoose.model("Admin_basePrice", {
-  daily: { type: Number, required: true },
+  weekday: { type: Number, required: true },
+  weekend: { type: Number, required: true },
+  publicHoliday: { type: Number, required: true },
   weekly: { type: Number, required: true },
   monthly: { type: Number, required: true },
   top_offers:{ type: Number, required: true },

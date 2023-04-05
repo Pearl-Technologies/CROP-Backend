@@ -2,7 +2,7 @@ const admin = require('../../models/superAdminModel/user');
 const {validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = 'crop@12345'
+const JWT_SECRET = 'vigneshraaj'
 const createAdmin = (async(req, res)=>{
     const errors = validationResult(req);
     let success = false;
