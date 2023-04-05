@@ -7,6 +7,7 @@ const adminCustomerCrop = mongoose.model("admin_customer_crop", {
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users_customers",
+    required:true
   },
 });
 

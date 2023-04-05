@@ -1,36 +1,49 @@
 const admin = require('../../models/superAdminModel/user');
-const {validationResult } = require("express-validator");
+
+const multer = require("multer");
+var fs = require('fs');
+var path = require('path');
+
+let storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, 'uploads')
+	},
+	filename: (req, file, cb) => {
+    console.log(file);
+		cb(null, file.fieldname + '-' + Date.now())
+	}
+});
+
+var upload = multer({ storage: storage });
 
 const updateAdminUser = (async(req, res)=>{
-    const errors = validationResult(req);
-    let success = false;
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
-// console.log(req.body);
+
 try {
-    const {name, email, birthDate, agegroup, gender} = req.body;
-    const imageUrl  = req.body.photo
+    const {name, birthDate, agegroup, gender} = req.body;
+
+    const imageUrl = {
+			data: req.files[0]?.buffer,
+			contentType: req.files[0]?.mimetype
+		}
+
     const id=req.user.user.id;
-    const newRights = {};
+    const newData = {};
     if (name) {
-        newRights.name = name;
-    }
-    if (email) {
-        newRights.email = email;
+        newData.name = name;
     }
     if (imageUrl) {
-        newRights.imageUrl = imageUrl;
+        newData.imageUrl = imageUrl;
     }
     if (agegroup) {
-        newRights.agegroup = agegroup;
+        newData.agegroup = agegroup;
     }
     if (birthDate) {
-        newRights.birthDate = birthDate;
+        newData.birthDate = birthDate;
     }
     if (gender) {
-        newRights.gender = gender;
+        newData.gender = gender;
     }  
+   
     //find the note to be updated and update
     let user = await admin.findById(id);
     if (!user) {
@@ -39,7 +52,8 @@ try {
     // if (notes.user.toString() !== req.user.id) {
     //   return res.status(404).send("Not Allowed");
     // }
-    user = await admin.findByIdAndUpdate(id, { $set: newRights }, { new: true });
+    // return res.json(newData);
+    user = await admin.findByIdAndUpdate(id, { $set: newData }, { new: true });
     res.json("records updated");
   } catch (error) {
     console.error(error.message);

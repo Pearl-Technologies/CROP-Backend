@@ -23,6 +23,7 @@ const superAdmin = require("./routes/superAdmin")
 // app init
 const app = express();
 // middleware
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
 app.use(cors());

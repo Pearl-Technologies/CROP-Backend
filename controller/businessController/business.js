@@ -414,5 +414,17 @@ const getProfile = async(req, res) => {
     console.log(error);
   }
 }
+const updateBusinessAccountStatus=async(req, res)=>{
+  try {
+    const {_id, status}=req.body;
+    const findAccount = await business.findOne({_id});
+    if(findAccount){
+      return res.status(400).send("no data found");
+    }
+    await business.findByIdAndUpdate({_id}, {$set:{status}}, {new:true});
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 module.exports = { registrationOTP, verifyBusiness, resendOtp, createBusinessUser, BusinessLogin, getAllBusiness, getAllBusinessCrop, getAllBusinessProp, saveBusinessCrop, saveBusinessProp, getProfile }

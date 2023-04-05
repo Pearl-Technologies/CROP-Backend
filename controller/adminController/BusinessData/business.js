@@ -12,7 +12,8 @@ const getAllBusiness = async (req, res) => {
 
 const businessCrop = async(req, res)=>{
   try {
-    const {type, description, user, crop}=req.body;
+    const {type, description, crop}=req.body;
+    let user = req.user.user.id;
     if(type == "credit"){
       await adminBusinessCrop.create({
         credit:crop,
@@ -36,5 +37,27 @@ const businessCrop = async(req, res)=>{
     res.status(500).send("Internal Server Error");
   }
 }
+const getAllBusinessCrop = async(req, res)=>{
+  try {
+      let cropDetails = await adminBusinessCrop.find({})
+      res.status(201).json({cropDetails});
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+}
+const updateBusinessAccountStatus=async(req, res)=>{
+  try {
+    const {_id, status}=req.body;
+    console.log(req.body);
+    const findAccount = await business.findOne({_id});
+    if(!findAccount){
+      return res.status(400).send("no data found");
+    }
+    await business.findByIdAndUpdate({_id}, {$set:{status}}, {new:true});
+  } catch (error) {
+    console.log(error);
+  }
+}
 
-module.exports = {getAllBusiness, businessCrop}
+module.exports = {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus}
