@@ -1,21 +1,31 @@
-const admin = require('../../models/superAdminModel/user');
-const {validationResult } = require("express-validator");
+const admin = require("../../models/superAdminModel/user");
+const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = 'vigneshraaj'
-const createAdmin = (async(req, res)=>{
-    const errors = validationResult(req);
-    let success = false;
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }    
-try {
-    if(req.body.password !== req.body.c_password){
-        return res.status(400).json({ success: false, error: "password and confirm password is not matching" });
+const JWT_SECRET = "vigneshraaj";
+const createAdmin = async (req, res) => {
+  const errors = validationResult(req);
+  let success = false;
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+  try {
+    if (req.body.password !== req.body.c_password) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "password and confirm password is not matching",
+        });
     }
     let user = await admin.findOne({ email: req.body.email });
     if (user) {
-      return res.status(400).json({ success: false, error: "Sorry a user with this email already exits" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Sorry a user with this email already exits",
+        });
     }
 
     //secure password by bcrypt
@@ -29,7 +39,7 @@ try {
       password: secPass,
     });
     success = true;
-    let message="admin user created successfully"
+    let message = "admin user created successfully";
     res.json({ success, message });
     // res.json(user);
   } catch (error) {
@@ -38,121 +48,129 @@ try {
     //for log in response
     res.status(500).send("Some Error Occured");
   }
-})
-const adminLogin = (async(req, res)=>{
-    const errors = validationResult(req);
-    let success = false;
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
+};
+const adminLogin = async (req, res) => {
+  let errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    return res.status(401).send(errors);
+  }
 
-    const { email, password } = req.body;  
-    try {
-      //finding users with email id
-      let adminUser = await admin.findOne({ email });
-  
-      if (!adminUser) {
-        success = false;
-        return res.status(400).json({ error: "Please try to login with correct credentials" });
-      }
-      //compare password by bcrypt
-      const passwordCompare = await bcrypt.compare(password, adminUser.password);
-      if (!passwordCompare) {
-        success = false;
-        return res.status(400).json({ success, error: "Please try to login with correct credentials" });
-      }
-  
-      const data = {
-        user: {
-          id: adminUser.id,
-        },
-      };
-      
-      const authtoken = jwt.sign(data, JWT_SECRET);
-      success = true;
-      const accessToken=authtoken;
-      const user = email;
-      const auth = {accessToken, user}
-      res.send(auth);
-      // res.json(user);
-    } catch (error) {
-      //for log in console
-      console.error(error.message);
-      //for log in response
-      res.status(500).send("Internal Sever Error Occured");
+  const { email, password } = req.body;
+  try {
+    //finding users with email id
+    let adminUser = await admin.findOne({ email });
+    if (!adminUser) {
+      errors=[{msg: "Please try to login with correct credentials"}] 
+      return res
+        .status(404)
+        .json({ errors });
     }
-})
-const adminPasswordReset = (async(req, res)=>{
-    const errors = validationResult(req);
-    let success = false;
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
+    //compare password by bcrypt
+    const passwordCompare = await bcrypt.compare(password, adminUser.password);
+    if (!passwordCompare) {
+      errors=[{msg: "Please try to login with correct credentials"}]
+      return res
+        .status(401)
+        .json({errors});
     }
-    
-    const { email, password, c_password } = req.body;  
-    try {
-      //finding users with email id
-      if(password !== c_password){
-        return res.status(400).json({ error: "confirmation password is not matching" });
-      }
-      let adminUser = await admin.findOne({ email });
-      if (!adminUser) {
-        success = false;
-        return res.status(400).json({ error: "user not found" });
-      }
+    const data = {
+      user: {
+        id: adminUser.id,
+      },
+    };
+    const authtoken = jwt.sign(data, JWT_SECRET);
+    const accessToken = authtoken;
+    const user = email;
+    const auth = { accessToken, user };
+    res.status(200).send(auth);
+  } catch (error) {
+    //for log in console
+    console.error(error.message);
+    //for log in response
+    res.status(500).send("Internal Sever Error Occured");
+  }
+};
+const adminPasswordReset = async (req, res) => {
+  const errors = validationResult(req);
+  let success = false;
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const { email, password, c_password } = req.body;
+  try {
+    //finding users with email id
+    if (password !== c_password) {
+      return res
+        .status(400)
+        .json({ error: "confirmation password is not matching" });
+    }
+    let adminUser = await admin.findOne({ email });
+    if (!adminUser) {
+      success = false;
+      return res.status(400).json({ error: "user not found" });
+    }
     //secure password by bcrypt
     const salt = await bcrypt.genSalt(10);
-    secPass = await bcrypt.hash(req.body.password, salt); 
-      adminUser = await admin.updateOne({email: email}, {$set:{password: secPass}})
-      const data = {
-        user: {
-          id: adminUser.id,
-        },
-      };
-      const authtoken = jwt.sign(data, JWT_SECRET);
-      success = true;
-      // const accessToken=authtoken;
-      // const user = email;
-      const auth = {message:"password reset success"}
-      res.send(auth);
-      // res.json(user);
-    } catch (error) {
-      //for log in console
-      console.error(error.message);
-      //for log in response
-      res.status(500).send("Internal Sever Error Occured");
-    }
-})
+    secPass = await bcrypt.hash(req.body.password, salt);
+    adminUser = await admin.updateOne(
+      { email: email },
+      { $set: { password: secPass } }
+    );
+    const data = {
+      user: {
+        id: adminUser.id,
+      },
+    };
+    const authtoken = jwt.sign(data, JWT_SECRET);
+    success = true;
+    // const accessToken=authtoken;
+    // const user = email;
+    const auth = { message: "password reset success" };
+    res.send(auth);
+    // res.json(user);
+  } catch (error) {
+    //for log in console
+    console.error(error.message);
+    //for log in response
+    res.status(500).send("Internal Sever Error Occured");
+  }
+};
 
-const getAllAdmin = (async(req, res)=>{
-    let success = false;  
-    try {
-      //finding users with email id
-      let user = await admin.find().select("-password");
-      success = true;
-      res.json({ success, user });
-      // res.json(user);
-    } catch (error) {
-      //for log in console
-      console.error(error.message);
-      //for log in response
-      res.status(500).send("Internal Sever Error Occured");
-    }
-})
-const getAdminData = (async(req, res)=>{
-    let success = false;  
-    try {
-      //finding users with email id
-      let id=req.user.user.id;
-      let user = await admin.find({_id:id}).select("-password");
-      success = true;
-      res.json({ success, user });
-      // res.json(user);
-    } catch (error) {
-      //for log in console
-      console.error(error.message);
-      //for log in response
-      res.status(500).send("Internal Sever Error Occured");
-    }
-})
-module.exports = {createAdmin, adminLogin, getAllAdmin, adminPasswordReset, getAdminData};
+const getAllAdmin = async (req, res) => {
+  let success = false;
+  try {
+    //finding users with email id
+    let user = await admin.find().select("-password");
+    success = true;
+    res.json({ success, user });
+    // res.json(user);
+  } catch (error) {
+    //for log in console
+    console.error(error.message);
+    //for log in response
+    res.status(500).send("Internal Sever Error Occured");
+  }
+};
+const getAdminData = async (req, res) => {
+  try {
+    //finding users with email id
+    let id = req.user.user.id;
+    let user = await admin.find({}, {name: 1, email: 1, phone:1, gender:1, birthDate:1});
+    res.status(200).json({ user });
+    // res.json(user);
+  } catch (error) {
+    //for log in console
+    console.error(error.message);
+    //for log in response
+    res.status(500).send("Internal Sever Error Occured");
+  }
+};
+module.exports = {
+  createAdmin,
+  adminLogin,
+  getAllAdmin,
+  adminPasswordReset,
+  getAdminData,
+};

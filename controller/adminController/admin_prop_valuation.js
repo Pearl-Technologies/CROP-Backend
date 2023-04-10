@@ -32,7 +32,7 @@ const updatePropValuation = async(req, res)=>{
         let findRecord = await adminPropValuation.findOne({_id});
         
         if(!findRecord){
-            return res.status(400).send("sorry, no record found");
+            return res.status(204).json({msg:"sorry, no record found"});
         }
         let newData = {};
         if(defaultProp){
@@ -42,13 +42,13 @@ const updatePropValuation = async(req, res)=>{
             newData.purchaseProp = purchaseProp;
         }
         if(findRecord.user.toString() !== user){
-            return res.status(400).send("sorry, you are not authorise");    
+            return res.status(401).json({msg: "sorry, you are not authorise"});    
         }
         await adminPropValuation.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-        res.status(200).send("updated");
+        res.status(202).send({msg:"updated"});
     }catch (error) {
         console.log(error.message);
-        res.status(500).send("internal error");
+        res.status(500).json({msg:"internal error"});
     }   
 }
 module.exports = {getPropValuation, createPropValuation, updatePropValuation};
