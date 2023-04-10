@@ -46,7 +46,7 @@ const businessSchema = mongoose.Schema(
     cropId: { type: String, unique: true },
     Tier: { type: String, default: "base" },
     promoCode: { type: String, default: "" },
-    refferalCode: { type: String, unique: true },
+    refferalCode: { type: String },
     TierChangeDate: { type: Date, default: Date.now },
     terms: { type: Boolean },
     bio: { type: Boolean, default: false },

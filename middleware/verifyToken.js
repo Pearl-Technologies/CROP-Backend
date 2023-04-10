@@ -9,30 +9,28 @@ const { promisify } = require("util");
 
 module.exports = async (req, res, next) => {
   try {
-    
-    //const token = req.headers?.authorization?.split(" ")?.[1];
-      const token=req.headers.authorization;
+    const token = req.headers?.authorization?.split(" ")?.[1]
+    // const token = req.headers.authorization
 
     // console.log(token,"token")
 
-    if(!token){
+    if (!token) {
       return res.status(401).json({
         status: "fail",
-        error: "You are not logged in"
-      });
+        error: "You are not logged in",
+      })
     }
-    
 
-    const decoded = await promisify(jwt.verify)(token, "vigneshraaj");
-    // console.log(decoded,"decoded")
+    console.log(token)
+
+    const decoded = await promisify(jwt.verify)(token, "crop@12345")
+    // console.log(decoded, "decoded")
 
     // const user = User.findOne({ email: decoded.email })
 
-    req.user = decoded;
+    req.user = decoded
 
-    next();
-
-
+    next()
   } catch (error) {
     res.status(403).json({
       status: "fail",
