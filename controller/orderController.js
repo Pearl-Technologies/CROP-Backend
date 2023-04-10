@@ -46,17 +46,19 @@ module.exports.addOrder = async (req, res) => {
         _id: userid       
       });
 
-      const points= userData.croppoints + croppoints;
+    const points= userData.croppoints + croppoints;
 
     const result=await User.updateOne({_id: userid }, {$set: { croppoints:points }});
     const results=await User.updateOne({_id: userid }, {$push: { auditTrail:`The order is conformed` }});
+
     const order = await newOrders.save();
     res.status(200).send({
       success: true,
       message: "Order added successfully",
       order: order,
     });
-  } catch (error) {
+  } 
+  catch (error) {
     console.log(error);
   }
 };
