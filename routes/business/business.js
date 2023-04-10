@@ -1,49 +1,81 @@
-const express = require("express");
-const router = express.Router();
-const { body } = require("express-validator");
-const {getAllBusinessCrop, getAllBusinessProp, saveBusinessCrop, saveBusinessProp, registrationOTP, verifyBusiness, resendOtp, getProfile} = require("../../controller/businessController/business.js")
-const {createOffer, updateOffer, getAlloffers, removeOffer} = require("../../controller/businessController/product")
-const {BusinessLogin, createBusinessUser, getAllBusiness} = require("../../controller/businessController/business");
+const express = require("express")
+const {
+  emailRegisterOtp,
+  verifyRegisterOtp,
+  verifyAdbnNumber,
+  createBusinessAccount,
+  businessLogin,
+  getBusinessProfile,
+  getUserCropDetails,
+  forgetPassword,
+  validateForgetOtp,
+  resetPassword,
+  pinChange,
+} = require("../../controller/businessController/business.js")
+const {
+  getAllBusinessCrop,
+  saveBusinessCrop,
+  saveBusinessProp,
+  resendOtp,
+  getAllBusiness,
+} = require("../../controller/businessController/business")
+const authorization = require("../../middleware/verifyToken")
 
-const authorization = require("../../middleware/verifyToken");
-const { createServices, getService } = require("../../controller/businessController/services");
-const { createOrUpdateCropRules, getCropRules, createOrUpdateExtendBonusCrops, getExtendBonusCrops, createOrUpdateSlashRedeemptionCrops, getSlashRedemptionCrop, createOrUpdateHappyHours, getHappyHours } = require("../../controller/businessController/crop");
+const router = express.Router()
+const {
+  createServices,
+  getService,
+} = require("../../controller/businessController/services")
+const {
+  createOrUpdateCropRules,
+  getCropRules,
+  createOrUpdateExtendBonusCrops,
+  getExtendBonusCrops,
+  createOrUpdateSlashRedeemptionCrops,
+  getSlashRedemptionCrop,
+  createOrUpdateHappyHours,
+  getHappyHours,
+  createOrUpdateOtherServices,
+  getOtherServices,
+} = require("../../controller/businessController/crop")
 
-// const { customerLogin, createCustomer, getAllCustomer } = require("../controller/customerController/customer");
+router.post("/email-register-otp", emailRegisterOtp)
+router.post("/verify-register-otp", verifyRegisterOtp)
+router.post("/verify-abn-number", verifyAdbnNumber)
+router.post("/signup", createBusinessAccount)
+router.get("/get-profile", authorization, getBusinessProfile)
+router.post("/signin", businessLogin)
+router.post("/forget-password", forgetPassword)
+router.post("/verify-forget-otp", validateForgetOtp)
+router.post("/reset-password", resetPassword)
+router.post("/pin-change", pinChange)
 
-router.post('/emailphone', registrationOTP)
-router.post('/emailphoneverify', verifyBusiness);
-router.post('/resendotp', resendOtp);
-router.post("/businessSignup", createBusinessUser);
+router.post("/getAllBusiness", getAllBusiness)
+router.post("/getAllBusinessCrop", getAllBusinessCrop)
+router.post("/saveCrop", saveBusinessCrop)
+router.post("/saveProp", saveBusinessProp)
 
-router.post("/businessLogin", BusinessLogin);
-router.get("/get-profile", authorization, getProfile)
+router.post("/services", authorization, createServices)
+router.get("/services", authorization, getService)
 
-router.post("/getAllBusiness", getAllBusiness);
-router.post("/getAllBusinessCrop", getAllBusinessCrop);
-router.post("/getAllBusinessProp", getAllBusinessProp);
-router.post("/saveCrop", saveBusinessCrop);
-router.post("/saveProp", saveBusinessProp);
-// router.post("/createOffer", createOffer);
-// router.post("/updateOffer", updateOffer);
-// router.post("/getAllOffers", getAlloffers);
-// router.post("/removeOffer",  removeOffer);
+router.get("/extend-crop-bonus", authorization, getExtendBonusCrops)
+router.post("/extend-crop-bonus", authorization, createOrUpdateExtendBonusCrops)
 
-router.post("/services", authorization, createServices);
-router.get("/services", authorization, getService);
+router.post("/crop-rules", authorization, createOrUpdateCropRules)
+router.get("/crop-rules", authorization, getCropRules)
 
-router.get("/extend-crop-bonus", authorization, getExtendBonusCrops);
-router.post("/extend-crop-bonus", authorization, createOrUpdateExtendBonusCrops);
+router.post(
+  "/slash-redemption-crop",
+  authorization,
+  createOrUpdateSlashRedeemptionCrops
+)
+router.get("/slash-redemption-crop", authorization, getSlashRedemptionCrop)
 
-router.post("/crop-rules", authorization, createOrUpdateCropRules);
-router.get("/crop-rules", authorization, getCropRules);
+router.post("/happy-hours", authorization, createOrUpdateHappyHours)
+router.get("/happy-hours", authorization, getHappyHours)
 
-router.post("/slash-redemption-crop", authorization, createOrUpdateSlashRedeemptionCrops);
-router.get("/slash-redemption-crop", authorization, getSlashRedemptionCrop);
+router.post("/other-services", authorization, createOrUpdateOtherServices)
+router.get("/other-services", authorization, getOtherServices)
+router.get("/get-user-crop-details/:email", authorization, getUserCropDetails)
 
-router.post("/happy-hours", authorization, createOrUpdateHappyHours);
-router.get("/happy-hours", authorization, getHappyHours);
-
-module.exports = router;
-
-
+module.exports = router

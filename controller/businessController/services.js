@@ -9,12 +9,14 @@ const createServices = async (req, res) => {
     if (serviceFind.length <= 0) {
       const service = new businessServices(req.body);
       await service.save();
+      console.log("create service", service)
       return res.status(200).json({ service });
     } else {
       const service = await businessServices.findByIdAndUpdate(
         { _id: serviceFind[0]._id },
         req.body
-      );
+        );
+        console.log("create service", service)
       return res.status(201).json({ service });
     }
   } catch (error) {
@@ -27,7 +29,7 @@ const getService = async (req, res) => {
   const businessId = req.user.user.id;
   try {
     const serviceFind = await businessServices.find({ businessId });
-    return res.json({ serviceFind });
+    return res.json({ services: serviceFind });
   } catch (error) {
     console.log("err start", error, "error end");
     res.status(500).send("Internal Sever Error Occured");

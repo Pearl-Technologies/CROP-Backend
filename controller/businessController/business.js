@@ -1,430 +1,592 @@
-const business = require('../../models/businessModel/business');
-const businessCrop = require('../../models/businessModel/businessCrop');
-const businessProp = require('../../models/businessModel/businessProp');
-const businessNotification = require('../../models/businessModel/businessNotification');
-const { validationResult } = require("express-validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const nodemailer = require('nodemailer');
-const { Otp } = require('../../models/User');
-const JWT_SECRET = 'crop@12345'
+const business = require("../../models/businessModel/business")
+const businessCrop = require("../../models/businessModel/businessCrop")
+const businessProp = require("../../models/businessModel/businessProp")
+const businessNotification = require("../../models/businessModel/businessNotification")
+const { validationResult } = require("express-validator")
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+const nodemailer = require("nodemailer")
+const { Otp } = require("../../models/businessModel/Otp")
+const { sendMail } = require("../../utils/sendMail")
+const { User } = require("../../models/User")
+const Order = require("../../models/Order")
+const JWT_SECRET = "crop@12345"
 
-const registrationOTP = async (req, res) => {
-  const { mobile, email } = req.body;
-  const phone = mobile;
+const emailRegisterOtp = async (req, res) => {
+  const { email } = req.body
   try {
-    if (!phone && !email) {
-      return res.status(409).send({ message: "Email or Phone Number Required", status: false })
+    const businessFind = await business.find({ email })
+    if (businessFind.length > 0) {
+      return res
+        .status(409)
+        .send({ success: false, msg: "Email Already Exist" })
     }
-    console.log(phone, email)
+    const subject = "Crop Business Account Registration OTP"
+    const msg = "Registration OTP"
+    const resMsg = "OTP Sent Successfully"
+    const otpType = "Business Registration"
+    const userType = "Business"
+    return sendMail(email, subject, msg, resMsg, otpType, userType, res)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
 
-    var bool1 = 0;
-    var bool2 = 0;
-
-    if (email === "") {
-      bool1 = 1;
+const verifyRegisterOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body
+    const otpFind = await Otp.find({ email }).sort({ _id: -1 }).limit(1)
+    console.log({ otpFind })
+    if (otpFind.length < 1) {
+      return res.status(500).send({ success: false, msg: "OTP Not Found" })
     }
-    if (phone === "") {
-      bool2 = 1;
+    if (otpFind[0].verified) {
+      return res.status(500).send({ success: false, msg: "OTP Already Used" })
     }
-    if (bool2 === 0) {
-      const phoneExist = await business.findOne({ mobileNumber: phone });
-      if (phoneExist)
-        return res.status(409).send({ message: "User with given phone number already exist", status: false })
+    console.log(otpFind[0].otp)
+    if (otpFind[0].otp != otp) {
+      return res.status(409).send({ success: false, msg: "Invalid OTP" })
     }
-    if (bool1 === 0) {
-      const emailExist = await Otp.findOne({ email: email });
-      if (emailExist)
-        return res.status(409).send({ message: "User with given email already exist", status: false })
+    await Otp.findByIdAndUpdate({ _id: otpFind[0]._id }, { verified: true })
+    return res.status(200).send({ success: true, msg: "OTP Verified" })
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .send({ success: false, msg: "Internal Server Error" })
+  }
+}
+
+const verifyAdbnNumber = async (req, res) => {
+  const { abnNumber } = req.body
+  try {
+    const abnNumberFind = await business.find({ abnNumber })
+    if (abnNumberFind.length > 0) {
+      return res
+        .status(500)
+        .send({ success: false, msg: "ABN Number Already REgistered" })
     }
-
-    if (email) {
-      //Email OTP
-      var otp = Math.floor(100000 + Math.random() * 900000)
-
-      const transporter = nodemailer.createTransport({
-        // service: "Gmail",
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.EMAIL,
-          pass: process.env.PASSWORD
-        }
-      });
-
-      const mailOptions =
+    const { default: fetch } = await import("node-fetch")
+    const response = await fetch(
+      `https://abn-search.p.rapidapi.com/abn/current?q=${abnNumber}`,
       {
-        from: "vickystater1@gmail.com",
-        to: email,
-        subject: "resetted password",
-        text: `OTP GENERATED ${otp}`
+        method: "get",
+        headers: {
+          "X-RapidAPI-Key":
+            "7ddf1639fbmsh33d69adb9550963p16f529jsn706069293abe ",
+          "X-RapidAPI-Host": "abn-search.p.rapidapi.com",
+        },
       }
-
-      transporter.sendMail(mailOptions, (err, result) => {
-        if (err) {
-          console.log(err)
-          res.status(500).send({ message: "Enter the correct email id", status: "false", data: [] });
-        } else {
-          res.status(200).send({ message: "otp sent successsfully", status: "true", data: [] });
-          const otpdata = new Otp({
-            email: email,
-            otp: otp
-          }).save();
-          console.log(otpdata)
-        }
-      })
+    )
+    const data = await response.json()
+    if (data.current == null) {
+      console.log(data, "not valid")
+      return res
+        .status(401)
+        .send({ success: false, msg: "ABN Number Verification Failed" })
     }
-    else {
-      //Phone OTP
-      console.log(phone, "phone")
-      client.verify.v2
-        .services(verifySid)
-        .verifications.create({ to: phone, channel: "sms" })
-        .then((verification) => {
-          console.log(verification);
-          res.status(200).send({ message: 'Otp sent successfully to ur phone number', status: "true", data: [] })
-        })
-        .then(() => {
-          const readline = require("readline").createInterface({
-            input: process.stdin,
-            output: process.stdout,
-          })
-        })
+    if (data.current.abn_status == "Cancelled") {
+      console.log(data, "ABN Account Cancelled")
+      return res
+        .status(401)
+        .send({ success: false, msg: "ABN Account Cancelled" })
     }
+    console.log(data, "valid")
+    return res.status(200).send({
+      success: true,
+      msg: "ABN Number Verified",
+      abnDetails: data.current,
+    })
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Some Error Occured");
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
   }
 }
 
-const verifyBusiness = async (req, res) => {
-
-  const otp = req.body.otp;
-  const phone = req.body.phone;
-  const email = req.body.email;
-  console.log(phone, otp, email);
-  if (email === "") {
-    console.log(phone, otp)
-    client.verify.v2
-      .services(verifySid)
-      .verificationChecks.create({ to: phone, code: otp })
-      .then((verification) => res.status(200).send({ message: 'Otp verified successfully', status: "true", data: [] }))
-      .catch(() => res.status(500).send({ message: 'Enter the correct otp', status: "false", data: [] }))
-      .then(() => readline.close());
-  }
-  else {
-    const userData = await Otp.findOne({ email: email });
-    console.log(userData.otp, otp)
-    //if the email id is not present send the error message
-    if (userData.otp == otp) {
-      return res.status(200).send({ message: "valid otp", status: "true", data: [] })
-    }
-    else {
-      return res.status(409).send({ message: "Invalid otp", status: "false", data: [] })
-    }
-  }
-}
-
-const resendOtp = async(req,res) =>{  
-  const email=req.body.email;
-  var otp=Math.floor(100000 + Math.random() * 900000)
-
-  const transporter = nodemailer.createTransport({
-      // service: "Gmail",
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-          user: process.env.EMAIL,
-          pass: process.env.PASSWORD
-      }
-  });
-  
-  const mailOptions =
-   {
-      from:"vickystater1@gmail.com",
-      to: email,
-      subject: "resetted password",
-      text:`OTP GENERATED ${otp}`
-  }
-  
-  transporter.sendMail(mailOptions, async(err, result) => {
-      if (err){
-          console.log(err)
-          res.status(500).send({message:"Enter the correct email id",status:"false",data:[]});   
-      } else{
-          res.status(200).send({message:"otp sent successsfully",status:"true",data:[]});       
-          const result= await  Otp.updateOne({email:email }, {$set: {otp : otp}});          
-      }
-      })
-}
-
-const createBusinessUser = (async (req, res) => {
-  const errors = validationResult(req);
-  let success = false;
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
+const createBusinessAccount = async (req, res) => {
+  const {
+    email,
+    fName,
+    mName,
+    lname,
+    terms,
+    promoCode,
+    pin,
+    abnNumber,
+    businessName,
+    title,
+    notification,
+  } = req.body
+  // cropId, propId, promoCode
   try {
-    console.log(req.body);
-    const { email, mobileNumber, fName, lname, terms, title, businessId, promocode, notification, refferalCode, cropId, propId, } = req.body;
-    let user = await business.findOne({ email });
-    if (user) {
-      return res.status(400).json({ success: false, error: "Sorry a user with this email already exits" });
+    const findBusiness = await business.find({ email })
+    if (findBusiness.length > 0) {
+      return res.status(409).send("Account Already Exist")
     }
-    // email: 'pradeep@gmail.com',
-    // mobileNumber: '1234567890',
-    // password: 123456,
-    // businessId: '79879hhoh',
-    // businessName: 'retails',
-    // fName: 'pradeep',
-    // lname: 'swain',
-    // terms: true
-
-    //secure password by bcrypt
-    const salt = await bcrypt.genSalt(10);
-    secPass = await bcrypt.hash(req.body.password, salt);
-
-    //create a new user
-    user = await business.create({
-      ownerName: { title, fName, lname },
+    const lastAccount = await business.find({}).sort({ _id: -1 }).limit(1)
+    let cropId = ""
+    if (lastAccount.length < 1) {
+      cropId = "BUS0000001"
+    } else {
+      let prevCropId = lastAccount[0].cropId
+      prevCropId = prevCropId.split("S")
+      let id = Number(prevCropId[1]) + 1
+      cropId = "BUS000000" + id
+    }
+    const salt = await bcrypt.genSalt(10)
+    password = await bcrypt.hash(pin, salt)
+    const account = new business({
       email,
-      password: secPass,
+      fName,
+      mName,
+      lname,
       terms,
-      mobileNumber,
-      businessId: businessId,
-      promocode,
-      notification,
+      promoCode,
+      pin: password,
       cropId,
-      propId,
-      refferalCode
-
-    });
+      abnNumber,
+      businessName,
+      title,
+      notification,
+    })
+    await account.save()
     const data = {
       user: {
-        id: user.id,
+        id: account._id,
       },
-    };
-    await businessNotification.create({
-      type: "account",
-      desc: "account created successfully",
-      cropId: user.cropId,
-    });
-    const authtoken = jwt.sign(data, JWT_SECRET);
-    success = true;
-    res.json({ success, authtoken });
-    // res.json(user);
+    }
+    const authToken = jwt.sign(data, JWT_SECRET)
+    return res
+      .status(201)
+      .send({ success: true, authToken, msg: "Account Created Successfully" })
   } catch (error) {
-    //for log in console
-    console.error(error.message);
-    //for log in response
-    res.status(500).send("Some Error Occured");
+    console.log(error)
+    res.status(500).send("Internal Server Error")
   }
-})
-const BusinessLogin = (async (req, res) => {
-  const errors = validationResult(req);
-  let success = false;
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
+}
 
-  const { email, password } = req.body;
-
+const getBusinessProfile = async (req, res) => {
+  const id = req.user.user.id
   try {
-    //finding users with email id
-    let user = await business.findOne({ email });
+    const profile = await business.findById(id)
+    if (!profile) {
+      return res.status(404).send({ success: false, msg: "Account Not Found" })
+    }
+    return res.status(200).send({ userProfile: profile })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send("Internal Server Error")
+  }
+}
 
+const businessLogin = async (req, res) => {
+  const { email, mobile, cropId, pin } = req.body
+  try {
+    let user = null
+    if (email != "") {
+      user = await business.findOne({ email })
+    } else if (cropId != "") {
+      user = await business.findOne({ cropId })
+    } else if (mobile != "") {
+      user = await business.findOne({ mobile })
+    }
     if (!user) {
-      success = false;
-      return res.status(400).json({ error: "Please try to login with correct credentials" });
+      return res
+        .status(400)
+        .send({ error: "Please try to login with correct credentials" })
     }
-    //compare password by bcrypt
-    const passwordCompare = await bcrypt.compare(password, user.password);
+    const passwordCompare = await bcrypt.compare(pin, user.pin)
     if (!passwordCompare) {
-      success = false;
-      return res.status(400).json({ success, error: "Please try to login with correct credentials" });
+      return res.status(400).json({
+        success: false,
+        error: "Please try to login with correct credentials",
+      })
     }
-
     const data = {
       user: {
         id: user.id,
       },
-    };
+    }
     await businessNotification.create({
       type: "account",
       desc: "account login successfully",
       cropId: user.cropId,
-    });
-    const authtoken = jwt.sign(data, JWT_SECRET);
-    success = true;
-    res.json({ success, authtoken });
-    // res.json(user);
+    })
+    const authToken = jwt.sign(data, JWT_SECRET)
+    res.status(200).send({ success: true, authToken })
   } catch (error) {
-    //for log in console
-    console.error(error.message);
-    //for log in response
-    res.status(500).send("Internal Sever Error Occured");
+    console.error(error.message)
+    res.status(500).send("Internal Sever Error")
   }
-})
-const getAllBusiness = (async (req, res) => {
+}
 
+const forgetPassword = async (req, res) => {
+  const { email, cropId } = req.body
+  try {
+    let businessFind = []
+    let findedEmail = ""
+    if (email != "") {
+      businessFind = await business.find({ email })
+      findedEmail = email
+    } else if (cropId != "") {
+      businessFind = await business.find({ cropId })
+      findedEmail = businessFind[0].email
+    }
+    if (businessFind.length < 1) {
+      return res
+        .status(409)
+        .send({ success: false, message: "Account Not Found Please Register" })
+    }
+    const subject = "Crop Business Account PIN Reset OTP"
+    const msg = "Forget Password OTP"
+    const resMsg = "OTP Sent Successfully"
+    const otpType = "Business Reset Password"
+    const userType = "Business"
+    return sendMail(findedEmail, subject, msg, resMsg, otpType, userType, res)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
 
+const validateForgetOtp = async (req, res) => {
+  try {
+    let { email, cropId, otp } = req.body
+    let otpFind = []
+    let findedEmail = ""
+    if (email != "") {
+      otpFind = await Otp.find({ email }).sort({ _id: -1 }).limit(1)
+      findedEmail = email
+    } else if (cropId != "") {
+      let businessFind = await business.find({ cropId })
+      email = businessFind[0].email
+      console.log({ email }, "froget")
+      otpFind = await Otp.find({ email }).sort({ _id: -1 }).limit(1)
+    }
+    if (otpFind.length < 1) {
+      return res.status(500).send({ success: false, msg: "OTP Not Found" })
+    }
+    if (otpFind[0].verified) {
+      return res.status(500).send({ success: false, msg: "OTP Already Used" })
+    }
+    console.log(otpFind[0].otp)
+    if (otpFind[0].otp != otp) {
+      return res.status(500).send({ success: false, msg: "Invalid OTP" })
+    }
+    await Otp.findByIdAndUpdate({ _id: otpFind[0]._id }, { verified: true })
+    return res.status(200).send({ success: true, msg: "OTP Verified" })
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .send({ success: false, msg: "Internal Server Error" })
+  }
+}
+
+const resetPassword = async (req, res) => {
+  const { email, cropId, pin } = req.body
+  try {
+    let businessFind = []
+    if (cropId != "") {
+      businessFind = await business.find({ cropId })
+      if (businessFind.length < 1) {
+        return res.status(400).send({ error: "Account Not Found" })
+      }
+    } else if (email != "") {
+      businessFind = await business.find({ email })
+      if (businessFind.length < 1) {
+        return res.status(400).send({ error: "Account Not Found" })
+      }
+    }
+    const salt = await bcrypt.genSalt(10)
+    let password = await bcrypt.hash(pin, salt)
+    await business.findByIdAndUpdate(
+      { _id: businessFind[0]._id },
+      { pin: password }
+    )
+    return res.status(201).send({ success: true, msg: "PIN Reset Success" })
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .send({ success: false, msg: "Internal Server Error" })
+  }
+}
+
+const updateProfile = async (req, res) => {
+  const id = req.user.user.id
+  try {
+    const businessFind = await business.findById(id)
+    if (!businessFind) {
+      return res.status(404).send({ success: false, msg: "Account Not Found" })
+    }
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .send({ success: false, msg: "Internal Server Error" })
+  }
+}
+
+const resendOtp = async (req, res) => {
+  const email = req.body.email
+  var otp = Math.floor(100000 + Math.random() * 900000)
+
+  const transporter = nodemailer.createTransport({
+    // service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
+    },
+  })
+
+  const mailOptions = {
+    from: "vickystater1@gmail.com",
+    to: email,
+    subject: "resetted password",
+    text: `OTP GENERATED ${otp}`,
+  }
+
+  transporter.sendMail(mailOptions, async (err, result) => {
+    if (err) {
+      console.log(err)
+      res.status(500).send({
+        message: "Enter the correct email id",
+        status: "false",
+        data: [],
+      })
+    } else {
+      res
+        .status(200)
+        .send({ message: "otp sent successsfully", status: "true", data: [] })
+      const result = await Otp.updateOne(
+        { email: email },
+        { $set: { otp: otp } }
+      )
+    }
+  })
+}
+
+const getAllBusiness = async (req, res) => {
   try {
     //finding users with email id
-    let user = await business.find();
+    let user = await business.find()
 
     if (!user) {
-      success = false;
-      return res.status(400).json({ error: "no record found" });
+      success = false
+      return res.status(400).json({ error: "no record found" })
     }
 
-    success = true;
-    res.json({ success, user });
+    success = true
+    res.json({ success, user })
     // res.json(user);
   } catch (error) {
     //for log in console
-    console.error(error.message);
+    console.error(error.message)
     //for log in response
-    res.status(500).send("Internal Sever Error Occured");
+    res.status(500).send("Internal Sever Error Occured")
   }
-})
+}
 
-const getAllBusinessCrop = (async (req, res) => {
+const getAllBusinessCrop = async (req, res) => {
   try {
     //finding users with email id
-    let user = await businessCrop.find();
+    let user = await businessCrop.find()
 
     if (!user) {
-      success = false;
-      return res.status(400).json({ error: "no data found" });
+      success = false
+      return res.status(400).json({ error: "no data found" })
     }
 
-    success = true;
-    res.json({ success, user });
+    success = true
+    res.json({ success, user })
     // res.json(user);
   } catch (error) {
     //for log in console
-    console.error(error.message);
+    console.error(error.message)
     //for log in response
-    res.status(500).send("Internal Sever Error Occured");
+    res.status(500).send("Internal Sever Error Occured")
   }
-})
-const getAllBusinessProp = (async (req, res) => {
-  try {
-    //finding users with email id
-    let user = await businessProp.find();
+}
 
-    if (!user) {
-      success = false;
-      return res.status(400).json({ error: "no data found" });
-    }
-
-    success = true;
-    res.json({ success, user });
-    // res.json(user);
-  } catch (error) {
-    //for log in console
-    console.error(error.message);
-    //for log in response
-    res.status(500).send("Internal Sever Error Occured");
-  }
-})
 //saving crop
-const saveBusinessCrop = (async (req, res) => {
-  const { type, description, cropId, credit, debit } = req.body;
+const saveBusinessCrop = async (req, res) => {
+  const { type, description, cropId, credit, debit } = req.body
   try {
     //finding users with email id
-    let user = await businessCrop.find();
-    if (type === 'credit') {
+    let user = await businessCrop.find()
+    if (type === "credit") {
       await businessCrop.create({
         credit,
         description,
-        cropId
+        cropId,
       })
-      success = true;
+      success = true
       let message = "saved"
-      res.json({ success, message });
-    } else if (type === 'debit') {
+      res.json({ success, message })
+    } else if (type === "debit") {
       await businessCrop.create({
         debit,
         description,
-        cropId
+        cropId,
       })
-      success = true;
+      success = true
       let message = "saved"
-      res.json({ success, message });
+      res.json({ success, message })
     } else {
-      success = false;
+      success = false
       let message = "not saved"
-      res.json({ success, message });
+      res.json({ success, message })
     }
     // res.json(user);
   } catch (error) {
     //for log in console
-    console.error(error.message);
+    console.error(error.message)
     //for log in response
-    res.status(500).send("Internal Sever Error Occured");
+    res.status(500).send("Internal Sever Error Occured")
   }
-})
-const saveBusinessProp = (async (req, res) => {
-  const { type, description, propId, credit, debit } = req.body;
+}
+const saveBusinessProp = async (req, res) => {
+  const { type, description, propId, credit, debit } = req.body
   try {
     //finding users with email id
-    if (type === 'credit') {
+    if (type === "credit") {
       await businessProp.create({
         credit,
         description,
-        propId
+        propId,
       })
-      success = true;
+      success = true
       let message = "saved"
-      res.json({ success, message });
-    } else if (type === 'debit') {
+      res.json({ success, message })
+    } else if (type === "debit") {
       await businessProp.create({
         debit,
         description,
-        propId
+        propId,
       })
-      success = true;
+      success = true
       let message = "saved"
-      res.json({ success, message });
+      res.json({ success, message })
     } else {
-      success = false;
+      success = false
       let message = "not saved"
-      res.json({ success, message });
+      res.json({ success, message })
     }
     // res.json(user);
   } catch (error) {
     //for log in console
-    console.error(error.message);
+    console.error(error.message)
     //for log in response
-    res.status(500).send("Internal Sever Error Occured");
+    res.status(500).send("Internal Sever Error Occured")
   }
-})
+}
 
-const getProfile = async(req, res) => {
-  const id = req.user.user.id;
-  console.log(id, "profile id");
+const getProfile = async (req, res) => {
+  const id = req.user.user.id
+  console.log(id, "profile id")
   try {
-    const profile = await business.findById(id, {password: 0});
+    const profile = await business.findById(id, { password: 0 })
     // profile.select("-password")
-    res.json({success: true, msg: "profile details sended successfully", profile});
+    res.json({
+      success: true,
+      msg: "profile details sended successfully",
+      profile,
+    })
   } catch (error) {
-    console.log(error);
-  }
-}
-const updateBusinessAccountStatus=async(req, res)=>{
-  try {
-    const {_id, status}=req.body;
-    const findAccount = await business.findOne({_id});
-    if(findAccount){
-      return res.status(400).send("no data found");
-    }
-    await business.findByIdAndUpdate({_id}, {$set:{status}}, {new:true});
-  } catch (error) {
-    console.log(error);
+    console.log(error)
   }
 }
 
-module.exports = { registrationOTP, verifyBusiness, resendOtp, createBusinessUser, BusinessLogin, getAllBusiness, getAllBusinessCrop, getAllBusinessProp, saveBusinessCrop, saveBusinessProp, getProfile }
+const getUserCropDetails = async (req, res) => {
+  const { email } = req.params
+  try {
+    const user = await User.find({ email })
+    console.log(user)
+    if (user.length < 1) {
+      return res
+        .status(204)
+        .send({ success: false, msg: "Crop Details Not Found" })
+    }
+    const userName =
+      user[0].name.fName + " " + user[0].name.mName + " " + user[0].name.lName
+    return res.status(200).send({
+      success: true,
+      cropDetails: {
+        cropId: user[0].cropid,
+        cropPoints: user[0].croppoints,
+        userName,
+      },
+      msg: "User Details Sended Successfully",
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Sever Error")
+  }
+}
+
+const getBusinessOrders = async (req, res) => {
+  const myOrders = await Order.aggregate([])
+}
+
+const pinChange = async (req, res) => {
+  const { oldPin, newPin } = req.body
+  const id = req.user.user.id
+  try {
+    const businessFind = await business.findById(id)
+    const passwordCompare = await bcrypt.compare(oldPin, businessFind.pin)
+    if (!passwordCompare) {
+      return res.status(400).json({
+        success: false,
+        error: "Old PIN is incorrect",
+      })
+    }
+    const salt = await bcrypt.genSalt(10)
+    pin = await bcrypt.hash(newPin, salt)
+    await business.findByIdAndUpdate({ _id: businessFind._id }, { pin })
+    return res.status(201).send({ success: true, msg: "PIN Reset Success" })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
+const updateCommunicationPreference = async (req, res) => {
+  // const { notification, smsNotification, emailNotification } = req.body
+  const id = req.user.user.id
+  try {
+    console.log(req.body)
+    await business.findByIdAndUpdate({ _id: id }, req.body)
+    return res.status(200).send({
+      success: true,
+      msg: "Communication Preference Updated Successfully",
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
+module.exports = {
+  emailRegisterOtp,
+  verifyRegisterOtp,
+  verifyAdbnNumber,
+  createBusinessAccount,
+  getBusinessProfile,
+  businessLogin,
+  forgetPassword,
+  validateForgetOtp,
+  resetPassword,
+  resendOtp,
+  getAllBusiness,
+  getAllBusinessCrop,
+  saveBusinessCrop,
+  saveBusinessProp,
+  getProfile,
+  getUserCropDetails,
+  pinChange,
+}

@@ -8,20 +8,16 @@ const productSchema = mongoose.Schema({
     required: true,
     trim: true,
   },
-  // sku: {
-  //   type: String,
-  //   required: false,
-  // },
   // parent: {
   //   type: String,
   //   required: true,
   //   trim: true,
   // },
-  children: {
-    type: String,
-    required: true,
-    trim: true,
-  },
+  // children: {
+  //   type: String,
+  //   required: true,
+  //   trim: true,
+  // },
   // tags: [Array],
   image: {
     type: String,
@@ -41,7 +37,6 @@ const productSchema = mongoose.Schema({
   },
   discount: {
     type: Number,
-    required: true,
     default: 0,
   },
   description: {
@@ -61,14 +56,16 @@ const productSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
-
+  redeemCROPs: {
+    type: Number
+  },
   apply: { type: String, required: true },
   availDate: {
-    fromDate: { type: Date },
-    toDate: { type: Date },
+    fromDate: { type: String },
+    toDate: { type: String },
   },
   // type: String,
-  itemInfo: String,
+  // itemInfo: String,
   status: {
     type: String,
     default: 'active',
@@ -96,5 +93,5 @@ const productSchema = mongoose.Schema({
   timestamps: true
 })
 
-const Product = mongoose.model('business_products', productSchema);
+const Product = mongoose.model('products', productSchema);
 module.exports = { Product };

@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const businessHappyHours = mongoose.model('Business_HappyHours', { 
     happyHoursDates: {
-        fromDate: {type: Date},
-        toDate: {type: Date}
+        fromDate: {type: String},
+        toDate: {type: String}
     },
-    happryHoursTime: {
-        startHours: {type: String},
-        endHours: {type: String},
+    happyHoursTime: {
+        startTime: {type: String},
+        endTime: {type: String},
     },
     happyHoursDays: {
         sun: {type: Boolean, default: false},

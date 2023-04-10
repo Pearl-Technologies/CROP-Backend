@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const businessBonusCrops = mongoose.model('Business_BonusCrops', { 
     bonusCrop: {
-        fromDate: {type: Date},
-        toDate: {type: Date}
+        fromDate: {type: String},
+        toDate: {type: String}
     },
     bonusCropDays: {
         sun: {type: Boolean, default: false},

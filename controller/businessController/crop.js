@@ -1,6 +1,7 @@
 const businessHappyHours = require("../../models/businessModel/bunisessHappyHours");
 const businessBonusCrops = require("../../models/businessModel/businessBonusCrops");
 const businessCropRules = require("../../models/businessModel/businessCropRules");
+const businessOtherServices = require("../../models/businessModel/businessOtherServices");
 const businessSlashRedemptionCrops = require("../../models/businessModel/businessSlashRedeemptionCrops");
 
 const createOrUpdateCropRules = async (req, res) => {
@@ -12,7 +13,7 @@ const createOrUpdateCropRules = async (req, res) => {
       console.log(req.body);
       const cropRules = new businessCropRules(req.body);
       await cropRules.save();
-      return res.status(200).json({ cropRules });
+      return res.status(200).json({ success: true, cropRules });
     } else {
       console.log("exist running");
       console.log("body", req.body);
@@ -20,7 +21,7 @@ const createOrUpdateCropRules = async (req, res) => {
         { _id: cropRulesFind[0]._id },
         req.body
       );
-      return res.status(201).json({ cropRules });
+      return res.status(201).json({success: true, cropRules });
     }
   } catch (error) {
     console.log("err start", error, "error end");
@@ -48,7 +49,7 @@ const createOrUpdateExtendBonusCrops = async (req, res) => {
       console.log(req.body);
       const bonusCrops = new businessBonusCrops(req.body);
       await bonusCrops.save();
-      return res.status(200).json({ bonusCrops });
+      return res.status(200).json({ success: true, bonusCrops });
     } else {
       console.log("exist running");
       console.log("body", req.body);
@@ -56,7 +57,7 @@ const createOrUpdateExtendBonusCrops = async (req, res) => {
         { _id: bonusCropFind[0]._id },
         req.body
       );
-      return res.status(201).json({ bonusCrops });
+      return res.status(201).json({ success: true, bonusCrops });
     }
   } catch (error) {
     console.log("err start", error, "error end");
@@ -87,7 +88,7 @@ const createOrUpdateSlashRedeemptionCrops = async (req, res) => {
       console.log(req.body);
       const slashRedemptionCrop = new businessSlashRedemptionCrops(req.body);
       await slashRedemptionCrop.save();
-      return res.status(200).json({ slashRedemptionCrop });
+      return res.status(200).json({ success: true, slashRedemptionCrop });
     } else {
       console.log("exist running");
       console.log("body", req.body);
@@ -95,7 +96,7 @@ const createOrUpdateSlashRedeemptionCrops = async (req, res) => {
         { _id: slashRedemptionCropFind[0]._id },
         req.body
       );
-      return res.status(201).json({ slashRedemptionCrop });
+      return res.status(201).json({ success: true, slashRedemptionCrop });
     }
   } catch (error) {
     console.log("err start", error, "error end");
@@ -109,8 +110,8 @@ const getSlashRedemptionCrop = async (req, res) => {
   console.log("Api running");
   console.log({ businessId });
   try {
-    const slashRedmptionCrop = await businessSlashRedemptionCrops.find({ businessId });
-    return res.json({ slashRedmptionCrop });
+    const slashRedemptionCrop = await businessSlashRedemptionCrops.find({ businessId });
+    return res.json({ slashRedemptionCrop });
   } catch (error) {
     console.log("err start", error, "error end");
     res.status(500).send("Internal Sever Error Occured");
@@ -126,7 +127,7 @@ const createOrUpdateHappyHours = async (req, res) => {
       console.log(req.body);
       const happyHours = new businessHappyHours(req.body);
       await happyHours.save();
-      return res.status(200).json({ happyHours });
+      return res.status(200).json({success:true, happyHours });
     } else {
       console.log("exist running");
       console.log("body", req.body);
@@ -134,7 +135,7 @@ const createOrUpdateHappyHours = async (req, res) => {
         { _id: happyHoursfind[0]._id },
         req.body
       );
-      return res.status(201).json({ happyHours });
+      return res.status(201).json({ success: true, happyHours });
     }
   } catch (error) {
     console.log("err start", error, "error end");
@@ -156,6 +157,45 @@ const getHappyHours = async (req, res) => {
   }
 };
 
+const createOrUpdateOtherServices = async (req, res) => {
+  const businessId = req.user.user.id;
+  try {
+    const otherServicesFind = await businessOtherServices.find({ businessId });
+    if (otherServicesFind.length <= 0) {
+      req.body.businessId = businessId;
+      console.log(req.body);
+      const otherServices = new businessOtherServices(req.body);
+      await otherServices.save();
+      return res.status(200).json({ success: true, otherServices });
+    } else {
+      console.log("exist running");
+      console.log("body", req.body);
+      const otherServices = await businessOtherServices.findByIdAndUpdate(
+        { _id: otherServicesFind[0]._id },
+        req.body
+      );
+      return res.status(201).json({ success: true, otherServices });
+    }
+  } catch (error) {
+    console.log("err start", error, "error end");
+    res.status(500).send("Internal Sever Error Occured");
+  }
+};
+
+const getOtherServices = async (req, res) => {
+  console.log(req.user);
+  const businessId = req.user.user.id;
+  console.log("Api running");
+  console.log({ businessId });
+  try {
+    const otherServices = await businessOtherServices.find({ businessId });
+    return res.json({ otherServices });
+  } catch (error) {
+    console.log("err start", error, "error end");
+    res.status(500).send("Internal Sever Error Occured");
+  }
+};
+
 module.exports = {
   createOrUpdateCropRules,
   getCropRules,
@@ -164,5 +204,7 @@ module.exports = {
   createOrUpdateSlashRedeemptionCrops,
   getSlashRedemptionCrop,
   createOrUpdateHappyHours,
-  getHappyHours
+  getHappyHours,
+  createOrUpdateOtherServices,
+  getOtherServices
 };

@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const businessSlashRedemptionCrops = mongoose.model('Business_SlashRedemptionCrops', { 
     slashRedemption: {
-        fromDate: {type: Date},
-        toDate: {type: Date}
+        fromDate: {type: String},
+        toDate: {type: String}
     },
     slashRedemptionDays: {
         sun: {type: Boolean, default: false},

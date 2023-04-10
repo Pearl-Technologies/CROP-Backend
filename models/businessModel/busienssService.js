@@ -3,53 +3,63 @@ const businessServices = mongoose.model("Business_Services",
   {
     pickup: { type: Boolean, default: true },
     delivery: { type: Boolean, default: false },
+    deliveryDetails: {
+      deliveryAgainstCrops: {
+        isTrue: {type: Boolean, default: false},
+        cropValueForDelivery: {type: Number},
+      },
+      deliveryAgainstPayment: {
+        isTrue:{type: Boolean, default: false},
+        deliveryChargesAUD: {type: Number},
+      },
+    },
     workingDayAndHours: {
       sunday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
-          to: String,
+          from: {type: String, default: ""},
+          to: {type: String, default: ""},
         },
       },
       monday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
-          to: String,
+          from: {type: String, default: ""},
+          to: {type: String, default: ""},
         },
       },
       tuesday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
-          to: String,
+          from: {type: String, default: ""},
+          to: {type: String, default: ""},
         },
       },
       wednesday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
-          to: String,
+          from: {type: String, default: ""},
+          to: {type: String, default: ""},
         },
       },
       thursday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
-          to: String,
+          from: {type: String, default: ""},
+          to: {type: String, default: ""},
         },
       },
       friday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
-          to: String,
+          from: {type: String, default: ""},
+          to: {type: String, default: ""},
         },
       },
       saturday: {
-        working: {type: Boolean},
+        working: {type: Boolean, default: false},
         operatingHours: {
-          from: String,
+          from: {type: String, default: ""},
           to: String,
         },
       },
