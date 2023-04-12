@@ -145,7 +145,7 @@ const createBusinessAccount = async (req, res) => {
       promoCode,
       pin: password,
       cropId,
-      abnNumber,
+      ABN: abnNumber,
       businessName,
       title,
       notification,
@@ -173,7 +173,7 @@ const getBusinessProfile = async (req, res) => {
     if (!profile) {
       return res.status(404).send({ success: false, msg: "Account Not Found" })
     }
-    return res.status(200).send({ userProfile: profile })
+    return res.status(200).send({ profile })
   } catch (error) {
     console.error(error)
     res.status(500).send("Internal Server Error")
@@ -316,11 +316,17 @@ const resetPassword = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   const id = req.user.user.id
+  console.log("profile", req.body)
   try {
     const businessFind = await business.findById(id)
     if (!businessFind) {
       return res.status(404).send({ success: false, msg: "Account Not Found" })
     }
+    await business.findByIdAndUpdate({ _id: businessFind._id }, req.body)
+    return res.status(200).send({
+      success: true,
+      msg: "Communication Preference Updated Successfully",
+    })
   } catch (error) {
     console.log(error)
     return res
@@ -542,7 +548,7 @@ const pinChange = async (req, res) => {
     if (!passwordCompare) {
       return res.status(400).json({
         success: false,
-        error: "Old PIN is incorrect",
+        msg: "Old PIN is incorrect",
       })
     }
     const salt = await bcrypt.genSalt(10)
@@ -581,6 +587,7 @@ module.exports = {
   forgetPassword,
   validateForgetOtp,
   resetPassword,
+  updateProfile,
   resendOtp,
   getAllBusiness,
   getAllBusinessCrop,
@@ -589,4 +596,5 @@ module.exports = {
   getProfile,
   getUserCropDetails,
   pinChange,
+  updateCommunicationPreference,
 }

@@ -11,6 +11,8 @@ const {
   validateForgetOtp,
   resetPassword,
   pinChange,
+  updateCommunicationPreference,
+  updateProfile,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -43,17 +45,18 @@ router.post("/email-register-otp", emailRegisterOtp)
 router.post("/verify-register-otp", verifyRegisterOtp)
 router.post("/verify-abn-number", verifyAdbnNumber)
 router.post("/signup", createBusinessAccount)
-router.get("/get-profile", authorization, getBusinessProfile)
 router.post("/signin", businessLogin)
 router.post("/forget-password", forgetPassword)
 router.post("/verify-forget-otp", validateForgetOtp)
 router.post("/reset-password", resetPassword)
-router.post("/pin-change", pinChange)
-
-router.post("/getAllBusiness", getAllBusiness)
-router.post("/getAllBusinessCrop", getAllBusinessCrop)
-router.post("/saveCrop", saveBusinessCrop)
-router.post("/saveProp", saveBusinessProp)
+router.put("/pin-change", authorization, pinChange)
+router.get("/get-profile", authorization, getBusinessProfile)
+router.put("/update-profile", authorization, updateProfile)
+router.put(
+  "/update-communication-preference",
+  authorization,
+  updateCommunicationPreference
+)
 
 router.post("/services", authorization, createServices)
 router.get("/services", authorization, getService)
@@ -77,5 +80,10 @@ router.get("/happy-hours", authorization, getHappyHours)
 router.post("/other-services", authorization, createOrUpdateOtherServices)
 router.get("/other-services", authorization, getOtherServices)
 router.get("/get-user-crop-details/:email", authorization, getUserCropDetails)
+
+router.post("/getAllBusiness", getAllBusiness)
+router.post("/getAllBusinessCrop", getAllBusinessCrop)
+router.post("/saveCrop", saveBusinessCrop)
+router.post("/saveProp", saveBusinessProp)
 
 module.exports = router

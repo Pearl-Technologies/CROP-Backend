@@ -22,4 +22,4 @@ const adminBusinessGeneralNotification = mongoose.model('Admin_business_general_
     },
  });
  
-module.exports = adminBusinessAccountNotification
+module.exports = adminBusinessGeneralNotification
