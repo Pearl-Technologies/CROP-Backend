@@ -16,7 +16,7 @@ const sendMail = (toEmail, subject, msg, resMsg, otpType, userType, res) => {
   })
   console.log({toEmail, subject, msg, resMsg})
   const mailOptions = {
-    from: "vickystater1@gmail.com",
+    from: process.env.EMAIL,
     to: toEmail,
     subject: subject,
       text: msg + " " + otp,
