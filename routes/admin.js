@@ -6,6 +6,7 @@ const {
   adminLogin,
   adminPasswordReset,
   getAdminData,
+  passwordRest_email
 } = require("../controller/superAdminController/user");
 const {
   getAccountBalance,
@@ -95,6 +96,7 @@ const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, custome
 //
 
 //Business
+const {createEveryDayPromotionSlot} =  require("../controller/adminController/Budding/buddingProcess");
 const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 //
 
@@ -114,6 +116,7 @@ router.post(
   ],
   adminPasswordReset
 );
+router.post("/passwordRest_email", passwordRest_email);
 router.post(
   "/adminLogin",
   [
@@ -150,7 +153,7 @@ router.post("/updateData", updateData);
 router.post("/createData", createData);
 router.post("/createCustomerComplain", createCustomerComplain);
 router.post("/getCustomerComplain", getCustomerComplain);
-router.post("/updateCustomerComplain", updateCustomerComplain);
+router.post("/updateCustomerComplaint", updateCustomerComplain);
 router.post("/createBusinessComplain", createBusinessComplain);
 router.post("/getBusinessComplain", getBusinessComplain);
 router.post("/updateBusinessComplain", updateBusinessComplain);
@@ -225,6 +228,7 @@ router.post("/updateCustomerStatus", updateCustomerStatus)
 router.post("/getAllBusiness", getAllBusiness)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
+router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
 
 //admin update
 

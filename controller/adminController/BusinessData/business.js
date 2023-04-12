@@ -49,12 +49,12 @@ const getAllBusinessCrop = async(req, res)=>{
 const updateBusinessAccountStatus=async(req, res)=>{
   try {
     const {_id, status}=req.body;
-    console.log(req.body);
     const findAccount = await business.findOne({_id});
     if(!findAccount){
-      return res.status(400).send("no data found");
+      return res.status(204).json({msg:"no data found"});
     }
     await business.findByIdAndUpdate({_id}, {$set:{status}}, {new:true});
+    res.status(202).json({msg:"updated"});
   } catch (error) {
     console.log(error);
   }

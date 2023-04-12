@@ -5,7 +5,7 @@ const createMilestoneData = async (req, res) => {
     const { first, second, third, fourth, user } = req.body;
     const findone = await adminMilestone.find({});
     if(findone.length){
-        return res.status('400').send("one record is already exist")
+        return res.status('401').json({msg:"one record is already exist"})
     }
     await adminMilestone.create({
       first,
@@ -14,20 +14,19 @@ const createMilestoneData = async (req, res) => {
       fourth,
       user
     });
-    res.json({ success: true, message: "updated" });
+    res.json({ msg: "updated" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({msg:"Server Problem, please try again after some time"});
   }
 };
 const getMilestoneData = async (req, res) => {
   try {
     const milestoneReport = await adminMilestone.find({});
-    res.json({ success: true, milestoneReport });
+    res.status(200).json({ milestoneReport });
   } catch (error) {
     console.error(error.message);
-
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({msg:"Server Problem, please try again after some time"});
   }
 };
 const updateMilestoneData = async (req, res) => {
@@ -35,7 +34,7 @@ const updateMilestoneData = async (req, res) => {
     const { first, second, third, fourth, user, _id } = req.body;
     const findRecord = await adminMilestone.findOne({_id});
     if(!findRecord){
-        return res.status('400').send("no record found");
+        return res.status(204).json({msg: "no record found"});
     }
     let newData={};
     if(first){
@@ -51,13 +50,13 @@ const updateMilestoneData = async (req, res) => {
       newData.fourth = fourth;
     }
     if(findRecord.user.toString() !== user){
-      return res.status(400).send("you are not authorise")
+      return res.status(401).json({msg: "you are not authorise"})
     }
     await adminMilestone.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-    res.json({ success: true, message: "updated" });
+    res.status(202).json({ msg: "updated" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({msg: "Server Problem, please try again after some time"});
   }
 };
 module.exports = { createMilestoneData, getMilestoneData, updateMilestoneData };

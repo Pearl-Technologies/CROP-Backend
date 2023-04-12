@@ -97,17 +97,17 @@ const getAllCustomerProp = async(req, res)=>{
 }
 const updateCustomerStatus = async (req, res) => {
   const {_id, status} = req.body
-  console.log(req.body);
+
   try {
     const customer = await User.findOne({_id});
     if(!customer){
-      return res.status(400).send("no data found");
+      return res.status(204).json({msg:"no data found"});
     }
     await User.findByIdAndUpdate({_id}, {$set:{status}})
-    res.status(200).send("updated");
+    res.status(200).json({msg:"updated"});
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({msg:"Internal Server Error"});
   }
 };
 module.exports = {getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop, updateCustomerStatus}
