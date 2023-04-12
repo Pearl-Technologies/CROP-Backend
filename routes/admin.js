@@ -77,7 +77,7 @@ const {
   updateStoreProp,
   savePropValues,
 } = require("../controller/adminController/admin_store_props");
-const updateAdminUser = require("../controller/adminController/admin_update_user");
+const {updateAdminUser, updateAdminUserPassword} = require("../controller/adminController/admin_update_user");
 const {createNotification, getAllNotifications} = require("../controller/adminController/admin_notification") 
 const {createCustomerInvoice, createBusinessInvoice, getAllBusinessInvoice, getAllCustomerInvoice} = require("../controller/adminController/admin_invoice")
 const {getPropValuation, createPropValuation, updatePropValuation} = require('../controller/adminController/admin_prop_valuation')
@@ -96,8 +96,12 @@ const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, custome
 //
 
 //Business
+<<<<<<< HEAD
 const {createEveryDayPromotionSlot} =  require("../controller/adminController/Budding/buddingProcess");
 const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+=======
+const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+>>>>>>> admin45
 //
 
 // const accountTransaction =require("../controller/adminController/account")
@@ -172,6 +176,7 @@ router.post("/updateStoreProp", updateStoreProp);
 router.post("/getPropValues", getPropValues);
 router.post("/getAdminData", verifyToken, getAdminData);
 router.post("/updateAdminUser", verifyToken, updateAdminUser);
+router.post("/updateAdminUserPassword", verifyToken, updateAdminUserPassword);
 router.post("/createNotification", createNotification);
 router.post("/getAllNotifications", getAllNotifications);
 router.post("/createBusinessAudit", createBusinessAudit);
@@ -228,8 +233,15 @@ router.post("/updateCustomerStatus", updateCustomerStatus)
 router.post("/getAllBusiness", getAllBusiness)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
+<<<<<<< HEAD
 router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
 
+=======
+router.post('/getAllBusinessByContent', getAllBusinessByContent)
+>>>>>>> admin45
 //admin update
+const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
+router.post("/sendMail", sendMail)
+router.post("/sendMassNotification", sendMassNotification)
 
 module.exports = router;
