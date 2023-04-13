@@ -7,16 +7,16 @@ const multer = require("multer")
 const form = multer();
 // internal
 const ConnectDb = require("./config/db");
-const categoryRoutes = require("./routes/categoryRoutes");
-const couponRoutes = require("./routes/couponRoute");
+// const categoryRoutes = require("./routes/categoryRoutes");
+// const couponRoutes = require("./routes/couponRoute");
 // const userRoute = require("./routes/userRoute");
-const orderRouter = require("./routes/orderRoute");
-const userOrderRoute = require("./routes/userOrderRoute");
-const userdataRoute = require("./routes/userdataRoute");
-const cartRoute=require("./routes/cartRoute");
-const wishlistRoute=require("./routes/wishlistRoute");
-const businessRoutes = require("./routes/business/business");
-const productsRoutes = require("./routes/business/product");
+// const orderRouter = require("./routes/orderRoute");
+// const userOrderRoute = require("./routes/userOrderRoute");
+// const userdataRoute = require("./routes/userdataRoute");
+// const cartRoute=require("./routes/cartRoute");
+// const wishlistRoute=require("./routes/wishlistRoute");
+// const businessRoutes = require("./routes/business/business");
+// const productsRoutes = require("./routes/business/product");
 const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin")
 
@@ -32,18 +32,19 @@ app.use(form.any())
 ConnectDb();
 // routes
 
-app.use("/api/earncrop", categoryRoutes);
-app.use("/api/redeemcrop", categoryRoutes);
-app.use("/api/category", categoryRoutes);
-app.use('/api/coupon', couponRoutes);
+// app.use("/api/earncrop", categoryRoutes);
+// app.use("/api/redeemcrop", categoryRoutes);
+// app.use("/api/category", categoryRoutes);
+// app.use('/api/coupon', couponRoutes);
 // app.use('/api/user', userRoute);
-app.use('/api/order', orderRouter);
-app.use('/api/user-order', userOrderRoute);
-app.use('/api/userdata', userdataRoute);
-app.use('/api/cart', cartRoute);
-app.use('/api/wishlist', wishlistRoute);
-app.use("/api/business", businessRoutes);
-app.use("/api/products", productsRoutes);
+
+// app.use('/api/order', orderRouter);
+// app.use('/api/user-order', userOrderRoute);
+// app.use('/api/userdata', userdataRoute);
+// app.use('/api/cart', cartRoute);
+// app.use('/api/wishlist', wishlistRoute);
+// app.use("/api/business", businessRoutes);
+// app.use("/api/products", productsRoutes);
 app.use("/api/admin", admin);
 app.use("/api/superAdmin", superAdmin);
 

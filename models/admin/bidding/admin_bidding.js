@@ -6,8 +6,5 @@ const bidding = mongoose.model("Admin_bidding", {
   bid_end_date: {  type: String, required:true },
   published_start_date: {  type: String, required:true },
   published_end_date: {  type: String, required:true },
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
-  businessId: { type: mongoose.Schema.Types.ObjectId, ref: "business" }
 });
-
 module.exports = bidding;

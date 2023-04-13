@@ -30,7 +30,7 @@ const {
 const {
   publishOffer,
 } = require("../controller/adminController/publishedOffer");
-// const { getAllProducts } = require("../controller/businessController/product");
+const {getAllProduct} = require("../controller/adminController/BusinessData/product")
 const {
   createAudit,
   getAuditReport,
@@ -96,12 +96,12 @@ const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, custome
 //
 
 //Business
-<<<<<<< HEAD
-const {createEveryDayPromotionSlot} =  require("../controller/adminController/Budding/buddingProcess");
-const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
-=======
+
+const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Budding/buddingProcess");
+// const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+
 const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
->>>>>>> admin45
+
 //
 
 // const accountTransaction =require("../controller/adminController/account")
@@ -146,7 +146,7 @@ router.post("/getAccountBalance", getAccountBalance);
 router.post("/updateAccountBalance", updateAccountBalance);
 // router.post("/updateTier", updateTier);
 router.post("/saveAccountBalance", saveAccountBalance);
-// router.post("/getAllProducts", getAllProducts);
+router.post("/getAllProduct", getAllProduct);
 router.post("/createAudit", createAudit);
 router.post("/getAuditReport", getAuditReport);
 router.post("/createMilestoneData", createMilestoneData);
@@ -233,15 +233,11 @@ router.post("/updateCustomerStatus", updateCustomerStatus)
 router.post("/getAllBusiness", getAllBusiness)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
-<<<<<<< HEAD
 router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
-
-=======
+router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
->>>>>>> admin45
 //admin update
 const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
 router.post("/sendMail", sendMail)
 router.post("/sendMassNotification", sendMassNotification)
-
 module.exports = router;

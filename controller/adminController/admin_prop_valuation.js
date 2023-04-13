@@ -51,17 +51,10 @@ const updatePropValuation = async(req, res)=>{
             return res.status(401).json({msg:"default prop should not be below 1"}); 
         }
         if(findRecord.user.toString() !== user){
-<<<<<<< HEAD
             return res.status(401).json({msg:"sorry, you are not authorise"});    
         }
         await adminPropValuation.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
         res.status(202).json({msg:"updated"});
-=======
-            return res.status(401).json({msg: "sorry, you are not authorise"});    
-        }
-        await adminPropValuation.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-        res.status(202).send({msg:"updated"});
->>>>>>> admin45
     }catch (error) {
         console.log(error.message);
         res.status(500).json({msg:"internal error"});
