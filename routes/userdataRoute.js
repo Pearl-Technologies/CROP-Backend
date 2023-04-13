@@ -82,7 +82,7 @@ router.put('/resendotp',async(req,res) =>{
     
     const mailOptions =
      {
-        from:"vickystater1@gmail.com",
+        from: process.env.EMAIL,
         to: email,
         subject: "resetted password",
         text:`OTP GENERATED ${otp}`
@@ -166,7 +166,7 @@ router.post('/emailphone',async(req,res) =>{
 
 const mailOptions =
  {
-    from:"vickystater1@gmail.com",
+    from: process.env.EMAIL,
     to: email,
     subject: "resetted password",
     text:`OTP GENERATED ${otp}`
@@ -238,7 +238,8 @@ router.post('/emailphoneverify',async(req,res) =>{
             {
             return res.status(409).send({message:"Invalid otp",status:"false",data:[]})
             }  
-     }           
+
+        }           
 })
 
 router.put('/resetpassword',async(req,res) =>{
@@ -510,7 +511,7 @@ router.post('/login',async (req,res) =>{
                         }
                     });
                     const mailOptions = {
-                        from:"vickystater1@gmail.com",
+                        from: process.env.EMAIL,
                         to: userEmail,
                         subject: "resetted password",
                         text:`OTP GENERATED ${otp}`
@@ -721,7 +722,7 @@ router.put('/levels',async(req,res)=>{
 
     let token=req.headers.authorization
 
-    const points=req.body.croppoints;
+    const points=parseInt(req.body.croppoints);
 
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
@@ -730,28 +731,28 @@ router.put('/levels',async(req,res)=>{
     if(points===0)
     {
         const updatelevels=await User.updateOne({"token": token },
-         {$set: { UserTier:"Base" ,auditTrail:`The usertier changed to Base on ${formattedDate}`}}); 
+         {$set: { UserTier:"Base" }, $push:{auditTrail:`The usertier changed to Base on ${formattedDate}`}}); 
         res.send({status:"true"})
         
     }
     else if(points<=30)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Silver",auditTrail:`The usertier changed to Silver on ${formattedDate}` }}); 
+        {$set: { UserTier:"Silver"}, $push:{auditTrail:`The usertier changed to Silver on ${formattedDate}` }}); 
         res.send({status:"true"})
     
     }
    else if(points<=60)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Gold",auditTrail:`The usertier changed to Gold on ${formattedDate}` }}); 
+        {$set: { UserTier:"Gold" }, $push:{auditTrail:`The usertier changed to Gold on ${formattedDate}`}}); 
         res.send({status:"true"})
         
     }
     else if(points<=1000)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Platinum",auditTrail:`The usertier changed to Platinum on ${formattedDate}` }}); 
+        {$set: { UserTier:"Platinum"}, $push:{auditTrail:`The usertier changed to Platinum on ${formattedDate}` }}); 
         res.send({status:"true"})
      
     }
@@ -761,7 +762,7 @@ router.put('/levels',async(req,res)=>{
     //     res.send({status:"true"})
     else {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Diamond",auditTrail:`The usertier changed to Diamond on ${formattedDate}` }});
+        {$set: { UserTier:"Diamond"}, $push:{auditTrail:`The usertier changed to Diamond on ${formattedDate}` }});
         res.send({status:"true"})
       
       }
@@ -810,7 +811,7 @@ router.post('/mate',async(req,res)=>{
         }
     });
     const mailOptions = {
-        from:"vickystater1@gmail.com",
+        from: process.env.EMAIL,
         to: email,
         subject: "Refer code",
         text:`REFER CODE ${refercode}`

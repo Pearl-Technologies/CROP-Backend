@@ -80,6 +80,11 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ["Pending", "Processing", "Delivered"],
     },
+    crop_points: {
+      type: Number,
+      required: false,
+      default: 0
+    }
   },
   {
     timestamps: true,

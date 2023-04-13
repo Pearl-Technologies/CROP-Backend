@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 const { Product } = require("../../models/businessModel/product")
 const fs = require("fs")
+=======
+const { Product, productComment } = require("../../models/businessModel/product")
+>>>>>>> 2ccb5d3fb34a011c39df7499d42b9a56ef1dfe83
 
 // addAllProducts
 module.exports.addProduct = async (req, res) => {
@@ -533,6 +537,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
   }
 }
 
+<<<<<<< HEAD
 module.exports.uploadProductImages = async (req, res) => {
   try {
     const productId = req.params.productId
@@ -562,5 +567,64 @@ module.exports.getProductImage = async (req, res) => {
     })
   } catch (error) {
     console.log(error)
+=======
+//santhosh
+module.exports.productComment = async (req, res) => {
+  try {
+    const newProductComment = new productComment(req.body)
+    await newProductComment.save()
+    res.status(200).json({ message: "Product Comment Added Successfully", newProductComment, status: 200 })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500
+    })
+  }
+}
+
+module.exports.putProductComment = async (req, res) => {
+  try {
+    const id = req.body._id
+    const newProductComment = await productComment.findByIdAndUpdate({ _id: id }, req.body)
+    res.status(200).json({ message: "Product Comment Updated Successfully", newProductComment, status: 200 })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500
+    })
+  }
+}
+
+module.exports.deleteProductComment = async (req, res) => {
+  try {
+    const id = req.body._id
+    const newProductComment = await productComment.findByIdAndDelete({ _id: id })
+    res.status(200).json({ message: "Product Comment Deleted Successfully", newProductComment, status: 200 })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500
+    })
+  }
+}
+
+module.exports.getProductComment = async (req, res) => {
+  const user = req.user.user.id
+  const product_id = req.query.product_id
+  try {
+    const newProductComment = await productComment.find({
+      $and: [{ status: "active" }, { user_id: user }, {product_id: product_id}],
+    })
+    res.status(200).json({ message: "Product Comment Get", newProductComment, status: 200 })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500
+    })
+>>>>>>> 2ccb5d3fb34a011c39df7499d42b9a56ef1dfe83
   }
 }
