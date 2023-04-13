@@ -79,34 +79,29 @@ const productSchema = mongoose.Schema(
   }
 )
 
-<<<<<<< HEAD
 const Product = mongoose.model("business_products", productSchema)
-module.exports = { Product };
-=======
-const Product = mongoose.model('products', productSchema);
 
 const productCommentSchema = mongoose.Schema(
   {
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "users_customer"
+      ref: "users_customer",
     },
     product_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "product"
+      ref: "product",
     },
     rating: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
-    comments: { type: String, default: null }
+    comments: { type: String, default: null },
   },
   {
     timestamps: true,
   }
 )
 
-const productComment = mongoose.model('products_comments', productCommentSchema);
+const productComment = mongoose.model("products_comments", productCommentSchema)
 
-module.exports = { Product, productComment };
->>>>>>> 2ccb5d3fb34a011c39df7499d42b9a56ef1dfe83
+module.exports = { Product, productComment }

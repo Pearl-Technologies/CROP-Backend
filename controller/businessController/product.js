@@ -1,4 +1,3 @@
-const { Product } = require("../../models/businessModel/product")
 const fs = require("fs")
 const {
   Product,
@@ -572,13 +571,11 @@ module.exports.productComment = async (req, res) => {
   try {
     const newProductComment = new productComment(req.body)
     await newProductComment.save()
-    res
-      .status(200)
-      .json({
-        message: "Product Comment Added Successfully",
-        newProductComment,
-        status: 200,
-      })
+    res.status(200).json({
+      message: "Product Comment Added Successfully",
+      newProductComment,
+      status: 200,
+    })
   } catch (error) {
     console.log(error)
     res.status(500).send({
@@ -595,13 +592,11 @@ module.exports.putProductComment = async (req, res) => {
       { _id: id },
       req.body
     )
-    res
-      .status(200)
-      .json({
-        message: "Product Comment Updated Successfully",
-        newProductComment,
-        status: 200,
-      })
+    res.status(200).json({
+      message: "Product Comment Updated Successfully",
+      newProductComment,
+      status: 200,
+    })
   } catch (error) {
     console.log(error)
     res.status(500).send({
@@ -617,13 +612,11 @@ module.exports.deleteProductComment = async (req, res) => {
     const newProductComment = await productComment.findByIdAndDelete({
       _id: id,
     })
-    res
-      .status(200)
-      .json({
-        message: "Product Comment Deleted Successfully",
-        newProductComment,
-        status: 200,
-      })
+    res.status(200).json({
+      message: "Product Comment Deleted Successfully",
+      newProductComment,
+      status: 200,
+    })
   } catch (error) {
     console.log(error)
     res.status(500).send({
