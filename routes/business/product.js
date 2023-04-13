@@ -14,6 +14,10 @@ const {
   getRedeemCropProducts,
   getEarnCropProducts,
   removeProduct,
+  productComment,
+  getProductComment,
+  deleteProductComment,
+  putProductComment
 } = require("../../controller/businessController/product");
 const authorization = require("../../middleware/verifyToken")
 // router
@@ -36,7 +40,10 @@ router.get("/relatedProduct", getRelatedProducts);
 router.get("/:id", getSingleProduct);
 router.put("/:id", updateProduct);
 router.delete("/:id", removeProduct);
-
+router.post("/product-comment", productComment);
+router.get("/get-Product-Comment", getProductComment);
+router.delete("/deleteProductComment", deleteProductComment);
+router.put("/putProductComment", putProductComment);
 
 
 // router.get("/get-products-by-category", getProductsByCatagory);
