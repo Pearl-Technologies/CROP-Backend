@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const multer = require("multer")
-const form = multer();
+// const form = multer();
 // internal
 const ConnectDb = require("./config/db");
 const categoryRoutes = require("./routes/categoryRoutes");
@@ -24,10 +24,10 @@ const superAdmin = require("./routes/superAdmin")
 const app = express();
 // middleware
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json());
 app.use(cors());
-app.use(form.any())
+// app.use(form.any())
 // run db
 ConnectDb();
 // routes
@@ -46,7 +46,6 @@ app.use("/api/business", businessRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/admin", admin);
 app.use("/api/superAdmin", superAdmin);
-
 
 // root route
 app.get("/", (req, res) =>

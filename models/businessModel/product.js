@@ -20,25 +20,18 @@ const productSchema = mongoose.Schema(
     //   trim: true,
     // },
     // tags: [Array],
-    image: {
+    images: {
       type: [],
-      // required: true,
-      // validate: [valid.isURL, "wrong url"]
+      default: [],
     },
     originalPrice: {
       type: Number,
-      required: true,
-      min: [0, "Price can't be negative"],
     },
     price: {
       type: Number,
-      required: true,
-      default: 0,
-      min: [0, "Price can't be negative"],
     },
     discount: {
       type: Number,
-      default: 0,
     },
     description: {
       type: String,
@@ -86,5 +79,5 @@ const productSchema = mongoose.Schema(
   }
 )
 
-const Product = mongoose.model('products', productSchema);
+const Product = mongoose.model("business_products", productSchema)
 module.exports = { Product };

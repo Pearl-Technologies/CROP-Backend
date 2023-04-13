@@ -577,6 +577,45 @@ const updateCommunicationPreference = async (req, res) => {
   }
 }
 
+const createOrUpdateFeedback = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const businessFeedBackFind = await businessFeedBack.find({ businessId })
+    if (businessFeedBackFind.length <= 0) {
+      req.body.businessId = businessId
+      console.log(req.body)
+      const feedBack = new businessFeedBack(req.body)
+      await feedBack.save()
+      return res.status(200).json({ success: true, feedBack })
+    } else {
+      console.log("exist running")
+      console.log("body", req.body)
+      const feedBack = await businessFeedBack.findByIdAndUpdate(
+        { _id: businessFeedBackFind[0]._id },
+        req.body
+      )
+      return res.status(201).json({ success: true, feedBack })
+    }
+  } catch (error) {
+    console.log("err start", error, "error end")
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
+const getFeedback = async (req, res) => {
+  console.log(req.user)
+  const businessId = req.user.user.id
+  console.log("Api running")
+  console.log({ businessId })
+  try {
+    const feedBack = await businessFeedBack.findOne({ businessId })
+    return res.status(200).send({ success: true, feedBack })
+  } catch (error) {
+    console.log("err start", error, "error end")
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
 module.exports = {
   emailRegisterOtp,
   verifyRegisterOtp,
@@ -597,4 +636,6 @@ module.exports = {
   getUserCropDetails,
   pinChange,
   updateCommunicationPreference,
+  createOrUpdateFeedback,
+  getFeedback,
 }

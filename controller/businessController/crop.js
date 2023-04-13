@@ -195,6 +195,103 @@ const getOtherServices = async (req, res) => {
     res.status(500).send("Internal Sever Error Occured");
   }
 };
+const createMissingCrops = async (req, res) => {
+  const {
+    customerName,
+    customerId,
+    productName,
+    productId,
+    dateOfInvoice,
+    copyOfInvoice,
+    reasonForClaim,
+    status,
+    businessId,
+  } = req.body
+  try {
+    const missingCrops = new processMissingCrops({
+      customerName,
+      customerId,
+      productName,
+      productId,
+      dateOfInvoice,
+      copyOfInvoice,
+      reasonForClaim,
+      status,
+      businessId,
+    })
+    await missingCrops.save()
+    return res
+      .status(201)
+      .send({ success: true, msg: "Request Sent Successfully" })
+  } catch (error) {
+    console.log("err start", error, "error end")
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
+const getMissingCropsByCustomer = async (req, res) => {
+  const customerId = req.user.user.id
+  try {
+    const missingCrops = await processMissingCrops.find({ customerId })
+    return res.status(200).send({
+      success: true,
+      missingCrops,
+      msg: "Missing Crop Details Sended Successfully",
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
+const getMissingCropsByBusiness = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const missingCrops = await processMissingCrops.find({ businessId })
+    return res.status(200).send({
+      success: true,
+      missingCrops,
+      msg: "Missing Crop Details Sended Successfully",
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
+
+const updateMissingCrops = async (req, res) => {
+  const businessId = req.user.user.id
+  const { id, status, customerId } = req.body
+  try {
+    const mCrops = await processMissingCrops.findById(id)
+    if (!mCrops) {
+      return res
+        .status(404)
+        .send({ success: false, msg: "Mssing Crops Not Found" })
+    }
+    if (status == "approve") {
+      const customer = await User.findById(customerId)
+      const customerCropPoints = customer.croppoints
+      const croppoints = mCrops.crops + customerCropPoints
+      await User.findByIdAndUpdate.findByIdAndUpdate(
+        { _id: customerId },
+        { croppoints }
+      )
+    }
+    const missingCrops = await processMissingCrops.findByIdAndUpdate(
+      { _id: id },
+      { status }
+    )
+    return res.status(200).send({
+      success: true,
+      missingCrops,
+      msg: "Missing Crop Details Sended Successfully",
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Sever Error Occured")
+  }
+}
 
 module.exports = {
   createOrUpdateCropRules,
@@ -206,5 +303,9 @@ module.exports = {
   createOrUpdateHappyHours,
   getHappyHours,
   createOrUpdateOtherServices,
-  getOtherServices
-};
+  getOtherServices,
+  createMissingCrops,
+  getMissingCropsByCustomer,
+  getMissingCropsByBusiness,
+  updateMissingCrops,
+}
