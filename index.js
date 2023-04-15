@@ -5,7 +5,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const multer = require("multer")
-const form = multer();
+// const form = multer();
 // internal
 const ConnectDb = require("./config/db");
 const stripe = require('stripe')('sk_test_51Mx307GGhIV5PAANJ3ODV14y6k2SKjFrd9FuG3wybL1UsooXDDVZe6QxHnHqH0Oy7EfS6dRvqcuU8xqHGevRG9bQ00yNUMET47');
@@ -28,10 +28,10 @@ const superAdmin = require("./routes/superAdmin")
 const app = express();
 // middleware
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json());
 app.use(cors());
-app.use(form.any())
+// app.use(form.any())
 // run db
 ConnectDb();
 // routes
@@ -51,7 +51,6 @@ ConnectDb();
 // app.use("/api/products", productsRoutes);
 app.use("/api/admin", admin);
 app.use("/api/superAdmin", superAdmin);
-
 
 // root route
 app.get("/", (req, res) =>

@@ -1,15 +1,20 @@
-const { Product } = require("../../models/businessModel/product")
+const fs = require("fs")
+const {
+  Product,
+  productComment,
+} = require("../../models/businessModel/product")
 
 // addAllProducts
 module.exports.addProduct = async (req, res) => {
   try {
     req.body.user = req.user.user.id
     req.body.croppoints = req.body.price
-    console.log(req.body)
     const newProduct = new Product(req.body)
     await newProduct.save()
-    res.send({
+    console.log(newProduct, "newProduct")
+    res.status(200).send({
       message: "Product added successfully",
+      productId: newProduct._id,
     })
   } catch (err) {
     res.status(500).send({
@@ -273,6 +278,7 @@ module.exports.getEarnCropProducts = async (req, res) => {
           as: "bonusCrops",
         },
       },
+
       {
         $lookup: {
           from: "business_happyhours",
@@ -281,6 +287,16 @@ module.exports.getEarnCropProducts = async (req, res) => {
           as: "happyHours",
         },
       },
+
+      {
+        $lookup: {
+          from: "business_services",
+          localField: "user",
+          foreignField: "businessId",
+          as: "services",
+        },
+      },
+
       {
         $addFields: {
           ruleAppliedCrops: {
@@ -288,6 +304,7 @@ module.exports.getEarnCropProducts = async (req, res) => {
           },
         },
       },
+
       {
         $addFields: {
           bonusCropsDiscountPercentage: {
@@ -352,7 +369,7 @@ module.exports.getEarnCropProducts = async (req, res) => {
                           "$happyHoursAndExtendBonusAddedPercentage",
                         ],
                       },
-                      100
+                      100,
                     ],
                   },
                 ],
@@ -377,6 +394,8 @@ module.exports.getEarnCropProducts = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
+          happyHours: 1,
+          services: { $arrayElemAt: ["$services", 0] },
         },
       },
     ])
@@ -388,6 +407,31 @@ module.exports.getEarnCropProducts = async (req, res) => {
 
 module.exports.getRedeemCropProducts = async (req, res) => {
   try {
+    const dateTime = new Date()
+    const sDate = dateTime.toISOString()
+    const today = sDate.split("T")[0]
+    // console.log(dateTime.getDay(), "day");
+    const currentDay = dateTime.getDay()
+    // console.log(today, "today")
+    console.log("2023-04-13" < today, "Strat Date")
+    console.log("2023-04-14" > today, "End Date")
+    let day = ""
+    if (currentDay == 0) {
+      day = "sun"
+    } else if (currentDay == 1) {
+      day = "mon"
+    } else if (currentDay == 2) {
+      day = "tue"
+    } else if (currentDay == 3) {
+      day = "wed"
+    } else if (currentDay == 4) {
+      day = "thu"
+    } else if (currentDay == 5) {
+      day = "fri"
+    } else if (currentDay == 6) {
+      day = "sat"
+    }
+    console.log({ day })
     const productDetails = await Product.aggregate([
       { $match: { apply: "redeemCrop" } },
       {
@@ -398,20 +442,209 @@ module.exports.getRedeemCropProducts = async (req, res) => {
           as: "cropRules",
         },
       },
+      {
+        $lookup: {
+          from: "business_slashredemptioncrops",
+          localField: "_id",
+          foreignField: "slashRedemptionProducts.productId",
+          as: "slashRedemption",
+        },
+      },
       { $unwind: "$cropRules" },
       {
+        $addFields: {
+          ruleAppliedCrops: {
+            $multiply: ["$redeemCROPs", "$cropRules.cropPerAudDebit"],
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          slashRedemptionDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  {
+                    $lte: ["2023-04-10", today],
+                  },
+                  {
+                    $gte: ["2023-04-12", today],
+                  },
+                  {
+                    $eq: [true, true],
+                  },
+                ],
+              },
+              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
+              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+            },
+          },
+        },
+      },
+      // {
+      //   $lte: ["$slashRedemption.slashRedemption.fromDate", today],
+      // },
+      // {
+      //   $gte: ["$slashRedemption.slashRedemption.toDate", today],
+      // },
+      // {
+      //   $eq: [`$slashRedemption.slashRedemptionDays.tue`, true],
+      // },
+      // {
+      //   $addFields: {
+      //     cropRulesWithSlashRedemption: {
+      //       $cond: [
+      //         { $eq: ["$slashRedemptionDiscountPercentage", 0] },
+      //         "$ruleAppliedCrops",
+      //         {
+      //           $subtract: [
+      //             "$ruleAppliedCrops",
+      //             {
+      //               $divide: [
+      //                 {
+      //                   $multiply: [
+      //                     "$ruleAppliedCrops",
+      //                     "$slashRedemptionDiscountPercentage",
+      //                   ],
+      //                 },
+      //                 100,
+      //               ],
+      //             },
+      //           ],
+      //         },
+      //       ],
+      //     },
+      //   },
+      // },
+      {
         $project: {
-          productName: 1,
-          price: 1,
+          title: 1,
           quantity: 1,
-          croppoints: 1,
+          redeemCROPs: 1,
+          user: 1,
           cropRules: { cropPerAudDebit: 1 },
-          mul: { $multiply: ["$croppoints", "$cropRules.cropPerAudDebit"] },
+          ruleAppliedCrops: "$ruleAppliedCrops",
+          slashRedemptionDiscountPercentage: 1,
+          cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
         },
       },
     ])
     res.json({ count: productDetails.length, productDetails })
   } catch (error) {
     console.log(error)
+  }
+}
+
+module.exports.uploadProductImages = async (req, res) => {
+  try {
+    const productId = req.params.productId
+    const fileName = req.files[0].filename
+    // console.log(req.files[0], "0")
+    // console.log(fileName, "fileName")
+    // console.log(productId, "productId")
+    const product = await Product.findById(productId)
+    const images = await product.images
+    console.log(images)
+    images.push(fileName)
+    await Product.findByIdAndUpdate({ _id: productId }, { images })
+    return res.status(200).send({ success: true })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+module.exports.getProductImage = async (req, res) => {
+  const id = req.params.id
+  try {
+    fs.readFile(`./uploads/${id}`, function (err, data) {
+      if (err) throw err
+      else {
+        res.end(data)
+      }
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+module.exports.productComment = async (req, res) => {
+  try {
+    const newProductComment = new productComment(req.body)
+    await newProductComment.save()
+    res.status(200).json({
+      message: "Product Comment Added Successfully",
+      newProductComment,
+      status: 200,
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.putProductComment = async (req, res) => {
+  try {
+    const id = req.body._id
+    const newProductComment = await productComment.findByIdAndUpdate(
+      { _id: id },
+      req.body
+    )
+    res.status(200).json({
+      message: "Product Comment Updated Successfully",
+      newProductComment,
+      status: 200,
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.deleteProductComment = async (req, res) => {
+  try {
+    const id = req.body._id
+    const newProductComment = await productComment.findByIdAndDelete({
+      _id: id,
+    })
+    res.status(200).json({
+      message: "Product Comment Deleted Successfully",
+      newProductComment,
+      status: 200,
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.getProductComment = async (req, res) => {
+  const user = req.user.user.id
+  const product_id = req.query.product_id
+  try {
+    const newProductComment = await productComment.find({
+      $and: [
+        { status: "active" },
+        { user_id: user },
+        { product_id: product_id },
+      ],
+    })
+    res
+      .status(200)
+      .json({ message: "Product Comment Get", newProductComment, status: 200 })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
   }
 }

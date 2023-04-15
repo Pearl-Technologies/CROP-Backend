@@ -13,6 +13,8 @@ const {
   pinChange,
   updateCommunicationPreference,
   updateProfile,
+  createOrUpdateFeedback,
+  getFeedback,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -81,9 +83,7 @@ router.post("/other-services", authorization, createOrUpdateOtherServices)
 router.get("/other-services", authorization, getOtherServices)
 router.get("/get-user-crop-details/:email", authorization, getUserCropDetails)
 
-router.post("/getAllBusiness", getAllBusiness)
-router.post("/getAllBusinessCrop", getAllBusinessCrop)
-router.post("/saveCrop", saveBusinessCrop)
-router.post("/saveProp", saveBusinessProp)
+router.post("/feedback", authorization, createOrUpdateFeedback)
+router.get("/feedback", authorization, getFeedback)
 
 module.exports = router

@@ -4,7 +4,7 @@ const {Otp}= require("../models/User");
 const {User} = require("../models/User");
 const {Token} = require("../models/User");
 const {Newsletter} = require("../models/User");
-const bcrypt=require('bcrypt');
+const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
@@ -238,7 +238,8 @@ router.post('/emailphoneverify',async(req,res) =>{
             {
             return res.status(409).send({message:"Invalid otp",status:"false",data:[]})
             }  
-     }           
+
+        }           
 })
 
 router.put('/resetpassword',async(req,res) =>{
@@ -480,7 +481,7 @@ router.post('/login',async (req,res) =>{
         res.status(200).send({token:userToken,message:"Login successfull",status:"true",data:{userData}});
 
     }catch(err){
-        res.status(500).send({message:"Login error",status:"false",data:[]});
+        res.status(500).send({message:"Login error",status:"false",data:[err]});
     }
 })
 
@@ -721,7 +722,7 @@ router.put('/levels',async(req,res)=>{
 
     let token=req.headers.authorization
 
-    const points=req.body.croppoints;
+    const points=parseInt(req.body.croppoints);
 
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
@@ -730,28 +731,28 @@ router.put('/levels',async(req,res)=>{
     if(points===0)
     {
         const updatelevels=await User.updateOne({"token": token },
-         {$set: { UserTier:"Base" ,auditTrail:`The usertier changed to Base on ${formattedDate}`}}); 
+         {$set: { UserTier:"Base" }, $push:{auditTrail:`The usertier changed to Base on ${formattedDate}`}}); 
         res.send({status:"true"})
         
     }
     else if(points<=30)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Silver",auditTrail:`The usertier changed to Silver on ${formattedDate}` }}); 
+        {$set: { UserTier:"Silver"}, $push:{auditTrail:`The usertier changed to Silver on ${formattedDate}` }}); 
         res.send({status:"true"})
     
     }
    else if(points<=60)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Gold",auditTrail:`The usertier changed to Gold on ${formattedDate}` }}); 
+        {$set: { UserTier:"Gold" }, $push:{auditTrail:`The usertier changed to Gold on ${formattedDate}`}}); 
         res.send({status:"true"})
         
     }
     else if(points<=1000)
     {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Platinum",auditTrail:`The usertier changed to Platinum on ${formattedDate}` }}); 
+        {$set: { UserTier:"Platinum"}, $push:{auditTrail:`The usertier changed to Platinum on ${formattedDate}` }}); 
         res.send({status:"true"})
      
     }
@@ -761,7 +762,7 @@ router.put('/levels',async(req,res)=>{
     //     res.send({status:"true"})
     else {
         const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Diamond",auditTrail:`The usertier changed to Diamond on ${formattedDate}` }});
+        {$set: { UserTier:"Diamond"}, $push:{auditTrail:`The usertier changed to Diamond on ${formattedDate}` }});
         res.send({status:"true"})
       
       }

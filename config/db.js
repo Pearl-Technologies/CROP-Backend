@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
-const MongoClient = require("mongodb").MongoClient;
+// const MongoClient = require("mongodb").MongoClient;
 const databasename = "test";
 const MONGO_URI = process.env.MONGO_URI;
 
