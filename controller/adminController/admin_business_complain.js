@@ -24,42 +24,34 @@ const createBusinessComplain = async (req, res) => {
 const getBusinessComplain = async (req, res) => {
   try {
     const getComplainList = await adminBusinessComplain.find({});
-    res.json({ success: true, getComplainList });
+    res.status(200).json({ getComplainList });
   } catch (error) {
     console.error(error.message);
-
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({msg:"Some Error Occured"});
   }
 };
 const updateBusinessComplain = async (req, res) => {
-const {_id, description, expectedOutcoms, complainType, preferredMediumContact, complainNumber } = req.body();
+const {_id, complainStatus, complainResponse } = req.body;
+
   try {
     let newData = {};
-    if(description){
-      newData.description = description;
+    newData.complainUpdateDate = Date.now()
+    if(complainStatus){
+      newData.complainStatus = complainStatus;
     }
-    if(expectedOutcoms){
-      newData.expectedOutcoms = expectedOutcoms;
+    if(complainResponse){
+      newData.complainResponse = complainResponse;
     }
-    if(complainType){
-      newData.complainType = complainType;
-    }
-    if(preferredMediumContact){
-      newData.preferredMediumContact = preferredMediumContact;
-    }
-    if(complainNumber){
-      newData.complainNumber = complainNumber;
-    }
+
     const findComplain = await adminBusinessComplain.findOne({_id})
-    if(!findComplain.length){
-      return res.status('400').send("sorry no record found")
+    if(!findComplain){
+      return res.status(204).json({msg:"sorry no record found"})
     }
-    const updateComplain = await adminBusinessComplain.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-    res.json({ success: true, message:"updated" });
+    await adminBusinessComplain.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
+    res.status(202).json({ msg:"updated" });
   } catch (error) {
     console.error(error.message);
-
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({msg:"Some Error Occured"});
   }
 };
 module.exports = { createBusinessComplain, getBusinessComplain, updateBusinessComplain };

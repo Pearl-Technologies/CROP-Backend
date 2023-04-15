@@ -45,14 +45,14 @@ const {_id, requestStatus, requestResponse } = req.body;
     
     const findComplain = await adminCustomerRequest.findOne({_id})
     if(!findComplain){
-      return res.status('400').send("sorry no record found")
+      return res.status(204).json({msg:"sorry no record found"})
     }
     await adminCustomerRequest.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-    res.json({ success: true, message:"updated" });
+    res.status(202).json({ msg:"updated" });
   } catch (error) {
     console.error(error.message);
 
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({msg:"Some Error Occured"});
   }
 };
 module.exports = { createCustomerRequest, getCustomerRequest, updateCustomerRequest };

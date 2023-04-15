@@ -2,8 +2,15 @@ const adminCustomerComplain = require("../../models/admin/admin_customer_complai
 
 const createCustomerComplain = async (req, res) => {
   try {
-    const {description, expectedOutcoms, complainType, preferredMediumContact, complainNumber, user} = req.body;
-    const findone = await adminCustomerComplain.find({complainNumber});
+    const {
+      description,
+      expectedOutcoms,
+      complainType,
+      preferredMediumContact,
+      complainNumber,
+      user,
+    } = req.body;
+    const findone = await adminCustomerComplain.find({ complainNumber });
     if (findone.length) {
       return res.status("400").send("one record is already exist");
     }
@@ -13,7 +20,7 @@ const createCustomerComplain = async (req, res) => {
       complainType,
       preferredMediumContact,
       complainNumber,
-      user
+      user,
     });
     res.json({ success: true, message: "updated" });
   } catch (error) {
@@ -32,34 +39,34 @@ const getCustomerComplain = async (req, res) => {
   }
 };
 const updateCustomerComplain = async (req, res) => {
-const {_id, description, expectedOutcoms, complainType, preferredMediumContact, complainNumber } = req.body();
+  const { _id, complainStatus, complainResponse } = req.body;
   try {
     let newData = {};
-    if(description){
-      newData.description = description;
+    newData.complainUpdateDate = Date.now();
+
+    if (complainStatus) {
+      newData.complainStatus = complainStatus;
     }
-    if(expectedOutcoms){
-      newData.expectedOutcoms = expectedOutcoms;
+    if (complainResponse) {
+      newData.complainResponse = complainResponse;
     }
-    if(complainType){
-      newData.complainType = complainType;
+    const findComplain = await adminCustomerComplain.findOne({ _id });
+    if (!findComplain) {
+      return res.status(204).json({ msg: "sorry no record found" });
     }
-    if(preferredMediumContact){
-      newData.preferredMediumContact = preferredMediumContact;
-    }
-    if(complainNumber){
-      newData.complainNumber = complainNumber;
-    }
-    const findComplain = await adminCustomerComplain.findOne({_id})
-    if(!findComplain.length){
-      return res.status('400').send("sorry no record found")
-    }
-    const updateComplain = await adminCustomerComplain.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-    res.json({ success: true, message:"updated" });
+    await adminCustomerComplain.findByIdAndUpdate(
+      { _id },
+      { $set: newData },
+      { new: true }
+    );
+    res.status(202).json({ msg: "updated" });
   } catch (error) {
     console.error(error.message);
-
-    res.status(500).send("Some Error Occured");
+    res.status(500).json({ msg: "Some Error Occured" });
   }
 };
-module.exports = { createCustomerComplain, getCustomerComplain, updateCustomerComplain };
+module.exports = {
+  createCustomerComplain,
+  getCustomerComplain,
+  updateCustomerComplain,
+};

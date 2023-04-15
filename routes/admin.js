@@ -6,6 +6,7 @@ const {
   adminLogin,
   adminPasswordReset,
   getAdminData,
+  passwordRest_email
 } = require("../controller/superAdminController/user");
 const {
   getAccountBalance,
@@ -29,7 +30,7 @@ const {
 const {
   publishOffer,
 } = require("../controller/adminController/publishedOffer");
-// const { getAllProducts } = require("../controller/businessController/product");
+const {getAllProduct} = require("../controller/adminController/BusinessData/product")
 const {
   createAudit,
   getAuditReport,
@@ -76,7 +77,7 @@ const {
   updateStoreProp,
   savePropValues,
 } = require("../controller/adminController/admin_store_props");
-const updateAdminUser = require("../controller/adminController/admin_update_user");
+const {updateAdminUser, updateAdminUserPassword} = require("../controller/adminController/admin_update_user");
 const {createNotification, getAllNotifications} = require("../controller/adminController/admin_notification") 
 const {createCustomerInvoice, createBusinessInvoice, getAllBusinessInvoice, getAllCustomerInvoice} = require("../controller/adminController/admin_invoice")
 const {getPropValuation, createPropValuation, updatePropValuation} = require('../controller/adminController/admin_prop_valuation')
@@ -95,7 +96,12 @@ const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, custome
 //
 
 //Business
-const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+
+const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
+// const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+
+const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+const {paymentLink} = require('../controller/adminController/PaymentController/payment')
 //
 
 // const accountTransaction =require("../controller/adminController/account")
@@ -114,6 +120,7 @@ router.post(
   ],
   adminPasswordReset
 );
+router.post("/passwordRest_email", passwordRest_email);
 router.post(
   "/adminLogin",
   [
@@ -139,7 +146,7 @@ router.post("/getAccountBalance", getAccountBalance);
 router.post("/updateAccountBalance", updateAccountBalance);
 // router.post("/updateTier", updateTier);
 router.post("/saveAccountBalance", saveAccountBalance);
-// router.post("/getAllProducts", getAllProducts);
+router.post("/getAllProduct", getAllProduct);
 router.post("/createAudit", createAudit);
 router.post("/getAuditReport", getAuditReport);
 router.post("/createMilestoneData", createMilestoneData);
@@ -150,7 +157,7 @@ router.post("/updateData", updateData);
 router.post("/createData", createData);
 router.post("/createCustomerComplain", createCustomerComplain);
 router.post("/getCustomerComplain", getCustomerComplain);
-router.post("/updateCustomerComplain", updateCustomerComplain);
+router.post("/updateCustomerComplaint", updateCustomerComplain);
 router.post("/createBusinessComplain", createBusinessComplain);
 router.post("/getBusinessComplain", getBusinessComplain);
 router.post("/updateBusinessComplain", updateBusinessComplain);
@@ -169,6 +176,7 @@ router.post("/updateStoreProp", updateStoreProp);
 router.post("/getPropValues", getPropValues);
 router.post("/getAdminData", verifyToken, getAdminData);
 router.post("/updateAdminUser", verifyToken, updateAdminUser);
+router.post("/updateAdminUserPassword", verifyToken, updateAdminUserPassword);
 router.post("/createNotification", createNotification);
 router.post("/getAllNotifications", getAllNotifications);
 router.post("/createBusinessAudit", createBusinessAudit);
@@ -210,7 +218,7 @@ router.post("/updateBusinessPurchaseAndRedeemNotification", updateBusinessPurcha
 router.post("/createBusinessRequestAndComplaintNotification", createBusinessRequestAndComplaintNotification);
 router.post("/getBusinessRequestAndComplaintNotification", getBusinessRequestAndComplaintNotification);
 router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequestAndComplaintNotification);
-
+// router.post("/paymentLink", paymentLink);
 //customer data
 
 router.post("/getAllCustomer", getAllCustomer)
@@ -225,7 +233,11 @@ router.post("/updateCustomerStatus", updateCustomerStatus)
 router.post("/getAllBusiness", getAllBusiness)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
-
+router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
+router.get("/getSlot", getSlot)
+router.post('/getAllBusinessByContent', getAllBusinessByContent)
 //admin update
-
+const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
+router.post("/sendMail", sendMail)
+router.post("/sendMassNotification", sendMassNotification)
 module.exports = router;
