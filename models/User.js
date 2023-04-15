@@ -140,6 +140,8 @@ const UserSchema=new mongoose.Schema({
    agegroup:{type:String,default:null},
    avatar: {type:String,default:null},
    address:[{address:{
+    _id:mongoose.Types.ObjectId,
+    status: {type:Boolean, default:true},
     line1:{type:String},
      line2:{type:String},
     line3:{type:String},
@@ -150,7 +152,7 @@ const UserSchema=new mongoose.Schema({
    smsNotification:{type:Boolean, default:true},
    emailNotification:{type:Boolean, default:true}, 
    feedback:{type:String,default:null},
-   auditTrail: [{}],
+   auditTrail: [{_id:mongoose.Types.ObjectId, message: String, status: Boolean, value: String}],
 //    auditTrail:{
 //     startDate:Date,
 //     endDate:Date,
@@ -181,7 +183,7 @@ const tokenSchema = new mongoose.Schema({
     required: true
   },
   type:{
-    type:String,
+    type:Number,
     required: true
   },
   expiration: {type:Date,default:null},
