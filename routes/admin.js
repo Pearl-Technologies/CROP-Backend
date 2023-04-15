@@ -97,7 +97,7 @@ const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, custome
 
 //Business
 
-const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Budding/buddingProcess");
+const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
 // const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
 const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
