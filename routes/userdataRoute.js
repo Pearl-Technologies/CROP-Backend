@@ -82,7 +82,7 @@ router.put('/resendotp',async(req,res) =>{
     
     const mailOptions =
      {
-        from:"vickystater1@gmail.com",
+        from: process.env.EMAIL,
         to: email,
         subject: "resetted password",
         text:`OTP GENERATED ${otp}`
@@ -166,7 +166,7 @@ router.post('/emailphone',async(req,res) =>{
 
 const mailOptions =
  {
-    from:"vickystater1@gmail.com",
+    from: process.env.EMAIL,
     to: email,
     subject: "resetted password",
     text:`OTP GENERATED ${otp}`
@@ -510,7 +510,7 @@ router.post('/login',async (req,res) =>{
                         }
                     });
                     const mailOptions = {
-                        from:"vickystater1@gmail.com",
+                        from: process.env.EMAIL,
                         to: userEmail,
                         subject: "resetted password",
                         text:`OTP GENERATED ${otp}`
@@ -810,7 +810,7 @@ router.post('/mate',async(req,res)=>{
         }
     });
     const mailOptions = {
-        from:"vickystater1@gmail.com",
+        from: process.env.EMAIL,
         to: email,
         subject: "Refer code",
         text:`REFER CODE ${refercode}`

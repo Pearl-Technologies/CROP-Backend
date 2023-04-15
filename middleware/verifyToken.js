@@ -24,7 +24,7 @@ module.exports = async (req, res, next) => {
 
     console.log(token)
 
-    const decoded = await promisify(jwt.verify)(token, "crop@12345")
+    const decoded = await promisify(jwt.verify)(token, "vigneshraaj")
     // console.log(decoded, "decoded")
 
     // const user = User.findOne({ email: decoded.email })

@@ -351,7 +351,7 @@ const resendOtp = async (req, res) => {
   })
 
   const mailOptions = {
-    from: "vickystater1@gmail.com",
+    from: process.env.EMAIL,
     to: email,
     subject: "resetted password",
     text: `OTP GENERATED ${otp}`,

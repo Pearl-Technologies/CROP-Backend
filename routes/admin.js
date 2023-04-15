@@ -101,7 +101,7 @@ const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminCont
 // const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
 const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
-
+const {paymentLink} = require('../controller/adminController/PaymentController/payment')
 //
 
 // const accountTransaction =require("../controller/adminController/account")
@@ -218,7 +218,7 @@ router.post("/updateBusinessPurchaseAndRedeemNotification", updateBusinessPurcha
 router.post("/createBusinessRequestAndComplaintNotification", createBusinessRequestAndComplaintNotification);
 router.post("/getBusinessRequestAndComplaintNotification", getBusinessRequestAndComplaintNotification);
 router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequestAndComplaintNotification);
-
+// router.post("/paymentLink", paymentLink);
 //customer data
 
 router.post("/getAllCustomer", getAllCustomer)
