@@ -2,13 +2,13 @@ require("dotenv").config();
 const stripe = require("stripe")(
   "sk_test_51Mx307GGhIV5PAANJ3ODV14y6k2SKjFrd9FuG3wybL1UsooXDDVZe6QxHnHqH0Oy7EfS6dRvqcuU8xqHGevRG9bQ00yNUMET47"
 );
-// const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const express = require("express");
 const cors = require("cors");
 // const multer = require("multer")
 const ConnectDb = require("./config/db");
-
 const app = express();
+app.use(bodyParser.json());
 
 const categoryRoutes = require("./routes/categoryRoutes");
 const couponRoutes = require("./routes/couponRoute");
