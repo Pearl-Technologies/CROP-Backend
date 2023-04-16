@@ -834,4 +834,20 @@ router.post('/mate',async(req,res)=>{
     })
 })
 
+router.get('/profileAdmin',async(req,res) =>{  
+
+    try{
+        // let token=req.headers.authorization
+        // var base64;
+        const profile=await User.find().sort({"_id":-1})
+         res.status(200).json({"profile":profile,
+         status:"true",data:[]
+        });
+     }
+
+ catch(err){
+        res.status(500).send({message:"Internal server error",status:"false",data:[err]});
+     }    
+})
+
 module.exports = router;
