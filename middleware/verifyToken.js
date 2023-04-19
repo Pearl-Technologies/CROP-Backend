@@ -9,8 +9,9 @@ const { promisify } = require("util");
 
 module.exports = async (req, res, next) => {
   try {
-    const token = req.headers?.authorization?.split(" ")?.[1]
-    // const token = req.headers.authorization
+    
+    const token = req.headers?.authorization?.split(" ")?.[1];
+      // const token=req.headers.authorization;
 
     // console.log(token,"token")
 
@@ -23,7 +24,7 @@ module.exports = async (req, res, next) => {
 
     // console.log(token)
 
-    const decoded = await promisify(jwt.verify)(token, "crop@12345")
+    const decoded = await promisify(jwt.verify)(token, "CROP@12345")
     // console.log(decoded, "decoded")
 
     // const user = User.findOne({ email: decoded.email })

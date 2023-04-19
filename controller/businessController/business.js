@@ -10,7 +10,7 @@ const { Otp } = require("../../models/businessModel/Otp")
 const { sendMail } = require("../../utils/sendMail")
 const { User } = require("../../models/User")
 const Order = require("../../models/Order")
-const JWT_SECRET = "crop@12345"
+const JWT_SECRET = "CROP@12345"
 
 const emailRegisterOtp = async (req, res) => {
   const { email } = req.body

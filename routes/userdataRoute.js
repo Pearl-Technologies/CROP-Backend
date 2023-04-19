@@ -4,7 +4,8 @@ const {Otp}= require("../models/User");
 const {User} = require("../models/User");
 const {Token} = require("../models/User");
 const {Newsletter} = require("../models/User");
-const bcrypt=require('bcrypt');
+var mongoose = require('mongoose');
+const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
@@ -45,9 +46,10 @@ router.put("/uploadpicture",async(req,res)=>
 
     var obj = pathName + '/uploads/' + req.files[0].originalname;
         let token=req.headers.authorization;
-        const result= await User.updateOne({"token":token},{$set:{
-           avatar:obj
-       }});  
+        const token_data = await Token.findOne({"token":token});
+        const result=await User.updateOne({_id:token_data.user}, {$set:{
+            avatar:obj
+        }});  
        res.status(200).send({message:"Profile pic Updated successfully",
        status:"true",data:[]
       });
@@ -246,8 +248,8 @@ router.put('/resetpassword',async(req,res) =>{
  
     const newpin = await bcrypt.hash(req.body.newpin.toString(), 10); 
     const token = req.headers?.authorization
-
-    let oldpassword=await User.findOne({"token":token})
+    const token_data = await Token.findOne({"token":token});
+    const oldpassword=await User.findOne({_id:token_data.user});
     console.log(oldpassword)
 
 
@@ -260,7 +262,7 @@ router.put('/resetpassword',async(req,res) =>{
     {
         return res.status(500).send({message:"Both new and old password are same",status:"false",data:[]})
     }
-    const updatedata= await User.updateOne({"token": token }, {$set: {password : newpin}}); 
+    const updatedata= await User.updateOne({_id:token_data.user}, {$set: {password : newpin}}); 
 
     if(updatedata)
     {
@@ -364,7 +366,9 @@ router.post('/promocode',async (req,res) =>{
         
         try{
             let token=req.headers.authorization;
-            const result= await User.updateOne({"token" : token }, {$set: {"token" : "null"}});      
+            const token_data = await Token.findOne({"token":token});
+            const oldpassword=await Token.deleteMany({user:token_data.user});
+            const result= await User.updateOne({_id:token_data.user}, {$set: {"token" : "null"}});      
            res.status(200).send({ 
            status:"true",message:"Logout successfully"
           });
@@ -378,7 +382,7 @@ router.post('/promocode',async (req,res) =>{
 
         try{
             let token=req.headers.authorization;
-            const result= await User.findOne({"token" : token });      
+            const result= await Token.findOne({"token" : token });      
             if (result){
                 res.status(200).send({ 
                     status:"true",message:"Token active"
@@ -399,7 +403,8 @@ router.post('/promocode',async (req,res) =>{
 
     try{
             let token=req.headers.authorization;
-            const userData=await User.findOne({"token":token});  
+            const token_data = await Token.findOne({"token":token});
+            const userData=await User.findOne({_id:token_data.user});  
            res.status(200).send({
             data:userData,
            status:"true"
@@ -412,13 +417,13 @@ router.post('/promocode',async (req,res) =>{
 
 router.post('/login',async (req,res) =>{
     try{
-            let cropid=req.body.cropid;
-            let phone=req.body.phone;
+            // let cropid=req.body.cropid;
+            // let phone=req.body.phone;
             let email=req.body.email;
             console.log(email,"email")
 
         //getting email from the database and compare with the given email id
-     
+        
         const userData=await User.findOne({
            email:req.body.email
         });  
@@ -463,25 +468,25 @@ router.post('/login',async (req,res) =>{
         //     return res.status(500).send({message:"You already logged in"})
         // }
           //jwt joken is created when the email and password r correct so that it will generate the token for that user(email)
-            
-          var userToken =await jwt.sign({email:userData.email},'vigneshraaj');
-        //   res.header('token',userToken).json(userToken);
-
-        //  const token = jwt.sign({email:userData.email}, 'vigneshraaj', { expiresIn: '1h' });
-        //  await Token.insertOne({ token, exp: Math.floor(Date.now() / 1000) + 3600 });
-
-        var method = 0;
-        if(req.body.login_method === 1) {
-            method = 1;
-        }
-        else {
-            method = 2;
-        }
-        const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});      
+          var method = 0;
+          var userToken
+        //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+          let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+          if(req.body.login_method === 1) {
+              method = 1;
+              userToken =await jwt.sign({email:userData.email},'CROP@12345', { expiresIn: '1h' });
+              await new Token({ user: userData._id, token: userToken, type:method, expiration: oneHourFromNow }).save();
+          }
+          else {
+              method = 2;
+              userToken =await jwt.sign({email:userData.email},'CROP@12345');
+              await new Token({ user: userData._id, token: userToken, type:method }).save();
+          }
+        // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});      
         res.status(200).send({token:userToken,message:"Login successfull",status:"true",data:{userData}});
 
     }catch(err){
-        res.status(500).send({message:"Login error",status:"false",data:[]});
+        res.status(500).send({message:"Login error",status:"false",data:[err]});
     }
 })
 
@@ -555,7 +560,8 @@ router.get('/profile',async(req,res) =>{
     try{
         let token=req.headers.authorization
         var base64;
-        const profile=await User.findOne({"token":token})
+        const token_data = await Token.findOne({"token":token});
+        const profile=await User.findOne({_id:token_data.user})
     
         if(profile.avatar===null)
         {       
@@ -595,24 +601,24 @@ router.get('/profile',async(req,res) =>{
 router.put('/updateprofile',async(req,res) =>{  
 
     let token=req.headers.authorization
+    const token_data = await Token.findOne({"token":token});
     const currentDate = new Date();
         const formattedDate = currentDate.toLocaleDateString();
     
     try{
-          const result= await User.updateOne({"token":token},{$set:{
+          const result= await User.updateOne({_id:token_data.user},{$set:{
              name:req.body.name,
              mobileNumber:req.body.mobileNumber,
              email:req.body.email, 
              gender:req.body.gender,
-             dob:req.body.dob, 
-             address:req.body.address,
+             dob:req.body.dob,       
              agegroup:req.body.agegroup,
              loyaltyList:req.body.loyaltyList,
              lastUpdatedDate:formattedDate,
              interestList:req.body.interestList,
              auditTrail: `${req.body.name} have successfully updated his profile on ${formattedDate} `,
            
-     }});  
+     }, $push: {address: {_id:mongoose.Types.ObjectId(), address:req.body.address}}});  
          res.send({message:"Updated successfully",
          status:"true",data:[]
         });
@@ -626,8 +632,8 @@ router.post('/community',async(req,res)=>{
     let token=req.headers.authorization
   
     // let data=await User.findOne({"token":token})
-
-    const updatedata= await User.updateOne({"token": token }, {$set: { mktNotification:req.body.market,
+    const token_data = await Token.findOne({"token":token});
+    const updatedata= await User.updateOne({_id:token_data.user}, {$set: { mktNotification:req.body.market,
     smsNotification:req.body.sms,
     emailNotification:req.body.email, }}); 
     if(updatedata)
@@ -643,8 +649,8 @@ router.post('/community',async(req,res)=>{
 router.get('/showcommunity',async(req,res)=>{
 
     let token=req.headers.authorization
-   
-    const communitydata=await User.findOne({"token":token})
+    const token_data = await Token.findOne({"token":token});
+    const communitydata=await User.findOne({_id:token_data.user})
     if(communitydata)
     {
         res.status(200).send({data:{ 
@@ -662,8 +668,8 @@ router.get('/showcommunity',async(req,res)=>{
 router.post('/biometric',async(req,res)=>{
 
     let token=req.headers.authorization
-
-    const biometricdata=await User.findOne({"token":token})
+    const token_data = await Token.findOne({"token":token});
+    const biometricdata=await User.findOne({_id:token_data.user})
 
     const isPasswordValid = await bcrypt.compare(req.body.pin, biometricdata.password);
 
@@ -674,9 +680,9 @@ router.post('/biometric',async(req,res)=>{
             
         }
 
-    const updatebiometric=await User.updateOne({"token": token }, {$set: { biometricterms:req.body.biometric }}); 
+    const updatebiometric=await User.updateOne({_id:token_data.user}, {$set: { biometricterms:req.body.biometric }}); 
 
-    const userdata=await User.findOne({"token":token})
+    const userdata=await User.findOne({_id:token_data.user})
 
 
         if(userdata.biometricterms===true)
@@ -691,7 +697,8 @@ router.post('/biometric',async(req,res)=>{
 router.get('/biometricterms',async(req,res)=>{
 
     let token=req.headers.authorization
-    const biometricdata=await User.findOne({"token":token})
+    const token_data = await Token.findOne({"token":token});
+    const biometricdata=await User.findOne({_id:token_data.user})
     if(biometricdata)
     {
         res.status(200).send({data:{"biometricterms":biometricdata.biometricterms},status:"true"})
@@ -706,9 +713,10 @@ router.post('/feedback',async(req,res)=>{
     let token=req.headers.authorization;
     
     let feedback=req.body.feedback;
- 
+    
+    const token_data = await Token.findOne({"token":token});
 
-    const updatedata= await User.updateOne({"token": token }, {$set: { feedback:feedback, }}); 
+    const updatedata= await User.updateOne({_id:token_data.user}, {$set: { feedback:feedback, }}); 
         if(updatedata)
         {
             res.status(200).send({message:"Feedback updated successfully",status:"true"})
@@ -726,43 +734,43 @@ router.put('/levels',async(req,res)=>{
 
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
-
+    const token_data = await Token.findOne({"token":token});
     //Changing levels according to croppoints5
     if(points===0)
     {
-        const updatelevels=await User.updateOne({"token": token },
-         {$set: { UserTier:"Base" }, $push:{auditTrail:`The usertier changed to Base on ${formattedDate}`}}); 
+        const updatelevels=await User.updateOne({_id:token_data.user},
+         {$set: { UserTier:"Base" }, $push:{auditTrail:{value: "UserTier", status: true, message:`The usertier changed to Base on ${formattedDate}`}}}); 
         res.send({status:"true"})
         
     }
     else if(points<=30)
     {
-        const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Silver"}, $push:{auditTrail:`The usertier changed to Silver on ${formattedDate}` }}); 
+        const updatelevels=await User.updateOne({_id:token_data.user}, 
+        {$set: { UserTier:"Silver"}, $push:{auditTrail:{value: "UserTier", status: true, message:`The usertier changed to Silver on ${formattedDate}` }}}); 
         res.send({status:"true"})
     
     }
    else if(points<=60)
     {
-        const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Gold" }, $push:{auditTrail:`The usertier changed to Gold on ${formattedDate}`}}); 
+        const updatelevels=await User.updateOne({_id:token_data.user}, 
+        {$set: { UserTier:"Gold" }, $push:{auditTrail:{value: "UserTier", status: true, message:`The usertier changed to Gold on ${formattedDate}`}}}); 
         res.send({status:"true"})
         
     }
     else if(points<=1000)
     {
-        const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Platinum"}, $push:{auditTrail:`The usertier changed to Platinum on ${formattedDate}` }}); 
+        const updatelevels=await User.updateOne({_id:token_data.user}, 
+        {$set: { UserTier:"Platinum"}, $push:{auditTrail:{value: "UserTier", status: true, message:`The usertier changed to Platinum on ${formattedDate}` }}}); 
         res.send({status:"true"})
      
     }
     // else if(points<=2800)
     // {
-    //     const updatelevels=await User.updateOne({"token": token }, {$set: { UserTier:"Diamond" }});
+    //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
     //     res.send({status:"true"})
     else {
-        const updatelevels=await User.updateOne({"token": token }, 
-        {$set: { UserTier:"Diamond"}, $push:{auditTrail:`The usertier changed to Diamond on ${formattedDate}` }});
+        const updatelevels=await User.updateOne({_id:token_data.user}, 
+        {$set: { UserTier:"Diamond"}, $push:{auditTrail:{_id: new mongoose.Types.ObjectId(), value: "UserTier", status: true, message:`The usertier changed to Diamond on ${formattedDate}` }}});
         res.send({status:"true"})
       
       }
@@ -819,12 +827,27 @@ router.post('/mate',async(req,res)=>{
     transporter.sendMail(mailOptions, (err, result) => {
         if (err){
             res.json('Oops error occurred')
-            res.status(200).send({message:"Mail sent successfully",status:"true",data:[]});
+            res.status(200).send({message:"Mail sent successfully", status:"true", data:[]});
         } else{          
-            res.status(500).send({message:"Internal server error",status:"false",data:[]});                   
+            res.status(500).send({message:"Internal server error", status:"false", data:[]});                   
         }
     })
 })
 
+router.get('/profileAdmin',async(req,res) =>{  
+
+    try{
+        // let token=req.headers.authorization
+        // var base64;
+        const profile=await User.find().sort({"_id":-1})
+         res.status(200).json({"profile":profile,
+         status:"true",data:[]
+        });
+     }
+
+ catch(err){
+        res.status(500).send({message:"Internal server error",status:"false",data:[err]});
+     }    
+})
+
 module.exports = router;
-  
