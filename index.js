@@ -1,10 +1,10 @@
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 // const multer = require("multer")
 const ConnectDb = require("./config/db");
 const app = express();
+app.use(bodyParser.json());
 
 const categoryRoutes = require("./routes/categoryRoutes");
 const couponRoutes = require("./routes/couponRoute");

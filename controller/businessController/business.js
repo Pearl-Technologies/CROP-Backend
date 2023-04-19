@@ -10,7 +10,7 @@ const { Otp } = require("../../models/businessModel/Otp")
 const { sendMail } = require("../../utils/sendMail")
 const { User } = require("../../models/User")
 const Order = require("../../models/Order")
-const JWT_SECRET = "crop@12345"
+const JWT_SECRET = "CROP@12345"
 
 const emailRegisterOtp = async (req, res) => {
   const { email } = req.body
@@ -533,10 +533,6 @@ const getUserCropDetails = async (req, res) => {
     console.log(error)
     res.status(500).send("Internal Sever Error")
   }
-}
-
-const getBusinessOrders = async (req, res) => {
-  const myOrders = await Order.aggregate([])
 }
 
 const pinChange = async (req, res) => {

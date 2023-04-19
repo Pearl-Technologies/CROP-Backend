@@ -417,8 +417,8 @@ router.post('/promocode',async (req,res) =>{
 
 router.post('/login',async (req,res) =>{
     try{
-            let cropid=req.body.cropid;
-            let phone=req.body.phone;
+            // let cropid=req.body.cropid;
+            // let phone=req.body.phone;
             let email=req.body.email;
             console.log(email,"email")
 

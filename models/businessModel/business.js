@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 const businessSchema = mongoose.Schema(
   {
     title: { type: String },
-    businessName: { type: String },
+    businessName: { type: String, required: true },
     ABN: { type: String, default: "" },
     ACN: { type: String, default: "" },
     fName: { type: String },
@@ -14,26 +14,29 @@ const businessSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    // Sridhar Start
     natureOfBusiness: { type: String },
     brandLogo: { type: String },
     nameOfLoyaltyProgram: { type: String },
     activeloyaltyProgram: { type: String },
     program: { type: String },
-    // activeOffers: { type: String },
-    // offerRatings: { type: String },
     auditTrail: [
       {
         updatedDate: { type: Date },
         msg: { type: String },
       },
     ],
-    // Sridhar End
     mobile: { type: Number },
     email: { type: String, unique: true },
     status: { type: String, default: "active" },
     outletCount: { type: Number, default: 1 },
-    address: { type: Array, default: null },
+    address: [
+      {
+        line1: String,
+        line2: String,
+        state: String,
+        pin: Number,
+      },
+    ],
 
     notification: { type: Boolean, default: false },
     mktNotification: { type: Boolean, default: false },

@@ -128,22 +128,22 @@ router.post(
     body("password", "Passowrd should not be blank").exists(),
   ],
   adminLogin
-);
+)
 
 // router.post("/balanceUpdate", [body("cropId", "Cropid should not be empty").exists(), body("category", "category should not be empty").exists(), body("type", "type should not be blank").exists(), body("description", "description should not be blank").exists()], totalBalanceUpdate);
 // router.post("/createBalanceAccount", [body("cropId", "cropId should not be blank").exists(), body("category", "category should not be blank").exists()], createTotalBalanceAccount);
 // router.post("/accountTransaction", accountTransaction);
 // router.post("/redeemtionLimit", [body("cropId", "cropId should not be blank").exists(), body("accountType", "accountType should not be blank").exists(), body("value", "value should not be blank").exists()], redeemtionLimit);
-router.post("/CropTransaction", CropTransaction);
-router.post("/GetCropDetails", GetCropDetails);
-router.post("/PropTransaction", PropTransaction);
-router.post("/GetPropDetails", GetAllProp);
-router.post("/setBasePrice", setBasePrice);
-router.post("/getBasePrice", getBasePrice);
-router.post("/updateBasePrice", updateBasePrice);
-router.post("/publishOffer", publishOffer);
-router.post("/getAccountBalance", getAccountBalance);
-router.post("/updateAccountBalance", updateAccountBalance);
+router.post("/CropTransaction", CropTransaction)
+router.post("/GetCropDetails", GetCropDetails)
+router.post("/PropTransaction", PropTransaction)
+router.post("/GetPropDetails", GetAllProp)
+router.post("/setBasePrice", setBasePrice)
+router.post("/getBasePrice", getBasePrice)
+router.post("/updateBasePrice", updateBasePrice)
+router.post("/publishOffer", publishOffer)
+router.post("/getAccountBalance", getAccountBalance)
+router.post("/updateAccountBalance", updateAccountBalance)
 // router.post("/updateTier", updateTier);
 router.post("/saveAccountBalance", saveAccountBalance);
 router.post("/getAllProduct", getAllProduct);

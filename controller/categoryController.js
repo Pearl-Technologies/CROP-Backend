@@ -65,12 +65,12 @@ module.exports.getRedeemCategory = async (req,res) => {
 // get all category
 module.exports.getShowingCategory = async (req,res) => {
   try {
-    const result = await Category.find({status:'Show'});
+    const result = await Category.find({ status: "Show" })
     res.json({
-      success:true,
-      categories:result,
+      success: true,
+      categories: result,
     })
-    console.log(result,"result")
+    // console.log(result,"result")
   } catch (error) {
     res.status(500).send({
       message:error.message
