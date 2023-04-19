@@ -21,7 +21,7 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    console.log(token)
+    // console.log(token)
 
     const decoded = await promisify(jwt.verify)(token, "crop@12345")
     // console.log(decoded, "decoded")

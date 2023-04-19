@@ -535,10 +535,6 @@ const getUserCropDetails = async (req, res) => {
   }
 }
 
-const getBusinessOrders = async (req, res) => {
-  const myOrders = await Order.aggregate([])
-}
-
 const pinChange = async (req, res) => {
   const { oldPin, newPin } = req.body
   const id = req.user.user.id

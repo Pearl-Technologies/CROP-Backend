@@ -185,7 +185,7 @@ module.exports.updateProduct = async (req, res) => {
   try {
     delete req.body._id
     const products = await Product.findByIdAndUpdate({ _id: id }, req.body)
-    res.status(200).json({ products })
+    res.status(200).json({ products, productId: products._id })
   } catch (error) {
     console.log(error)
     res.status(500).send({
@@ -469,7 +469,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
                     $lte: ["2023-04-10", today],
                   },
                   {
-                    $gte: ["2023-04-12", today],
+                    $gte: ["2023-04-16", today],
                   },
                   {
                     $eq: [true, true],
@@ -541,13 +541,16 @@ module.exports.uploadProductImages = async (req, res) => {
     const productId = req.params.productId
     const fileName = req.files[0].filename
     // console.log(req.files[0], "0")
-    // console.log(fileName, "fileName")
+    console.log(fileName, "fileName")
     // console.log(productId, "productId")
-    const product = await Product.findById(productId)
-    const images = await product.images
-    console.log(images)
-    images.push(fileName)
-    await Product.findByIdAndUpdate({ _id: productId }, { images })
+    // const product = await Product.findById(productId)
+    // const images = await product.images
+    // console.log(images)
+    // images.push(fileName)
+    await Product.findByIdAndUpdate(
+      { _id: productId },
+      { $push: { image: fileName } }
+    )
     return res.status(200).send({ success: true })
   } catch (error) {
     console.log(error)
@@ -567,6 +570,52 @@ module.exports.getProductImage = async (req, res) => {
     console.log(error)
   }
 }
+
+module.exports.getEarnProducts = async (req, res) => {
+  const user = req.user.user.id
+  console.log("one")
+  try {
+    const products = await Product.find({
+      $and: [
+        { user },
+        {
+          $or: [{ apply: "earnCrop" }, { apply: "both" }],
+        },
+      ],
+    })
+    return res.status(200).send({ products })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.getRedeemProducts = async (req, res) => {
+  const user = req.user.user.id
+  console.log("two")
+  try {
+    // return console.log("redeemp")
+    const products = await Product.find({
+      $and: [
+        { user },
+        {
+          $or: [{ apply: "reedemCrop" }, { apply: "both" }],
+        },
+      ],
+    })
+    return res.status(200).send({ products })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
 module.exports.productComment = async (req, res) => {
   try {
     const newProductComment = new productComment(req.body)
@@ -640,6 +689,38 @@ module.exports.getProductComment = async (req, res) => {
     res
       .status(200)
       .json({ message: "Product Comment Get", newProductComment, status: 200 })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.getEarnCropProductsBySector = async (req, res) => {
+  const { sector } = req.params
+  try {
+    const products = await Product.find({
+      $and: [{ sector }, { apply: "earnCrop" }],
+    })
+    return res.status(200).send({ products })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.getRedeemCropProductsBySector = async (req, res) => {
+  const { sector } = req.params
+  try {
+    const products = await Product.find({
+      $and: [{ sector }, { apply: "redeemCrop" }],
+    })
+    return res.status(200).send({ products })
   } catch (error) {
     console.log(error)
     res.status(500).send({

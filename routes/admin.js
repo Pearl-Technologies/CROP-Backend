@@ -96,7 +96,9 @@ const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, custome
 
 //Business
 const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
-//
+const {
+  getSlot,
+} = require("../controller/adminController/Bidding/buddingProcess")
 
 // const accountTransaction =require("../controller/adminController/account")
 //router
@@ -113,7 +115,7 @@ router.post(
     }),
   ],
   adminPasswordReset
-);
+)
 router.post(
   "/adminLogin",
   [
@@ -121,95 +123,163 @@ router.post(
     body("password", "Passowrd should not be blank").exists(),
   ],
   adminLogin
-);
+)
 
 // router.post("/balanceUpdate", [body("cropId", "Cropid should not be empty").exists(), body("category", "category should not be empty").exists(), body("type", "type should not be blank").exists(), body("description", "description should not be blank").exists()], totalBalanceUpdate);
 // router.post("/createBalanceAccount", [body("cropId", "cropId should not be blank").exists(), body("category", "category should not be blank").exists()], createTotalBalanceAccount);
 // router.post("/accountTransaction", accountTransaction);
 // router.post("/redeemtionLimit", [body("cropId", "cropId should not be blank").exists(), body("accountType", "accountType should not be blank").exists(), body("value", "value should not be blank").exists()], redeemtionLimit);
-router.post("/CropTransaction", CropTransaction);
-router.post("/GetCropDetails", GetCropDetails);
-router.post("/PropTransaction", PropTransaction);
-router.post("/GetPropDetails", GetAllProp);
-router.post("/setBasePrice", setBasePrice);
-router.post("/getBasePrice", getBasePrice);
-router.post("/updateBasePrice", updateBasePrice);
-router.post("/publishOffer", publishOffer);
-router.post("/getAccountBalance", getAccountBalance);
-router.post("/updateAccountBalance", updateAccountBalance);
+router.post("/CropTransaction", CropTransaction)
+router.post("/GetCropDetails", GetCropDetails)
+router.post("/PropTransaction", PropTransaction)
+router.post("/GetPropDetails", GetAllProp)
+router.post("/setBasePrice", setBasePrice)
+router.post("/getBasePrice", getBasePrice)
+router.post("/updateBasePrice", updateBasePrice)
+router.post("/publishOffer", publishOffer)
+router.post("/getAccountBalance", getAccountBalance)
+router.post("/updateAccountBalance", updateAccountBalance)
 // router.post("/updateTier", updateTier);
-router.post("/saveAccountBalance", saveAccountBalance);
+router.post("/saveAccountBalance", saveAccountBalance)
 // router.post("/getAllProducts", getAllProducts);
-router.post("/createAudit", createAudit);
-router.post("/getAuditReport", getAuditReport);
-router.post("/createMilestoneData", createMilestoneData);
-router.post("/getMilestoneData", getMilestoneData);
-router.post("/updateMilestoneData", updateMilestoneData);
-router.post("/getData", getData);
-router.post("/updateData", updateData);
-router.post("/createData", createData);
-router.post("/createCustomerComplain", createCustomerComplain);
-router.post("/getCustomerComplain", getCustomerComplain);
-router.post("/updateCustomerComplain", updateCustomerComplain);
-router.post("/createBusinessComplain", createBusinessComplain);
-router.post("/getBusinessComplain", getBusinessComplain);
-router.post("/updateBusinessComplain", updateBusinessComplain);
-router.post("/createCustomerRequest", createCustomerRequest);
-router.post("/getCustomerRequest", getCustomerRequest);
-router.post("/updateCustomerRequest", updateCustomerRequest);
-router.post("/createBusinessRequest", createBusinessRequest);
-router.post("/getBusinessRequest", getBusinessRequest);
-router.post("/updateBusinessRequest", updateBusinessRequest);
-router.post("/getBusinessSurvey", getBusinessSurvey);
-router.post("/createBusinessSurvey", createBusinessSurvey);
-router.post("/getCustomerSurvey", getCustomerSurvey);
-router.post("/createCustomerSurvey", createCustomerSurvey);
-router.post("/savePropValues", savePropValues);
-router.post("/updateStoreProp", updateStoreProp);
-router.post("/getPropValues", getPropValues);
-router.post("/getAdminData", verifyToken, getAdminData);
-router.post("/updateAdminUser", verifyToken, updateAdminUser);
-router.post("/createNotification", createNotification);
-router.post("/getAllNotifications", getAllNotifications);
-router.post("/createBusinessAudit", createBusinessAudit);
-router.post("/getBusinessAuditReport", getBusinessAuditReport);
-router.post("/getAllCustomerProp", getAllCustomerProp);
-router.post("/getAllCustomerCrop", getAllCustomerCrop);
-router.post("/getAllBusinessCrop", getAllBusinessCrop);
-router.post("/createCustomerInvoice", createCustomerInvoice);
-router.post("/createBusinessInvoice", createBusinessInvoice);
-router.post("/getAllBusinessInvoice", getAllBusinessInvoice);
-router.post("/getAllCustomerInvoice", getAllCustomerInvoice);
-router.post("/getPropValuation", getPropValuation);
-router.post("/createPropValuation", createPropValuation);
-router.post("/updatePropValuation", updatePropValuation);
-router.post("/createCustomerAccountNotification", createCustomerAccountNotification);
-router.post("/getCustomerAccountNotification", getCustomerAccountNotification);
-router.post("/updateCustomerAccountNotification", updateCustomerAccountNotification);
-router.post("/createCustomerGeneralNotification", createCustomerGeneralNotification);
-router.post("/getCustomerGeneralNotification", getCustomerGeneralNotification);
-router.post("/updateCustomerGenearlNotification", updateCustomerGenearlNotification);
-router.post("/createCustomerGeneralNotification", createCustomerGeneralNotification);
-router.post("/getCustomerGeneralNotification", getCustomerGeneralNotification);
-router.post("/updateCustomerGenearlNotification", updateCustomerGenearlNotification);
-router.post("/createCustomerPurchaseAndRedeemNotification", createCustomerPurchaseAndRedeemNotification);
-router.post("/getCustomerPurchaseAndRedeemNotification", getCustomerPurchaseAndRedeemNotification);
-router.post("/updateCustomerPurchaseAndRedeemNotification", updateCustomerPurchaseAndRedeemNotification);
-router.post("/createCustomerRequestAndComplaintNotification", createCustomerRequestAndComplaintNotification);
-router.post("/getCustomerRequestAndComplaintNotification", getCustomerRequestAndComplaintNotification);
-router.post("/updateCustomerRequestAndComplaintNotification", updateCustomerRequestAndComplaintNotification);
-router.post("/createBusinessAccountNotification", createBusinessAccountNotification);
-router.post("/getBusinessAccountNotification", getBusinessAccountNotification);
-router.post("/updateBusinessAccountNotification", updateBusinessAccountNotification);
-router.post("/getBusinessGeneralNotification", getBusinessGeneralNotification);
-router.post("/createBusinessGeneralNotification", createBusinessGeneralNotification);
-router.post("/updateBusinessGenearlNotification", updateBusinessGenearlNotification);
-router.post("/createBusinessPurchaseAndRedeemNotification", createBusinessPurchaseAndRedeemNotification);
-router.post("/getBusinessPurchaseAndRedeemNotification", getBusinessPurchaseAndRedeemNotification);
-router.post("/updateBusinessPurchaseAndRedeemNotification", updateBusinessPurchaseAndRedeemNotification);
-router.post("/createBusinessRequestAndComplaintNotification", createBusinessRequestAndComplaintNotification);
-router.post("/getBusinessRequestAndComplaintNotification", getBusinessRequestAndComplaintNotification);
-router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequestAndComplaintNotification);
+router.post("/createAudit", createAudit)
+router.post("/getAuditReport", getAuditReport)
+router.post("/createMilestoneData", createMilestoneData)
+router.post("/getMilestoneData", getMilestoneData)
+router.post("/updateMilestoneData", updateMilestoneData)
+router.post("/getData", getData)
+router.post("/updateData", updateData)
+router.post("/createData", createData)
+router.post("/createCustomerComplain", createCustomerComplain)
+router.post("/getCustomerComplain", getCustomerComplain)
+router.post("/updateCustomerComplain", updateCustomerComplain)
+router.post("/createBusinessComplain", createBusinessComplain)
+router.post("/getBusinessComplain", getBusinessComplain)
+router.post("/updateBusinessComplain", updateBusinessComplain)
+router.post("/createCustomerRequest", createCustomerRequest)
+router.post("/getCustomerRequest", getCustomerRequest)
+router.post("/updateCustomerRequest", updateCustomerRequest)
+router.post("/createBusinessRequest", createBusinessRequest)
+router.post("/getBusinessRequest", getBusinessRequest)
+router.post("/updateBusinessRequest", updateBusinessRequest)
+router.post("/getBusinessSurvey", getBusinessSurvey)
+router.post("/createBusinessSurvey", createBusinessSurvey)
+router.post("/getCustomerSurvey", getCustomerSurvey)
+router.post("/createCustomerSurvey", createCustomerSurvey)
+router.post("/savePropValues", savePropValues)
+router.post("/updateStoreProp", updateStoreProp)
+router.post("/getPropValues", getPropValues)
+router.post("/getAdminData", verifyToken, getAdminData)
+router.post("/updateAdminUser", verifyToken, updateAdminUser)
+router.post("/createNotification", createNotification)
+router.post("/getAllNotifications", getAllNotifications)
+router.post("/createBusinessAudit", createBusinessAudit)
+router.post("/getBusinessAuditReport", getBusinessAuditReport)
+router.post("/getAllCustomerProp", getAllCustomerProp)
+router.post("/getAllCustomerCrop", getAllCustomerCrop)
+router.post("/getAllBusinessCrop", getAllBusinessCrop)
+router.post("/createCustomerInvoice", createCustomerInvoice)
+router.post("/createBusinessInvoice", createBusinessInvoice)
+router.post("/getAllBusinessInvoice", getAllBusinessInvoice)
+router.post("/getAllCustomerInvoice", getAllCustomerInvoice)
+router.post("/getPropValuation", getPropValuation)
+router.post("/createPropValuation", createPropValuation)
+router.post("/updatePropValuation", updatePropValuation)
+router.post(
+  "/createCustomerAccountNotification",
+  createCustomerAccountNotification
+)
+router.post("/getCustomerAccountNotification", getCustomerAccountNotification)
+router.post(
+  "/updateCustomerAccountNotification",
+  updateCustomerAccountNotification
+)
+router.post(
+  "/createCustomerGeneralNotification",
+  createCustomerGeneralNotification
+)
+router.post("/getCustomerGeneralNotification", getCustomerGeneralNotification)
+router.post(
+  "/updateCustomerGenearlNotification",
+  updateCustomerGenearlNotification
+)
+router.post(
+  "/createCustomerGeneralNotification",
+  createCustomerGeneralNotification
+)
+router.post("/getCustomerGeneralNotification", getCustomerGeneralNotification)
+router.post(
+  "/updateCustomerGenearlNotification",
+  updateCustomerGenearlNotification
+)
+router.post(
+  "/createCustomerPurchaseAndRedeemNotification",
+  createCustomerPurchaseAndRedeemNotification
+)
+router.post(
+  "/getCustomerPurchaseAndRedeemNotification",
+  getCustomerPurchaseAndRedeemNotification
+)
+router.post(
+  "/updateCustomerPurchaseAndRedeemNotification",
+  updateCustomerPurchaseAndRedeemNotification
+)
+router.post(
+  "/createCustomerRequestAndComplaintNotification",
+  createCustomerRequestAndComplaintNotification
+)
+router.post(
+  "/getCustomerRequestAndComplaintNotification",
+  getCustomerRequestAndComplaintNotification
+)
+router.post(
+  "/updateCustomerRequestAndComplaintNotification",
+  updateCustomerRequestAndComplaintNotification
+)
+router.post(
+  "/createBusinessAccountNotification",
+  createBusinessAccountNotification
+)
+router.post("/getBusinessAccountNotification", getBusinessAccountNotification)
+router.post(
+  "/updateBusinessAccountNotification",
+  updateBusinessAccountNotification
+)
+router.post("/getBusinessGeneralNotification", getBusinessGeneralNotification)
+router.post(
+  "/createBusinessGeneralNotification",
+  createBusinessGeneralNotification
+)
+router.post(
+  "/updateBusinessGenearlNotification",
+  updateBusinessGenearlNotification
+)
+router.post(
+  "/createBusinessPurchaseAndRedeemNotification",
+  createBusinessPurchaseAndRedeemNotification
+)
+router.post(
+  "/getBusinessPurchaseAndRedeemNotification",
+  getBusinessPurchaseAndRedeemNotification
+)
+router.post(
+  "/updateBusinessPurchaseAndRedeemNotification",
+  updateBusinessPurchaseAndRedeemNotification
+)
+router.post(
+  "/createBusinessRequestAndComplaintNotification",
+  createBusinessRequestAndComplaintNotification
+)
+router.post(
+  "/getBusinessRequestAndComplaintNotification",
+  getBusinessRequestAndComplaintNotification
+)
+router.post(
+  "/updateBusinessRequestAndComplaintNotification",
+  updateBusinessRequestAndComplaintNotification
+)
+// router.post("/getSlot", getSlot)
+router.post("/getSlot", getSlot)
 
 //customer data
 

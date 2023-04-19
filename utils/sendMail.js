@@ -3,23 +3,24 @@ const { Otp } = require("../models/businessModel/Otp")
 
 const sendMail = (toEmail, subject, msg, resMsg, otpType, userType, res) => {
     var otp = Math.floor(100000 + Math.random() * 900000)
-    console.log({otp})
+  console.log({ otp })
+
   const transporter = nodemailer.createTransport({
     // service: "Gmail",
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
     auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   })
-  console.log({toEmail, subject, msg, resMsg})
+  console.log({ toEmail, subject, msg, resMsg })
   const mailOptions = {
-    from: process.env.EMAIL,
+    from: process.env.EMAIL_USER,
     to: toEmail,
     subject: subject,
-      text: msg + " " + otp,
+    text: msg + " " + otp,
   }
 
   transporter.sendMail(mailOptions, async(err, result) => {
