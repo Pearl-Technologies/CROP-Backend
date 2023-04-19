@@ -61,7 +61,7 @@ const productSchema = mongoose.Schema(
     status: {
       type: String,
       default: "active",
-      enum: ["active", "inActive"],
+      enum: ["active", "inActive", "published"],
     },
     customiseMsg: { type: String, required: true },
     mktOfferFor: { type: String, default: "" },

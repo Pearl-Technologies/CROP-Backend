@@ -1,9 +1,11 @@
 const bidding = require("../../../models/admin/bidding/admin_bidding");
 const createEveryDayPromotionSlot = async (req, res) => {
-  // return console.log("hello")
+  // res.send(req.body);
+  // return console.log("need to to change front end");
   let { publishedAs, publishingSlot } = req.body;
   try {
-    if (publishingSlot === "day") {
+    if (publishingSlot === "weekday") {
+      
       let date = Date.now();
       //bid_start_date
       let bid_start_date = new Date(date).toLocaleDateString();
@@ -17,12 +19,19 @@ const createEveryDayPromotionSlot = async (req, res) => {
       ).toLocaleDateString();
       //published_end_date
       let published_end_date = new Date(
-        date + 1000 * 60 * 60 * 24 * 11
+        date + 1000 * 60 * 60 * 24 * 10
       ).toLocaleDateString();
 
       let findExistingSlot = await bidding.findOne({
         $and: [{ bid_start_date, bid_end_date, publishedAs }],
       });
+      let yesterday = new Date(Date.now()-1000*60*60*24*1).toLocaleDateString();
+      const deleteDoc = await bidding.find({publishingSlot: "weekday", bid_end_date:yesterday });
+      if(deleteDoc.length>0){
+        deleteDoc.map(async (data)=>
+        await bidding.findByIdAndDelete({_id:data._id})
+        )
+      }
       if (findExistingSlot) {
         return res.status(403).json({ msg: "already exist" });
       }
@@ -36,7 +45,7 @@ const createEveryDayPromotionSlot = async (req, res) => {
         published_end_date,
       });
       res.status(201).json({ msg: "created" });
-    } else if (publishingSlot === "week") {
+    } else if (publishingSlot === "weekly") {
       let date = Date.now();
       let startDate = new Date(date + 1000 * 60 * 60 * 24 * 8);
       let i = 8;
@@ -55,6 +64,13 @@ const createEveryDayPromotionSlot = async (req, res) => {
       let published_start_date = startDate.toLocaleDateString();
       let published_end_date = endDate.toLocaleDateString();
 
+      let yesterday = new Date(Date.now()-1000*60*60*24*1).toLocaleDateString();
+      const deleteDoc = await bidding.find({publishingSlot: "weekly", bid_end_date:yesterday });
+      if(deleteDoc.length>0){
+        deleteDoc.map(async (data)=>
+        await bidding.findByIdAndDelete({_id:data._id})
+        )
+      }
       let findExistingSlot = await bidding.findOne({
         $and: [{ bid_start_date, bid_end_date, publishedAs, publishingSlot }],
       });
@@ -70,7 +86,7 @@ const createEveryDayPromotionSlot = async (req, res) => {
         published_end_date,
       });
       res.status(201).json({ msg: "created" });
-    } else if (publishingSlot === "month") {
+    } else if (publishingSlot === "monthly") {
       let currentMonth = new Date().getMonth();
       let publishedDate = Date.now() + 1000 * 60 * 60 * 24 * 1;
       let i = 1;
@@ -95,7 +111,14 @@ const createEveryDayPromotionSlot = async (req, res) => {
       ).toLocaleDateString();
       let published_start_date = new Date(publishedDate).toLocaleDateString();
       let published_end_date = new Date(lastDate).toLocaleDateString();
-
+      
+      let yesterday = new Date(Date.now()-1000*60*60*24*1).toLocaleDateString();
+      const deleteDoc = await bidding.find({publishingSlot: "monthly", bid_end_date:yesterday });
+      if(deleteDoc.length>0){
+        deleteDoc.map(async (data)=>
+        await bidding.findByIdAndDelete({_id:data._id})
+        )
+      }
       let findExistingSlot = await bidding.findOne({
         $and: [
           {

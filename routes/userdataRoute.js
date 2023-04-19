@@ -474,12 +474,12 @@ router.post('/login',async (req,res) =>{
           let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
           if(req.body.login_method === 1) {
               method = 1;
-              userToken =await jwt.sign({email:userData.email},'vigneshraaj', { expiresIn: '1h' });
+              userToken =await jwt.sign({email:userData.email},'CROP@12345', { expiresIn: '1h' });
               await new Token({ user: userData._id, token: userToken, type:method, expiration: oneHourFromNow }).save();
           }
           else {
               method = 2;
-              userToken =await jwt.sign({email:userData.email},'vigneshraaj');
+              userToken =await jwt.sign({email:userData.email},'CROP@12345');
               await new Token({ user: userData._id, token: userToken, type:method }).save();
           }
         // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});      

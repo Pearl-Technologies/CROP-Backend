@@ -2,7 +2,7 @@ const admin = require("../../models/superAdminModel/user");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "vigneshraaj";
+const JWT_SECRET = "CROP@12345";
 const { sendEmail } = require("../../config/email");
 // const { sendEmail } = require("../../../config/email");
 

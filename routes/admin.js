@@ -101,7 +101,7 @@ const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminCont
 // const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
 const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
-const {paymentLink} = require('../controller/adminController/PaymentController/payment')
+const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 
 // const accountTransaction =require("../controller/adminController/account")

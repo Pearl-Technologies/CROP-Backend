@@ -1,25 +1,55 @@
+const {adminPaymentTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
 
-const stripe = require('stripe')('sk_test_51MwJdKSApB6j81bQ7hzzHcLjuKBmW9TpvvosSuVdjS3aHHGTdU4vsVHAVwZ32U7WaRjFOzKjo3vio20tJpVUJbql00LF0fHzxz');
-const paymentInfo = async (req, res) => {
-  return res.send("hello");  
+
+const SavePaymentInfo = async(paymentLink, productId, status, paymentUrl, businessId, tries)=>{
+  // return console.log(paymentLink, productId, status, paymentUrl)
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1000, // amount in cents
-      currency: "usd",
-    });
-    // console.log(paymentIntent)
-    const paymentLink = await stripe.paymentLinks.create({
-      // payment_intent: paymentIntent.id,
-      line_items: [{price: '1000', quantity: 1}],
-      // add any other relevant information here
-    });
-    console.log(paymentLink.url);
+    if(!paymentLink && !productId && !status, !paymentUrl){
+      return console.log("not a valid request")
+    }
+    let findRecord = await adminPaymentTracker.findOne({paymentLink, productId});
+    if(findRecord){
+      console.log("record is already exist");
+    }
+    await adminPaymentTracker.create({
+      paymentLink,
+      productId,
+      status, 
+      paymentUrl,
+      businessId,
+      tries
+    })
+    console.log("saved successfully")  
   } catch (error) {
-    console.log(error);
+    return console.log(error);
   }
-};
+}
+const findPaymentInfo = async(productId)=>{
+  try {
+    if(!productId){
+      return console.log("not a valid request")
+    }
+    let findRecord = await adminPaymentTracker.findOne({productId});
+    if(findRecord){
+      return findRecord;
+    }
 
-module.exports = { paymentInfo };
+  } catch (error) {
+    return console.log(error);
+  }
+}
+const updatePaymentInfo = async(_id, tries)=>{
+  try {
+    if(!_id && tries){
+      return console.log("not a valid request")
+    }
+    await adminPaymentTracker.findByIdAndUpdate({_id}, {$set:{tries}})
+
+  } catch (error) {
+    return console.log(error);
+  }
+}
+module.exports = { SavePaymentInfo, findPaymentInfo, updatePaymentInfo};
 
 
 
