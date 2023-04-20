@@ -3,6 +3,7 @@ const router = express.Router();
 const {Wishlist} = require("../models/Wishlist")
 const {Product} = require("../models/businessModel/product")
 const {User} = require("../models/User");
+const {Token} = require("../models/User");
 const mongoose = require('mongoose');
 
 router.put("/cartdetails",async(req,res) => {
@@ -10,7 +11,8 @@ router.put("/cartdetails",async(req,res) => {
     {
         let token=req.headers.authorization;
 
-        const userData=await User.findOne({"token":token}); 
+        const token_data = await Token.findOne({"token":token});
+        const userData=await User.findOne({_id:token_data.user}); 
         const user=userData._id.valueOf();
         const products=req.body.products
 
@@ -21,7 +23,7 @@ router.put("/cartdetails",async(req,res) => {
          if(userdetails)  
          {
             const result= await Wishlist.updateOne({user_id : user }, { $push: { Wishlist: products } });     
-            return res.status(200).send({status:true})
+            return res.status(200).send({status:true, message: "Wishlist Added Succesfully"})
          }
          else
          {
@@ -61,7 +63,8 @@ router.put("/deleteCart",async(req,res) => {
     const product_id=req.body.product_id;
     let token=req.headers.authorization;
 
-    const userData=await User.findOne({"token":token}); 
+    const token_data = await Token.findOne({"token":token});
+    const userData=await User.findOne({_id:token_data.user}); 
     const user=userData._id.valueOf();
     
     try 
@@ -85,13 +88,24 @@ router.put("/deleteCart",async(req,res) => {
 });
 
 router.get("/getCart",async(req,res) => {
-
-    let token=req.headers.authorization;
-    const userData=await User.findOne({"token":token}); 
-    const user=userData._id.valueOf();
-    const newCart = await Wishlist.findOne({user_id:user});
-    console.log(newCart)
-    res.status(200).send({data:newCart.Wishlist,status:"true"})         
+    try{
+        let token=req.headers.authorization;
+        console.log("santhosh", token)
+        const token_data = await Token.findOne({"token":token});
+        const userData=await User.findOne({_id:token_data.user}); 
+        const user=userData._id.valueOf();
+        const newCart = await Wishlist.findOne({user_id:user});
+        console.log(newCart);
+        if(newCart == null){
+            res.status(200).send({ data: [], status: "true" })
+        }else{
+            res.status(200).send({data:newCart.Wishlist,status:"true"})
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).send({data:err,status:false})         
+    }
        
 });
 
