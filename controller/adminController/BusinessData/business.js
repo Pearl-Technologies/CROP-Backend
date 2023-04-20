@@ -50,7 +50,7 @@ const updateBusinessAccountStatus = async (req, res) => {
     const {_id, status}=req.body;
     const findAccount = await business.findOne({_id});
     if(!findAccount){
-      return res.status(204).json({msg:"no data found"});
+      return res.status(404).json({msg:"no data found"});
     }
     await business.findByIdAndUpdate({_id}, {$set:{status}}, {new:true});
     res.status(202).json({msg:"updated"});

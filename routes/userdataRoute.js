@@ -175,6 +175,7 @@ const mailOptions =
 }
 
 transporter.sendMail(mailOptions, async(err, result) => {
+    console.log(err);
     if (err){
         res.status(500).send({message:"Enter the correct email id",status:"false",data:[]});   
     } else{

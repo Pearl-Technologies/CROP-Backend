@@ -4,6 +4,7 @@ const cors = require("cors");
 // const multer = require("multer")
 const ConnectDb = require("./config/db");
 const app = express();
+const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 const categoryRoutes = require("./routes/categoryRoutes");
