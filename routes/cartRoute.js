@@ -3,6 +3,7 @@ const router = express.Router();
 const { Cart } = require("../models/Cart")
 const { Product } = require("../models/businessModel/product")
 const { User } = require("../models/User");
+const {Token} = require("../models/User");
 const mongoose = require('mongoose');
 
 router.put("/quantity", async (req, res) => {
@@ -10,7 +11,8 @@ router.put("/quantity", async (req, res) => {
     try {
         let quantity = req.body.quantity;
         let token = req.headers.authorization;
-        const userData = await User.findOne({ "token": token });
+        const token_data = await Token.findOne({"token":token});
+        const userData=await User.findOne({_id:token_data.user}); 
         const user_id = userData._id.valueOf();
         const product_id = req.body.product_id;
 
@@ -37,7 +39,8 @@ router.put("/quantity", async (req, res) => {
 router.put("/cartdetails", async (req, res) => {
     try {
         let token = req.headers.authorization;
-        const userData = await User.findOne({ "token": token });
+        const token_data = await Token.findOne({"token":token});
+        const userData=await User.findOne({_id:token_data.user}); 
         const user_id = userData._id.valueOf();
         const products = req.body.products
         console.log(products)
@@ -89,7 +92,8 @@ router.put("/deleteCart", async (req, res) => {
     const product_id = req.body.product_id;
     let token = req.headers.authorization;
 
-    const userData = await User.findOne({ "token": token });
+    const token_data = await Token.findOne({"token":token});
+    const userData=await User.findOne({_id:token_data.user}); 
     const user_id = userData._id.valueOf()
     console.log(product_id, user_id)
     try {
@@ -111,15 +115,24 @@ router.put("/deleteCart", async (req, res) => {
     }
 });
 router.get("/getCart", async (req, res) => {
-    let token = req.headers.authorization;
-
-    const userData = await User.findOne({ "token": token });
-    const user_id = userData._id.valueOf();
-    console.log(user_id)
-
-    const newCart = await Cart.findOne({ user_id: user_id });
-    res.status(200).send({ data: newCart.cart, status: "true" })
-
+    try{
+        let token = req.headers.authorization;
+        console.log("santhosh", token)
+        const token_data = await Token.findOne({"token":token});
+        const userData=await User.findOne({_id:token_data.user}); 
+        const user_id = userData._id.valueOf();
+        const newCart = await Cart.findOne({ user_id: user_id });
+        console.log(newCart);
+        if(newCart == null){
+            res.status(200).send({ data: [], status: "true" })
+        }else{
+            res.status(200).send({ data: newCart.cart, status: "true" })
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).send({data:err,status:false})         
+    }
 });
 
 module.exports = router;

@@ -422,7 +422,6 @@ router.post('/login',async (req,res) =>{
             // let phone=req.body.phone;
             let email=req.body.email;
             console.log(email,"email")
-
         //getting email from the database and compare with the given email id
         
         const userData=await User.findOne({

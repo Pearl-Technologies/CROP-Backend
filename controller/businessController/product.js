@@ -560,12 +560,14 @@ module.exports.uploadProductImages = async (req, res) => {
 module.exports.getProductImage = async (req, res) => {
   const id = req.params.id
   try {
+    if (fs.existsSync(`./uploads/${id}`)) {
     fs.readFile(`./uploads/${id}`, function (err, data) {
       if (err) throw err
       else {
         res.end(data)
       }
     })
+  }
   } catch (error) {
     console.log(error)
   }
