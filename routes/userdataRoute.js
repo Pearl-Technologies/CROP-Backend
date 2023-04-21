@@ -461,7 +461,7 @@ router.post('/login',async (req,res) =>{
 
         if(!isPasswordValid)
         {
-            return res.status(409).send({message:"given password not exist"})
+            return res.status(409).send({message:"given password not exist",status:false})
         }
         // if(userData.token!=="null")
         // {
@@ -483,10 +483,10 @@ router.post('/login',async (req,res) =>{
               await new Token({ user: userData._id, token: userToken, type:method }).save();
           }
         // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});      
-        res.status(200).send({token:userToken,message:"Login successfull",status:"true",data:{userData}});
+        res.status(200).send({token:userToken,message:"Login successfull",status:true,data:{userData}});
 
     }catch(err){
-        res.status(500).send({message:"Login error",status:"false",data:[err]});
+        res.status(500).send({message:"Login error",status:false,data:[err]});
     }
 })
 
@@ -584,8 +584,8 @@ router.get('/profile',async(req,res) =>{
         "agegroup":profile.agegroup,
         "loyaltyList":profile.loyaltyList,
         "interestList":profile.interestList,
-        "image":base64
-
+        "image":base64,
+        "address":profile.address
        }
 
          res.status(200).json({"profile":details,

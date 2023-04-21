@@ -389,10 +389,10 @@ const getAllProductAndSendNotification = async (count) => {
       // client.messages
       //   .create({
       //     body: `<h2>Hello ${name}</h2>
-      // <p>Congratulation! You product got slected to TopRank, Please Pay ${bidPrice} for retained the same with in 24 hours</p>                    
-              
+      // <p>Congratulation! You product got slected to TopRank, Please Pay ${bidPrice} for retained the same with in 24 hours</p>
+
       //   <a href="${link}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer"><button>Pay Now</button></a>
-  
+
       //   <p style="margin-bottom:0px;">Thank you</p>
       //   <strong>CROP Team</strong>`,
       //     from: "whatsapp:+14155238886",
@@ -401,7 +401,6 @@ const getAllProductAndSendNotification = async (count) => {
       //   .then((message) => console.log(message.sid));
     };
     marketProduct.map((data) => {
-      console.log(data)
       data.slice(0, 10).map(async (user) => {
         let findProduct = await findPaymentInfo(user._id);
         if (!findProduct) {
@@ -492,7 +491,7 @@ const getAllProductAndSendNotification = async (count) => {
 };
 var count = 1;
 const job = schedule.scheduleJob("* * * * *", function () {
-    console.log('This job runs at midnight every day!');
+  // console.log('This job runs at midnight every day!');
   // if (count == 1) {
   //   getAllProductAndSendNotification(count);
   //   count++;
@@ -502,6 +501,7 @@ const job = schedule.scheduleJob("* * * * *", function () {
   // }
 });
 
+
 // start the job
-job.schedule();
+// job.schedule();
 module.exports = { getAllProduct };
