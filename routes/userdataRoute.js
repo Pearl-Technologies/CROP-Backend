@@ -585,7 +585,8 @@ router.get('/profile',async(req,res) =>{
         "loyaltyList":profile.loyaltyList,
         "interestList":profile.interestList,
         "image":base64,
-        "address":profile.address
+        "address":profile.address,
+        "mktNotification": profile.mktNotification
        }
 
          res.status(200).json({"profile":details,
@@ -615,16 +616,20 @@ router.put('/updateprofile',async(req,res) =>{
              agegroup:req.body.agegroup,
              loyaltyList:req.body.loyaltyList,
              lastUpdatedDate:formattedDate,
-             interestList:req.body.interestList,
-             auditTrail: `${req.body.name} have successfully updated his profile on ${formattedDate} `,
+             interestList:req.body.interestList
            
-     }, $push: {address: {_id:mongoose.Types.ObjectId(), address:req.body.address}}});  
+     }, $push: { auditTrail:{value: "Update Profile", status: true, message:`${req.body.name} have successfully updated his profile on ${formattedDate}`} }});  
+     const aaa= await User.updateOne({_id:token_data.user},{$set:{
+     "address.0": {_id:mongoose.Types.ObjectId(), address:req.body.address[0]}}})
+
+    //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
+    //  {$set:{"address.$.address": {address:req.body.address[0]}}})
          res.send({message:"Updated successfully",
-         status:"true",data:[]
+         status:"true",data:[req.body]
         });
      }catch(err){
 
-        res.status(500).send({message:"Internal Server error",status:"false",data:[]});
+        res.status(500).send({message:"Internal Server error",status:"false",data:[err]});
      }    
 })
 router.post('/community',async(req,res)=>{

@@ -146,7 +146,7 @@ const UserSchema=new mongoose.Schema({
      line2:{type:String},
     line3:{type:String},
      state:{type:String},
-     pin:{type:String}
+     pin:{type:Number}
      }},],
    mktNotification:{type:Boolean, default:true},
    smsNotification:{type:Boolean, default:true},
