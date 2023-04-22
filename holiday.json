@@ -1,0 +1,527 @@
+[
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "13/03/2023",
+    "holidayName": "Canberra Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "08/04/2023",
+    "holidayName": "Easter Saturday",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "09/04/2023",
+    "holidayName": "Easter Sunday",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "29/05/2023",
+    "holidayName": "Reconciliation Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "12/06/2023",
+    "holidayName": "Sovereign's Birthday",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "02/10/2023",
+    "holidayName": "Labour Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "Australian Capital Territory"
+  },
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "08/04/2023",
+    "holidayName": "Easter Saturday",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "09/04/2023",
+    "holidayName": "Easter Sunday",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "12/06/2023",
+    "holidayName": "King's Birthday",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "02/10/2023",
+    "holidayName": "Labour Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "New South Wales"
+  },
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "08/04/2023",
+    "holidayName": "Easter Saturday",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "01/05/2023",
+    "holidayName": "May Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "06/12/2023",
+    "holidayName": "June public holiday",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "07/08/2023",
+    "holidayName": "Picnic Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "Northern Territory"
+  },
+  {
+    "holidayDate": "31/12/2023",
+    "holidayName": "New Year's Eve",
+    "state": "Northern Territory"
+  },
+
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "08/04/2023",
+    "holidayName": "The day after Good Friday",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "09/04/2023",
+    "holidayName": "Easter Sunday",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "01/05/2023",
+    "holidayName": "Labour Day",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "16/08/2023",
+    "holidayName": "Royal Queensland Show",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "02/10/2023",
+    "holidayName": "King's Birthday",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "24/14/2023",
+    "holidayName": "Christmas Eve (from 6pm to midnight)",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "Queensland"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "Queensland"
+  },
+
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "13/03/2023",
+    "holidayName": "Adelaide Cup Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "08/04/2023",
+    "holidayName": "Easter Saturday",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "12/06/2023",
+    "holidayName": "King's Birthday",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "24/14/2023",
+    "holidayName": "Christmas Eve (from 7pm to midnight)",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day/Proclamation Day",
+    "state": "South Australia"
+  },
+  {
+    "holidayDate": "31/12/2023",
+    "holidayName": "New Year's Eve",
+    "state": "South Australia"
+  },
+
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "New Year's Day (substitute day as New Year's Day falls on a weekend)",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "13/2/2023",
+    "holidayName": "Royal Hobart Regatta",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "13/03/2023",
+    "holidayName": "Eight Hours Day",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "11/04/2023",
+    "holidayName": "Easter Tuesday",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "12/06/2023",
+    "holidayName": "King's Birthday",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "06/1/2023",
+    "holidayName": "Recreation Day",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "Tasmania"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "Tasmania"
+  },
+
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "13/03/2023",
+    "holidayName": "Labour Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "08/04/2023",
+    "holidayName": "Saturday before Easter Sunday",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "09/04/2023",
+    "holidayName": "Easter Sunday",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "29/05/2023",
+    "holidayName": "Reconciliation Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "12/06/2023",
+    "holidayName": "King's Birthday",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "07/11/2023",
+    "holidayName": "Melbourne Cup",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "Victoria"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "Victoria"
+  },
+
+  {
+    "holidayDate": "01/01/2023",
+    "holidayName": "New Year's Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "02/01/2023",
+    "holidayName": "Additional public holiday for New Year's Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "26/01/2023",
+    "holidayName": "Australia Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "06/03/2023",
+    "holidayName": "Labour Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "07/04/2023",
+    "holidayName": "Good Friday",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "09/04/2023",
+    "holidayName": "Easter Sunday",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "10/04/2023",
+    "holidayName": "Easter Monday",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "25/04/2023",
+    "holidayName": "Anzac Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "05/06/2023",
+    "holidayName": "Western Australia Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "25/09/2023",
+    "holidayName": "King's Birthday",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "25/12/2023",
+    "holidayName": "Christmas Day",
+    "state": "Western Australia"
+  },
+  {
+    "holidayDate": "26/12/2023",
+    "holidayName": "Boxing Day",
+    "state": "Western Australia"
+  }
+]

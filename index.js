@@ -22,7 +22,8 @@ const productsRoutes = require("./routes/business/product");
 const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin")
 
-// app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.json())
 app.use(cors());
 ConnectDb();
 

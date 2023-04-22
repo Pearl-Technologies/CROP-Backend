@@ -540,13 +540,7 @@ module.exports.uploadProductImages = async (req, res) => {
   try {
     const productId = req.params.productId
     const fileName = req.files[0].filename
-    // console.log(req.files[0], "0")
     console.log(fileName, "fileName")
-    // console.log(productId, "productId")
-    // const product = await Product.findById(productId)
-    // const images = await product.images
-    // console.log(images)
-    // images.push(fileName)
     await Product.findByIdAndUpdate(
       { _id: productId },
       { $push: { image: fileName } }
@@ -561,13 +555,13 @@ module.exports.getProductImage = async (req, res) => {
   const id = req.params.id
   try {
     if (fs.existsSync(`./uploads/${id}`)) {
-    fs.readFile(`./uploads/${id}`, function (err, data) {
-      if (err) throw err
-      else {
-        res.end(data)
-      }
-    })
-  }
+      fs.readFile(`./uploads/${id}`, function (err, data) {
+        if (err) throw err
+        else {
+          res.end(data)
+        }
+      })
+    }
   } catch (error) {
     console.log(error)
   }
@@ -604,10 +598,11 @@ module.exports.getRedeemProducts = async (req, res) => {
       $and: [
         { user },
         {
-          $or: [{ apply: "reedemCrop" }, { apply: "both" }],
+          $or: [{ apply: "redeemCrop" }, { apply: "both" }],
         },
       ],
     })
+    console.log(products)
     return res.status(200).send({ products })
   } catch (error) {
     console.log(error)
