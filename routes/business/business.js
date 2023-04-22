@@ -15,6 +15,8 @@ const {
   updateProfile,
   createOrUpdateFeedback,
   getFeedback,
+  uploadProfileImage,
+  getHolidayByState,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -24,6 +26,7 @@ const {
   getAllBusiness,
 } = require("../../controller/businessController/business")
 const authorization = require("../../middleware/verifyToken")
+const { upload } = require("../../utils/imageUpload")
 
 const router = express.Router()
 const {
@@ -59,6 +62,12 @@ router.put(
   authorization,
   updateCommunicationPreference
 )
+router.post(
+  "/profile-img",
+  authorization,
+  upload.array("file", 20),
+  uploadProfileImage
+)
 
 router.post("/services", authorization, createServices)
 router.get("/services", authorization, getService)
@@ -85,5 +94,7 @@ router.get("/get-user-crop-details/:email", authorization, getUserCropDetails)
 
 router.post("/feedback", authorization, createOrUpdateFeedback)
 router.get("/feedback", authorization, getFeedback)
+
+router.get("/get-holidays-by-state", authorization, getHolidayByState)
 
 module.exports = router

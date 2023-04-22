@@ -34,7 +34,7 @@ const businessSchema = mongoose.Schema(
         line1: String,
         line2: String,
         state: String,
-        pin: Number,
+        pincode: Number,
       },
     ],
 
@@ -45,7 +45,11 @@ const businessSchema = mongoose.Schema(
     newsLetterSubscription: { type: Boolean, default: false },
 
     pin: { type: String, required: true },
-    avatar: { type: String, default: "" },
+    avatar: {
+      type: String,
+      default:
+        "https://github.com/OlgaKoplik/CodePen/blob/master/profile.jpg?raw=true",
+    },
     cropId: { type: String, unique: true },
     tier: { type: String, default: "D" },
     promoCode: { type: String, default: "" },

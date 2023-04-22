@@ -20,10 +20,8 @@ const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin");
 
 
-// app.use(bodyParser.urlencoded({extended: true}));
-// app.use(bodyParser.raw({ type: 'application/octet-stream' }));
-// app.use(bodyParser.json());
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.json())
 app.use(cors());
 ConnectDb();
 
