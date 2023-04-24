@@ -50,5 +50,5 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   res.status(400).json({ message: err.message });
 });
-const PORT = 7001
+const PORT = process.env.PORT; 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));
