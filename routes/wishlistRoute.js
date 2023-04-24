@@ -99,7 +99,7 @@ router.get("/getCart",async(req,res) => {
         if(newCart == null){
             res.status(200).send({ data: [], status: "true" })
         }else{
-            res.status(200).send({data:newCart.Wishlist,status:"true"})
+            res.status(200).send({data:newCart,status:"true"})
         }
     }
     catch(err){
