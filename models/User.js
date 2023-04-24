@@ -216,7 +216,7 @@ const MissingCropSchema=new mongoose.Schema({
 //sending data to the userRouter file
 
 const Newsletter=mongoose.model('Newsletter_customer',NewsletterSchema)
-const User=mongoose.model('users_customer',UserSchema)
+const User=mongoose.model('users_customers',UserSchema)
 const Otp=mongoose.model('otps_customer',OtpSchema)
 const Token=mongoose.model('token1_customer',tokenSchema)
 const MissingCrop = mongoose.model('missing_crop_customer',MissingCropSchema)

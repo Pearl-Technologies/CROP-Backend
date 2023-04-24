@@ -280,7 +280,7 @@ router.post('/signup',async (req,res) =>{
         const formattedDate = currentDate.toLocaleDateString();
 
         // checking whether the given mail id is exist in database r not
-        const phoneExist=await User.findOne({mobileNumber:req.body.phone});
+        const phoneExist=await User.findOne({mobileNumber:req.body.mobileNumber});
         const emailExist=await User.findOne({email:req.body.email});
         if(phoneExist)
         return res.status(409).send({message:"User with given phone number already exist"})
@@ -328,7 +328,7 @@ router.post('/signup',async (req,res) =>{
                 promocode:req.body.promocode, 
                 refercode:referid,
                 signUpDate:formattedDate,
-                auditTrail: `You have successfully registered your profile on ${formattedDate}`,       
+                auditTrail:{value: "Register Profile", status: true, message:`${req.body.name} have successfully registered your profile on ${formattedDate}`}
             }).save();
          //saving data in the database
          res.send({message:"Register successfully",
