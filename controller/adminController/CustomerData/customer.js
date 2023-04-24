@@ -109,4 +109,93 @@ const updateCustomerStatus = async (req, res) => {
     res.status(500).json({msg:"Internal Server Error"});
   }
 };
-module.exports = {getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop, updateCustomerStatus}
+const getAllCustomerByContent = async (req, res) => {
+  let customerDetails;
+  try {
+    // let { customerName, email, pincode } = req.body;
+    // if (customerName && email && pincode) {
+    //   Zip_code = parseInt(Zip_code)
+    //   customerDetails = await business.aggregate([
+    //     {
+    //       $unwind: {
+    //         'path':'$address'
+    //       },
+    //     },
+    //     {
+    //       $match: {
+    //         "address.pincode": Zip_code,
+    //         'natureOfBusiness':{'$regex':natureOfBusiness},
+    //         'businessName':{'$regex':businessName}
+    //       },
+    //     },
+    //   ]);
+    //   return res.status(200).json({ businessDetails });
+    // }
+    // if (natureOfBusiness && businessName) {
+    //   businessDetails = await business.aggregate([
+    //     {
+    //       $unwind: {
+    //         'path':'$address'
+    //       },
+    //     },
+    //     {
+    //       $match: {
+    //         'natureOfBusiness':{'$regex':natureOfBusiness},
+    //         'businessName':{'$regex':businessName}
+    //       },
+    //     },
+    //   ]);
+    //   return res.status(200).json({ businessDetails });
+    // }
+    // if (natureOfBusiness && Zip_code) {
+    //   Zip_code = parseInt(Zip_code)
+    //   businessDetails = await business.aggregate([
+    //     {
+    //       $unwind: {
+    //         'path':'$address'
+    //       },
+    //     },
+    //     {
+    //       $match: {
+    //         "address.pincode": Zip_code,
+    //         "natureOfBusiness":{'$regex':natureOfBusiness}
+    //       },
+    //     },
+    //   ]);
+    //   return res.status(200).json({ businessDetails });
+    // }
+    // if (natureOfBusiness) {
+    //   let businessDetails = await business.find({ natureOfBusiness:{$regex:natureOfBusiness} });
+    //   return res.status(200).json({ businessDetails });
+    // }
+    // if (businessName) {
+    //   businessDetails = await business.find({
+    //     businessName:{$regex:businessName}
+    //   });
+    //   return res.status(200).json({ businessDetails });
+    // }
+    // if (Zip_code) {
+    //   Zip_code = parseInt(Zip_code)
+    //   businessDetails = await business.aggregate([
+    //     {
+    //       '$unwind': {
+    //         'path':'$address'
+    //       }
+    //     },
+    //     {
+    //       '$match': {
+    //         "address.pincode": Zip_code,
+    //       },
+    //     },
+    //   ]);
+     
+    //   return res.status(200).json({ businessDetails });
+    // }
+    customerDetails = await User.find({}, {name:1, address:1, email:1})
+    res.status(200).json({customerDetails});
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({msg:"internal error"});
+  }
+};
+module.exports = {getAllCustomerByContent, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop, updateCustomerStatus}

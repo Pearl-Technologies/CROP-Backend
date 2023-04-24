@@ -91,7 +91,7 @@ const {createBusinessPurchaseAndRedeemNotification, getBusinessPurchaseAndRedeem
 const {createBusinessRequestAndComplaintNotification, getBusinessRequestAndComplaintNotification, updateBusinessRequestAndComplaintNotification} = require("../controller/adminController/Notification/businessRequestAndComplainNotification")
 
 //customer
-const {updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
+const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
 
 //
 
@@ -103,7 +103,7 @@ const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminCont
 const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
-
+const {createCategory, getCategories} =  require("../controller/adminController/admin_product_category")
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -226,6 +226,10 @@ router.post("/getAllOrders", getAllOrders)
 router.post("/customerProp", verifyToken, customerProp)
 router.post("/customerCrop", verifyToken, customerCrop)
 router.post("/updateCustomerStatus", updateCustomerStatus)
+router.post("/getAllCustomerByContent", getAllCustomerByContent)
+router.post("/createCategory", createCategory)
+router.get("/getCategories", getCategories)
+
 
 //
 //Business data

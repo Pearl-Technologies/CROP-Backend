@@ -25,6 +25,9 @@ const sendMail = (req, res) => {
 };
 const sendMassNotification = (req, res) => {
   const { emailData, subject, notificationBody, user } = req.body;
+  console.log(req.body);
+  return res.send("ok");
+
   for (let i = 0; i < emailData.length; i++) {
     console.log(emailData[i]);
     const mailData = {

@@ -27,7 +27,7 @@ const createPropValuation= async(req, res)=>{
     }
 }
 const updatePropValuation = async(req, res)=>{
-    return res.send(req.body);
+    // return res.send(req.body);
     const {defaultProp, purchaseProp, user, _id} = req.body
     if(!defaultProp || !purchaseProp || defaultProp==="NaN" || purchaseProp === "NaN" ){
         return res.status(401).json({msg:"default PROP/purchase PROP should not be below 1"});

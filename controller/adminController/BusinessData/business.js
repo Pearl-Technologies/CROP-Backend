@@ -66,13 +66,15 @@ const getAllBusinessByContent = async (req, res) => {
       Zip_code = parseInt(Zip_code)
       businessDetails = await business.aggregate([
         {
-          $unwind: "$address",
+          $unwind: {
+            'path':'$address'
+          },
         },
         {
           $match: {
-            "address.Zip_code": Zip_code,
-            natureOfBusiness,
-            "businessId.BusinessName": businessName,
+            "address.pincode": Zip_code,
+            'natureOfBusiness':{'$regex':natureOfBusiness},
+            'businessName':{'$regex':businessName}
           },
         },
       ]);
@@ -81,12 +83,14 @@ const getAllBusinessByContent = async (req, res) => {
     if (natureOfBusiness && businessName) {
       businessDetails = await business.aggregate([
         {
-          $unwind: "$address",
+          $unwind: {
+            'path':'$address'
+          },
         },
         {
           $match: {
-            natureOfBusiness,
-            "businessId.BusinessName": businessName,
+            'natureOfBusiness':{'$regex':natureOfBusiness},
+            'businessName':{'$regex':businessName}
           },
         },
       ]);
@@ -96,24 +100,27 @@ const getAllBusinessByContent = async (req, res) => {
       Zip_code = parseInt(Zip_code)
       businessDetails = await business.aggregate([
         {
-          $unwind: "$address",
+          $unwind: {
+            'path':'$address'
+          },
         },
         {
           $match: {
-            "address.Zip_code": Zip_code,
-            natureOfBusiness
+            "address.pincode": Zip_code,
+            "natureOfBusiness":{'$regex':natureOfBusiness}
           },
         },
       ]);
+      console.log(businessDetails)
       return res.status(200).json({ businessDetails });
     }
     if (natureOfBusiness) {
-      let businessDetails = await business.find({ natureOfBusiness });
+      let businessDetails = await business.find({ natureOfBusiness:{$regex:natureOfBusiness} });
       return res.status(200).json({ businessDetails });
     }
     if (businessName) {
       businessDetails = await business.find({
-        "businessId.BusinessName": businessName,
+        businessName:{$regex:businessName}
       });
       return res.status(200).json({ businessDetails });
     }
@@ -121,14 +128,17 @@ const getAllBusinessByContent = async (req, res) => {
       Zip_code = parseInt(Zip_code)
       businessDetails = await business.aggregate([
         {
-          $unwind: "$address",
+          '$unwind': {
+            'path':'$address'
+          }
         },
         {
-          $match: {
-            "address.Zip_code": Zip_code,
+          '$match': {
+            "address.pincode": Zip_code,
           },
         },
       ]);
+     
       return res.status(200).json({ businessDetails });
     }
     businessDetails = await business.find();

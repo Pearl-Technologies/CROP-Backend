@@ -260,6 +260,7 @@ const getAllProductAndSendNotification = async (count) => {
       return Date.now();
     };
     let newDate = new Date(commingWeekEnd()).toLocaleDateString();
+    
     //weekendTopRankProduct
     let TopRankProductForWeekend = await Product.aggregate([
       {
