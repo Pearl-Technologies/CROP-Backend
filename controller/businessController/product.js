@@ -699,18 +699,186 @@ module.exports.getProductComment = async (req, res) => {
 }
 
 module.exports.getEarnCropProductsBySector = async (req, res) => {
-  const { sector } = req.params
+  const { productTab, sector, pageNo } = req.params
   try {
-    const products = await Product.find({
-      $and: [{ sector }, { apply: "earnCrop" }],
-    })
-    return res.status(200).send({ products })
+    const dateTime = new Date()
+    const sDate = dateTime.toISOString()
+    const today = sDate.split("T")[0]
+    // console.log(dateTime.getDay(), "day");
+    const currentDay = dateTime.getDay()
+    const t = dateTime.toLocaleString("en-GB").split(" ")
+    const th = t[1].split(":")
+    console.log(today, "today")
+    const time = th[0] + ":" + th[1]
+    console.log("2023-04-02" < today, "Strat Date")
+    console.log("2023-04-26" > today, "End Date")
+    console.log(time, "time")
+    console.log("05:18" < time, time, "start time")
+    console.log("20:17" > time, time, "end time")
+    let day = ""
+    if (currentDay == 0) {
+      day = "sun"
+    } else if (currentDay == 1) {
+      day = "mon"
+    } else if (currentDay == 2) {
+      day = "tue"
+    } else if (currentDay == 3) {
+      day = "wed"
+    } else if (currentDay == 4) {
+      day = "thu"
+    } else if (currentDay == 5) {
+      day = "fri"
+    } else if (currentDay == 6) {
+      day = "sat"
+    }
+    console.log({ day })
+    let match = {}
+    if (productTab == "mostPopular") {
+      match = { apply: "earnCrop", sector, published: true }
+    }
+    const productDetails = await Product.aggregate([
+      { $match: match },
+      {
+        $lookup: {
+          from: "business_croprules",
+          localField: "user",
+          foreignField: "businessId",
+          as: "cropRules",
+        },
+      },
+      { $unwind: "$cropRules" },
+      {
+        $lookup: {
+          from: "business_bonuscrops",
+          localField: "_id",
+          foreignField: "bonusCropProducts.productId",
+          as: "bonusCrops",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "business_happyhours",
+          localField: "_id",
+          foreignField: "happyHoursProducts.productId",
+          as: "happyHours",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "business_services",
+          localField: "user",
+          foreignField: "businessId",
+          as: "services",
+        },
+      },
+
+      {
+        $addFields: {
+          ruleAppliedCrops: {
+            $multiply: ["$croppoints", "$cropRules.cropPerAudCredit"],
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          bonusCropsDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
+                  [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
+                  [`$bonusCrops.bonusCropDays.${day}`],
+                ],
+              },
+              then: { $sum: `$bonusCrops.bonusCropPercentage` },
+              else: [`$bonusCrops.bonusCropDays.${day}`, day],
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          happyHoursDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
+                  [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
+                  // [`$happyHours.happyHoursDays.${day}`]
+                  [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
+                  [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
+                ],
+              },
+              then: { $sum: "$happyHours.happyHoursPercentage" },
+              else: [`$happyHours.happyHoursDay.${day}`, day],
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          happyHoursAndExtendBonusAddedPercentage: {
+            $add: [
+              "$bonusCropsDiscountPercentage",
+              "$happyHoursDiscountPercentage",
+            ],
+          },
+        },
+      },
+      // { $cond: [ { $eq: [ "$happyHoursAndExtendBonusAddedPercentage", 0 ] }, "$ruleAppliedCrops", {$divide:["$upvotes", "$downvotes"]} ] }
+      {
+        $addFields: {
+          cropRulesWithBonus: {
+            $cond: [
+              { $eq: ["$happyHoursAndExtendBonusAddedPercentage", 0] },
+              "$ruleAppliedCrops",
+              {
+                $add: [
+                  "$ruleAppliedCrops",
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          "$ruleAppliedCrops",
+                          "$happyHoursAndExtendBonusAddedPercentage",
+                        ],
+                      },
+                      100,
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      // {$unwind: "$bonusCrops"},
+      {
+        $project: {
+          title: 1,
+          originalPrice: 1,
+          discount: 1,
+          price: 1,
+          quantity: 1,
+          crops: "$croppoints",
+          cropRules: { cropPerAudCredit: 1 },
+          ruleAppliedCrops: "$ruleAppliedCrops",
+          bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
+          happyHoursDiscountPercentage: "$happyHoursDiscountPercentage",
+          happyHoursAndExtendBonusAddedPercentage:
+            "$happyHoursAndExtendBonusAddedPercentage",
+          cropRulesWithBonus: "$cropRulesWithBonus",
+          happyHours: 1,
+          services: { $arrayElemAt: ["$services", 0] },
+        },
+      },
+    ])
+    res.json({ count: productDetails.length, productDetails })
   } catch (error) {
     console.log(error)
-    res.status(500).send({
-      message: error.message,
-      status: 500,
-    })
   }
 }
 
@@ -757,4 +925,3 @@ module.exports.getBiddingSelectedProductsDetailsByBusiness = async (
     console.log(error)
   }
 }
-
