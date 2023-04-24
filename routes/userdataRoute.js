@@ -1,9 +1,8 @@
 const express= require('express')
 const router = express.Router();
-const {Otp}= require("../models/User");
-const {User} = require("../models/User");
-const {Token} = require("../models/User");
-const {Newsletter} = require("../models/User");
+const {Otp, User, Token, Newsletter, MissingCrop}= require("../models/User");
+const {customerPaymentTracker} = require("../models/admin/PaymentTracker/paymentIdTracker");
+const {Product} = require("../models/businessModel/product")
 var mongoose = require('mongoose');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
@@ -498,7 +497,7 @@ router.post('/login',async (req,res) =>{
         
                 if(!forgotpassword)
                 {
-                    return res.status(409).send({message:"given email not exist"})
+                    return res.status(409).send({message:"Registered email not exist"})
                     }                  
                      //updating the password in the database
                     var userEmail = req.body.email; 
@@ -854,5 +853,56 @@ router.get('/profileAdmin',async(req,res) =>{
         res.status(500).send({message:"Internal server error",status:"false",data:[err]});
      }    
 })
+
+router.post('/getproductmissingcrop',async(req,res) =>{  
+
+    try{
+        const {invoice_id} = req.body
+        const tracker = await customerPaymentTracker.find({invoice_id: invoice_id})
+
+        const inputDate = new Date(tracker[0].createdAt);
+        const currentDate = new Date();
+
+        const differenceInDays = (currentDate - inputDate) / (1000 * 60 * 60 * 24);
+
+        if (differenceInDays <= 90) {
+            const product = await Product.find({ _id: { $in: tracker[0].productId } });
+            res.status(200).json({data: {"product": product, "invoice_date":tracker[0].createdAt}, status: 200})
+        } else {
+            res.status(200).json({data: 'The invoice date is more than 90 days ago.', status: 200})
+        }
+     }
+
+ catch(err){
+        res.status(500).send({message:"Internal server error",status:"false",data:[err]});
+     }    
+})
+
+router.post('/missingcrop',async(req,res) =>{  
+
+    try{
+        await new MissingCrop(req.body).save();
+        res.status(200).json({data: [req.body], status: 200})
+     }
+
+ catch(err){
+        res.status(500).send({message:"Internal server error",status:"false",data:[err]});
+     }    
+})
+
+router.get('/getmissingcrop',async(req,res) =>{  
+
+    try{
+        let token=req.headers.authorization
+        const token_data = await Token.findOne({"token":token});
+        const datanew = await MissingCrop.find({user:token_data.user});
+        res.status(200).json({data: datanew, status: 200})
+     }
+
+ catch(err){
+        res.status(500).send({message:"Internal server error",status:"false",data:[err]});
+     }    
+})
+
 
 module.exports = router;

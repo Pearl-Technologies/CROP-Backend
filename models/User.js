@@ -168,6 +168,7 @@ const UserSchema=new mongoose.Schema({
  TierChangeDate:{type:String}, 
  status: { type: String, default:"active" },               
 });
+
 const OtpSchema=new mongoose.Schema({
 email:{type:String},
 otp:{type:Number}
@@ -194,6 +195,23 @@ const NewsletterSchema=new mongoose.Schema({
   email:{type:String,required:true},
 })
 
+const MissingCropSchema=new mongoose.Schema({
+  doi: {type:String, required:true, default:null},
+  product_id: [{type: mongoose.Schema.Types.ObjectId, ref:'business_products'}],
+  reason: {type:String,required:true}, 
+  invoice_id: {type:String, require: true},
+  status:{type:Boolean,required:true, default: true},
+  action:{type:String,required:true, default: "pending"},
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users_customers',
+  },
+},{
+  timestamps: true
+});
+
+
+
 //validate password
 //sending data to the userRouter file
 
@@ -201,5 +219,6 @@ const Newsletter=mongoose.model('Newsletter_customer',NewsletterSchema)
 const User=mongoose.model('users_customer',UserSchema)
 const Otp=mongoose.model('otps_customer',OtpSchema)
 const Token=mongoose.model('token1_customer',tokenSchema)
-module.exports = {User,Otp,Token,Newsletter}
+const MissingCrop = mongoose.model('missing_crop_customer',MissingCropSchema)
+module.exports = {User,Otp,Token,Newsletter,MissingCrop}
 
