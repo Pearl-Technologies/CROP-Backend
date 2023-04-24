@@ -13,6 +13,8 @@ const Order = require("../../models/Order")
 const {
   BusinessHolidays,
 } = require("../../models/businessModel/businessHolidays")
+const { Product } = require("../../models/businessModel/product")
+
 const JWT_SECRET = "CROP@12345"
 
 const emailRegisterOtp = async (req, res) => {
@@ -668,6 +670,20 @@ const getHolidayByState = async (req, res) => {
 // // #00448b
 // // #549cda
 // updateAddress()
+
+// const updateProductImage = async () => {
+//   const newImage = ["file-1681724657651.jpg", "file-1681724657652.jpg"]
+//   console.log("product images updated")
+//   await Product.updateMany({}, { $set: { image: newImage } })
+//     .then(result => {
+//       console.log(`${result.modifiedCount} documents updated`)
+//     })
+//     .catch(err => {
+//       console.error(err)
+//     })
+// }
+
+// updateProductImage()
 
 module.exports = {
   emailRegisterOtp,

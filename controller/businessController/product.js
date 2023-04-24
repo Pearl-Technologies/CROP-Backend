@@ -3,6 +3,9 @@ const {
   Product,
   productComment,
 } = require("../../models/businessModel/product")
+const {
+  adminPaymentTracker,
+} = require("../../models/admin/PaymentTracker/paymentIdTracker")
 
 // addAllProducts
 module.exports.addProduct = async (req, res) => {
@@ -726,3 +729,32 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
     })
   }
 }
+
+module.exports.getBiddedProductsByBusiness = async (req, res) => {
+  console.log("api triggering")
+  const user = req.user.user.id
+  const bid = true
+  console.log(user)
+  try {
+    const biddedProducts = await Product.find({ user, bid }, { status: 0 })
+    return res.status(200).send({ success: true, biddedProducts })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+module.exports.getBiddingSelectedProductsDetailsByBusiness = async (
+  req,
+  res
+) => {
+  const businessId = req.user.user.id
+  try {
+    const biddingSelectedProducts = await adminPaymentTracker.find({
+      businessId,
+    })
+    return res.status(200).send({ success: true, biddingSelectedProducts })
+  } catch (error) {
+    console.log(error)
+  }
+}
+

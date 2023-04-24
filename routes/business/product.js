@@ -25,6 +25,8 @@ const {
   getProductsBySector,
   getEarnCropProductsBySector,
   getRedeemCropProductsBySector,
+  getBiddingSelectedProductsDetailsByBusiness,
+  getBiddedProductsByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -42,6 +44,12 @@ router.get("/get-earncrop-products", getEarnCropProducts)
 router.get("/get-redeemcrop-products", getRedeemCropProducts)
 router.get("/discount", getDiscountProduct)
 router.get("/categoryproducts", getProductsByCatagory)
+router.get("/get-bidded-products", authorization, getBiddedProductsByBusiness)
+router.get(
+  "/get-bidding-selected-products-details",
+  authorization,
+  getBiddingSelectedProductsDetailsByBusiness
+)
 router.get(
   "/get-products-by-sub-category/:subCategoryId",
   getProductsBySubCatagory
@@ -59,6 +67,7 @@ router.post("/image/:productId", upload.array("file", 20), uploadProductImages)
 router.get("/image/:id", getProductImage)
 
 router.get("/discount", getDiscountProduct)
+
 router.get("/categoryproducts", getProductsByCatagory)
 router.get(
   "/get-products-by-sub-category/:subCategoryId",

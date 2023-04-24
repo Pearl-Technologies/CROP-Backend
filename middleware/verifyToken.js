@@ -9,11 +9,10 @@ const { promisify } = require("util");
 
 module.exports = async (req, res, next) => {
   try {
-    
-    const token = req.headers?.authorization?.split(" ")?.[1];
-      // const token=req.headers.authorization;
+    const token = req.headers?.authorization?.split(" ")?.[1]
+    // const token=req.headers.authorization;
 
-    // console.log(token,"token")
+    // console.log(token, "token")
 
     if (!token) {
       return res.status(401).json({
@@ -30,7 +29,7 @@ module.exports = async (req, res, next) => {
     // const user = User.findOne({ email: decoded.email })
 
     req.user = decoded
-
+    console.log(req.user, "req user")
     next()
   } catch (error) {
     res.status(403).json({
