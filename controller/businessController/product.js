@@ -733,16 +733,29 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     }
     console.log({ day })
     let match = []
+    let ratingSort = false
     if (productTab == "mostPopular") {
       match = [{ apply: "earnCrop" }, { sector }, { market: true }]
     }
+    if (productTab == "bestRated") {
+      match = [{ apply: "earnCrop" }, { sector }]
+      ratingSort = true
+    }
     const page = pageNo ? parseInt(pageNo, 10) : 1
-    const lim = limit ? parseInt(limit, 10) : 1
+    const lim = limit ? parseInt(limit, 10) : 10
     console.log({ productTab }, "two")
     console.log({ page }, "page")
     console.log({ lim }, "limit")
+    console.log({ ratingSort }, "ratingSort")
     const productDetails = await Product.aggregate([
       { $match: { $and: match } },
+      {
+        $sort: {
+          bidPrice: -1,
+          rating: -1,
+          likes: -1,
+        },
+      },
       {
         $lookup: {
           from: "business_croprules",
@@ -868,6 +881,10 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           discount: 1,
           price: 1,
           quantity: 1,
+          image: 1,
+          rating: 1,
+          likes: 1,
+          bidPrice: 1,
           crops: "$croppoints",
           cropRules: { cropPerAudCredit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
@@ -893,25 +910,130 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       { $count: "count" },
     ])
     const count = countResults.length > 0 ? countResults[0].count : 0
-    res.json({ count, productDetails })
+    res.json({ count, products: productDetails })
   } catch (error) {
     console.log(error)
   }
 }
 
 module.exports.getRedeemCropProductsBySector = async (req, res) => {
-  const { sector } = req.params
+  const { productTab, sector, pageNo, limit } = req.params
   try {
-    const products = await Product.find({
-      $and: [{ sector }, { apply: "redeemCrop" }],
-    })
-    return res.status(200).send({ products })
+    const dateTime = new Date()
+    const sDate = dateTime.toISOString()
+    const today = sDate.split("T")[0]
+    const currentDay = dateTime.getDay()
+    console.log("2023-04-13" < today, "Strat Date")
+    console.log("2023-04-14" > today, "End Date")
+    let day = ""
+    if (currentDay == 0) {
+      day = "sun"
+    } else if (currentDay == 1) {
+      day = "mon"
+    } else if (currentDay == 2) {
+      day = "tue"
+    } else if (currentDay == 3) {
+      day = "wed"
+    } else if (currentDay == 4) {
+      day = "thu"
+    } else if (currentDay == 5) {
+      day = "fri"
+    } else if (currentDay == 6) {
+      day = "sat"
+    }
+    console.log({ day })
+    let match = []
+    if (productTab == "mostPopular") {
+      match = [{ apply: "redeemCrop" }, { sector }, { market: true }]
+    }
+    if (productTab == "bestRated") {
+      match = [{ apply: "redeemCrop" }, { sector }]
+    }
+    const page = pageNo ? parseInt(pageNo, 10) : 1
+    const lim = limit ? parseInt(limit, 10) : 10
+    console.log({ productTab }, "two")
+    console.log({ page }, "page")
+    console.log({ lim }, "limit")
+    const productDetails = await Product.aggregate([
+      { $match: { $and: match } },
+      {
+        $sort: {
+          bidPrice: -1,
+          rating: -1,
+          likes: -1,
+        },
+      },
+      {
+        $lookup: {
+          from: "business_croprules",
+          localField: "user",
+          foreignField: "businessId",
+          as: "cropRules",
+        },
+      },
+      {
+        $lookup: {
+          from: "business_slashredemptioncrops",
+          localField: "_id",
+          foreignField: "slashRedemptionProducts.productId",
+          as: "slashRedemption",
+        },
+      },
+      { $unwind: "$cropRules" },
+      {
+        $addFields: {
+          ruleAppliedCrops: {
+            $multiply: ["$redeemCROPs", "$cropRules.cropPerAudDebit"],
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          slashRedemptionDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  {
+                    $lte: ["2023-04-23", today],
+                  },
+                  {
+                    $gte: ["2023-04-29", today],
+                  },
+                  {
+                    $eq: [true, true],
+                  },
+                ],
+              },
+              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
+              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          originalPrice: 1,
+          discount: 1,
+          price: 1,
+          quantity: 1,
+          image: 1,
+          rating: 1,
+          likes: 1,
+          bidPrice: 1,
+          user: 1,
+          cropRules: { cropPerAudDebit: 1 },
+          ruleAppliedCrops: "$ruleAppliedCrops",
+          slashRedemptionDiscountPercentage: 1,
+          cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
+          market: 1,
+        },
+      },
+    ])
+    res.json({ count: productDetails.length, productDetails })
   } catch (error) {
     console.log(error)
-    res.status(500).send({
-      message: error.message,
-      status: 500,
-    })
   }
 }
 
@@ -940,5 +1062,18 @@ module.exports.getBiddingSelectedProductsDetailsByBusiness = async (
     return res.status(200).send({ success: true, biddingSelectedProducts })
   } catch (error) {
     console.log(error)
+  }
+}
+
+module.exports.getPromoProducts = async (req, res) => {
+  try {
+    const promoProducts = await Product.find({
+      mktOfferFor: "promo",
+      market: true,
+    })
+    return res.status(200).send({ promoProducts })
+  } catch (error) {
+    conosle.log(error)
+    return res.status(500).send("Internal Server Error")
   }
 }

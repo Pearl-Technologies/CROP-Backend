@@ -25,6 +25,7 @@ const {
   getProductsBySector,
   getEarnCropProductsBySector,
   getRedeemCropProductsBySector,
+  getPromoProducts,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -37,6 +38,7 @@ router.post("/add-all", addAllProducts)
 router.get("/show", getShowingProducts)
 router.get("/get-earn-products", authorization, getEarnProducts)
 router.get("/get-redeem-products", authorization, getRedeemProducts)
+router.get("/get-promo-products", getPromoProducts)
 
 router.get("/get-earncrop-products", getEarnCropProducts)
 router.get("/get-redeemcrop-products", getRedeemCropProducts)
@@ -83,7 +85,7 @@ router.get(
   getEarnCropProductsBySector
 )
 router.get(
-  "/get-redeem-crop-products-by-category/:sector",
+  "/get-redeem-crop-products-by-category/:productTab/:sector/:pageNo/:limit",
   getRedeemCropProductsBySector
 )
 

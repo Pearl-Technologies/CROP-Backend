@@ -674,7 +674,7 @@ const getHolidayByState = async (req, res) => {
 // const updateProductImage = async () => {
 //   const newImage = ["file-1681724657651.jpg", "file-1681724657652.jpg"]
 //   console.log("product images updated")
-//   await Product.updateMany({}, { $set: { image: newImage } })
+//   await Product.updateMany({ sector: "fuel" }, { $set: { sector: "Fuel" } })
 //     .then(result => {
 //       console.log(`${result.modifiedCount} documents updated`)
 //     })
