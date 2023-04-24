@@ -20,10 +20,8 @@ const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin");
 
 
-// app.use(bodyParser.urlencoded({extended: true}));
-// app.use(bodyParser.raw({ type: 'application/octet-stream' }));
-// app.use(bodyParser.json());
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.json())
 app.use(cors());
 ConnectDb();
 
@@ -52,5 +50,5 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   res.status(400).json({ message: err.message });
 });
-const PORT = process.env.PORT;
+const PORT = 7001
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));

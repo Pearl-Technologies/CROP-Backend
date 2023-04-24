@@ -19,7 +19,7 @@ module.exports.paymentIntent = async (req, res) => {
       statement_descriptor: 'TEST PAYMENT',
     });
 
-    console.log(paymentIntent.client_secret,"payments")
+    console.log(paymentIntent.client_secret, "payments")
 
    if(paymentIntent.client_secret)
    {

@@ -10,6 +10,11 @@ const { Otp } = require("../../models/businessModel/Otp")
 const { sendMail } = require("../../utils/sendMail")
 const { User } = require("../../models/User")
 const Order = require("../../models/Order")
+const {
+  BusinessHolidays,
+} = require("../../models/businessModel/businessHolidays")
+const { Product } = require("../../models/businessModel/product")
+
 const JWT_SECRET = "CROP@12345"
 
 const emailRegisterOtp = async (req, res) => {
@@ -510,12 +515,13 @@ const getProfile = async (req, res) => {
 
 const getUserCropDetails = async (req, res) => {
   const { email } = req.params
+  console.log(email, "api hitting")
   try {
-    const user = await User.find({ email })
+    const user = await User.findOne({ email })
     console.log(user)
-    if (user.length < 1) {
+    if (user == null) {
       return res
-        .status(204)
+        .status(404)
         .send({ success: false, msg: "Crop Details Not Found" })
     }
     const userName =
@@ -612,6 +618,73 @@ const getFeedback = async (req, res) => {
   }
 }
 
+const uploadProfileImage = async (req, res) => {
+  try {
+    console.log("api upload running")
+    const businessId = req.user.user.id
+    const fileName = req.files[0].filename
+    console.log(fileName, "fileName")
+    const businessFind = await business.findByIdAndUpdate(
+      { _id: businessId },
+      { avatar: fileName }
+    )
+    console.log(businessFind, "business")
+    return res.status(200).send({ success: true })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const getHolidayByState = async (req, res) => {
+  const { state } = req.body
+  try {
+    const holidayByState = await BusinessHolidays.find({ state })
+    return re.status(200).send({ success: true, holidayByState })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+// const updateAddress = async () => {
+//   const line1 = Math.floor(100 + Math.random() * 900)
+//   await business.updateMany({}, [
+//     {
+//       $set: {
+//         address: {
+//           $map: {
+//             input: "$address",
+//             as: "addr",
+//             in: {
+//               line1: line1,
+//               line2: "line2",
+//               state: "$$addr.state",
+//               pincode: { $toInt: "$$addr.pincode" },
+//             },
+//           },
+//         },
+//       },
+//     },
+//   ])
+//   console.log("address updated")
+// }
+// // #00448b
+// // #549cda
+// updateAddress()
+
+// const updateProductImage = async () => {
+//   const newImage = ["file-1681724657651.jpg", "file-1681724657652.jpg"]
+//   console.log("product images updated")
+//   await Product.updateMany({}, { $set: { image: newImage } })
+//     .then(result => {
+//       console.log(`${result.modifiedCount} documents updated`)
+//     })
+//     .catch(err => {
+//       console.error(err)
+//     })
+// }
+
+// updateProductImage()
+
 module.exports = {
   emailRegisterOtp,
   verifyRegisterOtp,
@@ -629,9 +702,11 @@ module.exports = {
   saveBusinessCrop,
   saveBusinessProp,
   getProfile,
+  uploadProfileImage,
   getUserCropDetails,
   pinChange,
   updateCommunicationPreference,
   createOrUpdateFeedback,
   getFeedback,
+  getHolidayByState,
 }

@@ -10,13 +10,15 @@ router.put("/quantity", async (req, res) => {
 
     try {
         let quantity = req.body.quantity;
+        let id = req.body.quantity;
+        let cart_id = req.body.cart_id;
         let token = req.headers.authorization;
         const token_data = await Token.findOne({"token":token});
         const userData=await User.findOne({_id:token_data.user}); 
         const user_id = userData._id.valueOf();
-        const product_id = req.body.product_id;
 
-        const result= await Cart.updateOne({user_id : user_id }, { $set: { cart: {_id:{ quantity: quantity }} }});
+        const result= await Cart.updateOne({user_id : user_id, _id: mongoose.Types.ObjectId(id), "cart._id": mongoose.Types.ObjectId(cart_id)},
+         { $set: { quantity: quantity }} );
        
         // const result = await Cart.findOne({ user_id: user_id });
         // var data = result.cart
@@ -50,21 +52,36 @@ router.put("/cartdetails", async (req, res) => {
         });
 
         if (userdetails) {
-            const result = await Cart.updateOne({ user_id: user_id }, { $push: { cart: products } });
+
+            const findCartProduct = await Cart.findOne(
+                {"cart._id":products._id,"user_id":user_id}
+            )
+    
+            if(findCartProduct){
+                const result = await Cart.updateOne({"cart._id":products._id,"user_id":user_id}, { $inc : { "cart.$.cartQuantity": 1 } });
+                console.log(result);
+                return res.status(200).send({    message: 'Cart Added Successfully',status: true })
+            }
+
+            else{
+            const finalProduct = {...products,...{cartQuantity:1}}
+            const result = await Cart.updateOne({ user_id: user_id }, { $push: { cart: finalProduct } });
             console.log(result);
-            return res.status(200).send({ status: true })
+            return res.status(200).send({    message: 'Cart Added Successfully',status: true })
+            }
         }
         else {
-            const newCart = new Cart({ user_id: mongoose.Types.ObjectId(user_id), cart: products });
+            const finalProduct = {...products,...{cartQuantity:1}}
+            const newCart = new Cart({ user_id: mongoose.Types.ObjectId(user_id), cart: finalProduct });
             await newCart.save();
             res.status(200).send({
                 message: 'Cart Added Successfully',
                 status: "true",
-
             });
         }
     }
     catch (err) {
+        console.log(err);
         res.status(500).send({
             message: "Internal server error", status: "false"
         })
@@ -116,7 +133,9 @@ router.put("/deleteCart", async (req, res) => {
 });
 router.get("/getCart", async (req, res) => {
     try{
-        let token = req.headers.authorization;
+        let token = req.
+        
+         headers.authorization;
         console.log("santhosh", token)
         const token_data = await Token.findOne({"token":token});
         const userData=await User.findOne({_id:token_data.user}); 
@@ -126,7 +145,7 @@ router.get("/getCart", async (req, res) => {
         if(newCart == null){
             res.status(200).send({ data: [], status: "true" })
         }else{
-            res.status(200).send({ data: newCart.cart, status: "true" })
+            res.status(200).send({ data: newCart, status: "true" })
         }
     }
     catch(err){
