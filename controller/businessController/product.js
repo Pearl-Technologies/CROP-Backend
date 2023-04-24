@@ -699,7 +699,7 @@ module.exports.getProductComment = async (req, res) => {
 }
 
 module.exports.getEarnCropProductsBySector = async (req, res) => {
-  const { productTab, sector, pageNo } = req.params
+  const { productTab, sector, pageNo, limit } = req.params
   try {
     const dateTime = new Date()
     const sDate = dateTime.toISOString()
@@ -732,12 +732,17 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       day = "sat"
     }
     console.log({ day })
-    let match = {}
+    let match = []
     if (productTab == "mostPopular") {
-      match = { apply: "earnCrop", sector, published: true }
+      match = [{ apply: "earnCrop" }, { sector }, { market: true }]
     }
+    const page = pageNo ? parseInt(pageNo, 10) : 1
+    const lim = limit ? parseInt(limit, 10) : 1
+    console.log({ productTab }, "two")
+    console.log({ page }, "page")
+    console.log({ lim }, "limit")
     const productDetails = await Product.aggregate([
-      { $match: match },
+      { $match: { $and: match } },
       {
         $lookup: {
           from: "business_croprules",
@@ -873,10 +878,22 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           cropRulesWithBonus: "$cropRulesWithBonus",
           happyHours: 1,
           services: { $arrayElemAt: ["$services", 0] },
+          market: 1,
         },
       },
+      {
+        $skip: (page - 1) * lim,
+      },
+      {
+        $limit: lim,
+      },
     ])
-    res.json({ count: productDetails.length, productDetails })
+    const countResults = await Product.aggregate([
+      { $match: { $and: match } },
+      { $count: "count" },
+    ])
+    const count = countResults.length > 0 ? countResults[0].count : 0
+    res.json({ count, productDetails })
   } catch (error) {
     console.log(error)
   }

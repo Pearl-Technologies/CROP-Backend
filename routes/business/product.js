@@ -79,7 +79,7 @@ router.get("/get-Product-Comment", getProductComment)
 router.delete("/deleteProductComment", deleteProductComment)
 router.put("/putProductComment", putProductComment)
 router.get(
-  "/get-earn-crop-products-by-category/:productTab/:sector/:pageNo",
+  "/get-earn-crop-products-by-category/:productTab/:sector/:pageNo/:limit",
   getEarnCropProductsBySector
 )
 router.get(
