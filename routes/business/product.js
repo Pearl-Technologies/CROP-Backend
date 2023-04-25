@@ -99,5 +99,10 @@ router.get(
   "/get-redeem-crop-products-by-category/:productTab/:sector/:pageNo/:limit",
   getRedeemCropProductsBySector
 )
+router.get(
+  "/get-earn-crop-products-by-category/:productTab/:sector/:lat/:long/:pageNo/:limit",
+  getEarnCropProductsBySector
+)
+
 
 module.exports = router;

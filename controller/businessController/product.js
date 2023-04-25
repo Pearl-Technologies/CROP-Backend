@@ -6,11 +6,17 @@ const {
 const {
   adminPaymentTracker,
 } = require("../../models/admin/PaymentTracker/paymentIdTracker")
+const business = require("../../models/businessModel/business")
+const NodeGeocoder = require("node-geocoder")
 
 // addAllProducts
 module.exports.addProduct = async (req, res) => {
   try {
-    req.body.user = req.user.user.id
+    console.log("user", req.user.user)
+    const id = req.user.user.id
+    const busi = await business.findById(id)
+    req.body.user = id
+    req.body.city = busi.address[0].city
     req.body.croppoints = req.body.price
     const newProduct = new Product(req.body)
     await newProduct.save()
@@ -704,17 +710,10 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     const dateTime = new Date()
     const sDate = dateTime.toISOString()
     const today = sDate.split("T")[0]
-    // console.log(dateTime.getDay(), "day");
     const currentDay = dateTime.getDay()
     const t = dateTime.toLocaleString("en-GB").split(" ")
     const th = t[1].split(":")
-    console.log(today, "today")
     const time = th[0] + ":" + th[1]
-    console.log("2023-04-02" < today, "Strat Date")
-    console.log("2023-04-26" > today, "End Date")
-    console.log(time, "time")
-    console.log("05:18" < time, time, "start time")
-    console.log("20:17" > time, time, "end time")
     let day = ""
     if (currentDay == 0) {
       day = "sun"
@@ -731,22 +730,37 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     } else if (currentDay == 6) {
       day = "sat"
     }
-    console.log({ day })
+    const geocoder = NodeGeocoder({
+      provider: "openstreetmap",
+    })
+    const lat = parseFloat(req.params.lat)
+    const long = parseFloat(req.params.long)
+    console.log({ lat }, { long })
+    let city = ""
+    await geocoder
+      .reverse({ lat, lon: long })
+      .then(res => {
+        city = res[0].city
+        console.log(city)
+        // console.log()
+      })
+      .catch(err => {
+        console.error(err)
+      })
+
     let match = []
-    let ratingSort = false
     if (productTab == "mostPopular") {
       match = [{ apply: "earnCrop" }, { sector }, { market: true }]
     }
     if (productTab == "bestRated") {
       match = [{ apply: "earnCrop" }, { sector }]
-      ratingSort = true
+    }
+    if (productTab == "nearMe") {
+      match = [{ apply: "earnCrop" }, { sector }, { city }]
     }
     const page = pageNo ? parseInt(pageNo, 10) : 1
     const lim = limit ? parseInt(limit, 10) : 10
-    console.log({ productTab }, "two")
-    console.log({ page }, "page")
-    console.log({ lim }, "limit")
-    console.log({ ratingSort }, "ratingSort")
+    console.log({ match })
     const productDetails = await Product.aggregate([
       { $match: { $and: match } },
       {
@@ -893,9 +907,11 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
-          happyHours: 1,
-          services: { $arrayElemAt: ["$services", 0] },
+          // happyHours: 1,
+          // services: { $arrayElemAt: ["$services", 0] },
           market: 1,
+          brand: 1,
+          description: 1,
         },
       },
       {
@@ -913,6 +929,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     res.json({ count, products: productDetails })
   } catch (error) {
     console.log(error)
+    return res.status(500).send("Internal Server Error")
   }
 }
 
@@ -1028,6 +1045,8 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
           market: 1,
+          brand: 1,
+          description,
         },
       },
       {
