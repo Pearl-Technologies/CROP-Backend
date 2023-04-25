@@ -1030,8 +1030,19 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           market: 1,
         },
       },
+      {
+        $skip: (page - 1) * lim,
+      },
+      {
+        $limit: lim,
+      },
     ])
-    res.json({ count: productDetails.length, products:productDetails })
+    const countResults = await Product.aggregate([
+      { $match: { $and: match } },
+      { $count: "count" },
+    ])
+    const count = countResults.length > 0 ? countResults[0].count : 0
+    res.json({ count, products: productDetails })
   } catch (error) {
     console.log(error)
   }

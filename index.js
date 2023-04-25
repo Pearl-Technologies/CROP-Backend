@@ -18,6 +18,7 @@ const businessRoutes = require("./routes/business/business")
 const productsRoutes = require("./routes/business/product")
 const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin")
+const address = require("./routes/addresRoute")
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
@@ -37,6 +38,7 @@ app.use("/api/business", businessRoutes)
 app.use("/api/products", productsRoutes)
 app.use("/api/admin", admin)
 app.use("/api/superAdmin", superAdmin)
+app.use("/api/address", address)
 
 app.get("/", (req, res) => {
   res.send("Apps worked successfullyssss")
