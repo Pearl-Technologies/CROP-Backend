@@ -26,6 +26,9 @@ const {
   getEarnCropProductsBySector,
   getRedeemCropProductsBySector,
   getPromoProducts,
+  getAllProducts,
+  getBiddingSelectedProductsDetailsByBusiness,
+  getBiddedProductsByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -36,9 +39,11 @@ const router = express.Router()
 router.post("/add", authorization, addProduct)
 router.post("/add-all", addAllProducts)
 router.get("/show", getShowingProducts)
+
 router.get("/get-earn-products", authorization, getEarnProducts)
 router.get("/get-redeem-products", authorization, getRedeemProducts)
-router.get("/get-promo-products", getPromoProducts)
+router.get("/get-promo-products/:page/:limit", getPromoProducts)
+router.get("/get-all-products/:page/:limit", getAllProducts)
 
 router.get("/get-earncrop-products", getEarnCropProducts)
 router.get("/get-redeemcrop-products", getRedeemCropProducts)
@@ -48,6 +53,12 @@ router.get(
   "/get-products-by-sub-category/:subCategoryId",
   getProductsBySubCatagory
 )
+router.get(
+  "/get-bidding-selected-products-details",
+  authorization,
+  getBiddingSelectedProductsDetailsByBusiness
+)
+router.get("/get-bidded-products", authorization, getBiddedProductsByBusiness)
 router.get(
   "/get-all-products-by-business",
   authorization,
