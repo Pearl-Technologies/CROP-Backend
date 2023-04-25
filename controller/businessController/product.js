@@ -1066,14 +1066,38 @@ module.exports.getBiddingSelectedProductsDetailsByBusiness = async (
 }
 
 module.exports.getPromoProducts = async (req, res) => {
+  const page = req.params.page // current page number
+  const limit = req.params.limit // number of documents per page
+
+  const skip = (page - 1) * limit
   try {
     const promoProducts = await Product.find({
       mktOfferFor: "promo",
       market: true,
     })
-    return res.status(200).send({ promoProducts })
+      .skip(skip)
+      .limit(limit)
+    const count = await await Product.find({
+      mktOfferFor: "promo",
+      market: true,
+    }).countDocuments()
+    return res.status(200).send({ count, promoProducts })
   } catch (error) {
     conosle.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getAllProducts = async (req, res) => {
+  const page = req.params.page // current page number
+  const limit = req.params.limit // number of documents per page
+
+  const skip = (page - 1) * limit
+  try {
+    const products = await Product.find({}).skip(skip).limit(limit)
+    const count = await Product.find({}).countDocuments()
+    return res.status(200).send({ count, products })
+  } catch (error) {
     return res.status(500).send("Internal Server Error")
   }
 }
