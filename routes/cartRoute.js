@@ -133,9 +133,7 @@ router.put("/deleteCart", async (req, res) => {
 });
 router.get("/getCart", async (req, res) => {
     try{
-        let token = req.
-        
-         headers.authorization;
+        let token = req.headers.authorization;
         console.log("santhosh", token)
         const token_data = await Token.findOne({"token":token});
         const userData=await User.findOne({_id:token_data.user}); 
