@@ -1031,7 +1031,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
         },
       },
     ])
-    res.json({ count: productDetails.length, productDetails })
+    res.json({ count: productDetails.length, products:productDetails })
   } catch (error) {
     console.log(error)
   }
