@@ -542,11 +542,20 @@ router.put('/forgetpassword',async(req,res) =>{
       let email=req.body.email;
       try{                 
              //updating the password in the database
-            const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-            const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});  
-
-            res.status(200).send({message:"Password changed Successfully",status:"true",data:[]});
+            if(req.body.email!="" && req.body.password !="" && req.body.email!=null && req.body.password !=null && req.body.email!=undefined && req.body.password !=undefined){
+                const hashedPassword = await bcrypt.hash(req.body.password, 10);
+                const emailFind=await User.findOne({email:email});
+                if(emailFind){
+                    const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});  
+                    res.status(200).send({message:"Password changed Successfully",status:"true",data:[]});
+                }
+                else{
+                    res.status(500).send({message:"No email found",status:"false",data:[]});
+                }
+            }
+            else{
+                res.status(500).send({message:"Email and Password should not be empty",status:"false",data:[]});
+            }
         }               
         catch(err){
             res.status(500).send({message:"Error Message",status:"false",data:[]});

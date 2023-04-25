@@ -51,4 +51,4 @@ app.use((err, req, res, next) => {
   res.status(400).json({ message: err.message });
 });
 const PORT = process.env.PORT; 
-app.listen(7001, () => console.log(`server running on port 7001`))
+app.listen(7000, () => console.log(`server running on port 7000`))
