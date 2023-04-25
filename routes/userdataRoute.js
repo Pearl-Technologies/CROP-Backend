@@ -2,7 +2,8 @@ const express= require('express')
 const router = express.Router();
 const {Otp, User, Token, Newsletter, MissingCrop}= require("../models/User");
 const {customerPaymentTracker} = require("../models/admin/PaymentTracker/paymentIdTracker");
-const {Product} = require("../models/businessModel/product")
+const {Product} = require("../models/businessModel/product");
+const business = require("../models/businessModel/business");
 var mongoose = require('mongoose');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
@@ -120,8 +121,8 @@ router.put('/resendotp',async(req,res) =>{
 
 router.post('/emailphone',async(req,res) =>{   
 
-    const phone =req.body.phone;
-    const email=req.body.email;
+    const phone = req.body.phone? req.body.phone : "";
+    const email = req.body.email? req.body.email: "";
 
     //Add the status true when the otp is verified in the database
 
@@ -139,14 +140,20 @@ router.post('/emailphone',async(req,res) =>{
      if(bool2===0)
      {
     const phoneExist=await User.findOne({mobileNumber:phone});
+    const businessMobile = await business.findOne({mobile:phone});
     if(phoneExist)
     return res.status(409).send({message:"User with given phone number already exist",status:false})
+    if(businessMobile)
+    return res.status(409).send({message:"User with given phone number already exist in business", status:false});
      }
   if(bool1===0)
   {
     const emailExist=await User.findOne({email:email});  
+    const businessEmail = await business.findOne({email:email});
     if(emailExist)
-    return res.status(409).send({message:"User with given email already exist",status:false})
+    return res.status(409).send({message:"User with given email already exist",status:false});
+    if(businessEmail)
+    return res.status(409).send({message:"User with given email already exist in business"});
   }
 
  if(email)
@@ -282,10 +289,16 @@ router.post('/signup',async (req,res) =>{
         // checking whether the given mail id is exist in database r not
         const phoneExist=await User.findOne({mobileNumber:req.body.mobileNumber});
         const emailExist=await User.findOne({email:req.body.email});
+        // const businessMobile = await business.findOne({mobile:req.body.mobileNumber});
+        const businessEmail = await business.findOne({email:req.body.email});
         if(phoneExist)
         return res.status(409).send({message:"User with given phone number already exist"})
         if(emailExist)
         return res.status(409).send({message:"User with given email already exist"})
+        // if(businessMobile)
+        // return res.status(409).send({message:"User with given phone number already exist in business"})
+        if(businessEmail)
+        return res.status(409).send({message:"User with given email already exist in business"})
         //hashing the password
         const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10); 
                
@@ -315,13 +328,13 @@ router.post('/signup',async (req,res) =>{
             var results=prop.propid
             var propnumber=results+1; 
 
-            const user = new User({
+            const user = await new User({
                 name:req.body.name,
                 cropid:cropnumber,
                 propid:propnumber,
                 password:hashedPassword,
-                mobileNumber:req.body.mobileNumber,
-                email:req.body.email,
+                mobileNumber:req.body.mobileNumber != undefined ? req.body.mobileNumber : "",
+                email:req.body.email != undefined ? req.body.email : "",
                 UserTitle:req.body.UserTitle,   
                 terms:req.body.terms,
                 notification:req.body.notification,
@@ -330,14 +343,30 @@ router.post('/signup',async (req,res) =>{
                 signUpDate:formattedDate,
                 auditTrail:{value: "Register Profile", status: true, message:`${req.body.name} have successfully registered your profile on ${formattedDate}`}
             }).save();
+
+            var method = 0;
+          var userToken
+        //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+          let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+          let userData = await User.findOne({email:req.body.email})
+          if(req.body.login_method === 1) {
+              method = 1;
+              userToken =await jwt.sign({email:req.body.email},'CROP@12345', { expiresIn: '1h' });
+              await new Token({ user: userData._id, token: userToken, type:method, expiration: oneHourFromNow }).save();
+          }
+          else {
+              method = 2;
+              userToken =await jwt.sign({email:req.body.email},'CROP@12345');
+              await new Token({ user: userData._id, token: userToken, type:method }).save();
+          }
          //saving data in the database
-         res.send({message:"Register successfully",
+         res.send({message:"Register successfully", token:userToken, type:method, userdata:userData,
          status:"true",data:{"refercode":referid,"cropid":cropnumber,"croppoints":0,"propid":propnumber,}
         });
      }catch(err){
      
         //if any internal error occurs it will show error message
-        res.status(500).send({message:"Register error",status:"false",data:[]});
+        res.status(500).send({message:"Register error",status:"false",data:[err]});
      }    
 });
 
@@ -424,10 +453,14 @@ router.post('/login',async (req,res) =>{
         //getting email from the database and compare with the given email id
         
         const userData=await User.findOne({
-           email:req.body.email
-        });  
+            $or: [
+               { email: req.body.email },
+               { cropid: req.body.cropid },
+               { mobileNumber: req.body.phone }
+            ]
+         })
         //if the email id is not present send the error message
-        if(!userData.email)  
+        if(!userData)  
         {
         return res.status(409).send({message:"Wrong credentialssss!",status:false})
         }
@@ -491,16 +524,22 @@ router.post('/login',async (req,res) =>{
 
     router.put('/forget',async(req,res) =>{
 
-             let email=req.body.email;
+             const userData=await User.findOne({
+                $or: [
+                   { email: req.body.email },
+                   { cropid: req.body.cropid },
+                   { mobileNumber: req.body.phone }
+                ]
+             })
             try{
-                const forgotpassword=await User.findOne({email:email});
+                const forgotpassword=await User.findOne({email:userData.email});
         
                 if(!forgotpassword)
                 {
                     return res.status(409).send({message:"Registered email not exist"})
                     }                  
                      //updating the password in the database
-                    var userEmail = req.body.email; 
+                    var userEmail = userData.email; 
                     var otp=Math.floor(100000 + Math.random() * 900000)
                     const result= await Otp.updateOne({email : userEmail }, {$set: {otp : otp}});         
 
@@ -539,12 +578,18 @@ router.post('/login',async (req,res) =>{
 
 router.put('/forgetpassword',async(req,res) =>{
 
-      let email=req.body.email;
+      const userData=await User.findOne({
+                $or: [
+                   { email: req.body.email },
+                   { cropid: req.body.cropid },
+                   { mobileNumber: req.body.phone }
+                ]
+             })
       try{                 
              //updating the password in the database
             const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-            const result= await User.updateOne({email:email}, {$set: {password : hashedPassword}});  
+            const result= await User.updateOne({email:userData.email}, {$set: {password : hashedPassword}});  
 
             res.status(200).send({message:"Password changed Successfully",status:"true",data:[]});
         }               
