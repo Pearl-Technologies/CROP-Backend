@@ -10,7 +10,7 @@ router.put("/quantity", async (req, res) => {
 
     try {
         let quantity = req.body.quantity;
-        let id = req.body.quantity;
+        let id = req.body.id;
         let cart_id = req.body.cart_id;
         let token = req.headers.authorization;
         const token_data = await Token.findOne({"token":token});
