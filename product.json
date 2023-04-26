@@ -1,0 +1,733 @@
+{
+    "count": 6,
+    "products": [
+        {
+            "_id": "644760ebb4c2a8bb167a33ca",
+            "title": "Title",
+            "image": [
+                "file-1681724657651.jpg",
+                "file-1681724657652.jpg"
+            ],
+            "originalPrice": 399,
+            "price": 359.1,
+            "discount": 10,
+            "quantity": 100,
+            "bidPrice": 300,
+            "market": true,
+            "rating": 4.4,
+            "likes": 80,
+            "cropRules": {
+                "cropPerAudCredit": 2
+            },
+            "happyHours": [
+                {
+                    "_id": "6447ae16abd0c45b5a767c65",
+                    "happyHoursDates": {
+                        "fromDate": "2023-04-11",
+                        "toDate": "2023-05-04"
+                    },
+                    "happyHoursTime": {
+                        "startTime": "03:10",
+                        "endTime": "22:10"
+                    },
+                    "happyHoursDays": {
+                        "sun": true,
+                        "mon": true,
+                        "tue": true,
+                        "wed": true,
+                        "thu": true,
+                        "fri": true,
+                        "sat": true
+                    },
+                    "happyHoursPercentage": 10,
+                    "happyHoursProducts": [
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c3",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767ca8"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c2",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767ca9"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c1",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767caa"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c8",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cab"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c5",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cac"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c6",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cad"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c9",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cae"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c7",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767caf"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c4",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb0"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33ca",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb1"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33cc",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb2"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33cb",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb3"
+                        },
+                        {
+                            "productId": "6440e6da7917438bf2e6f8d7",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb4"
+                        }
+                    ],
+                    "businessId": "643cd01d448a0837e2cf24ce",
+                    "__v": 0
+                }
+            ],
+            "crops": 359.1,
+            "ruleAppliedCrops": 718.2,
+            "bonusCropsDiscountPercentage": 30,
+            "happyHoursDiscountPercentage": 10,
+            "happyHoursAndExtendBonusAddedPercentage": 40,
+            "cropRulesWithBonus": 1005.48,
+            "services": {
+                "_id": "643fe3ac333803e03b5e7aa2",
+                "pickup": true,
+                "delivery": false,
+                "deliveryDetails": {
+                    "deliveryAgainstCrops": {
+                        "isTrue": false
+                    },
+                    "deliveryAgainstPayment": {
+                        "isTrue": false
+                    }
+                },
+                "workingDayAndHours": {
+                    "sunday": {
+                        "operatingHours": {
+                            "from": "20:22",
+                            "to": "23:22"
+                        },
+                        "working": true
+                    },
+                    "monday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "tuesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "wednesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "thursday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "friday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "saturday": {
+                        "operatingHours": {
+                            "from": ""
+                        },
+                        "working": false
+                    }
+                },
+                "businessId": "643cd01d448a0837e2cf24ce",
+                "__v": 0
+            }
+        },
+        {
+            "_id": "644760ebb4c2a8bb167a33cb",
+            "title": "Title",
+            "image": [
+                "file-1681724657651.jpg",
+                "file-1681724657652.jpg"
+            ],
+            "originalPrice": 399,
+            "price": 359.1,
+            "discount": 10,
+            "quantity": 100,
+            "bidPrice": 300,
+            "market": true,
+            "rating": 4.4,
+            "likes": 80,
+            "cropRules": {
+                "cropPerAudCredit": 2
+            },
+            "happyHours": [
+                {
+                    "_id": "6447ae16abd0c45b5a767c65",
+                    "happyHoursDates": {
+                        "fromDate": "2023-04-11",
+                        "toDate": "2023-05-04"
+                    },
+                    "happyHoursTime": {
+                        "startTime": "03:10",
+                        "endTime": "22:10"
+                    },
+                    "happyHoursDays": {
+                        "sun": true,
+                        "mon": true,
+                        "tue": true,
+                        "wed": true,
+                        "thu": true,
+                        "fri": true,
+                        "sat": true
+                    },
+                    "happyHoursPercentage": 10,
+                    "happyHoursProducts": [
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c3",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767ca8"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c2",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767ca9"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c1",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767caa"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c8",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cab"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c5",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cac"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c6",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cad"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c9",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cae"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c7",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767caf"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c4",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb0"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33ca",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb1"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33cc",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb2"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33cb",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb3"
+                        },
+                        {
+                            "productId": "6440e6da7917438bf2e6f8d7",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb4"
+                        }
+                    ],
+                    "businessId": "643cd01d448a0837e2cf24ce",
+                    "__v": 0
+                }
+            ],
+            "crops": 359.1,
+            "ruleAppliedCrops": 718.2,
+            "bonusCropsDiscountPercentage": 30,
+            "happyHoursDiscountPercentage": 10,
+            "happyHoursAndExtendBonusAddedPercentage": 40,
+            "cropRulesWithBonus": 1005.48,
+            "services": {
+                "_id": "643fe3ac333803e03b5e7aa2",
+                "pickup": true,
+                "delivery": false,
+                "deliveryDetails": {
+                    "deliveryAgainstCrops": {
+                        "isTrue": false
+                    },
+                    "deliveryAgainstPayment": {
+                        "isTrue": false
+                    }
+                },
+                "workingDayAndHours": {
+                    "sunday": {
+                        "operatingHours": {
+                            "from": "20:22",
+                            "to": "23:22"
+                        },
+                        "working": true
+                    },
+                    "monday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "tuesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "wednesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "thursday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "friday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "saturday": {
+                        "operatingHours": {
+                            "from": ""
+                        },
+                        "working": false
+                    }
+                },
+                "businessId": "643cd01d448a0837e2cf24ce",
+                "__v": 0
+            }
+        },
+        {
+            "_id": "644760ebb4c2a8bb167a33cc",
+            "title": "Title",
+            "image": [
+                "file-1681724657651.jpg",
+                "file-1681724657652.jpg"
+            ],
+            "originalPrice": 399,
+            "price": 359.1,
+            "discount": 10,
+            "quantity": 100,
+            "bidPrice": 300,
+            "market": true,
+            "rating": 4.4,
+            "likes": 80,
+            "cropRules": {
+                "cropPerAudCredit": 2
+            },
+            "happyHours": [
+                {
+                    "_id": "6447ae16abd0c45b5a767c65",
+                    "happyHoursDates": {
+                        "fromDate": "2023-04-11",
+                        "toDate": "2023-05-04"
+                    },
+                    "happyHoursTime": {
+                        "startTime": "03:10",
+                        "endTime": "22:10"
+                    },
+                    "happyHoursDays": {
+                        "sun": true,
+                        "mon": true,
+                        "tue": true,
+                        "wed": true,
+                        "thu": true,
+                        "fri": true,
+                        "sat": true
+                    },
+                    "happyHoursPercentage": 10,
+                    "happyHoursProducts": [
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c3",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767ca8"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c2",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767ca9"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c1",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767caa"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c8",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cab"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c5",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cac"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c6",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cad"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c9",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cae"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c7",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767caf"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33c4",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb0"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33ca",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb1"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33cc",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb2"
+                        },
+                        {
+                            "productId": "644760ebb4c2a8bb167a33cb",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb3"
+                        },
+                        {
+                            "productId": "6440e6da7917438bf2e6f8d7",
+                            "productName": "Title",
+                            "_id": "6447ae40abd0c45b5a767cb4"
+                        }
+                    ],
+                    "businessId": "643cd01d448a0837e2cf24ce",
+                    "__v": 0
+                }
+            ],
+            "crops": 359.1,
+            "ruleAppliedCrops": 718.2,
+            "bonusCropsDiscountPercentage": 0,
+            "happyHoursDiscountPercentage": 10,
+            "happyHoursAndExtendBonusAddedPercentage": 10,
+            "cropRulesWithBonus": 790.02,
+            "services": {
+                "_id": "643fe3ac333803e03b5e7aa2",
+                "pickup": true,
+                "delivery": false,
+                "deliveryDetails": {
+                    "deliveryAgainstCrops": {
+                        "isTrue": false
+                    },
+                    "deliveryAgainstPayment": {
+                        "isTrue": false
+                    }
+                },
+                "workingDayAndHours": {
+                    "sunday": {
+                        "operatingHours": {
+                            "from": "20:22",
+                            "to": "23:22"
+                        },
+                        "working": true
+                    },
+                    "monday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "tuesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "wednesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "thursday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "friday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "saturday": {
+                        "operatingHours": {
+                            "from": ""
+                        },
+                        "working": false
+                    }
+                },
+                "businessId": "643cd01d448a0837e2cf24ce",
+                "__v": 0
+            }
+        },
+        {
+            "_id": "64464b2de263ba2f6b67d0fc",
+            "title": "Title Two",
+            "image": [
+                "file-1681724657651.jpg",
+                "file-1681724657652.jpg"
+            ],
+            "originalPrice": 399,
+            "price": 359.1,
+            "discount": 10,
+            "quantity": 100,
+            "bidPrice": 300,
+            "market": true,
+            "rating": 4,
+            "likes": 90,
+            "cropRules": {
+                "cropPerAudCredit": 2
+            },
+            "happyHours": [],
+            "crops": 359.1,
+            "ruleAppliedCrops": 718.2,
+            "bonusCropsDiscountPercentage": 0,
+            "happyHoursDiscountPercentage": 0,
+            "happyHoursAndExtendBonusAddedPercentage": 0,
+            "cropRulesWithBonus": 718.2,
+            "services": {
+                "_id": "643fe3ac333803e03b5e7aa2",
+                "pickup": true,
+                "delivery": false,
+                "deliveryDetails": {
+                    "deliveryAgainstCrops": {
+                        "isTrue": false
+                    },
+                    "deliveryAgainstPayment": {
+                        "isTrue": false
+                    }
+                },
+                "workingDayAndHours": {
+                    "sunday": {
+                        "operatingHours": {
+                            "from": "20:22",
+                            "to": "23:22"
+                        },
+                        "working": true
+                    },
+                    "monday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "tuesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "wednesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "thursday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "friday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "saturday": {
+                        "operatingHours": {
+                            "from": ""
+                        },
+                        "working": false
+                    }
+                },
+                "businessId": "643cd01d448a0837e2cf24ce",
+                "__v": 0
+            }
+        },
+        {
+            "_id": "64464a84e263ba2f6b67d0fa",
+            "title": "Product 3",
+            "image": [
+                "file-1681724657651.jpg",
+                "file-1681724657652.jpg"
+            ],
+            "originalPrice": 300,
+            "price": 240,
+            "discount": 20,
+            "quantity": 300,
+            "bidPrice": 205,
+            "market": true,
+            "rating": 4,
+            "likes": 40,
+            "cropRules": {
+                "cropPerAudCredit": 2
+            },
+            "happyHours": [],
+            "crops": 270,
+            "ruleAppliedCrops": 540,
+            "bonusCropsDiscountPercentage": 0,
+            "happyHoursDiscountPercentage": 0,
+            "happyHoursAndExtendBonusAddedPercentage": 0,
+            "cropRulesWithBonus": 540,
+            "services": {
+                "_id": "643fe3ac333803e03b5e7aa2",
+                "pickup": true,
+                "delivery": false,
+                "deliveryDetails": {
+                    "deliveryAgainstCrops": {
+                        "isTrue": false
+                    },
+                    "deliveryAgainstPayment": {
+                        "isTrue": false
+                    }
+                },
+                "workingDayAndHours": {
+                    "sunday": {
+                        "operatingHours": {
+                            "from": "20:22",
+                            "to": "23:22"
+                        },
+                        "working": true
+                    },
+                    "monday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "tuesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "wednesday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "thursday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "friday": {
+                        "operatingHours": {
+                            "from": "",
+                            "to": ""
+                        },
+                        "working": false
+                    },
+                    "saturday": {
+                        "operatingHours": {
+                            "from": ""
+                        },
+                        "working": false
+                    }
+                },
+                "businessId": "643cd01d448a0837e2cf24ce",
+                "__v": 0
+            }
+        }
+    ]
+}

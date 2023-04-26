@@ -6,7 +6,7 @@ const ConnectDb = require("../config/db");
 ConnectDb();
 const app = express();
 const {
-  adminPaymentTracker,
+  adminPaymentTracker, customerPaymentTracker
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const { Product } = require("../models/businessModel/product");
 const stripe = require("stripe")(
@@ -15,7 +15,7 @@ const stripe = require("stripe")(
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret =
-  "whsec_38ef90abb326130228748b339460defddfe12628c498cdfd39cc55ec12815603";
+  "whsec_c7b83955ccd4f1692c9b257ff94d8ea58502d4fd02259e4a796d1f70b537bb67";
 const createOrder = (session) => {
   // TODO: fill me in
 //   console.log("Creating order", session);
@@ -39,6 +39,21 @@ const fulfillOrder = async (session) => {
 
     console.log("Fulfilling order updated successfully");
   }
+
+  ///customer order full fill
+  // console.log(session);
+  let findOneRecord = await customerPaymentTracker.findOne({
+    paymentId:session.id
+  })
+  
+  if(await findOneRecord){
+    await customerPaymentTracker.findByIdAndUpdate(
+      { _id: findOneRecord._id },
+      { $set: { status: "paid", payment_intent:session.payment_intent } }
+    );
+  }else{
+    console.log("record is not found for verify")
+  }
 };
 
 const emailCustomerAboutFailedPayment = async (session) => {
@@ -58,7 +73,7 @@ app.post(
     } catch (err) {
       return response.status(400).send(`Webhook Error: ${err.message}`);
     }
-    // console.log(event);
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
@@ -80,7 +95,7 @@ app.post(
             let findOne = await adminPaymentTracker.findOne({
                 payment_intent:session.payment_intent
               });
-              if (findOne) {
+              if (await findOne) {
                 await adminPaymentTracker.findByIdAndUpdate(
                   { _id: findOne._id },
                   { $set: { 
@@ -93,8 +108,29 @@ app.post(
                     } }
                 );
                 // , hosted_invoice_url,: "",
-                console.log("successfully updated");
-              }              
+                console.log("business invoices successfully updated");
+              }   
+
+              let findOneRecord = await customerPaymentTracker.findOne({
+                payment_intent:session.payment_intent
+              });
+              if (await findOneRecord) {
+                await customerPaymentTracker.findByIdAndUpdate(
+                  { _id: findOneRecord._id },
+                  { $set: { 
+                    status: session.status, 
+                    invoice_paid_time:session.created, 
+                    customer_email:session.customer_email, 
+                    invoice_id:session.id, 
+                    invoice_url:session.hosted_invoice_url, 
+                    invoice_pdf:session.invoice_pdf
+                    } }
+                );
+                // , hosted_invoice_url,: "",
+                console.log("customer invoices successfully updated");
+              }else{
+                console.log("record is not found for updating invoice details")
+              }             
         
         break;
       }
