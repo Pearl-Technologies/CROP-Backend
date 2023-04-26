@@ -912,6 +912,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
+          apply: 1,
         },
       },
       {
@@ -1047,6 +1048,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           customiseMsg: 1,
           brand: 1,
           description: 1,
+          apply: 1,
         },
       },
       {
@@ -1292,6 +1294,7 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           user: 1,
           customiseMsg: 1,
           user: 1,
+          apply: 1,
           cropRules: { cropPerAudCredit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
@@ -1410,6 +1413,7 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
           customiseMsg: 1,
           brand: 1,
           description: 1,
+          apply: 1,
         },
       },
     ])
