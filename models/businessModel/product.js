@@ -66,7 +66,7 @@ const productSchema = mongoose.Schema(
     bidPrice: { type: Number, default: 0 },
     bid: { type: Boolean, default: false },
     market: { type: Boolean, default: false },
-
+    city: { type: String },
     rating: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     user: {
