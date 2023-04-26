@@ -29,6 +29,8 @@ const {
   getAllProducts,
   getBiddingSelectedProductsDetailsByBusiness,
   getBiddedProductsByBusiness,
+  getEarnCropSingleProductById,
+  getRedeemCropSingleProductById,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -103,6 +105,7 @@ router.get(
   "/get-earn-crop-products-by-category/:productTab/:sector/:lat/:long/:pageNo/:limit",
   getEarnCropProductsBySector
 )
-
+router.get("/get-earn-crop-product/:id", getEarnCropSingleProductById)
+router.get("/get-redeem-crop-product/:id", getRedeemCropSingleProductById)
 
 module.exports = router;
