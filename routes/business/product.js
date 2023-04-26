@@ -105,6 +105,10 @@ router.get(
   "/get-earn-crop-products-by-category/:productTab/:sector/:lat/:long/:pageNo/:limit",
   getEarnCropProductsBySector
 )
+router.get(
+  "/get-redeem-crop-products-by-category/:productTab/:sector/:lat/:long/:pageNo/:limit",
+  getRedeemCropProductsBySector
+)
 router.get("/get-earn-crop-product/:id", getEarnCropSingleProductById)
 router.get("/get-redeem-crop-product/:id", getRedeemCropSingleProductById)
 

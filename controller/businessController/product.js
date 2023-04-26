@@ -732,32 +732,42 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     } else if (currentDay == 6) {
       day = "sat"
     }
-    const geocoder = NodeGeocoder({
-      provider: "openstreetmap",
-    })
-    const lat = parseFloat(req.params.lat)
-    const long = parseFloat(req.params.long)
-    console.log({ lat }, { long })
-    let city = ""
-    await geocoder
-      .reverse({ lat, lon: long })
-      .then(res => {
-        city = res[0].city
-        console.log(city)
-      })
-      .catch(err => {
-        console.error(err)
-      })
 
     let match = []
     if (productTab == "mostPopular") {
-      match = [{ apply: "earnCrop" }, { sector }, { market: true }]
+      match = [
+        { apply: "earnCrop" },
+        { sector },
+        { mktOfferFor: "topRank" },
+        { market: true },
+      ]
     }
     if (productTab == "bestRated") {
-      match = [{ apply: "earnCrop" }, { sector }]
+      match = [{ apply: "earnCrop" }, { sector }, { mktOfferFor: "topRank" }]
     }
     if (productTab == "nearMe") {
-      match = [{ apply: "earnCrop" }, { sector }, { city }]
+      const geocoder = NodeGeocoder({
+        provider: "openstreetmap",
+      })
+      const lat = parseFloat(req.params.lat)
+      const long = parseFloat(req.params.long)
+      console.log({ lat }, { long })
+      let city = ""
+      await geocoder
+        .reverse({ lat, lon: long })
+        .then(res => {
+          city = res[0].city
+          console.log(city)
+        })
+        .catch(err => {
+          console.error(err)
+        })
+      match = [
+        { apply: "earnCrop" },
+        { sector },
+        { mktOfferFor: "topRank" },
+        { city },
+      ]
     }
     const page = pageNo ? parseInt(pageNo, 10) : 1
     const lim = limit ? parseInt(limit, 10) : 10
@@ -913,6 +923,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
           apply: 1,
+          mktOfferFor: 1,
         },
       },
       {
@@ -959,13 +970,41 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
     } else if (currentDay == 6) {
       day = "sat"
     }
-    console.log({ day })
     let match = []
     if (productTab == "mostPopular") {
-      match = [{ apply: "redeemCrop" }, { sector }, { market: true }]
+      match = [
+        { apply: "redeemCrop" },
+        { sector },
+        { mktOfferFor: true },
+        { market: true },
+      ]
     }
     if (productTab == "bestRated") {
-      match = [{ apply: "redeemCrop" }, { sector }]
+      match = [{ apply: "redeemCrop" }, { mktOfferFor: "topRank" }, { sector }]
+    }
+    if (productTab == "nearMe") {
+      const geocoder = NodeGeocoder({
+        provider: "openstreetmap",
+      })
+      const lat = parseFloat(req.params.lat)
+      const long = parseFloat(req.params.long)
+      console.log({ lat }, { long })
+      let city = ""
+      await geocoder
+        .reverse({ lat, lon: long })
+        .then(res => {
+          city = res[0].city
+          console.log(city)
+        })
+        .catch(err => {
+          console.error(err)
+        })
+      match = [
+        { apply: "redeemCrop" },
+        { sector },
+        { mktOfferFor: "topRank" },
+        { city },
+      ]
     }
     const page = pageNo ? parseInt(pageNo, 10) : 1
     const lim = limit ? parseInt(limit, 10) : 10
@@ -1302,6 +1341,9 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
+          // services: 1,
+          // happyHours: 1,
+          // bonusCrops: 1,
         },
       },
     ])
