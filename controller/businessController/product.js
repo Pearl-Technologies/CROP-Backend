@@ -896,6 +896,9 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           happyHours: 1,
           services: { $arrayElemAt: ["$services", 0] },
           market: 1,
+          apply:1,
+          sector:1,
+          mktOfferFor:1
         },
       },
       {
@@ -1028,6 +1031,9 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
           market: 1,
+          apply:1,
+          sector:1,
+          mktOfferFor:1
         },
       },
       {

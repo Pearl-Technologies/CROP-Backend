@@ -5,6 +5,7 @@ const { Product } = require("../models/businessModel/product")
 const { User } = require("../models/User");
 const {Token} = require("../models/User");
 const mongoose = require('mongoose');
+const { getEarnCropProductsBySector } = require("../controller/businessController/product");
 
 router.put("/quantity", async (req, res) => {
 
@@ -131,6 +132,7 @@ router.put("/deleteCart", async (req, res) => {
         })
     }
 });
+
 router.get("/getCart", async (req, res) => {
     try{
         let token = req.headers.authorization;

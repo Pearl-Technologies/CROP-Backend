@@ -1065,14 +1065,16 @@ router.post("/newsletter", async (req, res) => {
       .status(200)
       .send({ message: "The given mail-ID already exist", status: "false" });
   }
+  else{
 
-  const user = new Newsletter({
-    email: req.body.email,
-  }).save();
+    const user = new Newsletter({
+        email: req.body.email,
+    }).save();
 
-  res
-    .status(200)
-    .send({ message: "Your email is added to newsletter", status: "true" });
+    res
+        .status(200)
+        .send({ message: "Your email is added to newsletter", status: "true" });
+    }
 });
 
 router.post("/mate", async (req, res) => {
