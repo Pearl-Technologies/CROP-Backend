@@ -97,7 +97,7 @@ module.exports.paymentIntent= async(req, res)=> {
               enabled: true,
               minimum: 1,
             },
-            quantity: item.quantity,
+            quantity: item.cartQuantity,
           };
         }),
         success_url: `${req.headers.origin}/success`,
