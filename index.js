@@ -20,6 +20,7 @@ const storeProductsRoutes = require("./routes/business/storeproduct")
 const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin")
 const address = require("./routes/addresRoute")
+const customerCropTransaction = require("./routes/customerCropTrasaction")
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
@@ -37,10 +38,12 @@ app.use("/api/cart", cartRoute)
 app.use("/api/wishlist", wishlistRoute)
 app.use("/api/business", businessRoutes)
 app.use("/api/products", productsRoutes)
+app.use("/api/crop_trasaction", customerCropTransaction)
 app.use("/api/store/products", storeProductsRoutes)
 app.use("/api/admin", admin)
 app.use("/api/superAdmin", superAdmin)
 app.use("/api/address", address)
+
 
 app.get("/", (req, res) => {
   res.send("Apps worked successfullyssss")
