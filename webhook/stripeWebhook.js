@@ -161,10 +161,16 @@ app.post(
             console.log("finding customer");
             const findBusiness = await business.findOne({ _id: user });
             if (findBusiness) {
+              console.log(cartDetails, "cartDetails")
+              console.log(findBusiness, "business s")
               let cropPoint =
-                findBusiness.croppoint -
-                cartDetails.cartItems[i].cartQuantity *
-                  cartDetails.cartItems[i].cropRulesWithBonus;
+                await findBusiness.croppoint -
+                (cartDetails.cartItems[i].cartQuantity *
+                  cartDetails.cartItems[i].cropRulesWithBonus);
+                  console.log(findBusiness.croppoint, "findBusiness.croppoint")
+                  console.log(cartDetails.cartItems[i].cartQuantity, "cartDetails.cartItems[i].cartQuantity")
+                  console.log(cartDetails.cartItems[i].cropRulesWithBonus, "cartDetails.cartItems[i].cropRulesWithBonus")
+                  console.log(cropPoint, "cropPoint")
               await business.findByIdAndUpdate(
                 { _id: findBusiness._id },
                 { $set: { croppoint: cropPoint } },
@@ -172,10 +178,11 @@ app.post(
               );
             }
             const savePaymentAndNotification = async () => {
+              console.log(cartDetails.cartItems[i].user, "user id")
               await invoiceAndPaymentNotification.create({
                 type: "Earn Crop",
                 desc: "your product has been purchase",
-                businessId: cartDetails.cartItems[i]._id,
+                businessId: cartDetails.cartItems[i].user,
                 payment: {
                   transactionId: findOneRecord.payment_intent,
                 },

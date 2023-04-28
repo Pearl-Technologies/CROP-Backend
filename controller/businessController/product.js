@@ -1338,6 +1338,7 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           description: 1,
           brand: 1,
           user: 1,
+          image:1,
           customiseMsg: 1,
           user: 1,
           apply: 1,

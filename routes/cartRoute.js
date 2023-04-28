@@ -470,4 +470,30 @@ router.get("/getCart", async (req, res) => {
     }
 });
 
+router.get("/checkCart", async (req,res)=>{
+    // db.carts_customers.find({'user_id':ObjectId('6433d23903a970bb517e5d7a'),'cart.apply':'earnCop'})
+    let token = req.headers.authorization;
+    let sector=req.query.sector;
+    const token_data = await Token.findOne({"token":token});
+    const userData=await User.findOne({_id:token_data.user}); 
+    const user_id = userData._id.valueOf();
+  
+    if(userData){
+      const result = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id),'cart.apply':sector});
+      const result2 = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id)});
+            if(result.length > 0){
+                res.status(200).send({status:true})
+            }
+            else if(result2[0]?._doc.cart.length==0){
+                res.status(200).send({status:true})
+            }
+            else if(result2.length==0){
+              res.status(200).send({status:true})
+            }
+            else{
+                res.status(200).send({status:false})
+            }
+        }
+  })
+
 module.exports = router;
