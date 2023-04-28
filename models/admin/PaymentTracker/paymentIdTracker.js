@@ -18,12 +18,11 @@ const adminPaymentTrackerSchema = mongoose.Schema({
  });
 
  const customerPaymentTrackerSchema = mongoose.Schema({ 
-   paymentLink:{type:String, required:true},
+   paymentId:{type:String, require:true},
    productId:[{type:mongoose.Schema.Types.ObjectId, required:true, ref:'business_products'}],
    status:{type:String, required:true},
    paymentUrl:{type:String, required:true},
    paymentMethod:{type:Array},
-   businessId:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'business'},
    invoice_url:{type:String, default:""},
    invoice_paid_time:{type:Number, defalut:0},
    invoice_pdf:{type:String, default:""},
@@ -31,7 +30,11 @@ const adminPaymentTrackerSchema = mongoose.Schema({
    coupon_code:{type:String, default: ""},
    invoice_id:{type:String, default:""},
    payment_intent:{type:String, default:""},
-   tries:{type:Number, default:0}
+   cartDetails:{
+      id:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'carts_customers'},
+      user_id:{type:mongoose.Schema.Types.ObjectId, require:true, ref:'users_customers'},
+      cartItems:{type:Object, require:true}
+   }
 }, {
    timestamps: true
 });
