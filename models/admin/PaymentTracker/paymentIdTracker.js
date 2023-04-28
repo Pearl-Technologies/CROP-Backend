@@ -30,6 +30,9 @@ const adminPaymentTrackerSchema = mongoose.Schema({
    coupon_code:{type:String, default: ""},
    invoice_id:{type:String, default:""},
    payment_intent:{type:String, default:""},
+   number:{type:String, default:""},
+   customer_address:{type:Array},
+   customer_shipping:{type:Array},
    cartDetails:{
       id:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'carts_customers'},
       user_id:{type:mongoose.Schema.Types.ObjectId, require:true, ref:'users_customers'},

@@ -52,7 +52,7 @@ const adminLogin = async (req, res) => {
   const errors = validationResult(req);
   let success = false;
   if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
+    return res.status(400).json({"msg": errors.array() });
   }
 
   const { email, password } = req.body;
@@ -64,7 +64,7 @@ const adminLogin = async (req, res) => {
       success = false;
       return res
         .status(400)
-        .json({ error: "Please try to login with correct credentials" });
+        .json({ "msg": "Please try to login with correct credentials" });
     }
     //compare password by bcrypt
     const passwordCompare = await bcrypt.compare(password, adminUser.password);

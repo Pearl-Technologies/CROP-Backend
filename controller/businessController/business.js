@@ -14,6 +14,7 @@ const {
   BusinessHolidays,
 } = require("../../models/businessModel/businessHolidays")
 const { Product } = require("../../models/businessModel/product")
+const invoiceAndPaymentNotification = require("../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
 
 const JWT_SECRET = "CROP@12345"
 
@@ -685,6 +686,19 @@ const getHolidayByState = async (req, res) => {
 
 // updateProductImage()
 
+const getPurchasedProductSatement = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const statement = await invoiceAndPaymentNotification.aggregate([
+      { $match: { businessId } },
+    ])
+    return res.status(200).send({ statement })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
 module.exports = {
   emailRegisterOtp,
   verifyRegisterOtp,
@@ -709,4 +723,5 @@ module.exports = {
   createOrUpdateFeedback,
   getFeedback,
   getHolidayByState,
+  getPurchasedProductSatement,
 }
