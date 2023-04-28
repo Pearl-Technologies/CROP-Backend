@@ -1342,6 +1342,8 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           customiseMsg: 1,
           user: 1,
           apply: 1,
+          rating:1,
+          likes:1,
           cropRules: { cropPerAudCredit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",

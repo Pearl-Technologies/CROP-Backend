@@ -17,7 +17,7 @@ router.put("/cartdetails",async(req,res) => {
         const products=req.body.products
 
         const userdetails=await Wishlist.findOne({
-            user_id:user
+            user_id:user,
          });  
 
          if(userdetails)  
