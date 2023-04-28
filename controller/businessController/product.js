@@ -922,8 +922,12 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
-          apply: 1,
-          mktOfferFor: 1,
+          happyHours: 1,
+          services: { $arrayElemAt: ["$services", 0] },
+          market: 1,
+          apply:1,
+          sector:1,
+          mktOfferFor:1
         },
       },
       {
@@ -975,7 +979,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       match = [
         { apply: "redeemCrop" },
         { sector },
-        { mktOfferFor: true },
+        { mktOfferFor: "topRank" },
         { market: true },
       ]
     }
@@ -1084,10 +1088,13 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           ruleAppliedCrops: "$ruleAppliedCrops",
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
+          market: 1,
+          apply:1,
+          sector:1,
           customiseMsg: 1,
           brand: 1,
           description: 1,
-          apply: 1,
+          mktOfferFor:1
         },
       },
       {
@@ -1114,7 +1121,7 @@ module.exports.getBiddedProductsByBusiness = async (req, res) => {
   const bid = true
   console.log(user)
   try {
-    const biddedProducts = await Product.find({ user, bid }, { status: 0 })
+    const biddedProducts = await Product.find({ user, bid })
     return res.status(200).send({ success: true, biddedProducts })
   } catch (error) {
     console.log(error)

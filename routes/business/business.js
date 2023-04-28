@@ -17,6 +17,7 @@ const {
   getFeedback,
   uploadProfileImage,
   getHolidayByState,
+  getPurchasedProductSatement,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -32,6 +33,8 @@ const router = express.Router()
 const {
   createServices,
   getService,
+  createStoreServices,
+  getStoreService,
 } = require("../../controller/businessController/services")
 const {
   createOrUpdateCropRules,
@@ -71,12 +74,20 @@ router.post(
 
 router.post("/services", authorization, createServices)
 router.get("/services", authorization, getService)
+router.post("/store/services", authorization, createStoreServices)
+router.get("/store/services", authorization, getStoreService)
 
 router.get("/extend-crop-bonus", authorization, getExtendBonusCrops)
 router.post("/extend-crop-bonus", authorization, createOrUpdateExtendBonusCrops)
 
 router.post("/crop-rules", authorization, createOrUpdateCropRules)
 router.get("/crop-rules", authorization, getCropRules)
+
+router.get(
+  "/get-purchsed-product-statement",
+  authorization,
+  getPurchasedProductSatement
+)
 
 router.post(
   "/slash-redemption-crop",
@@ -96,7 +107,6 @@ router.post("/feedback", authorization, createOrUpdateFeedback)
 router.get("/feedback", authorization, getFeedback)
 
 router.get("/get-holidays-by-state", authorization, getHolidayByState)
-
 
 
 module.exports = router
