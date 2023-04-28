@@ -116,7 +116,8 @@ module.exports.getAllStoreProducts = async (req, res) => {
   const skip = (page - 1) * limit
   try {
     const storeProducts = await StoreProduct.find().skip(skip).limit(limit)
-    return res.status(200).send({ success: true, storeProducts })
+    const storeProductsCount = await StoreProduct.find().countDocuments()
+    return res.status(200).send({ count: storeProductsCount, storeProducts })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
