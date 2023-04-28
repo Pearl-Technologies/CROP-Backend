@@ -1332,13 +1332,13 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           title: 1,
           originalPrice: 1,
           discount: 1,
+          image: 1,
           price: 1,
           quantity: 1,
           crops: "$croppoints",
           description: 1,
           brand: 1,
           user: 1,
-          image:1,
           customiseMsg: 1,
           user: 1,
           apply: 1,
@@ -1349,6 +1349,9 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
+          rating: 1,
+          likes: 1,
+          mktOfferFor: 1,
           // services: 1,
           // happyHours: 1,
           // bonusCrops: 1,
@@ -1463,12 +1466,31 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
           customiseMsg: 1,
           brand: 1,
           description: 1,
+          mktOfferFor: 1,
           apply: 1,
+          rating: 1,
+          likes: 1,
         },
       },
     ])
     res.json({ product: product[0] })
   } catch (error) {
     console.log(error.message)
+  }
+}
+
+module.exports.getPromoProductsByBusiness = async (req, res) => {
+  const user = req.user.user.id
+  console.log({ user })
+  try {
+    const promoProducts = await Product.find({
+      user,
+      mktOfferFor: "promo",
+      market: true,
+    })
+    return res.status(200).send({ promoProducts })
+  } catch (error) {
+    conosle.log(error)
+    return res.status(500).send("Internal Server Error")
   }
 }

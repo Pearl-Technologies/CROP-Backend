@@ -15,6 +15,8 @@ const {
 } = require("../../models/businessModel/businessHolidays")
 const { Product } = require("../../models/businessModel/product")
 const invoiceAndPaymentNotification = require("../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
+const mongoose = require("mongoose")
+const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"
 
@@ -646,6 +648,8 @@ const getHolidayByState = async (req, res) => {
   }
 }
 
+const getPromosByBusiness = async (req, res) => {}
+
 // const updateAddress = async () => {
 //   const line1 = Math.floor(100 + Math.random() * 900)
 //   await business.updateMany({}, [
@@ -686,11 +690,12 @@ const getHolidayByState = async (req, res) => {
 
 // updateProductImage()
 
-const getPurchasedProductSatement = async (req, res) => {
+const getPurchasedProductStatement = async (req, res) => {
   const businessId = req.user.user.id
+  console.log({ businessId })
   try {
     const statement = await invoiceAndPaymentNotification.aggregate([
-      { $match: { businessId } },
+      { $match: { businessId: { $eq: ObjectId(businessId) } } },
     ])
     return res.status(200).send({ statement })
   } catch (error) {
@@ -723,5 +728,5 @@ module.exports = {
   createOrUpdateFeedback,
   getFeedback,
   getHolidayByState,
-  getPurchasedProductSatement,
+  getPurchasedProductStatement,
 }

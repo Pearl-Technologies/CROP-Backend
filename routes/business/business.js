@@ -17,7 +17,7 @@ const {
   getFeedback,
   uploadProfileImage,
   getHolidayByState,
-  getPurchasedProductSatement,
+  getPurchasedProductStatement,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -72,6 +72,11 @@ router.post(
   uploadProfileImage
 )
 
+router.get(
+  "/get-purchsed-product-statement",
+  authorization,
+  getPurchasedProductStatement
+)
 router.post("/services", authorization, createServices)
 router.get("/services", authorization, getService)
 router.post("/store/services", authorization, createStoreServices)
@@ -83,11 +88,6 @@ router.post("/extend-crop-bonus", authorization, createOrUpdateExtendBonusCrops)
 router.post("/crop-rules", authorization, createOrUpdateCropRules)
 router.get("/crop-rules", authorization, getCropRules)
 
-router.get(
-  "/get-purchsed-product-statement",
-  authorization,
-  getPurchasedProductSatement
-)
 
 router.post(
   "/slash-redemption-crop",
