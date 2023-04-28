@@ -97,7 +97,7 @@ module.exports.paymentIntent= async(req, res)=> {
               enabled: true,
               minimum: 1,
             },
-            quantity: item.quantity,
+            quantity: item.cartQuantity,
           };
         }),
         success_url: `${req.headers.origin}/success`,
@@ -116,8 +116,8 @@ module.exports.paymentIntent= async(req, res)=> {
         paymentMethod:session.payment_method_types,
         paymentUrl:session.url,
         cartDetails:{
-          id:req.body._id.$oid,
-          user_id:req.body.user_id.$oid,
+          id:req.body._id,
+          user_id:req.body.user_id,
           cartItems:req.body.cart
         }
       })
