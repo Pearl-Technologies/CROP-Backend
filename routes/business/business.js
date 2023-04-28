@@ -32,6 +32,8 @@ const router = express.Router()
 const {
   createServices,
   getService,
+  createStoreServices,
+  getStoreService,
 } = require("../../controller/businessController/services")
 const {
   createOrUpdateCropRules,
@@ -71,6 +73,8 @@ router.post(
 
 router.post("/services", authorization, createServices)
 router.get("/services", authorization, getService)
+router.post("/store/services", authorization, createStoreServices)
+router.get("/store/services", authorization, getStoreService)
 
 router.get("/extend-crop-bonus", authorization, getExtendBonusCrops)
 router.post("/extend-crop-bonus", authorization, createOrUpdateExtendBonusCrops)
