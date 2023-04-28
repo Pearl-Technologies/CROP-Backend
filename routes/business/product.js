@@ -31,6 +31,7 @@ const {
   getBiddedProductsByBusiness,
   getEarnCropSingleProductById,
   getRedeemCropSingleProductById,
+  getPromoProductsByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -44,6 +45,7 @@ router.get("/show", getShowingProducts)
 
 router.get("/get-earn-products", authorization, getEarnProducts)
 router.get("/get-redeem-products", authorization, getRedeemProducts)
+router.get("/get-promo-products", authorization, getPromoProductsByBusiness)
 router.get("/get-promo-products/:page/:limit", getPromoProducts)
 router.get("/get-all-products/:page/:limit", getAllProducts)
 

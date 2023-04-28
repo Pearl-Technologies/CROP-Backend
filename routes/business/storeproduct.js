@@ -10,6 +10,7 @@ const {
   getStoreBiddedProductsByBusiness,
   getBiddingSelectedStoreProductsDetailsByBusiness,
   getAllStoreProducts,
+  getStorePromoProductsByBusiness,
 } = require("../../controller/businessController/storeproducts")
 
 // router
@@ -36,5 +37,11 @@ router.put("/:id", updateStoreProduct)
 router.delete("/:id", removeStoreProduct)
 
 router.get("/get-all-store-products/:pageNo/:limit", getAllStoreProducts)
+router.get(
+  "/get-promo-products",
+  authorization,
+  getStorePromoProductsByBusiness
+)
+
 
 module.exports = router

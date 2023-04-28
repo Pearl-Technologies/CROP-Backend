@@ -123,3 +123,19 @@ module.exports.getAllStoreProducts = async (req, res) => {
     return res.status(500).send("Internal Server Error")
   }
 }
+
+module.exports.getStorePromoProductsByBusiness = async (req, res) => {
+  const user = req.user.user.id
+  console.log({ user })
+  try {
+    const promoProducts = await StoreProduct.find({
+      user,
+      mktOfferFor: "promo",
+      market: true,
+    })
+    return res.status(200).send({ promoProducts })
+  } catch (error) {
+    conosle.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
