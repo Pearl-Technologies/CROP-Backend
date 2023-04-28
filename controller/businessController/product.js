@@ -975,7 +975,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       match = [
         { apply: "redeemCrop" },
         { sector },
-        { mktOfferFor: true },
+        { mktOfferFor: "topRank" },
         { market: true },
       ]
     }
@@ -1114,7 +1114,7 @@ module.exports.getBiddedProductsByBusiness = async (req, res) => {
   const bid = true
   console.log(user)
   try {
-    const biddedProducts = await Product.find({ user, bid }, { status: 0 })
+    const biddedProducts = await Product.find({ user, bid })
     return res.status(200).send({ success: true, biddedProducts })
   } catch (error) {
     console.log(error)

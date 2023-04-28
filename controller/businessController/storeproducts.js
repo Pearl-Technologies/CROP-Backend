@@ -109,3 +109,16 @@ module.exports.getBiddingSelectedStoreProductsDetailsByBusiness = async (
     console.log(error)
   }
 }
+
+module.exports.getAllStoreProducts = async (req, res) => {
+  const limit = req.params.limit || 10
+  const page = req.params.page || 1
+  const skip = (page - 1) * limit
+  try {
+    const storeProducts = await StoreProduct.find().skip(skip).limit(limit)
+    return res.status(200).send({ success: true, storeProducts })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
