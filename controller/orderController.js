@@ -1,7 +1,9 @@
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Order = require("../models/Order");
-const {User} = require("../models/User");
+const { User } = require("../models/User");
+const { Cart } = require("../models/Cart");
 const {customerPaymentTracker} = require("../models/admin/PaymentTracker/paymentIdTracker")
+const mongoose = require('mongoose');
 // create-payment-intent
 // module.exports.paymentIntent = async (req, res) => { 
  
@@ -71,7 +73,7 @@ module.exports.addOrder = async (req, res) => {
 };
 
 module.exports.paymentIntent= async(req, res)=> {
-  const {cart} = req.body;
+  const {cart, user_id} = req.body;
   // res.send(req.body);
   // console.log(req.body);
   // return 
@@ -116,11 +118,16 @@ module.exports.paymentIntent= async(req, res)=> {
         paymentMethod:session.payment_method_types,
         paymentUrl:session.url,
         cartDetails:{
-          id:req.body._id.$oid,
-          user_id:req.body.user_id.$oid,
+          id:req.body._id,
+          user_id:req.body.user_id,
           cartItems:req.body.cart
         }
       })
+
+      await Cart.updateMany(
+        { 'user_id': mongoose.Types.ObjectId(user_id) },
+        { $set: { 'cart.$[].purchaseStatus': 1 } }
+      )
     }
 
       res.status(200).json(session);

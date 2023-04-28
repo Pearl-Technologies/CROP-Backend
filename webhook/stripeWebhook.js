@@ -17,6 +17,7 @@ const { Product } = require("../models/businessModel/product");
 const stripe = require("stripe")(
   "sk_test_51Mx307GGhIV5PAANJ3ODV14y6k2SKjFrd9FuG3wybL1UsooXDDVZe6QxHnHqH0Oy7EfS6dRvqcuU8xqHGevRG9bQ00yNUMET47"
 );
+const { Cart } = require("../models/Cart")
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret =
