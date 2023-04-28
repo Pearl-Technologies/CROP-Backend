@@ -124,9 +124,12 @@ module.exports.paymentIntent= async(req, res)=> {
         }
       })
 
-      await Cart.updateMany(
-        { 'user_id': mongoose.Types.ObjectId(user_id) },
-        { $set: { 'cart.$[].purchaseStatus': 1 } }
+      // await Cart.updateMany(
+      //   { 'user_id': mongoose.Types.ObjectId(user_id) },
+      //   { $set: { 'cart.$[].purchaseStatus': 1 } }
+      // )
+      await Cart.deleteMany(
+        { 'user_id': mongoose.Types.ObjectId(user_id) }
       )
     }
 

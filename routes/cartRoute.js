@@ -526,11 +526,14 @@ router.get("/checkCart", async (req,res)=>{
     if(userData){
       const result = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id),'cart.apply':sector});
       const result2 = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id)});
-            if(result.length >= 0){
+            if(result.length > 0){
                 res.status(200).send({status:true})
             }
-            else if(result2[0]._doc.cart.length==0){
+            else if(result2[0]?._doc.cart.length==0){
                 res.status(200).send({status:true})
+            }
+            else if(result2.length==0){
+              res.status(200).send({status:true})
             }
             else{
                 res.status(200).send({status:false})
