@@ -146,79 +146,83 @@ app.post(
                 customer_shipping: session.customer_shipping,
                 customer_address: session.customer_address,
                 number: session.number,
+                name:session.customer_name
               },
             }
           );
           // , hosted_invoice_url,: "",
           console.log("customer invoices successfully updated");
-        } else {
-          console.log("record is not found for updating invoice details");
-        }
-        let { cartDetails } = findOneRecord;
-        var customerCropPoint = 0;
-        for (let i = 0; i < cartDetails.cartItems.length; i++) {
-          customerCropPoint =
-            customerCropPoint +
-            parseFloat(
-              cartDetails.cartItems[i].cropRulesWithBonus *
-                cartDetails.cartItems[i].cartQuantity
-            );
-          console.log("product id", cartDetails.cartItems[i]._id);
-          console.log("business id", cartDetails.cartItems[i]?.user);
-          const user = cartDetails.cartItems[i]?.user;
+          let { cartDetails } = findOneRecord;
+          var customerCropPoint = 0;
+          for (let i = 0; i < cartDetails.cartItems.length; i++) {
+            customerCropPoint =
+              customerCropPoint +
+              parseFloat(
+                cartDetails.cartItems[i].cropRulesWithBonus *
+                  cartDetails.cartItems[i].cartQuantity
+              );
+            console.log("product id", cartDetails.cartItems[i]._id);
+            console.log("business id", cartDetails.cartItems[i]?.user);
+            const user = cartDetails.cartItems[i]?.user;
+            console.log("finding customer");
+            const findBusiness = await business.findOne({ _id: user });
+            if (findBusiness) {
+              let cropPoint =
+                await findBusiness.croppoint -
+                (cartDetails.cartItems[i].cartQuantity *
+                  cartDetails.cartItems[i].cropRulesWithBonus);
+
+              await business.findByIdAndUpdate(
+                { _id: findBusiness._id },
+                { $set: { croppoint: cropPoint } },
+                { new: true }
+              );
+            }
+            const savePaymentAndNotification = async () => {
+              console.log(cartDetails.cartItems[i].user, "user id")
+              await invoiceAndPaymentNotification.create({
+                type: "Earn Crop",
+                desc: "your product has been purchase",
+                businessId: cartDetails.cartItems[i].user,
+                payment: {
+                  transactionId: findOneRecord.payment_intent,
+                },
+                purchaseOrder: {
+                  orderId: findOneRecord._id,
+                },
+              });
+              console.log("payment notification created");
+            };
+            savePaymentAndNotification();
+          }
+          let customer = cartDetails.user_id;
+          let customerCart = cartDetails.id;
           console.log("finding customer");
-          const findBusiness = await business.findOne({ _id: user });
-          if (findBusiness) {
-            let cropPoint =
-              findBusiness.croppoint -
-              cartDetails.cartItems[i].cartQuantity *
-                cartDetails.cartItems[i].cropRulesWithBonus;
-            await business.findByIdAndUpdate(
-              { _id: findBusiness._id },
-              { $set: { croppoint: cropPoint } },
+          console.log(customer);
+          let findOneCustomer = await User.findOne({ _id: customer });
+          // let findOneCustomer = await User.findOne({ _id: customer });
+          if (findOneCustomer) {
+            let customerNewCropPoint =
+              findOneCustomer.croppoints + customerCropPoint;
+            await User.findByIdAndUpdate(
+              { _id: findOneCustomer._id },
+              { $set: { croppoints: customerNewCropPoint } },
               { new: true }
             );
+
           }
-          const savePaymentAndNotification = async () => {
-            await invoiceAndPaymentNotification.create({
-              type: "Order Notification for purchase",
-              desc: "your product has been purchase",
-              businessId: cartDetails.cartItems[i]._id,
-              payment: {
-                transactionId: findOneRecord.payment_intent,
-              },
-              purchaseOrder: {
-                orderId: findOneRecord._id,
-              },
-            });
-            console.log("payment notification created");
-          };
-          savePaymentAndNotification();
-        }
-        let customer = cartDetails.user_id;
-        let customerCart = cartDetails.id;
-        console.log("finding customer");
-        console.log(customer);
-        let findOneCustomer = await User.findOne({ _id: customer });
-        // let findOneCustomer = await User.findOne({ _id: customer });
-        if (findOneCustomer) {
-          let customerNewCropPoint =
-            findOneCustomer.croppoints + customerCropPoint;
-          await User.findByIdAndUpdate(
-            { _id: findOneCustomer._id },
-            { $set: { croppoints: customerNewCropPoint } },
-            { new: true }
-          );
           SaveMyCropTrasaction(
-            19.99,
-            19.99,
+            session.subtotal,
+            customerCropPoint,
             "credit",
+            "purchase product",
             findOneRecord.payment_intent,
             findOneRecord.cartDetails.user_id
           );
+
+        } else {
+          console.log("record is not found for updating invoice details");
         }
-
-
 
         // console.log(cropPoint);
         // console.log("userid", cartDetails.user_id);
