@@ -33,6 +33,7 @@ const adminPaymentTrackerSchema = mongoose.Schema({
    number:{type:String, default:""},
    customer_address:{type:Array},
    customer_shipping:{type:Array},
+   name:{type:String},
    cartDetails:{
       id:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'carts_customers'},
       user_id:{type:mongoose.Schema.Types.ObjectId, require:true, ref:'users_customers'},

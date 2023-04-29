@@ -30,6 +30,7 @@ const getMyCropTrasaction = async(req, res)=>{
                     'transactionType': 1, 
                     'crop': 1, 
                     'amount': 1, 
+                    'description':1,
                     'pt': {
                       'invoice_url': 1, 
                       'invoice_pdf': 1
@@ -44,7 +45,7 @@ const getMyCropTrasaction = async(req, res)=>{
         res.status(500).send({msg:"internal server error"})
     }
 }
-const SaveMyCropTrasaction=async(amount, crop, transactionType, orderNumber, user)=>{  
+const SaveMyCropTrasaction=async(amount, crop, transactionType, description, orderNumber, user)=>{  
     if(!amount || !crop || !transactionType|| !orderNumber || !user ){
         return console.log("all field is required"); 
     }  
@@ -53,6 +54,7 @@ const SaveMyCropTrasaction=async(amount, crop, transactionType, orderNumber, use
             orderNumber,
             transactionType,
             crop,
+            description,
             amount,
             user,
         });
