@@ -3,10 +3,13 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 const getMyCropTrasaction = async(req, res)=>{
-    const {user} =req.query; 
+    const {user} = req.query; 
+    let findone = await customerCropTransaction.find({user})
     try {
         let findone = await customerCropTransaction.find({user})
-        console.log(findone[0]._id);
+        if(!findone.length){
+          return res.status(200).send({msg: "no order"})
+        }
         const trasactionDetails = await customerCropTransaction.aggregate(
             [
                 {
