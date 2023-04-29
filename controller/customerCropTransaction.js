@@ -11,13 +11,13 @@ const getMyCropTrasaction = async(req, res)=>{
             [
                 {
                   '$match': {
-                    '_id':{$eq: findone[0]._id}
+                    'user':{$eq: findone[0].user}
                   }
                 }, {
                   '$lookup': {
                     'from': 'customer_payment_trackers', 
-                    'localField': 'payment_intent', 
-                    'foreignField': 'orderNumber', 
+                    'localField': 'orderNumber', 
+                    'foreignField': 'payment_intent', 
                     'as': 'pt'
                   }
                 }, {
@@ -28,10 +28,7 @@ const getMyCropTrasaction = async(req, res)=>{
                     'transactionType': 1, 
                     'crop': 1, 
                     'amount': 1, 
-                    'pt': {
-                      'invoice_url': 1, 
-                      'invoice_pdf': 1                      
-                    },
+                    'pt': 1,
                     'createdAt':1                    
                   }
                 }

@@ -161,16 +161,11 @@ app.post(
             console.log("finding customer");
             const findBusiness = await business.findOne({ _id: user });
             if (findBusiness) {
-              console.log(cartDetails, "cartDetails")
-              console.log(findBusiness, "business s")
               let cropPoint =
                 await findBusiness.croppoint -
                 (cartDetails.cartItems[i].cartQuantity *
                   cartDetails.cartItems[i].cropRulesWithBonus);
-                  console.log(findBusiness.croppoint, "findBusiness.croppoint")
-                  console.log(cartDetails.cartItems[i].cartQuantity, "cartDetails.cartItems[i].cartQuantity")
-                  console.log(cartDetails.cartItems[i].cropRulesWithBonus, "cartDetails.cartItems[i].cropRulesWithBonus")
-                  console.log(cropPoint, "cropPoint")
+
               await business.findByIdAndUpdate(
                 { _id: findBusiness._id },
                 { $set: { croppoint: cropPoint } },
