@@ -355,12 +355,52 @@ router.put("/quantity", async (req, res) => {
     }
 })
 
+router.put("/cartQuantity", async (req, res) => {
+  let token = req.headers.authorization;
+        const token_data = await Token.findOne({"token":token});
+        const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+        const user_id = userData?._id.valueOf();
+        const productId = req.body.productId;
+        const quantityNum = req.body.quantityNum
+        console.log(productId)
+
+        const userdetails = await Cart.findOne({
+            user_id: user_id
+        });
+
+        if (userdetails) {
+          const findCartProduct = await Cart.findOne(
+              {"cart._id":productId,"user_id":user_id}
+          )
+          if(findCartProduct){
+            if(quantityNum=="plus"){
+              const result = await Cart.updateOne({"cart._id":productId,"user_id":user_id}, { $inc : { "cart.$.cartQuantity": 1 } });
+              console.log(result);
+              return res.status(200).send({    message: 'Quantity updated successfully',status: true })
+            }
+            else if(quantityNum=="minus"){
+              const result = await Cart.updateOne({"cart._id":productId,"user_id":user_id}, { $inc : { "cart.$.cartQuantity": -1 } });
+              console.log(result);
+              return res.status(200).send({    message: 'Quantity updated successfully',status: true })
+            }
+          }
+          else{
+            return res.status(500).send({    message: 'No cart found',status: true })
+          }
+        }
+        else{
+          return res.status(500).send({    message: 'No user found',status: false })
+        }
+})
+
 router.put("/cartdetails", async (req, res) => {
     try {
         let token = req.headers.authorization;
         const token_data = await Token.findOne({"token":token});
-        const userData=await User.findOne({_id:token_data.user}); 
-        const user_id = userData._id.valueOf();
+        // const userData=await User.findOne({_id:token_data.user}); 
+        // const user_id = userData._id.valueOf();
+        const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+        const user_id = userData?._id.valueOf();
         const products = req.body.products
         console.log(products)
 
@@ -470,8 +510,10 @@ router.get("/getCart", async (req, res) => {
         let cartObj={};
         const token_data = await Token.findOne({ token });
         if(token_data){
-            const userData = await User.findOne({ _id: token_data.user });
-            const user_id = userData._id.valueOf();
+            // const userData = await User.findOne({ _id: token_data.user });
+            // const user_id = userData._id.valueOf();
+            const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+            const user_id = userData?._id.valueOf();
             const newCart = await Cart.findOne({ user_id });
             const tempCart = [];
             if(newCart){
@@ -520,8 +562,10 @@ router.get("/checkCart", async (req,res)=>{
     let token = req.headers.authorization;
     let sector=req.query.sector;
     const token_data = await Token.findOne({"token":token});
-    const userData=await User.findOne({_id:token_data.user}); 
-    const user_id = userData._id.valueOf();
+    // const userData=await User.findOne({_id:token_data.user}); 
+    // const user_id = userData?._id.valueOf();
+    const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+    const user_id = userData?._id.valueOf();
   
     if(userData){
       const result = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id),'cart.apply':sector});

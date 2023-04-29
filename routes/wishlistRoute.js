@@ -12,18 +12,30 @@ router.put("/cartdetails",async(req,res) => {
         let token=req.headers.authorization;
 
         const token_data = await Token.findOne({"token":token});
-        const userData=await User.findOne({_id:token_data.user}); 
-        const user=userData._id.valueOf();
+        const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+        const user = userData?._id.valueOf();
         const products=req.body.products
 
         const userdetails=await Wishlist.findOne({
-            user_id:user,
+            user_id:user
          });  
 
-         if(userdetails)  
-         {
+         if(userdetails){
+            
+            let productCheck=userdetails._doc.Wishlist.findIndex((data)=>{
+                return data._id==products._id
+             });    
+
+            if(productCheck == -1){
             const result= await Wishlist.updateOne({user_id : user }, { $push: { Wishlist: products } });     
-            return res.status(200).send({status:true, message: "Wishlist Added Succesfully"})
+                return res.status(200).send({status:true, message: "Wishlist Added Succesfully"})
+            }
+            else if(productCheck >= 0){
+                return res.status(200).send({status:true, message: "Product already in wishlist"}) 
+            }
+            else {
+                return res.status(500).send({status:true, message: "User not found"}) 
+            }
          }
          else
          {

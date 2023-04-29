@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 const getMyCropTrasaction = async(req, res)=>{
-    const {user} =req.body; 
+    const {user} =req.params; 
     try {
         let findone = await customerCropTransaction.find({user})
         console.log(findone[0]._id);
