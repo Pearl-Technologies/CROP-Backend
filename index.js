@@ -21,6 +21,7 @@ const admin = require("./routes/admin")
 const superAdmin = require("./routes/superAdmin")
 const address = require("./routes/addresRoute")
 const customerCropTransaction = require("./routes/customerCropTrasaction")
+const count = require("./routes/count");
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
@@ -43,11 +44,14 @@ app.use("/api/store/products", storeProductsRoutes)
 app.use("/api/admin", admin)
 app.use("/api/superAdmin", superAdmin)
 app.use("/api/address", address)
+app.use("/api",count);
 
 
 app.get("/", (req, res) => {
   res.send("Apps worked successfullyssss")
 })
+
+global.TextEncoder = require('text-encoding').TextEncoder;
 
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);

@@ -3,10 +3,12 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 const getMyCropTrasaction = async(req, res)=>{
-    const {user} =req.body; 
+    const {user} =req.params; 
     try {
         let findone = await customerCropTransaction.find({user})
-        console.log(findone[0]._id);
+        if(!findone.length){
+          return res.status(200).send({msg: "no order"})
+        }
         const trasactionDetails = await customerCropTransaction.aggregate(
             [
                 {
@@ -28,6 +30,7 @@ const getMyCropTrasaction = async(req, res)=>{
                     'transactionType': 1, 
                     'crop': 1, 
                     'amount': 1, 
+                    'description':1,
                     'pt': {
                       'invoice_url': 1, 
                       'invoice_pdf': 1
@@ -42,7 +45,7 @@ const getMyCropTrasaction = async(req, res)=>{
         res.status(500).send({msg:"internal server error"})
     }
 }
-const SaveMyCropTrasaction=async(amount, crop, transactionType, orderNumber, user)=>{  
+const SaveMyCropTrasaction=async(amount, crop, transactionType, description, orderNumber, user)=>{  
     if(!amount || !crop || !transactionType|| !orderNumber || !user ){
         return console.log("all field is required"); 
     }  
@@ -51,6 +54,7 @@ const SaveMyCropTrasaction=async(amount, crop, transactionType, orderNumber, use
             orderNumber,
             transactionType,
             crop,
+            description,
             amount,
             user,
         });
