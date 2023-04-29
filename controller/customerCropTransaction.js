@@ -6,7 +6,9 @@ const getMyCropTrasaction = async(req, res)=>{
     const {user} =req.params; 
     try {
         let findone = await customerCropTransaction.find({user})
-        console.log(findone[0]._id);
+        if(!findone.length){
+          return res.status(200).send({msg: "no order"})
+        }
         const trasactionDetails = await customerCropTransaction.aggregate(
             [
                 {
