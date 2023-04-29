@@ -21,15 +21,23 @@ router.get("/count",async (req,res)=>{
             const newCart = await Cart.find({ "user_id":user_id});
             const wishCart = await Wishlist.find({"user_id":user_id});
             const tempCart = [];
-            if(newCart){
-                res.status(200).send({count:{
-                    cart:newCart[0]?._doc?.cart ? newCart[0]?._doc?.cart.length : 0,
-                    wishlist:wishCart[0]?._doc?.Wishlist ? wishCart[0]?._doc?.Wishlist.length : 0 
-                },status:true}) 
+            let cartCount = 0;
+            let wishlistCount = 0;
+            if(newCart?.length > 0){
+                cartCount = newCart[0]?._doc?.cart ? newCart[0]?._doc?.cart.length : 0;
+                // res.status(200).send({count:{
+                //     cart:newCart[0]?._doc?.cart ? newCart[0]?._doc?.cart.length : 0,
+                //     wishlist:wishCart[0]?._doc?.Wishlist ? wishCart[0]?._doc?.Wishlist.length : 0 
+                // },status:true}) 
             }
-            else{
-                res.status(200).send({message:"No cart found",status:false}) 
+            if(wishCart?.length > 0){
+                wishlistCount = wishCart[0]?._doc?.Wishlist ? wishCart[0]?._doc?.Wishlist.length : 0;
             }
+            res.status(200).send({count:{
+                cart:cartCount,
+                wishlist:wishlistCount
+            },status:true}) 
+
         }
         else{
             res.status(500).send({message:"Authorization required",status:false}) 
