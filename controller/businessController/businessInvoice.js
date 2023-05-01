@@ -52,5 +52,4 @@ try {
     res.status(500).send("Some Error Occured");
   }
 })
-
 module.exports = {saveInvoice, getInvoices}

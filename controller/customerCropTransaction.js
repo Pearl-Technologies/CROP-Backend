@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 const getMyCropTrasaction = async(req, res)=>{
-    const {user} =req.params; 
-    try {
+    const {user} =req.query; 
+    try {        
         let findone = await customerCropTransaction.find({user})
         if(!findone.length){
           return res.status(200).send({msg: "no order"})
@@ -18,8 +18,8 @@ const getMyCropTrasaction = async(req, res)=>{
                 }, {
                   '$lookup': {
                     'from': 'customer_payment_trackers', 
-                    'localField': 'payment_intent', 
-                    'foreignField': 'orderNumber', 
+                    'localField': 'orderNumber', 
+                    'foreignField': 'payment_intent', 
                     'as': 'pt'
                   }
                 }, {
@@ -34,7 +34,8 @@ const getMyCropTrasaction = async(req, res)=>{
                     'pt': {
                       'invoice_url': 1, 
                       'invoice_pdf': 1
-                    }
+                    },
+                    'createdAt':1
                   }
                 }
               ]

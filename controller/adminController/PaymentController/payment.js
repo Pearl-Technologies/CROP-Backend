@@ -49,7 +49,20 @@ const updatePaymentInfo = async(_id, tries)=>{
     return console.log(error);
   }
 }
-module.exports = { SavePaymentInfo, findPaymentInfo, updatePaymentInfo};
+const findBusinessInvoice = async(req, res)=>{
+  const {user} = req.body 
+  try {
+    if(!user){       
+      return res.status(200).send({msg:"no record"})
+    }
+    const invoices = await adminPaymentTracker.find({businessId:user});
+    res.status(200).send({invoices});
+
+  } catch (error) {
+    return console.log(error);
+  }
+}
+module.exports = { SavePaymentInfo, findPaymentInfo, updatePaymentInfo, findBusinessInvoice};
 
 
 

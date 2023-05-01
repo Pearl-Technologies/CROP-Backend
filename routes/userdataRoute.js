@@ -20,6 +20,7 @@ const authToken = "160b8a1bf927b3fb4a71f8a4a7dff449";
 const verifySid = "VAd7985f7bf02389316934069629c48aa3";
 const client = require("twilio")(accountSid, authToken);
 const pathName = process.cwd();
+const {createCustomerAudit} = require("../controller/adminController/audit")
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -431,7 +432,9 @@ router.post("/signup", async (req, res) => {
         message: `${req.body.name} have successfully registered your profile on ${formattedDate}`,
       },
     }).save();
-
+    if(user){
+      createCustomerAudit(user._id, "profile successfully registered");
+    }
     var method = 0;
     var userToken;
     //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
@@ -749,6 +752,9 @@ router.put("/forgetpassword", async (req, res) => {
           { email: email },
           { $set: { password: hashedPassword } }
         );
+        if(result){
+          createCustomerAudit(result._id, "Password changed Successfully");
+        }
         res
           .status(200)
           .send({
@@ -845,6 +851,9 @@ router.put("/updateprofile", async (req, res) => {
 
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
+    if(result){
+      createCustomerAudit(result._id, "Updated successfully");
+    }
     res.send({ message: "Updated successfully", status: "true", data: result });
   } catch (err) {
     console.log(err)
@@ -912,7 +921,9 @@ router.post("/biometric", async (req, res) => {
     { _id: token_data.user },
     { $set: { biometricterms: req.body.biometric } }
   );
-
+  if(updatebiometric){
+    createCustomerAudit(updatebiometric._id, " Biometric Data Successfully Updated");
+  }
   const userdata = await User.findOne({ _id: token_data.user });
 
   if (userdata.biometricterms === true) {
@@ -949,7 +960,9 @@ router.post("/feedback", async (req, res) => {
     { _id: token_data.user },
     { $set: { feedback: feedback } }
   );
+
   if (updatedata) {
+    createCustomerAudit(updatedata._id, " Feedback updated successfully");
     res
       .status(200)
       .send({ message: "Feedback updated successfully", status: "true" });

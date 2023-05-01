@@ -50,11 +50,9 @@ const createAdmin = async (req, res) => {
 };
 const adminLogin = async (req, res) => {
   const errors = validationResult(req);
-  let success = false;
   if (!errors.isEmpty()) {
-    return res.status(400).json({"msg": errors.array() });
+    return res.status(400).json({msg: errors.errors[0].msg});
   }
-
   const { email, password } = req.body;
   try {
     //finding users with email id
@@ -71,8 +69,7 @@ const adminLogin = async (req, res) => {
     if (!passwordCompare) {
       success = false;
       return res.status(400).json({
-        success,
-        error: "Please try to login with correct credentials",
+        msg: "Please try to login with correct credentials",
       });
     }
 
@@ -246,7 +243,7 @@ const getAdminData = async (req, res) => {
     let id = req.user.user.id;
     let user = await admin.find(
       {},
-      { name: 1, email: 1, phone: 1, gender: 1, birthDate: 1 }
+      { name: 1, email: 1, phone: 1, gender: 1, birthDate: 1, filename:1 }
     );
     res.status(200).json({ user });
     // res.json(user);

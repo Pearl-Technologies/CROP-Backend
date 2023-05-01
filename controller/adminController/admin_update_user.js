@@ -1,20 +1,5 @@
 const admin = require("../../models/superAdminModel/user");
 const bcrypt = require("bcryptjs");
-const multer = require("multer");
-var fs = require("fs");
-var path = require("path");
-
-let storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads");
-  },
-  filename: (req, file, cb) => {
-    console.log(file);
-    cb(null, file.fieldname + "-" + Date.now());
-  },
-});
-
-var upload = multer({ storage: storage });
 
 const updateAdminUser = async (req, res) => {
   try {
@@ -24,19 +9,17 @@ const updateAdminUser = async (req, res) => {
       gender,
       phone,
     } = req.body;
-    // return res.send(req.body);
-    const imageUrl = {
-      data: req.files[0]?.buffer,
-      contentType: req.files[0]?.mimetype,
-    };
-
+    let filename=undefined;
+    if(req.file){
+      filename = req.file.filename;
+    }
     const id = req.user.user.id;
     const newData = {};
     if (name) {
       newData.name = name;
     }
-    if (imageUrl) {
-      newData.imageUrl = imageUrl;
+    if (filename) {
+      newData.filename = filename;
     }
     if (birthDate && birthDate !== "null") {
       newData.birthDate = birthDate;
@@ -58,7 +41,7 @@ const updateAdminUser = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     //for log in response
-    res.status(500).send("Internal Server Error");
+    res.status(500).send({msg:"Internal Server Error"});
   }
 };
 const updateAdminUserPassword = async (req, res) => {
