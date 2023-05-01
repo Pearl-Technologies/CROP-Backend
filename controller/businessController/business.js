@@ -701,7 +701,44 @@ const getPurchasedProductStatement = async (req, res) => {
   console.log({ businessId })
   try {
     const statement = await invoiceAndPaymentNotification.aggregate([
-      { $match: { businessId: { $eq: ObjectId(businessId) } } },
+      {
+        $match: {
+          businessId: new ObjectId("643cd01d448a0837e2cf24cc"),
+        },
+      },
+      {
+        $lookup: {
+          from: "customer_payment_trackers",
+          localField: "purchaseOrder.orderId",
+          foreignField: "_id",
+          as: "orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          item: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          user: "$item.user",
+        },
+      },
+      {
+        $match: {
+          user: "643cd01d448a0837e2cf24cc",
+        },
+      },
     ])
     return res.status(200).send({ statement })
   } catch (error) {
