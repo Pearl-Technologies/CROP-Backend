@@ -1,5 +1,4 @@
 require("dotenv").config();
-// const cart = require('./cart.json')
 const business = require("../models/businessModel/business");
 const { User } = require("../models/User");
 const invoiceAndPaymentNotification = require("../models/businessModel/businessNotification/invoiceAndPaymentNotification");
@@ -14,11 +13,7 @@ const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const { Product } = require("../models/businessModel/product");
-const stripe = require("stripe")(
-  "sk_test_51Mx307GGhIV5PAANJ3ODV14y6k2SKjFrd9FuG3wybL1UsooXDDVZe6QxHnHqH0Oy7EfS6dRvqcuU8xqHGevRG9bQ00yNUMET47"
-);
-const { Cart } = require("../models/Cart")
-
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret =
   "whsec_c7b83955ccd4f1692c9b257ff94d8ea58502d4fd02259e4a796d1f70b537bb67";
@@ -52,7 +47,7 @@ const fulfillOrder = async (session) => {
         },
       }
     );
-
+    await stripe.paymentLinks.update(findOne.paymentLink, { active: false });
     console.log("Fulfilling order updated successfully");
   }
 
@@ -89,7 +84,7 @@ app.post(
     } catch (err) {
       return response.status(400).send(`Webhook Error: ${err.message}`);
     }
-    console.log(event);
+    // console.log(event);
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
@@ -253,6 +248,5 @@ app.post(
     response.status(200).end();
   }
 );
-
 
 app.listen(4242, () => console.log(`server running on port ${4242}`));
