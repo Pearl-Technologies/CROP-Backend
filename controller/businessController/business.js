@@ -524,23 +524,56 @@ const getUserCropDetails = async (req, res) => {
   console.log(email, "api hitting")
   try {
     const user = await User.findOne({ email })
-    console.log(user)
+    console.log(user.croppoints)
     if (user == null) {
       return res
         .status(404)
         .send({ success: false, msg: "Crop Details Not Found" })
     }
     const userName =
-      user[0].name.fName + " " + user[0].name.mName + " " + user[0].name.lName
+      user.name.fName + " " + user.name.mName + " " + user.name.lName
     return res.status(200).send({
       success: true,
       cropDetails: {
-        cropId: user[0].cropid,
-        cropPoints: user[0].croppoints,
+        cropId: user.cropid,
+        cropPoints: user.croppoints,
         userName,
+        userId: user._id,
       },
       msg: "User Details Sended Successfully",
     })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Sever Error")
+  }
+}
+
+const customerCreditOrDebitCrops = async (req, res) => {
+  const { userId, credit, debit, cropPoints } = req.body
+  try {
+    const user = await User.findById(userId)
+    console.log(user.croppoints)
+    if (user == null) {
+      return res.status(404).send({ success: false, msg: "User Not Found" })
+    }
+    let croppoints = user.croppoints
+    if (credit) {
+      croppoints = Number(croppoints) + Number(cropPoints)
+    }
+    if (debit) {
+      croppoints = Number(croppoints) - Number(cropPoints)
+    }
+    console.log({ cropPoints })
+    console.log({ croppoints })
+    console.log("added", Number(croppoints) + Number(cropPoints))
+    await User.findByIdAndUpdate({ _id: userId }, { croppoints })
+    // console.log({ customer })
+    if (credit) {
+      return res.status(200).send("CROP's Credited Successfully")
+    }
+    if (debit) {
+      return res.status(200).send("CROP's Debited Successfully")
+    }
   } catch (error) {
     console.log(error)
     res.status(500).send("Internal Sever Error")
@@ -766,6 +799,7 @@ module.exports = {
   getProfile,
   uploadProfileImage,
   getUserCropDetails,
+  customerCreditOrDebitCrops,
   pinChange,
   updateCommunicationPreference,
   createOrUpdateFeedback,

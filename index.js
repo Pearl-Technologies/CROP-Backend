@@ -53,7 +53,7 @@ app.get("/", (req, res) => {
   res.send("Apps worked successfullyssss")
 })
 
-global.TextEncoder = require('text-encoding').TextEncoder;
+// global.TextEncoder = require('text-encoding').TextEncoder;
 
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
