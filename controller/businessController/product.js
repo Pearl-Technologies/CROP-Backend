@@ -225,7 +225,7 @@ module.exports.getAllProductsByBusiness = async (req, res) => {
   const user = req.user.user.id
   console.log("userID", user)
   try {
-    const products = await Product.find({ user })
+    const products = await Product.find({ user }).sort({ _id: -1 })
     res.status(200).json({ count: products.length, products })
   } catch (error) {
     console.log(error)
