@@ -67,7 +67,7 @@ const adminLogin = async (req, res) => {
     //compare password by bcrypt
     const passwordCompare = await bcrypt.compare(password, adminUser.password);
     if (!passwordCompare) {
-      success = false;
+      console.log("fail");
       return res.status(400).json({
         msg: "Please try to login with correct credentials",
       });
