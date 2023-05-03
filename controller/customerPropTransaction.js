@@ -1,19 +1,18 @@
-const customerCropTransaction = require('../models/CropTransaction');
+const customerPropTransaction = require('../models/PropTransaction');
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
 
-const getMyCropTrasaction = async(req, res)=>{
+const getMyPropTrasaction = async(req, res)=>{
     const {user} =req.query; 
     try {        
-        let findone = await customerCropTransaction.find({user})
+        let findone = await customerPropTransaction.find({user})
         if(!findone.length){
           return res.status(200).send({msg: "no order"})
         }
-        const trasactionDetails = await customerCropTransaction.aggregate(
+        const trasactionDetails = await customerPropTransaction.aggregate(
             [
                 {
                   '$match': {
-                    'user':{$eq: findone[0].user}
+                    '_id':{$eq: findone[0]._id}
                   }
                 }, {
                   '$lookup': {
@@ -28,7 +27,7 @@ const getMyCropTrasaction = async(req, res)=>{
                   '$project': {
                     'orderNumber': 1, 
                     'transactionType': 1, 
-                    'crop': 1, 
+                    'prop': 1, 
                     'amount': 1, 
                     'description':1,
                     'pt': {
@@ -46,15 +45,15 @@ const getMyCropTrasaction = async(req, res)=>{
         res.status(500).send({msg:"internal server error"})
     }
 }
-const SaveMyCropTrasaction=async(amount, crop, transactionType, description, orderNumber, user)=>{  
+const SaveMyPropTrasaction=async(amount, prop, transactionType, description, orderNumber, user)=>{  
     if(!amount || !crop || !transactionType|| !orderNumber || !user ){
         return console.log("all field is required"); 
     }  
     try {
-        await customerCropTransaction.create({
+        await customerPropTransaction.create({
             orderNumber,
             transactionType,
-            crop,
+            prop,
             description,
             amount,
             user,
@@ -65,4 +64,4 @@ const SaveMyCropTrasaction=async(amount, crop, transactionType, description, ord
     }
 }
 
-module.exports = { getMyCropTrasaction, SaveMyCropTrasaction };
+module.exports = { getMyPropTrasaction, SaveMyPropTrasaction };

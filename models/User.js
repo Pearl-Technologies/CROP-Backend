@@ -165,7 +165,7 @@ const UserSchema=new mongoose.Schema({
 
  signUpDate:{type:String},
  lastUpdatedDate:{type:String},
- TierChangeDate:{type:String}, 
+ TierChangeDate:{type:Date, default: Date.now}, 
  status: { type: String, default:"active" },               
 });
 

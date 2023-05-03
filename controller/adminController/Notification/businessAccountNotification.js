@@ -22,7 +22,7 @@ const createBusinessAccountNotification = async (req, res) => {
     } = req.body;
     const findRecord = await businessAccountNotification.find({});
     if(findRecord.length){
-        return res.status(400).send("record is already exist");
+        return res.status(400).send({msg:"record is already exist"});
     }
     await businessAccountNotification.create({
         first_time_subscription,
@@ -42,10 +42,10 @@ const createBusinessAccountNotification = async (req, res) => {
         statement_generation,    
         user,
     });
-    res.status(200).send("created");
+    res.status(200).send({msg:"created"});
   } catch (error) {
     console.log(error.message)
-    return res.status(500).send("interal error")
+    return res.status(500).send({msg:"interal error"})
   }
 };
 const getBusinessAccountNotification = async (req, res) => {
@@ -54,7 +54,7 @@ const getBusinessAccountNotification = async (req, res) => {
       res.status(200).json({notification});
     } catch (error) {
       console.log(error.message)
-      return res.status(500).send("interal error")
+      return res.status(500).send({msg:"interal error"})
     }
   };
 
@@ -131,13 +131,13 @@ const getBusinessAccountNotification = async (req, res) => {
             newData.statement_generation = statement_generation
           }
           if(findRecord.user.toString() !== user){
-            return res.status(400).send("you are not authorize");
+            return res.status(400).send({msg:"you are not authorize"});
           }
           await businessAccountNotification.findByIdAndUpdate({_id}, {$set:newData}, {new:true})
-          res.status(200).send("updated");
+          res.status(200).send({msg:"updated"});
         } catch (error) {
       console.log(error.message)
-      return res.status(500).send("interal error")
+      return res.status(500).send({msg:"interal error"})
     }
   };
 

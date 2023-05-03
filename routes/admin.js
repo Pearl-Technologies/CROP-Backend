@@ -21,7 +21,6 @@ const {
   PropTransaction,
   GetAllProp,
 } = require("../controller/adminController/prop");
-// const updateTier = require("../controller/adminController/updateTier");
 const {
   setBasePrice,
   getBasePrice,
@@ -34,7 +33,8 @@ const {getAllProduct} = require("../controller/adminController/BusinessData/prod
 const {
   createAudit,
   getAuditReport,
-  getBusinessAuditReport
+  getBusinessAuditReport,
+  getCustomerAuditReport,
 } = require("../controller/adminController/audit");
 const {
   createMilestoneData,
@@ -89,10 +89,9 @@ const {createBusinessAccountNotification, getBusinessAccountNotification, update
 const {createBusinessGeneralNotification, getBusinessGeneralNotification, updateBusinessGenearlNotification} = require("../controller/adminController/Notification/businessGeneralNotification")
 const {createBusinessPurchaseAndRedeemNotification, getBusinessPurchaseAndRedeemNotification, updateBusinessPurchaseAndRedeemNotification} = require("../controller/adminController/Notification/businessPurchaseAndRedeemtionNotification")
 const {createBusinessRequestAndComplaintNotification, getBusinessRequestAndComplaintNotification, updateBusinessRequestAndComplaintNotification} = require("../controller/adminController/Notification/businessRequestAndComplainNotification")
-
+const updateTier = require("../controller/adminController/updateTier");
 //customer
 const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
-
 //
 
 //Business
@@ -105,7 +104,6 @@ const {SavePaymentInfo} = require('../controller/adminController/PaymentControll
 //
 const {createCategory, getCategories} =  require("../controller/adminController/admin_product_category")
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
-
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -146,7 +144,6 @@ router.post("/updateBasePrice", updateBasePrice)
 router.post("/publishOffer", publishOffer)
 router.post("/getAccountBalance", getAccountBalance)
 router.post("/updateAccountBalance", updateAccountBalance)
-// router.post("/updateTier", updateTier);
 router.post("/saveAccountBalance", saveAccountBalance);
 router.post("/getAllProduct", getAllProduct);
 router.post("/createAudit", createAudit);
@@ -195,6 +192,7 @@ router.post("/updateAdminUserPassword", verifyToken, updateAdminUserPassword);
 router.post("/createNotification", createNotification);
 router.post("/getAllNotifications", getAllNotifications);
 router.post("/getBusinessAuditReport", getBusinessAuditReport);
+router.post("/getCustomerAuditReport", getCustomerAuditReport);
 router.post("/getAllCustomerProp", getAllCustomerProp);
 router.post("/getAllCustomerCrop", getAllCustomerCrop);
 router.post("/getAllBusinessCrop", getAllBusinessCrop);
@@ -232,6 +230,7 @@ router.post("/updateBusinessPurchaseAndRedeemNotification", updateBusinessPurcha
 router.post("/createBusinessRequestAndComplaintNotification", createBusinessRequestAndComplaintNotification);
 router.post("/getBusinessRequestAndComplaintNotification", getBusinessRequestAndComplaintNotification);
 router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequestAndComplaintNotification);
+router.post("/updateTier", updateTier)
 // router.post("/paymentLink", paymentLink);
 //customer data
 

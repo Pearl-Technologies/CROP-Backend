@@ -42,7 +42,28 @@ const adminPaymentTrackerSchema = mongoose.Schema({
 }, {
    timestamps: true
 });
+
+const customerPurchsedTrackerSchema = mongoose.Schema({ 
+   paymentId:{type:String, require:true},
+   status:{type:String, required:true},
+   paymentUrl:{type:String, required:true},
+   paymentMethod:{type:Array},
+   invoice_url:{type:String, default:""},
+   invoice_paid_time:{type:Number, defalut:0},
+   invoice_pdf:{type:String, default:""},
+   customer_email:{type:String, default:""},
+   invoice_id:{type:String, default:""},
+   payment_intent:{type:String, default:""},
+   name:{type:String},
+   type:String,
+   amount:Number,
+   quantity:Number,
+   user:{type:mongoose.Schema.Types.ObjectId, ref:"users_customer"}
+}, {
+   timestamps: true
+});
  
 const adminPaymentTracker = mongoose.model('Admin_payment_tracker', adminPaymentTrackerSchema)
 const customerPaymentTracker = mongoose.model('Customer_payment_tracker', customerPaymentTrackerSchema)
-module.exports = {adminPaymentTracker,customerPaymentTracker}
+const customerPurchsedTracker = mongoose.model('Customer_Purchased_Point_tracker', customerPurchsedTrackerSchema)
+module.exports = {adminPaymentTracker, customerPaymentTracker, customerPurchsedTracker}

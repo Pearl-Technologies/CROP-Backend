@@ -49,23 +49,25 @@ const getBusinessAuditReport = async (req, res) => {
     res.status(500).send({msg:"Some Error Occured"});
   }
 };
-const createCustomerAudit = async (req, res) => {
+const createCustomerAudit = async (user, description) => {
   try {
-    const { description, user } = req.body;
+    console.log(user, description)
     await customerAudit.create({
       description,
       user,
     });
-    res.status(200).json({msg: "audit updated" });
+    console.log("audit created")
+    // res.status(200).json({msg: "audit updated" });
   } catch (error) {
     console.error(error.message);
-
-    res.status(500).send({msg:"Some Error Occured"});
+    // res.status(500).send({msg:"Some Error Occured"});
   }
 };
 const getCustomerAuditReport = async (req, res) => {
+  console.log(req.query.q)
+  let user = req.query.q
   try {
-    const auditReport = await customerAudit.find({});
+    const auditReport = await customerAudit.find({user});
     res.json({auditReport });
   } catch (error) {
     console.error(error.message);

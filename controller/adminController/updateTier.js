@@ -1,22 +1,30 @@
-const customer = require("../../models/customerModel/customer");
+const { User } = require("../../models/User");
 const business = require("../../models/businessModel/business");
+const { createCustomerAudit, createBusinessAudit } = require("./audit");
 const updateTier = async (req, res) => {
   try {
     const { _id, type, tier } = req.body;
-    const findCustomerRecord = await customer.findOne({ _id });
+    const findCustomerRecord = await User.findOne({ _id });
     const findBusinessRecord = await business.findOne({ _id });
-    // console.log(findCustomerRecord);
-    // console.log(findBusinessRecord);
-    // return res.send("ok");
     if (findCustomerRecord || findBusinessRecord) {
       if (type === "customer") {
-        await customer.findByIdAndUpdate({ _id }, { $set: { tier } }, { new: true });
-        res.json("customer records updated");
+        await User.findByIdAndUpdate(
+          { _id },
+          { $set: { UserTier: tier, TierChangeDate: Date.now() } },
+          { new: true }
+        );
+        createCustomerAudit(_id, "Tier changed successfully");
+        res.status(200).json({ msg: "customer records updated" });
       } else if (type === "business") {
-        await business.findByIdAndUpdate({ _id }, { $set: { Tier:tier } }, { new: true });
-        res.json("business records updated");
-      }else{
+        await business.findByIdAndUpdate(
+          { _id },
+          { tier: tier, tierChangeDate: Date.now() }
+        );
+        createBusinessAudit(_id, "Tier changed successfully")
+        res.status(200).json({ msg: "business records updated" });
+      } else {
         res.json("account type not found");
+        res.status(200).json({ msg: "account type not found" });
       }
     } else {
       res.json("records not found");
@@ -27,4 +35,4 @@ const updateTier = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-// module.exports = updateTier;
+module.exports = updateTier;

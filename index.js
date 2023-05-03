@@ -22,6 +22,7 @@ const superAdmin = require("./routes/superAdmin")
 const address = require("./routes/addresRoute")
 const customerCropTransaction = require("./routes/customerCropTrasaction")
 const count = require("./routes/count");
+const purchaseRequest = require("./routes/purchaseProintConroller")
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
@@ -45,6 +46,7 @@ app.use("/api/admin", admin)
 app.use("/api/superAdmin", superAdmin)
 app.use("/api/address", address)
 app.use("/api",count);
+app.use("/api/customer/royalty", purchaseRequest)
 
 
 app.get("/", (req, res) => {
