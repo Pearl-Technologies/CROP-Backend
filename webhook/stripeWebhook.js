@@ -141,6 +141,7 @@ app.post(
                 customer_shipping: session.customer_shipping,
                 customer_address: session.customer_address,
                 number: session.number,
+                name:session.customer_name
               },
             }
           );
@@ -209,6 +210,7 @@ app.post(
             session.subtotal,
             customerCropPoint,
             "credit",
+            "purchase product",
             findOneRecord.payment_intent,
             findOneRecord.cartDetails.user_id
           );
