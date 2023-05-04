@@ -165,7 +165,7 @@ const UserSchema=new mongoose.Schema({
 
  signUpDate:{type:String},
  lastUpdatedDate:{type:String},
- TierChangeDate:{type:String}, 
+ TierChangeDate:{type:Date, default: Date.now}, 
  status: { type: String, default:"active" },               
 });
 
@@ -210,6 +210,18 @@ const MissingCropSchema=new mongoose.Schema({
   timestamps: true
 });
 
+const CommunicationPreferencesSchema=new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users_customers',
+  },
+  app: {type:Boolean, require: false},
+  sms: {type:Boolean, require: false},
+  email: {type:Boolean, require: false},
+  status:{type:Boolean,required:true, default: true}
+},{
+  timestamps: true
+});
 
 
 //validate password
@@ -220,5 +232,6 @@ const User=mongoose.model('users_customers',UserSchema)
 const Otp=mongoose.model('otps_customer',OtpSchema)
 const Token=mongoose.model('token1_customer',tokenSchema)
 const MissingCrop = mongoose.model('missing_crop_customer',MissingCropSchema)
-module.exports = {User,Otp,Token,Newsletter,MissingCrop}
+const CommunicationPreference = mongoose.model('communication_preferences_customer',CommunicationPreferencesSchema)
+module.exports = {User,Otp,Token,Newsletter,MissingCrop,CommunicationPreference}
 

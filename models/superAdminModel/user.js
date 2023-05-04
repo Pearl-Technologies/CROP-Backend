@@ -3,10 +3,7 @@ const admin = mongoose.model('Admin_admin', {
     name: {type:String, required:true},
     email:{type:String, required:true, unique:true},
     password:{type:String, required:true},
-    imageUrl:	{
-      data: {type:Buffer, default:""}, 
-      contentType: {type:String, default:""}
-    },
+    filename:String,
     birthDate:{type:String, defalut:""},
     gender:{type:String, default:""},
     phone:{type:Number, default:null},

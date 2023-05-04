@@ -11,7 +11,7 @@ const createBusinessPurchaseAndRedeemNotification = async (req, res) => {
     } = req.body;
     const findRecord = await businessPurchaseAndRedeemtionNotification.find({});
     if (findRecord.length) {
-      return res.status(400).send("record is already exist");
+      return res.status(400).send({msg:"record is already exist"});
     }
     await businessPurchaseAndRedeemtionNotification.create({
       payment_notification,
@@ -20,10 +20,10 @@ const createBusinessPurchaseAndRedeemNotification = async (req, res) => {
       order_notification_for_redeemption,
       user
     });
-    res.status(200).send("created");
+    res.status(200).send({msg:"created"});
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send("interal error");
+    return res.status(500).send({msg:"interal error"});
   }
 };
 const getBusinessPurchaseAndRedeemNotification = async (req, res) => {
@@ -32,7 +32,7 @@ const getBusinessPurchaseAndRedeemNotification = async (req, res) => {
     res.status(200).json({ notification });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send("interal error");
+    return res.status(500).send({msg:"interal error"});
   }
 };
 const updateBusinessPurchaseAndRedeemNotification = async (req, res) => {
@@ -48,7 +48,7 @@ const updateBusinessPurchaseAndRedeemNotification = async (req, res) => {
 
     const findRecord = await businessPurchaseAndRedeemtionNotification.findOne({ _id });
     if (!findRecord) {
-      return res.status(200).send("no record found");
+      return res.status(200).send({msg:"no record found"});
     }
     let newData = {};
     if (payment_notification) {
@@ -65,17 +65,17 @@ const updateBusinessPurchaseAndRedeemNotification = async (req, res) => {
     }
     
     if (findRecord.user.toString() !== user) {
-      return res.status(400).send("you are not authorize");
+      return res.status(400).send({msg:"you are not authorize"});
     }
     await businessPurchaseAndRedeemtionNotification.findByIdAndUpdate(
       { _id },
       { $set: newData },
       { new: true }
     );
-    res.status(200).send("updated");
+    res.status(200).send({msg:"updated"});
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send("interal error");
+    return res.status(500).send({msg:"interal error"});
   }
 };
 

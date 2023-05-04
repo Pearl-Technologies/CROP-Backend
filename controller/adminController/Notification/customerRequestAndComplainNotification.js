@@ -12,7 +12,7 @@ const createCustomerRequestAndComplaintNotification = async (req, res) => {
     } = req.body;
     const findRecord = await customerComplainAndRequestNotification.find({});
     if (findRecord.length) {
-      return res.status(400).send("record is already exist");
+      return res.status(400).send({msg:"record is already exist"});
     }
     await customerComplainAndRequestNotification.create({
       missing_points_claim,
@@ -22,10 +22,10 @@ const createCustomerRequestAndComplaintNotification = async (req, res) => {
       rate_your_experience,
       user,
     });
-    res.status(200).send("created");
+    res.status(200).send({msg:"created"});
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send("interal error");
+    return res.status(500).send({msg:"interal error"});
   }
 };
 const getCustomerRequestAndComplaintNotification = async (req, res) => {
@@ -34,7 +34,7 @@ const getCustomerRequestAndComplaintNotification = async (req, res) => {
     res.status(200).json({ notification });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send("interal error");
+    return res.status(500).send({msg:"interal error"});
   }
 };
 const updateCustomerRequestAndComplaintNotification = async (req, res) => {
@@ -53,7 +53,7 @@ const updateCustomerRequestAndComplaintNotification = async (req, res) => {
       _id,
     });
     if (!findRecord) {
-      return res.status(200).send("no record found");
+      return res.status(200).send({msg:"no record found"});
     }
     let newData = {};
     if (missing_points_claim) {
@@ -73,17 +73,17 @@ const updateCustomerRequestAndComplaintNotification = async (req, res) => {
     }
 
     if (findRecord.user.toString() !== user) {
-      return res.status(400).send("you are not authorize");
+      return res.status(400).send({msg:"you are not authorize"});
     }
     await customerComplainAndRequestNotification.findByIdAndUpdate(
       { _id },
       { $set: newData },
       { new: true }
     );
-    res.status(200).send("updated");
+    res.status(200).send({msg:"updated"});
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send("interal error");
+    return res.status(500).send({msg:"interal error"});
   }
 };
 

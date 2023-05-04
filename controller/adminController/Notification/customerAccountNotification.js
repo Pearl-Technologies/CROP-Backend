@@ -64,7 +64,7 @@ const getCustomerAccountNotification = async (req, res) => {
 
     const findRecord = await customerAccountNotification.findOne({_id}); 
           if(!findRecord){
-            return res.status(200).send("no record found");
+            return res.status(200).send({msg:"no record found"});
           }
           let newData = {};
           if(first_time_notification){
@@ -95,13 +95,13 @@ const getCustomerAccountNotification = async (req, res) => {
             newData.redeemtion_limit = redeemtion_limit
           }
           if(findRecord.user.toString() !== user){
-            return res.status(400).send("you are not authorize");
+            return res.status(400).send({msg:"you are not authorize"});
           }
           await customerAccountNotification.findByIdAndUpdate({_id}, {$set:newData}, {new:true})
-          res.status(200).send("updated");
+          res.status(200).send({msg:"updated"});
         } catch (error) {
       console.log(error.message)
-      return res.status(500).send("interal error")
+      return res.status(500).send({msg:"interal error"})
     }
   };
 

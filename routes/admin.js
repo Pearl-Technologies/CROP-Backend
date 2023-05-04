@@ -21,7 +21,6 @@ const {
   PropTransaction,
   GetAllProp,
 } = require("../controller/adminController/prop");
-// const updateTier = require("../controller/adminController/updateTier");
 const {
   setBasePrice,
   getBasePrice,
@@ -34,7 +33,8 @@ const {getAllProduct} = require("../controller/adminController/BusinessData/prod
 const {
   createAudit,
   getAuditReport,
-  createBusinessAudit, getBusinessAuditReport
+  getBusinessAuditReport,
+  getCustomerAuditReport,
 } = require("../controller/adminController/audit");
 const {
   createMilestoneData,
@@ -89,10 +89,9 @@ const {createBusinessAccountNotification, getBusinessAccountNotification, update
 const {createBusinessGeneralNotification, getBusinessGeneralNotification, updateBusinessGenearlNotification} = require("../controller/adminController/Notification/businessGeneralNotification")
 const {createBusinessPurchaseAndRedeemNotification, getBusinessPurchaseAndRedeemNotification, updateBusinessPurchaseAndRedeemNotification} = require("../controller/adminController/Notification/businessPurchaseAndRedeemtionNotification")
 const {createBusinessRequestAndComplaintNotification, getBusinessRequestAndComplaintNotification, updateBusinessRequestAndComplaintNotification} = require("../controller/adminController/Notification/businessRequestAndComplainNotification")
-
+const updateTier = require("../controller/adminController/updateTier");
 //customer
 const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
-
 //
 
 //Business
@@ -104,6 +103,7 @@ const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 const {createCategory, getCategories} =  require("../controller/adminController/admin_product_category")
+const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -144,7 +144,6 @@ router.post("/updateBasePrice", updateBasePrice)
 router.post("/publishOffer", publishOffer)
 router.post("/getAccountBalance", getAccountBalance)
 router.post("/updateAccountBalance", updateAccountBalance)
-// router.post("/updateTier", updateTier);
 router.post("/saveAccountBalance", saveAccountBalance);
 router.post("/getAllProduct", getAllProduct);
 router.post("/createAudit", createAudit);
@@ -175,12 +174,25 @@ router.post("/savePropValues", savePropValues);
 router.post("/updateStoreProp", updateStoreProp);
 router.post("/getPropValues", getPropValues);
 router.post("/getAdminData", verifyToken, getAdminData);
-router.post("/updateAdminUser", verifyToken, updateAdminUser);
+
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+router.post("/updateAdminUser", verifyToken, upload.single('image'), updateAdminUser);
+
 router.post("/updateAdminUserPassword", verifyToken, updateAdminUserPassword);
 router.post("/createNotification", createNotification);
 router.post("/getAllNotifications", getAllNotifications);
-router.post("/createBusinessAudit", createBusinessAudit);
 router.post("/getBusinessAuditReport", getBusinessAuditReport);
+router.post("/getCustomerAuditReport", getCustomerAuditReport);
 router.post("/getAllCustomerProp", getAllCustomerProp);
 router.post("/getAllCustomerCrop", getAllCustomerCrop);
 router.post("/getAllBusinessCrop", getAllBusinessCrop);
@@ -218,6 +230,7 @@ router.post("/updateBusinessPurchaseAndRedeemNotification", updateBusinessPurcha
 router.post("/createBusinessRequestAndComplaintNotification", createBusinessRequestAndComplaintNotification);
 router.post("/getBusinessRequestAndComplaintNotification", getBusinessRequestAndComplaintNotification);
 router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequestAndComplaintNotification);
+router.post("/updateTier", updateTier)
 // router.post("/paymentLink", paymentLink);
 //customer data
 
@@ -240,6 +253,7 @@ router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
 router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
 router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
+router.post('/findBusinessInvoice', findBusinessInvoice);
 //admin update
 const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
 router.post("/sendMail", sendMail)

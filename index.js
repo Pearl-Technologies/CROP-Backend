@@ -22,6 +22,7 @@ const superAdmin = require("./routes/superAdmin")
 const address = require("./routes/addresRoute")
 const customerCropTransaction = require("./routes/customerCropTrasaction")
 const count = require("./routes/count");
+const purchaseRequest = require("./routes/purchaseProintConroller")
 
 const allowedOrigins = ["http://192.168.0.107:3000", "http://192.168.0.101:3000", "http://localhost:3001", "http://localhost:3000"];
 
@@ -59,6 +60,7 @@ app.use("/api/admin", admin)
 app.use("/api/superAdmin", superAdmin)
 app.use("/api/address", address)
 app.use("/api",count);
+app.use("/api/customer/royalty", purchaseRequest)
 
 
 app.get("/", (req, res) => {

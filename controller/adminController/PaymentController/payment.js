@@ -1,4 +1,4 @@
-const {adminPaymentTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
+const {adminPaymentTracker, customerPurchsedTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
 
 
 const SavePaymentInfo = async(paymentLink, productId, status, paymentUrl, businessId, tries)=>{
@@ -49,7 +49,46 @@ const updatePaymentInfo = async(_id, tries)=>{
     return console.log(error);
   }
 }
-module.exports = { SavePaymentInfo, findPaymentInfo, updatePaymentInfo};
+const findBusinessInvoice = async(req, res)=>{
+  const {user} = req.body 
+  try {
+    if(!user){       
+      return res.status(200).send({msg:"no record"})
+    }
+    const invoices = await adminPaymentTracker.find({businessId:user});
+    res.status(200).send({invoices});
+
+  } catch (error) {
+    return console.log(error);
+  }
+}
+const customerPointPurchasedTracker = async(type, quantity, value)=>{
+  // paymentId,
+  // status,
+  // paymentUrl,
+  // paymentMethod,
+  // invoice_url,
+  // invoice_paid_time,
+  // invoice_pdf,
+  // customer_email,
+  // invoice_id,
+  // payment_intent,
+  // name,
+  // type,
+  // amount,
+  // quantity,
+  // user 
+  try {
+    await customerPurchsedTracker.create({
+
+    })
+
+
+  } catch (error) {
+    return console.log(error);
+  }
+}
+module.exports = { SavePaymentInfo, findPaymentInfo, updatePaymentInfo, findBusinessInvoice, customerPointPurchasedTracker};
 
 
 

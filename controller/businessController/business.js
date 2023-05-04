@@ -10,6 +10,7 @@ const { Otp } = require("../../models/businessModel/Otp")
 const { sendMail } = require("../../utils/sendMail")
 const { User } = require("../../models/User")
 const Order = require("../../models/Order")
+const {createBusinessAudit} = require('../adminController/audit')
 const {
   BusinessHolidays,
 } = require("../../models/businessModel/businessHolidays")
@@ -313,6 +314,7 @@ const resetPassword = async (req, res) => {
       { _id: businessFind[0]._id },
       { pin: password }
     )
+    createBusinessAudit(businessFind[0]._id, "PIN Changed Successfully")
     return res.status(201).send({ success: true, msg: "PIN Reset Success" })
   } catch (error) {
     console.log(error)
@@ -331,6 +333,7 @@ const updateProfile = async (req, res) => {
       return res.status(404).send({ success: false, msg: "Account Not Found" })
     }
     await business.findByIdAndUpdate({ _id: businessFind._id }, req.body)
+    createBusinessAudit(businessFind._id, "Communication Preference Updated Successfully")
     return res.status(200).send({
       success: true,
       msg: "Communication Preference Updated Successfully",
@@ -353,13 +356,13 @@ const resendOtp = async (req, res) => {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   })
 
   const mailOptions = {
-    from: process.env.EMAIL,
+    from: process.env.EMAIL_USER,
     to: email,
     subject: "resetted password",
     text: `OTP GENERATED ${otp}`,
@@ -592,6 +595,7 @@ const pinChange = async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     pin = await bcrypt.hash(newPin, salt)
     await business.findByIdAndUpdate({ _id: businessFind._id }, { pin })
+    createBusinessAudit(businessFind._id, "PIN Changed Successfully")
     return res.status(201).send({ success: true, msg: "PIN Reset Success" })
   } catch (error) {
     console.log(error)
@@ -605,6 +609,7 @@ const updateCommunicationPreference = async (req, res) => {
   try {
     console.log(req.body)
     await business.findByIdAndUpdate({ _id: id }, req.body)
+    createBusinessAudit(id, "Communication Preference Updated Successfully")
     return res.status(200).send({
       success: true,
       msg: "Communication Preference Updated Successfully",
@@ -664,6 +669,7 @@ const uploadProfileImage = async (req, res) => {
       { _id: businessId },
       { avatar: fileName }
     )
+    createBusinessAudit(businessId, "profile image updated");
     console.log(businessFind, "business")
     return res.status(200).send({ success: true })
   } catch (error) {
