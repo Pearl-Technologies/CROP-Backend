@@ -24,7 +24,18 @@ const customerCropTransaction = require("./routes/customerCropTrasaction")
 const count = require("./routes/count");
 const purchaseRequest = require("./routes/purchaseProintConroller")
 
-const allowedOrigins = ["http://192.168.0.107:3000", "http://192.168.0.101:3000", "http://localhost:3001", "http://localhost:3000"];
+const allowedOrigins = [
+  "http://192.168.0.107:3000",
+  "http://192.168.0.101:3000",
+  "http://localhost:3001",
+  "http://localhost:3000",
+  "https://cropglobalservices.com",
+  "http://cropglobalservices.com",
+  "https://business.cropglobalservices.com",
+  "http://business.cropglobalservices.com",
+  "https://admin.cropglobalservices.com",
+  "http://admin.cropglobalservices.com",
+]
 
 const corsOptions = {
   origin: (origin, callback) => {
