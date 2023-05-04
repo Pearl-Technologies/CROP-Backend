@@ -23,9 +23,23 @@ const address = require("./routes/addresRoute")
 const customerCropTransaction = require("./routes/customerCropTrasaction")
 const count = require("./routes/count");
 
+const allowedOrigins = ["http://192.168.0.107:3000", "http://192.168.0.101:3000", "http://localhost:3001", "http://localhost:3000"];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
-app.use(cors())
+app.use(cors(corsOptions));
+// app.use(cors())
 ConnectDb()
 
 app.use("/api/earncrop", categoryRoutes)
