@@ -11,6 +11,7 @@ const app = express();
 const {
   adminPaymentTracker,
   customerPaymentTracker,
+  customerPurchsedTracker
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const { Product } = require("../models/businessModel/product");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
@@ -25,10 +26,12 @@ const createOrder = (session) => {
 const {
   SaveMyCropTrasaction,
 } = require("../controller/customerCropTransaction");
+const {
+  SaveMyPropTrasaction,
+} = require("../controller/customerPropTransaction");
 
 const fulfillOrder = async (session) => {
-  //   console.log("Fulfilling order", session?.payment_link);
-  //   console.log(session);
+  //market order payment method is link 
   let findOne = await adminPaymentTracker.findOne({
     paymentLink: session?.payment_link,
   });
@@ -51,8 +54,8 @@ const fulfillOrder = async (session) => {
     console.log("Fulfilling order updated successfully");
   }
 
-  ///customer order full fill
-  // console.log(session);
+  //customer order payment tracker with checout page
+
   let findOneRecord = await customerPaymentTracker.findOne({
     paymentId: session.id,
   });
@@ -64,6 +67,17 @@ const fulfillOrder = async (session) => {
     );
   } else {
     console.log("record is not found for verify");
+  }
+
+  let findOneCustomerPointPurchasePaymentRequest = await customerPurchsedTracker.findOne({paymentId: session.id})
+  if(findOneCustomerPointPurchasePaymentRequest){
+    await customerPurchsedTracker.findByIdAndUpdate(
+      { _id: findOneCustomerPointPurchasePaymentRequest._id },
+      { $set: { status: "paid", payment_intent: session.payment_intent } }
+    )
+    console.log("payment intent updated purchase point");
+  }else{
+    console.log("record is not found for update payment intent purchase point");
   }
 };
 
@@ -84,7 +98,7 @@ app.post(
     } catch (err) {
       return response.status(400).send(`Webhook Error: ${err.message}`);
     }
-    // console.log(event);
+    console.log(event);
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
@@ -219,10 +233,71 @@ app.post(
           console.log("record is not found for updating invoice details");
         }
 
-        // console.log(cropPoint);
-        // console.log("userid", cartDetails.user_id);
-        // console.log("cartId", cartDetails.id);
+        let findOneCustomerPointPurchasePaymentRequest = await customerPurchsedTracker.findOne(
+          {payment_intent: session.payment_intent}
+        )
+        let findUser;
+        if(await findOneCustomerPointPurchasePaymentRequest){
+          await customerPurchsedTracker.findByIdAndUpdate(
+            { _id: findOneCustomerPointPurchasePaymentRequest._id },
+            {
+              $set: {
+                status: session.status,
+                invoice_paid_time: session.created,
+                customer_email: session.customer_email,
+                invoice_id: session.id,
+                invoice_url: session.hosted_invoice_url,
+                invoice_pdf: session.invoice_pdf,
+                number: session.number,
+                name:session.customer_name
+              },
+            }
+          )
+          findUser = await User.findOne({ _id: findOneCustomerPointPurchasePaymentRequest.user});
+          if(findOneCustomerPointPurchasePaymentRequest.type == "CROP"){
+            SaveMyCropTrasaction(
+              findOneCustomerPointPurchasePaymentRequest.amount,
+              findOneCustomerPointPurchasePaymentRequest.quantity,
+              "credit",
+              "purchased CROP",
+              findOneCustomerPointPurchasePaymentRequest.payment_intent,
+              findOneCustomerPointPurchasePaymentRequest.user
+            );
+            if (findUser) {
+              let customerNewCropPoint =
+              findUser.croppoints + findOneCustomerPointPurchasePaymentRequest.quantity
+              await User.findByIdAndUpdate(
+                { _id: findUser._id },
+                { $set: { croppoints: customerNewCropPoint } },
+                { new: true }
+              );
+  
+            }
+          }else if(findOneCustomerPointPurchasePaymentRequest.type == "PROP"){
+            SaveMyPropTrasaction(
+              findOneCustomerPointPurchasePaymentRequest.amount,
+              findOneCustomerPointPurchasePaymentRequest.quantity,
+              "credit",
+              "purchased PROP",
+              findOneCustomerPointPurchasePaymentRequest.payment_intent,
+              findOneCustomerPointPurchasePaymentRequest.user
+            );
+            if (findUser) {
+              let customerNewPropPoint =
+              findUser.proppoints + findOneCustomerPointPurchasePaymentRequest.quantity
+              await User.findByIdAndUpdate(
+                { _id: findUser._id },
+                { $set: { proppoints: customerNewPropPoint } },
+                { new: true }
+              );
+  
+            }
+          }
+          console.log("customer purchase point invoices successfully updated");
 
+        }else{
+          console.log("record is not found for updating purchase point invoice details");
+        }
         break;
       }
 

@@ -1,7 +1,7 @@
-const {User} = require("../../../models/User");
-const Order = require('../../../models/Order');
-const adminCustomerCrop = require('../../../models/admin/admin_customer_crop');
-const adminCustomerProp = require('../../../models/admin/admin_customer_prop');
+const { User } = require("../../../models/User");
+const Order = require("../../../models/Order");
+const adminCustomerCrop = require("../../../models/admin/admin_customer_crop");
+const adminCustomerProp = require("../../../models/admin/admin_customer_prop");
 
 const getAllCustomer = async (req, res) => {
   try {
@@ -12,101 +12,97 @@ const getAllCustomer = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-const getAllOrders = async(req, res)=>{
-    try {
-        const orders = await Order.find({});
-        res.status(200).json({orders});
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
-    }
-}
-const customerCrop = async(req, res)=>{
+const getAllOrders = async (req, res) => {
   try {
-    const {type, description, crop}=req.body;
+    const orders = await Order.find({});
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+const customerCrop = async (req, res) => {
+  try {
+    const { type, description, crop } = req.body;
     let user = req.user.user.id;
-    if(type == "credit"){
+    if (type == "credit") {
       await adminCustomerCrop.create({
-        credit:crop,
+        credit: crop,
         description,
         user,
-      })
+      });
       res.status(201).send("updated");
-    }else if(type =="debit"){
+    } else if (type == "debit") {
       await adminCustomerCrop.create({
-        debit:crop,
-        description,
-        user
-      })
-      res.status(201).send("updated");
-    }else{
-      res.status(400).send("bad request! not updated");
-    }
-
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Internal Server Error");
-  }
-}
-const getAllCustomerCrop = async(req, res)=>{
-  try {
-    const cropDetails = await adminCustomerCrop.find({})
-     res.status(200).json({cropDetails});
-
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Internal Server Error");
-  }
-}
-const customerProp = async(req, res)=>{
-  try {
-    const {type, description, crop}=req.body;
-    let user = req.user.user.id;
-    if(type == "credit"){
-      await adminCustomerProp.create({
-        credit:crop,
+        debit: crop,
         description,
         user,
-      })
+      });
       res.status(201).send("updated");
-    }else if(type =="debit"){
-      await adminCustomerProp.create({
-        debit:crop,
-        description,
-        user
-      })
-      res.status(201).send("updated");
-    }else{
+    } else {
       res.status(400).send("bad request! not updated");
     }
-
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
   }
-}
-const getAllCustomerProp = async(req, res)=>{
+};
+const getAllCustomerCrop = async (req, res) => {
   try {
-    const propDetails = await adminCustomerProp.find({})
-     res.status(200).json({propDetails});
-
+    const cropDetails = await adminCustomerCrop.find({});
+    res.status(200).json({ cropDetails });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
   }
-}
+};
+const customerProp = async (req, res) => {
+  try {
+    const { type, description, crop } = req.body;
+    let user = req.user.user.id;
+    if (type == "credit") {
+      await adminCustomerProp.create({
+        credit: crop,
+        description,
+        user,
+      });
+      res.status(201).send("updated");
+    } else if (type == "debit") {
+      await adminCustomerProp.create({
+        debit: crop,
+        description,
+        user,
+      });
+      res.status(201).send("updated");
+    } else {
+      res.status(400).send("bad request! not updated");
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+const getAllCustomerProp = async (req, res) => {
+  try {
+    const propDetails = await adminCustomerProp.find({});
+    res.status(200).json({ propDetails });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
 const updateCustomerStatus = async (req, res) => {
-  const {_id, status} = req.body
+  const { _id, status } = req.body;
   try {
-    const customer = await User.findOne({_id});
-    if(!customer){
-      return res.status(404).json({msg:"no data found"});
+    const customer = await User.findOne({ _id });
+    if (!customer) {
+      return res.status(404).json({ msg: "no data found" });
     }
-    await User.findByIdAndUpdate({_id}, {status})
-    res.status(200).json({msg:"updated"});
+    await User.findByIdAndUpdate({ _id }, { status });
+    res.status(200).json({ msg: "updated" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({msg:"Internal Server Error"});
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 const getAllCustomerByContent = async (req, res) => {
@@ -188,14 +184,79 @@ const getAllCustomerByContent = async (req, res) => {
     //       },
     //     },
     //   ]);
-     
+
     //   return res.status(200).json({ businessDetails });
     // }
-    customerDetails = await User.find({}, {name:1, address:1, email:1})
-    res.status(200).json({customerDetails});
+    customerDetails = await User.find({}, { name: 1, address: 1, email: 1 });
+    res.status(200).json({ customerDetails });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({msg:"internal error"});
+    res.status(500).json({ msg: "internal error" });
   }
 };
-module.exports = {getAllCustomerByContent, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop, updateCustomerStatus}
+const getAllCustomerForPropPayment = async (req, res) => {
+  let userDetails = await User.aggregate([
+    {
+      $lookup: {
+        from: "customer_crop_trasactions",
+        localField: "_id",
+        foreignField: "user",
+        as: "result",
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        cropid: 1,
+        UserTier: 1,
+        TierChangeDate: 1,
+        total: {
+          $reduce: {
+            input: {
+              $filter: {
+                input: "$result",
+                as: "data",
+                cond: {
+                  $and: [
+                    {
+                      $eq: ["$$data.transactionType", "credit"],
+                    },
+                  ],
+                },
+              },
+            },
+            initialValue: 0,
+            in: {
+              $add: [
+                "$$value",
+                {
+                  $cond: {
+                    if: {
+                      $gt: ["$$this.createdAt", "$TierChangeDate"],
+                    },
+                    then: {
+                      $add: ["$$this.crop"],
+                    },
+                    else: 0,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  ]);
+  res.status(200).send({userDetails});
+};
+module.exports = {
+  getAllCustomerByContent,
+  getAllCustomer,
+  getAllOrders,
+  customerProp,
+  customerCrop,
+  getAllCustomerProp,
+  getAllCustomerCrop,
+  updateCustomerStatus,
+  getAllCustomerForPropPayment
+};

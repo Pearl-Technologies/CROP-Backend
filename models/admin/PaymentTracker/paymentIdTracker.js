@@ -58,7 +58,7 @@ const customerPurchsedTrackerSchema = mongoose.Schema({
    type:String,
    amount:Number,
    quantity:Number,
-   user:{type:mongoose.Schema.Types.ObjectId, ref:"users_customer"}
+   user:{type:mongoose.Schema.Types.ObjectId, ref:"users_customer", require:true}
 }, {
    timestamps: true
 });
