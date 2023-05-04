@@ -241,8 +241,8 @@ const getAdminData = async (req, res) => {
   try {
     //finding users with email id
     let id = req.user.user.id;
-    let user = await admin.find(
-      {},
+    let user = await admin.findOne(
+      {_id:id},
       { name: 1, email: 1, phone: 1, gender: 1, birthDate: 1, filename:1 }
     );
     res.status(200).json({ user });

@@ -1230,11 +1230,11 @@ router.get("/getmissingcrop", async (req, res) => {
 
 router.get("/getcommunicationPreference", async (req, res) => {
   try {
-    const { token } = req.params;
-    const user = await User.User.findOne({ confirmationToken: token });
-    const data = await User.CommunicationPreference.findOne({ user: user._id });
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await CommunicationPreference.findOne({ user: user.user });
     if (!data) {
-      return res.status(404).json({ message: "Data not found", data:[], status:200 });
+      return res.status(200).json({ message: "Data not found", data:[], status:200 });
     }
     res.status(200).json({ message: "Success", data: data, status:200 });
   } catch (err) {
@@ -1245,16 +1245,15 @@ router.get("/getcommunicationPreference", async (req, res) => {
 router.put("/communicationPreference", async (req, res) => {
   try {
     const {app, sms, email} = req.body;
-    const { token } = req.params;
-    const user = await User.User.findOne({ confirmationToken: token });
-    const data = await User.CommunicationPreference.findOne({ user: user._id });
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await CommunicationPreference.findOne({ user: user.user });
     if (!data) {
-      await User.CommunicationPreference.create({ user: user._id, app: app, sms: sms, email: email });
-      return res.status(404).json({ message: "Successfully Created", status:200 });
+      await CommunicationPreference.create({ user: user.user, app: app, sms: sms, email: email });
     }
     else{
-      await User.CommunicationPreference.updateOne({ _id: data._id },
-        { $set:{ user: user._id, app: app, sms: sms, email: email }});
+      await CommunicationPreference.updateOne({ _id: data._id },
+        { $set:{ user: user.user, app: app, sms: sms, email: email }});
     }
     res.status(200).json({ message: "Success", data: data, status:200 });
   } catch (err) {
