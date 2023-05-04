@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "type": "commonjs",
-  "homepage": "https://cropglobalservices.com/admin/",
   "scripts": {
     "start": "nodemon index.js",
     "start-dev": "nodemon index.js",
