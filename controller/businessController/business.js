@@ -356,13 +356,13 @@ const resendOtp = async (req, res) => {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   })
 
   const mailOptions = {
-    from: process.env.EMAIL,
+    from: process.env.EMAIL_USER,
     to: email,
     subject: "resetted password",
     text: `OTP GENERATED ${otp}`,

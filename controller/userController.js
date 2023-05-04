@@ -3,15 +3,16 @@ const User = require("../models/User");
 const { generateToken } = require("../utils/token");
 const { sendEmail } = require("../config/email");
 const { tokenForVerify } = require("../utils/token");
+const { default: mongoose } = require("mongoose");
 
 // sign up
 module.exports.signup = async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.User.findOne({ email: req.body.email });
     if (user) {
       res.send({ status: "failed", message: "Email already exists" });
     } else {
-      const saved_user = await User.create(req.body);
+      const saved_user = await User.User.create(req.body);
       const token = saved_user.generateConfirmationToken();
 
       await saved_user.save({ validateBeforeSave: false });
@@ -69,7 +70,7 @@ module.exports.login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({
@@ -117,7 +118,7 @@ module.exports.login = async (req, res) => {
 // get me
 module.exports.getMe = async (req, res) => {
   try {
-    const user = await User.findOne({ email: req?.user?.email });
+    const user = await User.User.findOne({ email: req?.user?.email });
     res.status(200).json({
       status: "success",
       data: user,
@@ -133,7 +134,7 @@ module.exports.getMe = async (req, res) => {
 module.exports.confirmEmail = async (req, res) => {
   try {
     const { token } = req.params;
-    const user = await User.findOne({ confirmationToken: token });
+    const user = await User.User.findOne({ confirmationToken: token });
 
     if (!user) {
       return res.status(403).json({
@@ -182,7 +183,7 @@ module.exports.confirmEmail = async (req, res) => {
 module.exports.forgetPassword = async (req, res) => {
   try {
     const { verifyEmail } = req.body;
-    const user = await User.findOne({ email: verifyEmail });
+    const user = await User.User.findOne({ email: verifyEmail });
     if (!user) {
       return res.status(404).send({
         message: "User Not found with this email!",
@@ -227,7 +228,7 @@ module.exports.forgetPassword = async (req, res) => {
 module.exports.confirmForgetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
-    const user = await User.findOne({ confirmationToken: token });
+    const user = await User.User.findOne({ confirmationToken: token });
 
     if (!user) {
       return res.status(403).json({
@@ -275,7 +276,7 @@ module.exports.changePassword = async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
-    const user = await User.findOne({ email: email });
+    const user = await User.User.findOne({ email: email });
     // Check if the user exists
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -299,7 +300,7 @@ module.exports.changePassword = async (req, res) => {
 module.exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id
-    const user = await User.findById(userId);
+    const user = await User.User.findById(userId);
     if (user) {
       user.name = req.body.name;
       user.email = req.body.email;

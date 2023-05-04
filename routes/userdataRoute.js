@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Otp, User, Token, Newsletter, MissingCrop } = require("../models/User");
+const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference } = require("../models/User");
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
@@ -87,13 +87,13 @@ router.put("/resendotp", async (req, res) => {
       port: 587,
       secure: true,
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "resetted password",
       text: `OTP GENERATED ${otp}`,
@@ -197,20 +197,34 @@ router.post("/emailphone", async (req, res) => {
   if (email) {
     //Email OTP
     var otp = Math.floor(100000 + Math.random() * 900000);
-
+  //   const mailTransport = nodemailer.createTransport({    
+  //     host: "smtpout.secureserver.net",  
+  //     secure: true,
+  //     secureConnection: false, // TLS requires secureConnection to be false
+  //     tls: {
+  //         ciphers:'SSLv3'
+  //     },
+  //     requireTLS:true,
+  //     port: 465,
+  //     debug: true,
+  //     auth: {
+  //         user: "put your godaddy hosted email here",
+  //         pass: "put your email password here" 
+  //     }
+  // });
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "resetted password",
       text: `OTP GENERATED ${otp}`,
@@ -691,12 +705,12 @@ router.put("/forget", async (req, res) => {
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: process.env.EMAIL_USER,
       to: userEmail,
       subject: "resetted password",
       text: `OTP GENERATED ${otp}`,
@@ -1108,12 +1122,12 @@ router.post("/mate", async (req, res) => {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
   const mailOptions = {
-    from: process.env.EMAIL,
+    from: process.env.EMAIL_USER,
     to: email,
     subject: "Refer code",
     text: `REFER CODE ${refercode}`,
@@ -1203,6 +1217,40 @@ router.get("/getmissingcrop", async (req, res) => {
     res
       .status(500)
       .send({ message: "Internal server error", status: "false", data: [err] });
+  }
+});
+
+router.get("/getcommunicationPreference", async (req, res) => {
+  try {
+    const { token } = req.params;
+    const user = await User.User.findOne({ confirmationToken: token });
+    const data = await User.CommunicationPreference.findOne({ user: user._id });
+    if (!data) {
+      return res.status(404).json({ message: "Data not found", data:[], status:200 });
+    }
+    res.status(200).json({ message: "Success", data: data, status:200 });
+  } catch (err) {
+    res.status(500).json({ message: err.message, status:500 });
+  }
+});
+
+router.put("/communicationPreference", async (req, res) => {
+  try {
+    const {app, sms, email} = req.body;
+    const { token } = req.params;
+    const user = await User.User.findOne({ confirmationToken: token });
+    const data = await User.CommunicationPreference.findOne({ user: user._id });
+    if (!data) {
+      await User.CommunicationPreference.create({ user: user._id, app: app, sms: sms, email: email });
+      return res.status(404).json({ message: "Successfully Created", status:200 });
+    }
+    else{
+      await User.CommunicationPreference.updateOne({ _id: data._id },
+        { $set:{ user: user._id, app: app, sms: sms, email: email }});
+    }
+    res.status(200).json({ message: "Success", data: data, status:200 });
+  } catch (err) {
+    res.status(500).json({ message: err.message, status:500 });
   }
 });
 
