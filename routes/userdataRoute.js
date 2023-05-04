@@ -1105,15 +1105,24 @@ router.post("/newsletter", async (req, res) => {
 });
 
 router.post("/mate", async (req, res) => {
-  let refercode = req.body.refercode;
-  let email = req.body.email;
+  let token = req.headers.authorization
+  let email = req.body.email
 
-  const userdata = await User.findOne({ email: email });
+  console.log("sridhar", email)
 
-  if (userdata) {
-    res
+  console.log({ token })
+  const token1 = await Token.findOne({ token })
+  const findUser = await User.findById(token1.user)
+  if (!findUser) return res.status(401).send("User Authentication Failed")
+  console.log(findUser.email)
+  const refercode = findUser.refercode
+  const userdata = await User.findOne({ email })
+
+  console.log("userData", userdata)
+  if (userdata == null) {
+    return res
       .status(500)
-      .send({ message: "The given mail-ID already exist", status: "false" });
+      .send({ message: "The given mail-ID already exist", status: "false" })
   }
 
   const transporter = nodemailer.createTransport({
@@ -1125,25 +1134,24 @@ router.post("/mate", async (req, res) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-  });
+  })
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Refer code",
     text: `REFER CODE ${refercode}`,
-  };
+  }
   transporter.sendMail(mailOptions, (err, result) => {
     if (err) {
-      res.json("Oops error occurred");
-      res
-        .status(200)
-        .send({ message: "Mail sent successfully", status: "true", data: [] });
-    } else {
-      res
+      return res
         .status(500)
-        .send({ message: "Internal server error", status: "false", data: [] });
+        .send({ message: "Internal server error", status: "false", data: [] })
+    } else {
+      return res
+        .status(200)
+        .send({ message: "Mail sent successfully", status: "true", data: [] })
     }
-  });
+  })
 });
 
 router.get("/profileAdmin", async (req, res) => {

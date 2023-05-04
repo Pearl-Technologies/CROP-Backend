@@ -133,9 +133,11 @@ module.exports.getStorePromoProductsByBusiness = async (req, res) => {
       mktOfferFor: "promo",
       market: true,
     })
+    console.log({ user })
+    console.log(promoProducts)
     return res.status(200).send({ promoProducts })
   } catch (error) {
-    conosle.log(error)
+    console.log(error)
     return res.status(500).send("Internal Server Error")
   }
 }
