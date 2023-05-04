@@ -5,8 +5,8 @@ const invoiceAndPaymentNotification = require("../models/businessModel/businessN
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const ConnectDb = require("../config/db");
-ConnectDb();
+// const ConnectDb = require("../config/db");
+// ConnectDb();
 const app = express();
 const {
   adminPaymentTracker,
