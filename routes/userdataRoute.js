@@ -1173,20 +1173,20 @@ router.post("/getproductmissingcrop", async (req, res) => {
     const tracker = await customerPaymentTracker.find({
       invoice_id: invoice_id,
     });
-
-    const inputDate = new Date(tracker[0].createdAt);
+    if(tracker.length != 0){
+      const inputDate = new Date(tracker[0].createdAt);
     const currentDate = new Date();
 
     const differenceInDays = (currentDate - inputDate) / (1000 * 60 * 60 * 24);
 
     if (differenceInDays <= 90) {
-      const product = await Product.find({
-        _id: { $in: tracker[0].productId },
-      });
+      // const product = await Product.find({
+      //   _id: { $in: tracker[0].productId },
+      // });
       res
         .status(200)
         .json({
-          data: { product: product, invoice_date: tracker[0].createdAt },
+          data: { product: tracker[0].cartDetails.cartItems, invoice_date: tracker[0].createdAt, invoice_array: tracker[0] },
           status: 200,
         });
     } else {
@@ -1197,6 +1197,16 @@ router.post("/getproductmissingcrop", async (req, res) => {
           status: 200,
         });
     }
+    }
+    else{
+      res
+        .status(200)
+        .json({
+          data: "No invoice id found.",
+          status: 200,
+        });
+    }
+    
   } catch (err) {
     res
       .status(500)
@@ -1207,7 +1217,7 @@ router.post("/getproductmissingcrop", async (req, res) => {
 router.post("/missingcrop", async (req, res) => {
   try {
     await new MissingCrop(req.body).save();
-    res.status(200).json({ data: [req.body], status: 200 });
+    res.status(200).json({ data: [req.body], status: 200,message:"Successfully submitted" });
   } catch (err) {
     res
       .status(500)
