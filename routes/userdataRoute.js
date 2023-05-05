@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference } = require("../models/User");
+const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback } = require("../models/User");
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
@@ -1253,12 +1253,32 @@ router.put("/communicationPreference", async (req, res) => {
     }
     else{
       await CommunicationPreference.updateOne({ _id: data._id },
-        { $set:{ user: user.user, app: app, sms: sms, email: email }});
+        { $set:{ app: app, sms: sms, email: email }});
     }
     res.status(200).json({ message: "Success", data: data, status:200 });
   } catch (err) {
     res.status(500).json({ message: err.message, status:500 });
   }
 });
+
+router.put("/feedback", async (req, res) => {
+  try {
+    const {rating} = req.body;
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await Feedback.findOne({ user: user.user });
+    if (!data) {
+      await Feedback.create({ user: user.user, rating: rating });
+    }
+    else{
+      await Feedback.updateOne({ _id: data._id },
+        { $set:{ rating: rating }});
+    }
+    res.status(200).json({ message: "Thanks for rating us.", data: data, status:200 });
+  } catch (err) {
+    res.status(500).json({ data: err.message, message: "Sorry something happens.", status:500 });
+  }
+});
+
 
 module.exports = router;
