@@ -17,6 +17,7 @@ const {
 const { Product } = require("../../models/businessModel/product")
 const invoiceAndPaymentNotification = require("../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
 const mongoose = require("mongoose")
+const accountNotification = require("../../models/businessModel/businessNotification/accountNotification")
 const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"
@@ -333,7 +334,10 @@ const updateProfile = async (req, res) => {
       return res.status(404).send({ success: false, msg: "Account Not Found" })
     }
     await business.findByIdAndUpdate({ _id: businessFind._id }, req.body)
-    createBusinessAudit(businessFind._id, "Communication Preference Updated Successfully")
+    createBusinessAudit(
+      businessFind._id,
+      "Communication Preference Updated Successfully"
+    )
     return res.status(200).send({
       success: true,
       msg: "Communication Preference Updated Successfully",
@@ -596,6 +600,12 @@ const pinChange = async (req, res) => {
     pin = await bcrypt.hash(newPin, salt)
     await business.findByIdAndUpdate({ _id: businessFind._id }, { pin })
     createBusinessAudit(businessFind._id, "PIN Changed Successfully")
+    const accNotification = new accountNotification({
+      type: "pinChange",
+      desc: "Your Pin Resetted Successfully",
+      businessId: businessFind._id,
+    })
+    await accNotification.save()
     return res.status(201).send({ success: true, msg: "PIN Reset Success" })
   } catch (error) {
     console.log(error)
@@ -669,7 +679,7 @@ const uploadProfileImage = async (req, res) => {
       { _id: businessId },
       { avatar: fileName }
     )
-    createBusinessAudit(businessId, "profile image updated");
+    createBusinessAudit(businessId, "profile image updated")
     console.log(businessFind, "business")
     return res.status(200).send({ success: true })
   } catch (error) {
@@ -736,7 +746,7 @@ const getPurchasedProductStatement = async (req, res) => {
     const statement = await invoiceAndPaymentNotification.aggregate([
       {
         $match: {
-          businessId: new ObjectId("643cd01d448a0837e2cf24cc"),
+          businessId: new ObjectId(businessId),
         },
       },
       {
@@ -769,11 +779,26 @@ const getPurchasedProductStatement = async (req, res) => {
       },
       {
         $match: {
-          user: "643cd01d448a0837e2cf24cc",
+          user: businessId,
         },
       },
     ])
     return res.status(200).send({ statement })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+const getAccountNotification = async (req, res) => {
+  const { type } = req.params
+  const businessId = req.user.user.id
+  try {
+    const accountNotifications = await accountNotification.find({
+      type,
+      businessId,
+    })
+    return res.status(200).send({ accountNotifications })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
@@ -806,4 +831,5 @@ module.exports = {
   getFeedback,
   getHolidayByState,
   getPurchasedProductStatement,
+  getAccountNotification,
 }

@@ -19,6 +19,7 @@ const {
   getHolidayByState,
   getPurchasedProductStatement,
   customerCreditOrDebitCrops,
+  getAccountNotification,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -112,6 +113,12 @@ router.post("/feedback", authorization, createOrUpdateFeedback)
 router.get("/feedback", authorization, getFeedback)
 
 router.get("/get-holidays-by-state", authorization, getHolidayByState)
+
+router.get(
+  "/get-account-notification/:type",
+  authorization,
+  getAccountNotification
+)
 
 
 module.exports = router

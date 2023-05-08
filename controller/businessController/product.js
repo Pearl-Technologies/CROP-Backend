@@ -1021,6 +1021,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           },
         },
       },
+
       // {$unwind: "$bonusCrops"},
       {
         $project: {
@@ -1048,9 +1049,9 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           happyHours: 1,
           services: { $arrayElemAt: ["$services", 0] },
           market: 1,
-          apply:1,
-          sector:1,
-          mktOfferFor:1
+          apply: 1,
+          sector: 1,
+          mktOfferFor: 1,
         },
       },
       {
@@ -1196,6 +1197,11 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          cropRulesWithBonus: 0,
+        },
+      },
+      {
         $project: {
           title: 1,
           originalPrice: 1,
@@ -1212,12 +1218,13 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
           market: 1,
-          apply:1,
-          sector:1,
+          apply: 1,
+          sector: 1,
           customiseMsg: 1,
           brand: 1,
           description: 1,
-          mktOfferFor:1
+          mktOfferFor: 1,
+          cropRulesWithBonus: 1,
         },
       },
       {
