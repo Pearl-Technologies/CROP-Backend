@@ -83,19 +83,22 @@ const Product = mongoose.model("business_products", productSchema)
 
 const productCommentSchema = mongoose.Schema(
   {
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "users_customer",
-    },
     product_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "product",
+      ref: "business_products",
     },
-    rating: { type: Number, default: 0 },
-    likes: { type: Number, default: 0 },
-    comments: { type: String, default: null },
+    details: [
+      {
+        user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" },
+        comment: { type: String, default: null },
+        rating: { type: Number, default: 0 },
+        likes: [{ like: {type:Boolean}, user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" }, require: false, status:{type:Boolean,required:true, default: true} }],
+        status:{type:Boolean,required:true, default: true}
+      }
+    ],
+    product_likes: [{ like: {type:Boolean}, user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" }, require: false, status:{type:Boolean,required:true, default: true} }],
+    status:{type:Boolean,required:true, default: true}
   },
   {
     timestamps: true,
@@ -104,4 +107,21 @@ const productCommentSchema = mongoose.Schema(
 
 const productComment = mongoose.model("products_comments", productCommentSchema)
 
-module.exports = { Product, productComment }
+
+const productCommentReplySchema = mongoose.Schema(
+  {
+    productcomments_id: { type: mongoose.Schema.Types.ObjectId, ref: "products_comments" },
+    reply: [{ type: String, user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users_customer" }, map_id: {type: mongoose.Schema.Types.ObjectId, ref: "products_comments_reply" }, default: "", status:{type:Boolean,required:true, default: true} }],
+    likes: [{ type: Boolean, user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" }, require: false, status:{type:Boolean,required:true, default: true} }],
+    status:{type:Boolean,required:true, default: true}
+  },
+  {
+    timestamps: true,
+  }
+)
+
+const productCommentReply = mongoose.model("products_comments_reply", productCommentReplySchema)
+
+module.exports = { Product, productComment, productCommentReply }
+
+

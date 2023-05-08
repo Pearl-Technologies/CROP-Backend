@@ -32,16 +32,16 @@ router.get(
   authorization,
   getBiddingSelectedStoreProductsDetailsByBusiness
 )
-router.get("/:id", getSingleStoreProduct)
-router.put("/:id", updateStoreProduct)
-router.delete("/:id", removeStoreProduct)
-
-router.get("/get-all-store-products/:pageNo/:limit", getAllStoreProducts)
 router.get(
   "/get-promo-products",
   authorization,
   getStorePromoProductsByBusiness
 )
+router.get("/:id", getSingleStoreProduct)
+router.put("/:id", updateStoreProduct)
+router.delete("/:id", removeStoreProduct)
+
+router.get("/get-all-store-products/:pageNo/:limit", getAllStoreProducts)
 
 
 module.exports = router

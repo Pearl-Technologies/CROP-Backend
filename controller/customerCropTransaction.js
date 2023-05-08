@@ -5,9 +5,9 @@ const ObjectId = mongoose.Types.ObjectId;
 const getMyCropTrasaction = async(req, res)=>{
     const {user} =req.query; 
     try {        
-        let findone = await customerCropTransaction.find({user})
+        let findone = await customerCropTransaction.find({user:mongoose.Types.ObjectId(`${user}`)})
         if(!findone.length){
-          return res.status(200).send({msg: "no order"})
+          return res.status(200).send({msg: "no order", data: findone, status:200})
         }
         const trasactionDetails = await customerCropTransaction.aggregate(
             [
@@ -40,10 +40,10 @@ const getMyCropTrasaction = async(req, res)=>{
                 }
               ]
         )
-        res.status(200).send({trasactionDetails})
+        res.status(200).send({data:trasactionDetails, status:200})
     } catch (error) {
         console.log(error);
-        res.status(500).send({msg:"internal server error"})
+        res.status(500).send({msg:"internal server error", status:500})
     }
 }
 const SaveMyCropTrasaction=async(amount, crop, transactionType, description, orderNumber, user)=>{  

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference } = require("../models/User");
+const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback } = require("../models/User");
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
@@ -1105,15 +1105,24 @@ router.post("/newsletter", async (req, res) => {
 });
 
 router.post("/mate", async (req, res) => {
-  let refercode = req.body.refercode;
-  let email = req.body.email;
+  let token = req.headers.authorization
+  let email = req.body.email
 
-  const userdata = await User.findOne({ email: email });
+  console.log("sridhar", email)
 
-  if (userdata) {
-    res
+  console.log({ token })
+  const token1 = await Token.findOne({ token })
+  const findUser = await User.findById(token1.user)
+  if (!findUser) return res.status(401).send("User Authentication Failed")
+  console.log(findUser.email)
+  const refercode = findUser.refercode
+  const userdata = await User.findOne({ email })
+
+  console.log("userData", userdata)
+  if (userdata == null) {
+    return res
       .status(500)
-      .send({ message: "The given mail-ID already exist", status: "false" });
+      .send({ message: "The given mail-ID already exist", status: "false" })
   }
 
   const transporter = nodemailer.createTransport({
@@ -1125,25 +1134,24 @@ router.post("/mate", async (req, res) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-  });
+  })
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Refer code",
     text: `REFER CODE ${refercode}`,
-  };
+  }
   transporter.sendMail(mailOptions, (err, result) => {
     if (err) {
-      res.json("Oops error occurred");
-      res
-        .status(200)
-        .send({ message: "Mail sent successfully", status: "true", data: [] });
-    } else {
-      res
+      return res
         .status(500)
-        .send({ message: "Internal server error", status: "false", data: [] });
+        .send({ message: "Internal server error", status: "false", data: [] })
+    } else {
+      return res
+        .status(200)
+        .send({ message: "Mail sent successfully", status: "true", data: [] })
     }
-  });
+  })
 });
 
 router.get("/profileAdmin", async (req, res) => {
@@ -1165,20 +1173,20 @@ router.post("/getproductmissingcrop", async (req, res) => {
     const tracker = await customerPaymentTracker.find({
       invoice_id: invoice_id,
     });
-
-    const inputDate = new Date(tracker[0].createdAt);
+    if(tracker.length != 0){
+      const inputDate = new Date(tracker[0].createdAt);
     const currentDate = new Date();
 
     const differenceInDays = (currentDate - inputDate) / (1000 * 60 * 60 * 24);
 
     if (differenceInDays <= 90) {
-      const product = await Product.find({
-        _id: { $in: tracker[0].productId },
-      });
+      // const product = await Product.find({
+      //   _id: { $in: tracker[0].productId },
+      // });
       res
         .status(200)
         .json({
-          data: { product: product, invoice_date: tracker[0].createdAt },
+          data: { product: tracker[0].cartDetails.cartItems, invoice_date: tracker[0].createdAt, invoice_array: tracker[0] },
           status: 200,
         });
     } else {
@@ -1189,6 +1197,16 @@ router.post("/getproductmissingcrop", async (req, res) => {
           status: 200,
         });
     }
+    }
+    else{
+      res
+        .status(200)
+        .json({
+          data: "No invoice id found.",
+          status: 200,
+        });
+    }
+    
   } catch (err) {
     res
       .status(500)
@@ -1199,7 +1217,7 @@ router.post("/getproductmissingcrop", async (req, res) => {
 router.post("/missingcrop", async (req, res) => {
   try {
     await new MissingCrop(req.body).save();
-    res.status(200).json({ data: [req.body], status: 200 });
+    res.status(200).json({ data: [req.body], status: 200,message:"Successfully submitted" });
   } catch (err) {
     res
       .status(500)
@@ -1222,11 +1240,11 @@ router.get("/getmissingcrop", async (req, res) => {
 
 router.get("/getcommunicationPreference", async (req, res) => {
   try {
-    const { token } = req.params;
-    const user = await User.User.findOne({ confirmationToken: token });
-    const data = await User.CommunicationPreference.findOne({ user: user._id });
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await CommunicationPreference.findOne({ user: user.user });
     if (!data) {
-      return res.status(404).json({ message: "Data not found", data:[], status:200 });
+      return res.status(200).json({ message: "Data not found", data:[], status:200 });
     }
     res.status(200).json({ message: "Success", data: data, status:200 });
   } catch (err) {
@@ -1237,21 +1255,40 @@ router.get("/getcommunicationPreference", async (req, res) => {
 router.put("/communicationPreference", async (req, res) => {
   try {
     const {app, sms, email} = req.body;
-    const { token } = req.params;
-    const user = await User.User.findOne({ confirmationToken: token });
-    const data = await User.CommunicationPreference.findOne({ user: user._id });
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await CommunicationPreference.findOne({ user: user.user });
     if (!data) {
-      await User.CommunicationPreference.create({ user: user._id, app: app, sms: sms, email: email });
-      return res.status(404).json({ message: "Successfully Created", status:200 });
+      await CommunicationPreference.create({ user: user.user, app: app, sms: sms, email: email });
     }
     else{
-      await User.CommunicationPreference.updateOne({ _id: data._id },
-        { $set:{ user: user._id, app: app, sms: sms, email: email }});
+      await CommunicationPreference.updateOne({ _id: data._id },
+        { $set:{ app: app, sms: sms, email: email }});
     }
     res.status(200).json({ message: "Success", data: data, status:200 });
   } catch (err) {
     res.status(500).json({ message: err.message, status:500 });
   }
 });
+
+router.put("/feedback", async (req, res) => {
+  try {
+    const {rating} = req.body;
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await Feedback.findOne({ user: user.user });
+    if (!data) {
+      await Feedback.create({ user: user.user, rating: rating });
+    }
+    else{
+      await Feedback.updateOne({ _id: data._id },
+        { $set:{ rating: rating }});
+    }
+    res.status(200).json({ message: "Thanks for rating us.", data: data, status:200 });
+  } catch (err) {
+    res.status(500).json({ data: err.message, message: "Sorry something happens.", status:500 });
+  }
+});
+
 
 module.exports = router;

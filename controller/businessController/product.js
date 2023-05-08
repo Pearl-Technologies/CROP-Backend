@@ -3,6 +3,7 @@ const {
   Product,
   productComment,
 } = require("../../models/businessModel/product")
+const { Token } = require("../../models/User");
 const {
   adminPaymentTracker,
 } = require("../../models/admin/PaymentTracker/paymentIdTracker")
@@ -626,13 +627,25 @@ module.exports.getRedeemProducts = async (req, res) => {
 
 module.exports.productComment = async (req, res) => {
   try {
-    const newProductComment = new productComment(req.body)
+    const comment = await productComment.find(
+      { product_id: req.body.product_id}
+      );
+    if(comment.length == 0){
+      const newProductComment = new productComment(req.body)
     await newProductComment.save()
     res.status(200).json({
       message: "Product Comment Added Successfully",
       newProductComment,
       status: 200,
     })
+    }
+    else{
+      res.status(200).json({
+        message: "Already Product Added.",
+        comment,
+        status: 200,
+      })
+    }
   } catch (error) {
     console.log(error)
     res.status(500).send({
@@ -642,18 +655,129 @@ module.exports.productComment = async (req, res) => {
   }
 }
 
-module.exports.putProductComment = async (req, res) => {
+module.exports.putProductCommentLike = async (req, res) => {
   try {
-    const id = req.body._id
-    const newProductComment = await productComment.findByIdAndUpdate(
-      { _id: id },
-      req.body
-    )
-    res.status(200).json({
-      message: "Product Comment Updated Successfully",
-      newProductComment,
-      status: 200,
+    let token = req.headers.authorization;
+    const token_data = await Token.findOne({ token: token });
+    const id = req.body.id
+    const product_id = req.body.product_id
+    const user_id = token_data.user
+    const like = req.body.like
+    const comment = await productComment.find(
+      { _id: id, product_id: product_id, "product_likes.$.user_id": user_id }
+      );
+    var newProductComment;
+    if(comment.product_likes.length == 0){
+      newProductComment = await productComment.findByIdAndUpdate(
+        {  _id: id, product_id: product_id},
+        { $push: { product_likes: {like: like, user_id: user_id} } }
+      )  
+      res.status(200).json({
+        message: "Product Likes Created Successfully",
+        newProductComment,
+        status: 200,
+      })
+    }
+    else{
+      newProductComment = await productComment.findByIdAndUpdate(
+        { _id: id, product_id: product_id, "product_likes.$.user_id": user_id },
+        { $set: { product_likes: {like: like, user_id: user_id} } }
+      )
+      res.status(200).json({
+        message: "Product Likes Updated Successfully",
+        newProductComment,
+        status: 200,
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
     })
+  }
+}
+
+module.exports.putProductCommentDetails = async (req, res) => {
+  try {
+    let token = req.headers.authorization;
+    const token_data = await Token.findOne({ token: token });
+    const id = req.body.id
+    const product_id = req.body.product_id
+    const user_id = token_data.user
+    const comment = req.body.comment
+    const rating = req.body.rating
+    const commentnew = await productComment.find(
+      { _id: id, product_id: product_id, "details.$.user_id": user_id }
+      );
+    var newProductComment;
+    if(commentnew.product_likes.length == 0){
+      newProductComment = await productComment.findByIdAndUpdate(
+        {  _id: id, product_id: product_id},
+        { $push: { details: {comment: comment, user_id: user_id, rating: rating} } }
+      )  
+      res.status(200).json({
+        message: "Product Comment Created Successfully",
+        newProductComment,
+        status: 200,
+      })
+    }
+    else{
+      newProductComment = await productComment.findByIdAndUpdate(
+        { _id: id, product_id: product_id, "details.$.user_id": user_id },
+        { $set: { details: {comment: comment, user_id: user_id, rating: rating} } }
+      )
+      res.status(200).json({
+        message: "Product Comment Updated Successfully",
+        newProductComment,
+        status: 200,
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+      status: 500,
+    })
+  }
+}
+
+module.exports.putProductCommentPaticularLike = async (req, res) => {
+  try {
+    let token = req.headers.authorization;
+    const token_data = await Token.findOne({ token: token });
+    const id = req.body.id
+    const product_id = req.body.product_id
+    const detail_id = req.body.detail_id
+    const user_id = token_data.user
+    const like = req.body.like
+
+    const commentnew = await productComment.find(
+      { _id: id, product_id: product_id, details: {$elemMatch: { _id: detail_id }}, "details.likes" : {$elemMatch: { user_id: user_id }} }
+      );
+    var newProductComment;
+    if(commentnew.length == 0){
+      newProductComment = await productComment.findOneAndUpdate(
+        {  _id: id, product_id: product_id, details: {$elemMatch: { _id: detail_id }} },
+        { $push: { "details.$.likes": {like: like, user_id: user_id} } }
+      )
+      res.status(200).json({
+        message: "Product Comment Like Created Successfully",
+        newProductComment,
+        status: 200,
+      })
+    }
+    else{
+      newProductComment = await productComment.findOneAndUpdate(
+        { _id: id, product_id: product_id, details: {$elemMatch: { _id: detail_id }}, "details.likes" : {$elemMatch: { user_id: user_id }} },
+        { $set: { "details.$.likes": {like: like, user_id: user_id} } }
+      )
+      res.status(200).json({
+        message: "Product Comment Like Updated Successfully",
+        newProductComment,
+        status: 200,
+      })
+    }
   } catch (error) {
     console.log(error)
     res.status(500).send({
@@ -665,7 +789,6 @@ module.exports.putProductComment = async (req, res) => {
 
 module.exports.deleteProductComment = async (req, res) => {
   try {
-    const id = req.body._id
     const newProductComment = await productComment.findByIdAndDelete({
       _id: id,
     })
@@ -898,6 +1021,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           },
         },
       },
+
       // {$unwind: "$bonusCrops"},
       {
         $project: {
@@ -925,9 +1049,9 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           happyHours: 1,
           services: { $arrayElemAt: ["$services", 0] },
           market: 1,
-          apply:1,
-          sector:1,
-          mktOfferFor:1
+          apply: 1,
+          sector: 1,
+          mktOfferFor: 1,
         },
       },
       {
@@ -1073,6 +1197,11 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          cropRulesWithBonus: 0,
+        },
+      },
+      {
         $project: {
           title: 1,
           originalPrice: 1,
@@ -1089,12 +1218,13 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
           market: 1,
-          apply:1,
-          sector:1,
+          apply: 1,
+          sector: 1,
           customiseMsg: 1,
           brand: 1,
           description: 1,
-          mktOfferFor:1
+          mktOfferFor: 1,
+          cropRulesWithBonus: 1,
         },
       },
       {

@@ -493,14 +493,15 @@ const getAllProductAndSendNotification = async (count) => {
 
 var count = 1;
 const job = schedule.scheduleJob("* * * * *", function () {
+  // console.log('This job runs at midnight every day!');
   return
   console.log('This job runs at midnight every day!');
   if (count == 1) {
-    getAllProductAndSendNotification(count);
-    count++;
+    getAllProductAndSendNotification(count)
+    count++
   } else if (count == 2) {
-    getAllProductAndSendNotification(count);
-    count = 1;
+    getAllProductAndSendNotification(count)
+    count = 1
   }
 });
 

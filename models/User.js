@@ -226,6 +226,16 @@ const CommunicationPreferencesSchema=new mongoose.Schema({
   timestamps: true
 });
 
+const FeedbackSchema=new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users_customers',
+  },
+  rating: {type:String, require:true},
+  status:{type:Boolean,required:true, default: true}
+},{
+  timestamps: true
+});
 
 //validate password
 //sending data to the userRouter file
@@ -236,5 +246,6 @@ const Otp=mongoose.model('otps_customer',OtpSchema)
 const Token=mongoose.model('token1_customer',tokenSchema)
 const MissingCrop = mongoose.model('missing_crop_customer',MissingCropSchema)
 const CommunicationPreference = mongoose.model('communication_preferences_customer',CommunicationPreferencesSchema)
-module.exports = {User,Otp,Token,Newsletter,MissingCrop,CommunicationPreference}
+const Feedback = mongoose.model('feedback_customer', FeedbackSchema)
+module.exports = {User, Otp, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback}
 
