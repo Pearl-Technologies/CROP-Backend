@@ -5,13 +5,14 @@ const invoiceAndPaymentNotification = require("../models/businessModel/businessN
 
 const express = require("express");
 const bodyParser = require("body-parser");
-// const ConnectDb = require("../config/db");
-// ConnectDb();
+const ConnectDb = require("../config/db");
+ConnectDb();
 const app = express();
 const {
   adminPaymentTracker,
   customerPaymentTracker,
-  customerPurchsedTracker
+  customerPurchsedTracker,
+  adminPropPaymentOnMilestoneTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const { Product } = require("../models/businessModel/product");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
@@ -31,7 +32,7 @@ const {
 } = require("../controller/customerPropTransaction");
 
 const fulfillOrder = async (session) => {
-  //market order payment method is link 
+  //market order payment method is link
   let findOne = await adminPaymentTracker.findOne({
     paymentLink: session?.payment_link,
   });
@@ -69,16 +70,29 @@ const fulfillOrder = async (session) => {
     console.log("record is not found for verify");
   }
 
-  let findOneCustomerPointPurchasePaymentRequest = await customerPurchsedTracker.findOne({paymentId: session.id})
-  if(findOneCustomerPointPurchasePaymentRequest){
+  let findOneCustomerPointPurchasePaymentRequest =
+    await customerPurchsedTracker.findOne({ paymentId: session.id });
+  if (findOneCustomerPointPurchasePaymentRequest) {
     await customerPurchsedTracker.findByIdAndUpdate(
       { _id: findOneCustomerPointPurchasePaymentRequest._id },
       { $set: { status: "paid", payment_intent: session.payment_intent } }
-    )
+    );
     console.log("payment intent updated purchase point");
-  }else{
+  } else {
     console.log("record is not found for update payment intent purchase point");
   }
+
+  let findRecordForMilestonePaymentProp =
+    await adminPropPaymentOnMilestoneTracker.findOne({
+      paymentLink:session.payment_link,
+    });
+  if(findRecordForMilestonePaymentProp){
+    await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate({_id:findRecordForMilestonePaymentProp._id},
+      {$set: { status: "paid", payment_intent: session.payment_intent }} 
+      )
+      await stripe.paymentLinks.update(findRecordForMilestonePaymentProp.paymentLink, { active: false })  
+    console.log("payment intent updated on milestone prop payment")
+  }  
 };
 
 const emailCustomerAboutFailedPayment = async (session) => {
@@ -155,7 +169,7 @@ app.post(
                 customer_shipping: session.customer_shipping,
                 customer_address: session.customer_address,
                 number: session.number,
-                name:session.customer_name
+                name: session.customer_name,
               },
             }
           );
@@ -177,9 +191,9 @@ app.post(
             const findBusiness = await business.findOne({ _id: user });
             if (findBusiness) {
               let cropPoint =
-                await findBusiness.croppoint -
-                (cartDetails.cartItems[i].cartQuantity *
-                  cartDetails.cartItems[i].cropRulesWithBonus);
+                (await findBusiness.croppoint) -
+                cartDetails.cartItems[i].cartQuantity *
+                  cartDetails.cartItems[i].cropRulesWithBonus;
 
               await business.findByIdAndUpdate(
                 { _id: findBusiness._id },
@@ -188,7 +202,7 @@ app.post(
               );
             }
             const savePaymentAndNotification = async () => {
-              console.log(cartDetails.cartItems[i].user, "user id")
+              console.log(cartDetails.cartItems[i].user, "user id");
               await invoiceAndPaymentNotification.create({
                 type: "Earn Crop",
                 desc: "your product has been purchase",
@@ -218,7 +232,6 @@ app.post(
               { $set: { croppoints: customerNewCropPoint } },
               { new: true }
             );
-
           }
           SaveMyCropTrasaction(
             session.subtotal,
@@ -228,16 +241,16 @@ app.post(
             findOneRecord.payment_intent,
             findOneRecord.cartDetails.user_id
           );
-
         } else {
           console.log("record is not found for updating invoice details");
         }
 
-        let findOneCustomerPointPurchasePaymentRequest = await customerPurchsedTracker.findOne(
-          {payment_intent: session.payment_intent}
-        )
+        let findOneCustomerPointPurchasePaymentRequest =
+          await customerPurchsedTracker.findOne({
+            payment_intent: session.payment_intent,
+          });
         let findUser;
-        if(await findOneCustomerPointPurchasePaymentRequest){
+        if (await findOneCustomerPointPurchasePaymentRequest) {
           await customerPurchsedTracker.findByIdAndUpdate(
             { _id: findOneCustomerPointPurchasePaymentRequest._id },
             {
@@ -249,12 +262,14 @@ app.post(
                 invoice_url: session.hosted_invoice_url,
                 invoice_pdf: session.invoice_pdf,
                 number: session.number,
-                name:session.customer_name
+                name: session.customer_name,
               },
             }
-          )
-          findUser = await User.findOne({ _id: findOneCustomerPointPurchasePaymentRequest.user});
-          if(findOneCustomerPointPurchasePaymentRequest.type == "CROP"){
+          );
+          findUser = await User.findOne({
+            _id: findOneCustomerPointPurchasePaymentRequest.user,
+          });
+          if (findOneCustomerPointPurchasePaymentRequest.type == "CROP") {
             SaveMyCropTrasaction(
               findOneCustomerPointPurchasePaymentRequest.amount,
               findOneCustomerPointPurchasePaymentRequest.quantity,
@@ -265,15 +280,17 @@ app.post(
             );
             if (findUser) {
               let customerNewCropPoint =
-              findUser.croppoints + findOneCustomerPointPurchasePaymentRequest.quantity
+                findUser.croppoints +
+                findOneCustomerPointPurchasePaymentRequest.quantity;
               await User.findByIdAndUpdate(
                 { _id: findUser._id },
                 { $set: { croppoints: customerNewCropPoint } },
                 { new: true }
               );
-  
             }
-          }else if(findOneCustomerPointPurchasePaymentRequest.type == "PROP"){
+          } else if (
+            findOneCustomerPointPurchasePaymentRequest.type == "PROP"
+          ) {
             SaveMyPropTrasaction(
               findOneCustomerPointPurchasePaymentRequest.amount,
               findOneCustomerPointPurchasePaymentRequest.quantity,
@@ -284,19 +301,70 @@ app.post(
             );
             if (findUser) {
               let customerNewPropPoint =
-              findUser.proppoints + findOneCustomerPointPurchasePaymentRequest.quantity
+                findUser.proppoints +
+                findOneCustomerPointPurchasePaymentRequest.quantity;
               await User.findByIdAndUpdate(
                 { _id: findUser._id },
                 { $set: { proppoints: customerNewPropPoint } },
                 { new: true }
               );
-  
             }
           }
           console.log("customer purchase point invoices successfully updated");
+        } else {
+          console.log(
+            "record is not found for updating purchase point invoice details"
+          );
+        }
 
-        }else{
-          console.log("record is not found for updating purchase point invoice details");
+        let findCustomerForMilestonePropPaymentInvoice = 
+        await adminPropPaymentOnMilestoneTracker.findOne({
+          payment_intent: session.payment_intent,
+        })
+        if(findCustomerForMilestonePropPaymentInvoice){
+          await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate(
+            {_id: findCustomerForMilestonePropPaymentInvoice._id},
+           {$set:{
+            invoice_paid_time: session.created,
+            customer_email: session.customer_email,
+            invoice_id: session.id,
+            invoice_url: session.hosted_invoice_url,
+            invoice_pdf: session.invoice_pdf,
+            number: session.number,
+            name: session.customer_name,
+           }}
+           )  
+           SaveMyCropTrasaction(
+            findCustomerForMilestonePropPaymentInvoice.amount,
+            findCustomerForMilestonePropPaymentInvoice.quantity,
+            "credit",
+            findCustomerForMilestonePropPaymentInvoice.message,
+            findCustomerForMilestonePropPaymentInvoice.payment_intent,
+            findCustomerForMilestonePropPaymentInvoice.user
+          );
+          if(findCustomerForMilestonePropPaymentInvoice.milestone === 5000){
+            await User.findByIdAndUpdate(
+              {_id:findCustomerForMilestonePropPaymentInvoice.user},
+              {$set:{fiveKCropMileStone:true}}
+            )
+          }else if(findCustomerForMilestonePropPaymentInvoice.milestone === 10000){        
+          await User.findByIdAndUpdate(
+            {_id:findCustomerForMilestonePropPaymentInvoice.user},
+            {$set:{tenKCropMileStone:true}}
+          )
+          }else if(findCustomerForMilestonePropPaymentInvoice.milestone === 25000){        
+            await User.findByIdAndUpdate(
+              {_id:findCustomerForMilestonePropPaymentInvoice.user},
+              {$set:{twentyFiveKCropMileStone:true}}
+            )
+          }else if(findCustomerForMilestonePropPaymentInvoice.milestone >= 30000){        
+            await User.findByIdAndUpdate(
+              {_id:findCustomerForMilestonePropPaymentInvoice.user},
+              {$set:{newMileStone:findCustomerForMilestonePropPaymentInvoice.milestone+5000}}
+            )
+          }else{
+            console.log("milestone flag updation failed")
+          }
         }
         break;
       }

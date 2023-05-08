@@ -1,5 +1,8 @@
 const business = require("../../../models/businessModel/business");
 const adminBusinessCrop = require("../../../models/admin/admin_business_crop");
+const invoiceAndPaymentNotification = require("../../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
+const mongoose = require("mongoose")
+const ObjectId = mongoose.Types.ObjectId
 const getAllBusiness = async (req, res) => {
   try {
     const businesses = await business.find({});
@@ -148,10 +151,63 @@ const getAllBusinessByContent = async (req, res) => {
     res.status(500).send("internal error");
   }
 };
+const getPurchasedProductStatement = async (req, res) => {
+  const {businessId} = req.body
+  // console.log({ businessId })
+  // console.log(await invoiceAndPaymentNotification.find({}))
+  // return
+  try {
+    const statement = await invoiceAndPaymentNotification.aggregate([
+      {
+        $match: {
+          businessId: new ObjectId(businessId),
+        },
+      },
+      {
+        $lookup: {
+          from: "customer_payment_trackers",
+          localField: "purchaseOrder.orderId",
+          foreignField: "_id",
+          as: "orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          item: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          user: "$item.user",
+        },
+      },
+      {
+        $match: {
+          user: "643cd01d448a0837e2cf24cc",
+        },
+      }
+    ])
+    return res.status(200).send({ statement })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
 module.exports = {
   getAllBusinessByContent,
   getAllBusiness,
   businessCrop,
   getAllBusinessCrop,
   updateBusinessAccountStatus,
+  getPurchasedProductStatement
 };

@@ -105,6 +105,7 @@ const {SavePaymentInfo} = require('../controller/adminController/PaymentControll
 //
 const {createCategory, getCategories} =  require("../controller/adminController/admin_product_category")
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
+const {getPurchasedProductStatement} =require("../controller/adminController/BusinessData/business")
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -256,6 +257,7 @@ router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
 router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
 router.post('/findBusinessInvoice', findBusinessInvoice);
+router.post('/getPurchasedProductStatement', getPurchasedProductStatement);
 //admin update
 const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
 router.post("/sendMail", sendMail)

@@ -162,7 +162,10 @@ const UserSchema=new mongoose.Schema({
 // likedProduct:Array,
 // newsLetterSubscription:String,
 // productRated:Object,
-
+ fiveKCropMileStone:{type:Boolean, default:false},
+ tenKCropMileStone:{type:Boolean, default:false},
+ twentyFiveKCropMileStone:{type:Boolean, default:false},
+ newMileStone:{type:Number, default:30000},
  signUpDate:{type:String},
  lastUpdatedDate:{type:String},
  TierChangeDate:{type:Date, default: Date.now}, 

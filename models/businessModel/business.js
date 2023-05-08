@@ -59,6 +59,7 @@ const businessSchema = mongoose.Schema(
     terms: { type: Boolean },
     bio: { type: Boolean, default: false },
     transctionInterface: { type: String, default: "online" },
+    croppoint:{type:Number, default:0}
   },
   {
     timestamps: true,
