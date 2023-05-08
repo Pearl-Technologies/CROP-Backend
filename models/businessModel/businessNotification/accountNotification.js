@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 // Subcription Renewal
 // Pin Change
 // Program Change
+
 const accountNotificationSchema = mongoose.Schema({ 
     type:{type:String, required: true},
     desc:{type:String, required:true},    
