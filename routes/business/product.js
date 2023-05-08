@@ -10,6 +10,8 @@ const {
   getProductsBySubCatagory,
   updateProduct,
   getAllProductsByBusiness,
+  putProductCommentDetails,
+  putProductCommentPaticularLike,
   getCalculatedProducts,
   getRedeemCropProducts,
   getEarnCropProducts,
@@ -19,7 +21,7 @@ const {
   productComment,
   getProductComment,
   deleteProductComment,
-  putProductComment,
+  putProductCommentLike,
   getRedeemProducts,
   getEarnProducts,
   getProductsBySector,
@@ -42,7 +44,9 @@ const router = express.Router()
 router.post("/add", authorization, addProduct)
 router.post("/add-all", addAllProducts)
 router.get("/show", getShowingProducts)
-
+router.put("/putProductCommentLike", putProductCommentLike)
+router.put("/putProductCommentDetails", putProductCommentDetails)
+router.put("/putProductCommentPaticularLike", putProductCommentPaticularLike)
 router.get("/get-earn-products", authorization, getEarnProducts)
 router.get("/get-redeem-products", authorization, getRedeemProducts)
 router.get("/get-promo-products", authorization, getPromoProductsByBusiness)
@@ -94,7 +98,6 @@ router.delete("/:id", removeProduct)
 router.post("/product-comment", productComment)
 router.get("/get-Product-Comment", getProductComment)
 router.delete("/deleteProductComment", deleteProductComment)
-router.put("/putProductComment", putProductComment)
 router.get(
   "/get-earn-crop-products-by-category/:productTab/:sector/:pageNo/:limit",
   getEarnCropProductsBySector

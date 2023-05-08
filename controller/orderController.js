@@ -95,19 +95,20 @@ module.exports.paymentIntent= async(req, res)=> {
               },
               unit_amount: item.price * 100,
             },
-            adjustable_quantity: {
-              enabled: true,
-              minimum: 1,
-            },
+            // adjustable_quantity: {
+            //   enabled: true,
+            //   minimum: 1,
+            // },
             quantity: item.cartQuantity,
           };
         }),
         success_url: `${req.headers.origin}/success`,
         cancel_url: `${req.headers.origin}/canceled`,
-        billing_address_collection: 'required',
-        shipping_address_collection: {
-          allowed_countries: ['AU'],
-        },
+        customer_email: "p.santhosh8888@gmail.com"
+        // billing_address_collection: 'required',
+        // shipping_address_collection: {
+        //   allowed_countries: ['AU'],
+        // },
       };
       
       const session = await stripe.checkout.sessions.create(params);
@@ -124,13 +125,11 @@ module.exports.paymentIntent= async(req, res)=> {
         }
       })
 
-      // await Cart.updateMany(
-      //   { 'user_id': mongoose.Types.ObjectId(user_id) },
-      //   { $set: { 'cart.$[].purchaseStatus': 1 } }
-      // )
-      await Cart.deleteMany(
-        { 'user_id': mongoose.Types.ObjectId(user_id) }
-      )
+      // for(let p=0; p<req.body.cart.length; p++){
+      //   await Cart.deleteMany(
+      //     { 'user_id': mongoose.Types.ObjectId(user_id), 'cart.$._id': req.body.cart[p]._id }
+      //   )
+      // }
     }
 
       res.status(200).json(session);
