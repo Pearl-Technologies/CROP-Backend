@@ -91,6 +91,7 @@ const {createBusinessPurchaseAndRedeemNotification, getBusinessPurchaseAndRedeem
 const {createBusinessRequestAndComplaintNotification, getBusinessRequestAndComplaintNotification, updateBusinessRequestAndComplaintNotification} = require("../controller/adminController/Notification/businessRequestAndComplainNotification")
 const updateTier = require("../controller/adminController/updateTier");
 const {getAllCustomerForPropPayment} = require("../controller/adminController/CustomerData/customer")
+const {payToBusiness}=require("../controller/adminController/PaymentController/payment")
 //customer
 const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
 //
@@ -234,6 +235,7 @@ router.post("/getBusinessRequestAndComplaintNotification", getBusinessRequestAnd
 router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequestAndComplaintNotification);
 router.post("/updateTier", updateTier)
 router.post("/getAllCustomerForPropPayment", getAllCustomerForPropPayment)
+router.post("/payToBusiness", payToBusiness)
 // router.post("/paymentLink", paymentLink);
 //customer data
 

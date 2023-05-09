@@ -3,9 +3,11 @@ const adminBusinessCrop = require("../../../models/admin/admin_business_crop");
 const invoiceAndPaymentNotification = require("../../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
+const getLastFriday = require('../../../utils/dateHelper')
+console.log(new Date(getLastFriday()).toLocaleDateString(), "friday")
 const getAllBusiness = async (req, res) => {
   try {
-    const businesses = await business.find({}).limit(2).skip(2);
+    const businesses = await business.find({});
     res.status(200).json({ businesses });
   } catch (error) {
     console.error(error.message);

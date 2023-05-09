@@ -27,8 +27,9 @@ const purchaseRequest = require("./routes/purchaseProintConroller")
 const allowedOrigins = [
   "http://192.168.0.107:3000",
   "http://192.168.0.101:3000",
-  "http://192.168.1.1:3000",
-  "http://192.168.0.113001",
+  "http://192.168.0.112:3000",
+  "http://192.168.0.112:3001",
+  "http://192.168.0.112:7000",
   "http://localhost:7000",
   "http://localhost:3001",
   "http://localhost:3000",

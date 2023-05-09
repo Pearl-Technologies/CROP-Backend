@@ -397,7 +397,7 @@ const PropPaymentNotification = async () => {
       } else if (data.UserTier == "Platinum") {
         quantity = 144;
       }
-    } else if (data.total >= 25000 && data.total < 30000 && twentyFiveKCropMileStone===false) {
+    } else if (data.total >= 25000 && data.total < 30000 && data.twentyFiveKCropMileStone===false) {
       mileStone =25000
       if (data.UserTier == "Base" || data.UserTier == "Silver") {
         quantity = 300;
@@ -421,7 +421,6 @@ const PropPaymentNotification = async () => {
     }
     
     let message = `PROP for ${mileStone} achieved`
-    console.log(quantity);
     if(quantity){
        propPayment(message, quantity, data._id, mileStone)
     }
