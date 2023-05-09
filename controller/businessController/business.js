@@ -8,9 +8,9 @@ const jwt = require("jsonwebtoken")
 const nodemailer = require("nodemailer")
 const { Otp } = require("../../models/businessModel/Otp")
 const { sendMail } = require("../../utils/sendMail")
-const { User } = require("../../models/User")
+const { User, MissingCrop } = require("../../models/User")
 const Order = require("../../models/Order")
-const {createBusinessAudit} = require('../adminController/audit')
+const { createBusinessAudit } = require("../adminController/audit")
 const {
   BusinessHolidays,
 } = require("../../models/businessModel/businessHolidays")
@@ -790,6 +790,64 @@ const getPurchasedProductStatement = async (req, res) => {
   }
 }
 
+const getSinglePurchasedProductStatement = async (req, res) => {
+  const businessId = req.user.user.id
+  const { itemId, oId } = req.params
+  console.log({ itemId, oId, businessId })
+  try {
+    const statement = await invoiceAndPaymentNotification.aggregate([
+      {
+        $match: {
+          businessId: new ObjectId(businessId),
+        },
+      },
+      {
+        $lookup: {
+          from: "customer_payment_trackers",
+          localField: "purchaseOrder.orderId",
+          foreignField: "_id",
+          as: "orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          item: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          user: "$item.user",
+        },
+      },
+      {
+        $match: {
+          user: businessId,
+          "purchaseOrder.orderId": {
+            $eq: ObjectId("644b9f8a37eef104602d0745"),
+          },
+          "item._id": {
+            $eq: "643e73e897d0469d9661b66b",
+          },
+        },
+      },
+    ])
+    return res.status(200).send({ statement: statement[0] })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
 const getAccountNotification = async (req, res) => {
   const { type } = req.params
   const businessId = req.user.user.id
@@ -799,6 +857,96 @@ const getAccountNotification = async (req, res) => {
       businessId,
     })
     return res.status(200).send({ accountNotifications })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+const getMissingCropsByBusiness = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    console.log({ businessId })
+    await MissingCrop.aggregate([
+      { $unwind: "$product" },
+      { $match: { product_id: { business: ObjectId(businessId) } } }, 
+      {$lookup: {}}
+    ])
+    const missingCrops = await Product.aggregate([
+      { $match: { user: ObjectId(businessId) } },
+      {
+        $lookup: {
+          from: "missing_crop_customers",
+          let: { productId: "$_id" },
+          pipeline: [
+            {
+              $unwind: "$product_id",
+            },
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$product_id", "$$productId"],
+                },
+              },
+            },
+          ],
+          as: "missingCrops",
+        },
+      },
+      {
+        $match: {
+          missingCrops: {
+            $elemMatch: {
+              action: "pending",
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$missingCrops",
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          missingCrops: 1,
+        },
+      },
+    ])
+    return res.status(200).send({
+      count: missingCrops.length,
+      missingCrops,
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+const rejectMisssingCropsByBusiness = async (req, res) => {
+  const { user_id, missingCropId } = req.body
+  try {
+    await MissingCrop.findByIdAndUpdate(
+      { _id: missingCropId },
+      { action: "rejected" }
+    )
+    return res.status(200).send("Customer Missing CROPs Rejected")
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+const creditMissingCropsByBusiness = async (req, res) => {
+  const { user_id, creditCropPoints } = req.body
+  try {
+    const user = await User.findById(user_id)
+    const croppoints = user.croppoints + creditCropPoints
+    await User.findByIdAndUpdate(
+      { _id: user_id },
+      { croppoints, status: "credited" }
+    )
+    return res.status(200).send("Missing CROP's Credited To Customer")
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
@@ -831,5 +979,65 @@ module.exports = {
   getFeedback,
   getHolidayByState,
   getPurchasedProductStatement,
+  getSinglePurchasedProductStatement,
   getAccountNotification,
+  getMissingCropsByBusiness,
+  rejectMisssingCropsByBusiness,
+  creditMissingCropsByBusiness,
 }
+
+
+// const getMissingCropsByBusiness = async (req, res) => {
+//   const businessId = req.user.user.id
+//   try {
+//     console.log({ businessId })
+//     const missingCrops = await Product.aggregate([
+//       { $match: { user: ObjectId(businessId) } },
+//       {
+//         $lookup: {
+//           from: "missing_crop_customers",
+//           let: { productId: "$_id" },
+//           pipeline: [
+//             {
+//               $unwind: "$product_id",
+//             },
+//             {
+//               $match: {
+//                 $expr: {
+//                   $eq: ["$product_id", "$$productId"],
+//                 },
+//               },
+//             },
+//           ],
+//           as: "missingCrops",
+//         },
+//       },
+//       {
+//         $match: {
+//           missingCrops: {
+//             $elemMatch: {
+//               action: "pending",
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $unwind: "$missingCrops",
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           title: 1,
+//           missingCrops: 1,
+//         },
+//       },
+//     ])
+//     return res.status(200).send({
+//       count: missingCrops.length,
+//       missingCrops,
+//     })
+//   } catch (error) {
+//     console.log(error)
+//     return res.status(500).send("Internal Server Error")
+//   }
+// }

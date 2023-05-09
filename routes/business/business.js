@@ -20,6 +20,10 @@ const {
   getPurchasedProductStatement,
   customerCreditOrDebitCrops,
   getAccountNotification,
+  getMissingCropsByBusiness,
+  rejectMisssingCropsByBusiness,
+  creditMissingCropsByBusiness,
+  getSinglePurchasedProductStatement,
 } = require("../../controller/businessController/business.js")
 const {
   getAllBusinessCrop,
@@ -75,9 +79,14 @@ router.post(
 )
 
 router.get(
-  "/get-purchsed-product-statement",
+  "/get-purchased-product-statement",
   authorization,
   getPurchasedProductStatement
+)
+router.get(
+  "/get-single-purchased-product-statement/:oId/:itemId",
+  authorization,
+  getSinglePurchasedProductStatement
 )
 router.post("/services", authorization, createServices)
 router.get("/services", authorization, getService)
@@ -119,6 +128,14 @@ router.get(
   authorization,
   getAccountNotification
 )
+
+router.get("/get-missing-crops", authorization, getMissingCropsByBusiness)
+router.put(
+  "/reject-missing-crops",
+  authorization,
+  rejectMisssingCropsByBusiness
+)
+router.put("/credit-missing-crops", authorization, creditMissingCropsByBusiness)
 
 
 module.exports = router
