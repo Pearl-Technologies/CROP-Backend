@@ -14,6 +14,7 @@ const {
   customerPurchsedTracker,
   adminPropPaymentOnMilestoneTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
+const { Cart } = require("../models/Cart");
 const { Product } = require("../models/businessModel/product");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
@@ -216,6 +217,8 @@ app.post(
               });
               console.log("payment notification created");
             };
+            await Cart.updateMany({ user_id: findOneRecord.cartDetails.user_id},{$pull: {cart:{_id: cartDetails.cartItems[i]._id }}})
+            // await Cart.find({ 'user_id': findOneRecord.cartDetails.user_id }).deleteOne({'cart.$._id':cartDetails.cartItems[i]._id})
             savePaymentAndNotification();
           }
           let customer = cartDetails.user_id;
