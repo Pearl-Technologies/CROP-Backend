@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
 const getAllBusiness = async (req, res) => {
   try {
-    const businesses = await business.find({});
+    const businesses = await business.find({}).limit(2).skip(2);
     res.status(200).json({ businesses });
   } catch (error) {
     console.error(error.message);
