@@ -358,38 +358,34 @@ router.put("/quantity", async (req, res) => {
 router.put("/cartQuantity", async (req, res) => {
   let token = req.headers.authorization;
         const token_data = await Token.findOne({"token":token});
-        const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
-        const user_id = userData?._id.valueOf();
+        // const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+        // const user_id = userData?._id.valueOf();
         const productId = req.body.productId;
         const quantityNum = req.body.quantityNum
-        console.log(productId)
-
         const userdetails = await Cart.findOne({
-            user_id: user_id
+            user_id: token_data.user, "cart._id":productId
         });
 
         if (userdetails) {
-          const findCartProduct = await Cart.findOne(
-              {"cart._id":productId,"user_id":user_id}
-          )
-          if(findCartProduct){
+          // const findCartProduct = await Cart.findOne(
+          //     {"cart._id":productId,"user_id":token_data.user}
+          // )
+          // if(findCartProduct){
             if(quantityNum=="plus"){
-              const result = await Cart.updateOne({"cart._id":productId,"user_id":user_id}, { $inc : { "cart.$.cartQuantity": 1 } });
-              console.log(result);
+              const result = await Cart.updateOne({"cart._id":productId,"user_id":token_data.user}, { $inc : { "cart.$.cartQuantity": 1 } });
               return res.status(200).send({    message: 'Quantity updated successfully',status: true })
             }
             else if(quantityNum=="minus"){
-              const result = await Cart.updateOne({"cart._id":productId,"user_id":user_id}, { $inc : { "cart.$.cartQuantity": -1 } });
-              console.log(result);
+              const result = await Cart.updateOne({"cart._id":productId,"user_id":token_data.user}, { $inc : { "cart.$.cartQuantity": -1 } });
               return res.status(200).send({    message: 'Quantity updated successfully',status: true })
             }
-          }
-          else{
-            return res.status(500).send({    message: 'No cart found',status: true })
-          }
+          // }
+          // else{
+          //   return res.status(500).send({    message: 'No cart found',status: true })
+          // }
         }
         else{
-          return res.status(500).send({    message: 'No user found',status: false })
+          return res.status(500).send({    message: 'No cart found',status: false })
         }
 })
 
@@ -506,6 +502,7 @@ router.get("/getCart", async (req, res) => {
     // }
     try {
         const token = req.headers.authorization;
+        const type = req.query.type;
         console.log("santhosh", token);
         let cartObj={};
         const token_data = await Token.findOne({ token });
@@ -516,20 +513,38 @@ router.get("/getCart", async (req, res) => {
             const user_id = userData?._id.valueOf();
             const newCart = await Cart.findOne({ user_id });
             const tempCart = [];
+            var subtotal = 0;
+            var redeemtotal = 0;
             if(newCart){
                 for (const data of newCart._doc.cart) {
+                  var temp_redeem = 0;
+                  var temp_price = 0;
                 try {
-                    if (data.mktOfferFor == "promo" && data.purchaseStatus==0) {
+                    if (data.mktOfferFor == "promo" && data.purchaseStatus == 0 && type == 1) {
                     const products = await getPromoProducts(data._id,1, newCart._doc.cart.length);
-                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus}}
+                    temp_price = products.price * data.cartQuantity
+                    if(products.redeemCROPs != null){
+                      temp_redeem = products.redeemCROPs * data.cartQuantity
+                    }
+                    subtotal = subtotal + temp_price
+                    redeemtotal = redeemtotal + temp_redeem
+                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price,tempRedeem:temp_redeem}}
                     tempCart.push(finalProduct);
-                    } else if (data.apply == "earnCrop" && data.purchaseStatus==0) {
-                    const products = await getEarnCropSingleProductById(data._id);
-                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus}}
+                    } else if (data.apply == "earnCrop" && data.purchaseStatus == 0 && type == 2) {
+                    const products = await getEarnCropSingleProductById(data._id);              
+                    let temp_price = products.price * data.cartQuantity
+                    subtotal = subtotal + temp_price
+                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price}}
                     tempCart.push(finalProduct);
-                    } else if (data.apply == "redeemCrop" && data.purchaseStatus==0) {
+                    } else if (data.apply == "redeemCrop" && data.purchaseStatus == 0 && type == 3) {
                     const products = await getRedeemCropSingleProductById(data.mktOfferFor, data.sector, 1, newCart._doc.cart.length);
-                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus}}
+                    let temp_price = products.price * data.cartQuantity
+                    if(products.redeemCROPs != null){
+                      temp_redeem = products.redeemCROPs * data.cartQuantity
+                    }
+                    subtotal = subtotal + temp_price
+                    redeemtotal = redeemtotal + temp_redeem
+                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price, tempRedeem:temp_redeem}}
                     tempCart.push(finalProduct);
                     }
                 } catch (err) {
@@ -540,7 +555,7 @@ router.get("/getCart", async (req, res) => {
                 res.status(200).send({ data: [], status: "true" });
                 }
                 else{
-                res.status(200).send({ data:{_id:newCart._id,user_id:newCart.user_id,cart: tempCart}, status: "true" });
+                res.status(200).send({ data:{_id:newCart._id,user_id:newCart.user_id,cart: tempCart,subtotal: subtotal,redeemtotal:redeemtotal}, status: "true" });
                 }
             }
             else{
@@ -557,32 +572,32 @@ router.get("/getCart", async (req, res) => {
     }
 });
 
-router.get("/checkCart", async (req,res)=>{
-    // db.carts_customers.find({'user_id':ObjectId('6433d23903a970bb517e5d7a'),'cart.apply':'earnCop'})
-    let token = req.headers.authorization;
-    let sector=req.query.sector;
-    const token_data = await Token.findOne({"token":token});
-    // const userData=await User.findOne({_id:token_data.user}); 
-    // const user_id = userData?._id.valueOf();
-    const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
-    const user_id = userData?._id.valueOf();
+// router.get("/checkCart", async (req,res)=>{
+//     // db.carts_customers.find({'user_id':ObjectId('6433d23903a970bb517e5d7a'),'cart.apply':'earnCop'})
+//     let token = req.headers.authorization;
+//     let sector=req.query.sector;
+//     const token_data = await Token.findOne({"token":token});
+//     // const userData=await User.findOne({_id:token_data.user}); 
+//     // const user_id = userData?._id.valueOf();
+//     const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
+//     const user_id = userData?._id.valueOf();
   
-    if(userData){
-      const result = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id),'cart.apply':sector});
-      const result2 = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id)});
-            if(result.length > 0){
-                res.status(200).send({status:true})
-            }
-            else if(result2[0]?._doc.cart.length==0){
-                res.status(200).send({status:true})
-            }
-            else if(result2.length==0){
-              res.status(200).send({status:true})
-            }
-            else{
-                res.status(200).send({status:false})
-            }
-        }
-  })
+//     if(userData){
+//       const result = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id),'cart.apply':sector});
+//       const result2 = await Cart.find({'user_id':mongoose.Types.ObjectId(user_id)});
+//             if(result.length > 0){
+//                 res.status(200).send({status:true})
+//             }
+//             else if(result2[0]?._doc.cart.length==0){
+//                 res.status(200).send({status:true})
+//             }
+//             else if(result2.length==0){
+//               res.status(200).send({status:true})
+//             }
+//             else{
+//                 res.status(200).send({status:false})
+//             }
+//         }
+//   })
 
 module.exports = router;

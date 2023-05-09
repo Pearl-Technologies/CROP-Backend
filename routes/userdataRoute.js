@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback } = require("../models/User");
+const StateSchema = require('../models/State');
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
@@ -1216,6 +1217,9 @@ router.post("/getproductmissingcrop", async (req, res) => {
 
 router.post("/missingcrop", async (req, res) => {
   try {
+    let token = req.headers.authorization;
+    const token_data = await Token.findOne({ token: token });
+    req.body.user_id = token_data.user
     await new MissingCrop(req.body).save();
     res.status(200).json({ data: [req.body], status: 200,message:"Successfully submitted" });
   } catch (err) {
@@ -1290,5 +1294,51 @@ router.put("/feedback", async (req, res) => {
   }
 });
 
+
+router.get('/addressByToken', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const data = await User.findOne({ _id: user.user });
+    let obj = []
+    if(data.address.length != 0){
+      for(let i=0; i<data.address.length; i++){
+        let state = await StateSchema.findOne({id:data.address[i].state})
+        let arr = {}
+        arr['line1'] = data.address[i].line1,
+        arr['line2'] = data.address[i].line2,
+        arr['line3'] = data.address[i].line3,
+        arr['state'] = state.name,
+        arr['city'] = data.address[i].city,
+        arr['pin'] = data.address[i].pin,
+        arr['_id'] = data.address[i]._id
+        obj.push(arr);
+      }
+      res.status(200).json({ data:obj, status:200 })
+    }
+    else{
+      res.status(200).json({ data:obj, status:200 })
+    }
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ data:err, status:500 })
+  }
+})
+
+router.put('/addressByToken', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const aaa= await User.updateOne({_id:user.user},
+      {$push:{address:req.body}
+    })
+    res.status(200).json({data:aaa, status:200, message: "Address added successfully."})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ data:err, status:500 })
+  }
+})
 
 module.exports = router;

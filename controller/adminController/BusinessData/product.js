@@ -490,6 +490,7 @@ const getAllProductAndSendNotification = async (count) => {
     console.log(error);
   }
 };
+
 var count = 1;
 const job = schedule.scheduleJob("* * * * *", function () {
   // console.log('This job runs at midnight every day!');
@@ -504,7 +505,6 @@ const job = schedule.scheduleJob("* * * * *", function () {
   }
 });
 
-
 // start the job
-// job.schedule();
+job.schedule();
 module.exports = { getAllProduct };

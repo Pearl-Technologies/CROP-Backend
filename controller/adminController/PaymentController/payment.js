@@ -2,7 +2,7 @@ const {
   adminPaymentTracker,
   customerPurchsedTracker,
 } = require("../../../models/admin/PaymentTracker/paymentIdTracker");
-
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 const SavePaymentInfo = async (
   paymentLink,
   productId,
@@ -97,10 +97,36 @@ const customerPointPurchasedTracker = async (
     return console.log(error);
   }
 };
+
+
+
+// Route handler for transfer creation
+// console.log(process.env.STRIPE_KEY)
+const payToBusiness= async (req, res) => {
+  // console.log(req.body);
+  // res.send(req.body);
+  try {
+    const transfer = await stripe.transfers.create({
+      amount: 1000, // Amount in cents
+      currency: 'aud',
+      destination: 'ca_NrVo58Lf9Y0mRM48THvbbxA69UDzE0EF',
+      description: 'weekly payout',
+    });
+
+    res.json(transfer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({msg:'Transfer creation failed'});
+  }
+}
+
 module.exports = {
   SavePaymentInfo,
   findPaymentInfo,
   updatePaymentInfo,
   findBusinessInvoice,
   customerPointPurchasedTracker,
+  payToBusiness
 };
+
+
