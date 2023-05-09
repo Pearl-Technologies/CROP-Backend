@@ -38,7 +38,16 @@ const adminPaymentTrackerSchema = mongoose.Schema({
       id:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'carts_customers'},
       user_id:{type:mongoose.Schema.Types.ObjectId, require:true, ref:'users_customers'},
       cartItems:{type:Object, require:true}
-   }
+   },
+   delivery_address:{
+      status: {type:Boolean, default:true},
+      line1:{type:String},
+       line2:{type:String},
+      line3:{type:String},
+       state:{type:String},
+       city:{type:String},
+       pin:{type:Number}
+       },
 }, {
    timestamps: true
 });

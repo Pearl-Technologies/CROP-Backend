@@ -2,6 +2,7 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Order = require("../models/Order");
 const { User } = require("../models/User");
 const { Cart } = require("../models/Cart");
+const StateSchema = require('../models/State');
 const random = require('alphanumeric')
 const {
   customerPaymentTracker,
@@ -42,7 +43,7 @@ module.exports.addOrder = async (req, res) => {
 };
 
 module.exports.paymentIntent = async (req, res) => {
-  const { cart, user_id } = req.body;
+  const { cart, user_id, address_id } = req.body;
   // res.send(req.body);
   // console.log(req.body);
   // return
@@ -73,7 +74,7 @@ module.exports.paymentIntent = async (req, res) => {
         }),
         success_url: `${req.headers.origin}/success`,
         cancel_url: `${req.headers.origin}/canceled`,
-        customer_email: "p.santhosh8888@gmail.com"
+        customer_email: req.body.email_id
         // billing_address_collection: 'required',
         // shipping_address_collection: {
         //   allowed_countries: ['AU'],
@@ -87,25 +88,38 @@ module.exports.paymentIntent = async (req, res) => {
       // }
       const session = await stripe.checkout.sessions.create(params);
       if(session.id){   
-      await customerPaymentTracker.create({
-        paymentId:session.id,
-        status:"unpaid",
-        paymentMethod:session.payment_method_types,
-        paymentUrl:session.url,
-        cartDetails:{
-          id:req.body._id,
-          user_id:req.body.user_id,
-          cartItems:req.body.cart
+        let adddata = await User.find({_id:user_id})
+        for(let i=0; i<adddata[0].address.length; i++){
+          if(address_id == adddata[0].address[i]._id.valueOf()){
+            var state = await StateSchema.findOne({id:adddata[0].address[i].state})
+            var obj = { 
+              line1:adddata[0].address[i].line1,
+              line2:adddata[0].address[i].line2,
+              line3:adddata[0].address[i].line3,
+              state:state.name,
+              city:adddata[0].address[i].city,
+              pin:adddata[0].address[i].pin 
+            }
+          }
         }
-      })
+        
+        await customerPaymentTracker.create({
+          paymentId:session.id,
+          status:"unpaid",
+          paymentMethod:session.payment_method_types,
+          paymentUrl:session.url,
+          cartDetails:{
+            id:req.body._id,
+            user_id:req.body.user_id,
+            cartItems:req.body.cart
+          },
+          delivery_address:obj
+        })
 
       // await Cart.updateMany(
       //   { 'user_id': mongoose.Types.ObjectId(user_id) },
       //   { $set: { 'cart.$[].purchaseStatus': 1 } }
       // )
-      await Cart.deleteMany(
-        { 'user_id': mongoose.Types.ObjectId(user_id) }
-      )
     }
       res.status(200).json(session);
     }      

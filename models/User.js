@@ -200,15 +200,17 @@ const NewsletterSchema=new mongoose.Schema({
 
 const MissingCropSchema=new mongoose.Schema({
   doi: {type:String, required:true, default:null},
-  product_id: [{type: mongoose.Schema.Types.ObjectId, ref:'business_products'}],
+  product_id: [{
+    product:{type: mongoose.Schema.Types.ObjectId, ref:'business_products'},
+    business:{type: mongoose.Schema.Types.ObjectId, ref:'businesses'},
+    crop_points:{type: Number, require: true},
+    status:{type:String, require: true}
+  }],
   reason: {type:String,required:true}, 
   invoice_id: {type:String, require: true},
+  user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" },
   status:{type:Boolean,required:true, default: true},
   action:{type:String,required:true, default: "pending"},
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users_customers',
-  },
 },{
   timestamps: true
 });

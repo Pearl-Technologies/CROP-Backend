@@ -627,6 +627,10 @@ module.exports.getRedeemProducts = async (req, res) => {
 
 module.exports.productComment = async (req, res) => {
   try {
+    let token = req.headers.authorization;
+    const token_data = await Token.findOne({ token: token });
+    req.body.details[0].user_id = token_data.user
+    req.body.product_likes.user_id = token_data.user
     const comment = await productComment.find(
       { product_id: req.body.product_id}
       );
@@ -640,9 +644,25 @@ module.exports.productComment = async (req, res) => {
     })
     }
     else{
+      const newProductComment = await productComment.updateOne(
+        { product_id: req.body.product_id },
+        {
+          $push: {
+            details: {
+              user_id: token_data.user._id.valueOf(),
+              comment: req.body.details[0].comment,
+              rating: req.body.details[0].rating
+            },
+            product_likes: {
+              like: req.body.product_likes.like,
+              user_id: token_data.user._id.valueOf()
+            }
+          }
+        }
+      );
       res.status(200).json({
-        message: "Already Product Added.",
-        comment,
+        message: "Product Comment Added Successfully",
+        newProductComment,
         status: 200,
       })
     }
@@ -663,15 +683,22 @@ module.exports.putProductCommentLike = async (req, res) => {
     const product_id = req.body.product_id
     const user_id = token_data.user
     const like = req.body.like
-    const comment = await productComment.find(
-      { _id: id, product_id: product_id, "product_likes.$.user_id": user_id }
+    const productFetch = await productComment.find(
+      { _id: id, product_id: product_id }
       );
-    var newProductComment;
-    if(comment.product_likes.length == 0){
-      newProductComment = await productComment.findByIdAndUpdate(
-        {  _id: id, product_id: product_id},
-        { $push: { product_likes: {like: like, user_id: user_id} } }
-      )  
+    if(productFetch.length == 0){
+      const newProductComment = await new productComment(
+        { 
+          product_id: req.body.product_id,
+          details: {
+            user_id: token_data.user._id.valueOf()
+          },
+          product_likes: {
+            like: req.body.like,
+            user_id: token_data.user._id.valueOf()
+          }
+        }
+      );
       res.status(200).json({
         message: "Product Likes Created Successfully",
         newProductComment,
@@ -679,15 +706,32 @@ module.exports.putProductCommentLike = async (req, res) => {
       })
     }
     else{
-      newProductComment = await productComment.findByIdAndUpdate(
-        { _id: id, product_id: product_id, "product_likes.$.user_id": user_id },
-        { $set: { product_likes: {like: like, user_id: user_id} } }
-      )
-      res.status(200).json({
-        message: "Product Likes Updated Successfully",
-        newProductComment,
-        status: 200,
-      })
+      const comment = await productComment.find(
+        { _id: id, product_id: product_id, "product_likes.$.user_id": user_id }
+        );
+      var newProductComment;
+      if(comment.product_likes.length == 0){
+        newProductComment = await productComment.findByIdAndUpdate(
+          {  _id: id, product_id: product_id},
+          { $push: { product_likes: {like: like, user_id: user_id} } }
+        )  
+        res.status(200).json({
+          message: "Product Likes Created Successfully",
+          newProductComment,
+          status: 200,
+        })
+      }
+      else{
+        newProductComment = await productComment.findByIdAndUpdate(
+          { _id: id, product_id: product_id, "product_likes.$.user_id": user_id },
+          { $set: { product_likes: {like: like, user_id: user_id} } }
+        )
+        res.status(200).json({
+          message: "Product Likes Updated Successfully",
+          newProductComment,
+          status: 200,
+        })
+      }
     }
   } catch (error) {
     console.log(error)
