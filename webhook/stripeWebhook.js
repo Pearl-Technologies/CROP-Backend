@@ -185,6 +185,9 @@ app.post(
                 cartDetails.cartItems[i].cropRulesWithBonus *
                   cartDetails.cartItems[i].cartQuantity
               );
+            let quantity = await Product.findOne({_id:cartDetails.cartItems[i]._id})
+            quantity = parseInt(quantity.quantity) - parseInt(cartDetails.cartItems[i].cartQuantity)
+            await Product.findByIdAndUpdate({_id:cartDetails.cartItems[i]._id},{$set:{quantity: quantity}})
             console.log("product id", cartDetails.cartItems[i]._id);
             console.log("business id", cartDetails.cartItems[i]?.user);
             const user = cartDetails.cartItems[i]?.user;

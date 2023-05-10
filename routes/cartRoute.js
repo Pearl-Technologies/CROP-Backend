@@ -537,16 +537,20 @@ router.get("/getCart", async (req, res) => {
                     const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price}}
                     tempCart.push(finalProduct);
                     } else if (data.apply == "redeemCrop" && data.purchaseStatus == 0 && type == 3) {
-                    const products = await getRedeemCropSingleProductById(data.mktOfferFor, data.sector, 1, newCart._doc.cart.length);
+                    // const products = await getRedeemCropSingleProductById(data.mktOfferFor, data.sector, 1, newCart._doc.cart.length);
+                    const products = await getRedeemCropSingleProductById(data._id);
                     let temp_price = products.price * data.cartQuantity
-                    if(products.redeemCROPs != null){
-                      temp_redeem = products.redeemCROPs * data.cartQuantity
+                    if(products.ruleAppliedCrops != null){
+                      temp_redeem = products.ruleAppliedCrops * data.cartQuantity
                     }
                     subtotal = subtotal + temp_price
                     redeemtotal = redeemtotal + temp_redeem
                     const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price, tempRedeem:temp_redeem}}
                     tempCart.push(finalProduct);
-                    }
+                    } 
+                    // else if (data.purchaseStatus == 0 && type == 4){
+                      
+                    // }
                 } catch (err) {
                     console.error(err);
                 }
