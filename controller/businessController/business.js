@@ -867,49 +867,36 @@ const getMissingCropsByBusiness = async (req, res) => {
   const businessId = req.user.user.id
   try {
     console.log({ businessId })
-    await MissingCrop.aggregate([
-      { $unwind: "$product" },
-      { $match: { product_id: { business: ObjectId(businessId) } } }, 
-      {$lookup: {}}
-    ])
-    const missingCrops = await Product.aggregate([
-      { $match: { user: ObjectId(businessId) } },
+    const missingCrops = await MissingCrop.aggregate([
+      { $unwind: "$product_id" },
+      { $match: { "product_id.business": { $eq: ObjectId(businessId) } } },
       {
         $lookup: {
-          from: "missing_crop_customers",
-          let: { productId: "$_id" },
-          pipeline: [
-            {
-              $unwind: "$product_id",
-            },
-            {
-              $match: {
-                $expr: {
-                  $eq: ["$product_id", "$$productId"],
-                },
-              },
-            },
-          ],
-          as: "missingCrops",
+          from: "business_products",
+          localField: "product_id.product",
+          foreignField: "_id",
+          as: "product",
         },
       },
-      {
-        $match: {
-          missingCrops: {
-            $elemMatch: {
-              action: "pending",
-            },
-          },
-        },
-      },
-      {
-        $unwind: "$missingCrops",
-      },
+      // {
+      //   $lookup: {
+      //     from: "users_customers",
+      //     localField: "user_id",
+      //     foreignField: "_id",
+      //     as: "user",
+      //   },
+      // },
       {
         $project: {
-          _id: 1,
-          title: 1,
-          missingCrops: 1,
+          product: { title: 1 },
+          doi: 1,
+          product_id: 1,
+          reason: 1,
+          invoice_id: 1,
+          user_id: 1,
+          status: 1,
+          action: 1,
+          // user: { name: 1 },
         },
       },
     ])
@@ -924,11 +911,14 @@ const getMissingCropsByBusiness = async (req, res) => {
 }
 
 const rejectMisssingCropsByBusiness = async (req, res) => {
-  const { user_id, missingCropId } = req.body
+  const { missingCropId, productId } = req.body
   try {
-    await MissingCrop.findByIdAndUpdate(
-      { _id: missingCropId },
-      { action: "rejected" }
+    await MissingCrop.updateOne(
+      {
+        _id: ObjectId(missingCropId),
+        "product_id._id": ObjectId(productId),
+      },
+      { $set: { "product_id.$.status": "rejected" } }
     )
     return res.status(200).send("Customer Missing CROPs Rejected")
   } catch (error) {
@@ -938,13 +928,20 @@ const rejectMisssingCropsByBusiness = async (req, res) => {
 }
 
 const creditMissingCropsByBusiness = async (req, res) => {
-  const { user_id, creditCropPoints } = req.body
+  const { customerId, creditCropPoints, missingCropId, productId } = req.body
   try {
-    const user = await User.findById(user_id)
+    const user = await User.findById(customerId)
     const croppoints = user.croppoints + creditCropPoints
     await User.findByIdAndUpdate(
-      { _id: user_id },
+      { _id: customerId },
       { croppoints, status: "credited" }
+    )
+    const updateMissingCrops = await MissingCrop.updateOne(
+      {
+        _id: ObjectId(missingCropId),
+        "product_id._id": ObjectId(productId),
+      },
+      { $set: { "product_id.$.status": "credited" } }
     )
     return res.status(200).send("Missing CROP's Credited To Customer")
   } catch (error) {
@@ -985,7 +982,6 @@ module.exports = {
   rejectMisssingCropsByBusiness,
   creditMissingCropsByBusiness,
 }
-
 
 // const getMissingCropsByBusiness = async (req, res) => {
 //   const businessId = req.user.user.id

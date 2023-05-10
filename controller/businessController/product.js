@@ -116,43 +116,7 @@ module.exports.getRelatedProducts = async (req, res) => {
   }
 }
 
-// module.exports.getProductsByCatagory = async (req, res) => {
-//   console.log("etwt")
-//   const {category} = req.body;
-//   try {
-//     let product = []
-//     await category.map(async (cate) => {
-//       let children = cate;
-//       let products = await Product.find({children});
-//       products.forEach(element => {
-//         product.push(element)
-//       })
-//       return res.status(200).json({product})
-//     })
-//   } catch (error) {
-//     console.log(error)
-//     res.status(500).send({
-//       message: error.message
-//     })
-//   }
-// }
 
-// Start Sridhar
-
-// Get Products By Category
-// module.exports.getProductsByCatagory = async (req, res) => {
-//   const { categoryId } = req.params;
-//   console.log(req.body)
-//   try {
-//     const products = await Product.find({categoryId});
-//     res.status(200).json({ products });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       message: error.message,
-//     });
-//   }
-// };
 module.exports.getProductsByCatagory = async (req, res) => {
   const category = req.body.category
   console.log(category, "categories")
@@ -627,23 +591,22 @@ module.exports.getRedeemProducts = async (req, res) => {
 
 module.exports.productComment = async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
     req.body.details[0].user_id = token_data.user
     req.body.product_likes.user_id = token_data.user
-    const comment = await productComment.find(
-      { product_id: req.body.product_id}
-      );
-    if(comment.length == 0){
-      const newProductComment = new productComment(req.body)
-    await newProductComment.save()
-    res.status(200).json({
-      message: "Product Comment Added Successfully",
-      newProductComment,
-      status: 200,
+    const comment = await productComment.find({
+      product_id: req.body.product_id,
     })
-    }
-    else{
+    if (comment.length == 0) {
+      const newProductComment = new productComment(req.body)
+      await newProductComment.save()
+      res.status(200).json({
+        message: "Product Comment Added Successfully",
+        newProductComment,
+        status: 200,
+      })
+    } else {
       const newProductComment = await productComment.updateOne(
         { product_id: req.body.product_id },
         {
@@ -651,15 +614,15 @@ module.exports.productComment = async (req, res) => {
             details: {
               user_id: token_data.user._id.valueOf(),
               comment: req.body.details[0].comment,
-              rating: req.body.details[0].rating
+              rating: req.body.details[0].rating,
             },
             product_likes: {
               like: req.body.product_likes.like,
-              user_id: token_data.user._id.valueOf()
-            }
-          }
+              user_id: token_data.user._id.valueOf(),
+            },
+          },
         }
-      );
+      )
       res.status(200).json({
         message: "Product Comment Added Successfully",
         newProductComment,
@@ -677,54 +640,57 @@ module.exports.productComment = async (req, res) => {
 
 module.exports.putProductCommentLike = async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
     const id = req.body.id
     const product_id = req.body.product_id
     const user_id = token_data.user
     const like = req.body.like
-    const productFetch = await productComment.find(
-      { _id: id, product_id: product_id }
-      );
-    if(productFetch.length == 0){
-      const newProductComment = await new productComment(
-        { 
-          product_id: req.body.product_id,
-          details: {
-            user_id: token_data.user._id.valueOf()
-          },
-          product_likes: {
-            like: req.body.like,
-            user_id: token_data.user._id.valueOf()
-          }
-        }
-      );
+    const productFetch = await productComment.find({
+      _id: id,
+      product_id: product_id,
+    })
+    if (productFetch.length == 0) {
+      const newProductComment = await new productComment({
+        product_id: req.body.product_id,
+        details: {
+          user_id: token_data.user._id.valueOf(),
+        },
+        product_likes: {
+          like: req.body.like,
+          user_id: token_data.user._id.valueOf(),
+        },
+      })
       res.status(200).json({
         message: "Product Likes Created Successfully",
         newProductComment,
         status: 200,
       })
-    }
-    else{
-      const comment = await productComment.find(
-        { _id: id, product_id: product_id, "product_likes.$.user_id": user_id }
-        );
-      var newProductComment;
-      if(comment.product_likes.length == 0){
+    } else {
+      const comment = await productComment.find({
+        _id: id,
+        product_id: product_id,
+        "product_likes.$.user_id": user_id,
+      })
+      var newProductComment
+      if (comment.product_likes.length == 0) {
         newProductComment = await productComment.findByIdAndUpdate(
-          {  _id: id, product_id: product_id},
-          { $push: { product_likes: {like: like, user_id: user_id} } }
-        )  
+          { _id: id, product_id: product_id },
+          { $push: { product_likes: { like: like, user_id: user_id } } }
+        )
         res.status(200).json({
           message: "Product Likes Created Successfully",
           newProductComment,
           status: 200,
         })
-      }
-      else{
+      } else {
         newProductComment = await productComment.findByIdAndUpdate(
-          { _id: id, product_id: product_id, "product_likes.$.user_id": user_id },
-          { $set: { product_likes: {like: like, user_id: user_id} } }
+          {
+            _id: id,
+            product_id: product_id,
+            "product_likes.$.user_id": user_id,
+          },
+          { $set: { product_likes: { like: like, user_id: user_id } } }
         )
         res.status(200).json({
           message: "Product Likes Updated Successfully",
@@ -744,32 +710,41 @@ module.exports.putProductCommentLike = async (req, res) => {
 
 module.exports.putProductCommentDetails = async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
     const id = req.body.id
     const product_id = req.body.product_id
     const user_id = token_data.user
     const comment = req.body.comment
     const rating = req.body.rating
-    const commentnew = await productComment.find(
-      { _id: id, product_id: product_id, "details.$.user_id": user_id }
-      );
-    var newProductComment;
-    if(commentnew.product_likes.length == 0){
+    const commentnew = await productComment.find({
+      _id: id,
+      product_id: product_id,
+      "details.$.user_id": user_id,
+    })
+    var newProductComment
+    if (commentnew.product_likes.length == 0) {
       newProductComment = await productComment.findByIdAndUpdate(
-        {  _id: id, product_id: product_id},
-        { $push: { details: {comment: comment, user_id: user_id, rating: rating} } }
-      )  
+        { _id: id, product_id: product_id },
+        {
+          $push: {
+            details: { comment: comment, user_id: user_id, rating: rating },
+          },
+        }
+      )
       res.status(200).json({
         message: "Product Comment Created Successfully",
         newProductComment,
         status: 200,
       })
-    }
-    else{
+    } else {
       newProductComment = await productComment.findByIdAndUpdate(
         { _id: id, product_id: product_id, "details.$.user_id": user_id },
-        { $set: { details: {comment: comment, user_id: user_id, rating: rating} } }
+        {
+          $set: {
+            details: { comment: comment, user_id: user_id, rating: rating },
+          },
+        }
       )
       res.status(200).json({
         message: "Product Comment Updated Successfully",
@@ -788,33 +763,44 @@ module.exports.putProductCommentDetails = async (req, res) => {
 
 module.exports.putProductCommentPaticularLike = async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
     const id = req.body.id
     const product_id = req.body.product_id
     const detail_id = req.body.detail_id
     const user_id = token_data.user
     const like = req.body.like
 
-    const commentnew = await productComment.find(
-      { _id: id, product_id: product_id, details: {$elemMatch: { _id: detail_id }}, "details.likes" : {$elemMatch: { user_id: user_id }} }
-      );
-    var newProductComment;
-    if(commentnew.length == 0){
+    const commentnew = await productComment.find({
+      _id: id,
+      product_id: product_id,
+      details: { $elemMatch: { _id: detail_id } },
+      "details.likes": { $elemMatch: { user_id: user_id } },
+    })
+    var newProductComment
+    if (commentnew.length == 0) {
       newProductComment = await productComment.findOneAndUpdate(
-        {  _id: id, product_id: product_id, details: {$elemMatch: { _id: detail_id }} },
-        { $push: { "details.$.likes": {like: like, user_id: user_id} } }
+        {
+          _id: id,
+          product_id: product_id,
+          details: { $elemMatch: { _id: detail_id } },
+        },
+        { $push: { "details.$.likes": { like: like, user_id: user_id } } }
       )
       res.status(200).json({
         message: "Product Comment Like Created Successfully",
         newProductComment,
         status: 200,
       })
-    }
-    else{
+    } else {
       newProductComment = await productComment.findOneAndUpdate(
-        { _id: id, product_id: product_id, details: {$elemMatch: { _id: detail_id }}, "details.likes" : {$elemMatch: { user_id: user_id }} },
-        { $set: { "details.$.likes": {like: like, user_id: user_id} } }
+        {
+          _id: id,
+          product_id: product_id,
+          details: { $elemMatch: { _id: detail_id } },
+          "details.likes": { $elemMatch: { user_id: user_id } },
+        },
+        { $set: { "details.$.likes": { like: like, user_id: user_id } } }
       )
       res.status(200).json({
         message: "Product Comment Like Updated Successfully",
@@ -1516,8 +1502,8 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           customiseMsg: 1,
           user: 1,
           apply: 1,
-          rating:1,
-          likes:1,
+          rating: 1,
+          likes: 1,
           cropRules: { cropPerAudCredit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
@@ -1667,6 +1653,42 @@ module.exports.getPromoProductsByBusiness = async (req, res) => {
     return res.status(200).send({ promoProducts })
   } catch (error) {
     conosle.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
+  const { productId } = req.params
+  try {
+    const productCommentsAndRatings = await productComment.aggregate([
+      { $match: { product_id: ObjectId(productId) } },
+      // {
+      //   $addFields: {
+      //     $add: [],
+      //   },
+      // },
+      {
+        $project: {
+          productId: 1,
+          details: 1,
+          averageRating: {
+            $divide: [
+              {
+                $reduce: {
+                  input: "$details",
+                  initialValue: 0,
+                  in: { $add: ["$$value", "$$this.rating"] },
+                },
+              },
+              { $size: "$details" },
+            ],
+          },
+        },
+      },
+    ])
+    return res.status(200).send({ productCommentsAndRatings })
+  } catch (error) {
+    console.log(error)
     return res.status(500).send("Internal Server Error")
   }
 }
