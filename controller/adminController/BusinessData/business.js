@@ -202,14 +202,14 @@ const getPurchasedProductStatement = async (req, res) => {
       },
       {
         $match: {
-          user: "643cd01d448a0837e2cf24cc",
+          user: businessId,
         },
       }
     ])
     return res.status(200).send({ statement })
   } catch (error) {
     console.log(error)
-    return res.status(500).send("Internal Server Error")
+    return res.status(500).send({msg:"Internal Server Error"})
   }
 }
 module.exports = {
