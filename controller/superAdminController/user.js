@@ -3,7 +3,8 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = "CROP@12345";
-const { sendEmail } = require("../../config/email");
+const nodemailer = require("nodemailer")
+const { Token } = require("../../models/User");
 // const { sendEmail } = require("../../../config/email");
 
 const createAdmin = async (req, res) => {
@@ -30,17 +31,30 @@ const createAdmin = async (req, res) => {
     //secure password by bcrypt
     const salt = await bcrypt.genSalt(10);
     secPass = await bcrypt.hash(req.body.password, salt);
+    //
 
     //create a new user
-    user = await admin.create({
+    let User = await admin.create({
       name: req.body.name,
       email: req.body.email,
       password: secPass,
     });
+    const data = {
+      user: {
+        id: User._id,
+      },
+    };
+
+    const userToken = jwt.sign(data, JWT_SECRET);
+    await new Token({
+      user: User._id,
+      token: userToken,
+      type: 3,
+    }).save();
     success = true;
     let message = "admin user created successfully";
-    res.json({ success, message });
-    // res.json(user);
+    res.json({ success, msg:message });
+    
   } catch (error) {
     //for log in console
     console.error(error.message);
@@ -198,7 +212,13 @@ const passwordResetEmail = async (req, res) => {
     if (!findRecord) {
       return res.status(204).json({ msg: "Account Not Found Please Contact To SuperAdmin to Create One" });
     }
-    let token = findRecord.token;
+    const data = {
+      user: {
+        id: findRecord._id,
+      },
+    };
+
+    const authtoken = jwt.sign(data, JWT_SECRET);
     const subject = "CROP notification";
     const mailData = {
       from: process.env.EMAIL_USER,
@@ -207,22 +227,77 @@ const passwordResetEmail = async (req, res) => {
       html: `<h1>Hello</h1>
         <p>	We received a request to reset the password for the CROP admin account associated with ${email}.</p>
      
-          <a href="${process.env.STORE_URL}/pages/passwordReset?email=${email}&passkey=${token}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer">Reset your password</a>
+          <a href="${process.env.STORE_URL}/pages/passwordReset?email=${email}&passkey=${authtoken}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer">Reset your password</a>
     
           <p style="margin-bottom:0px;">	If you didn’t request to reset your password, contact us via our support site. No changes were made to your account yet.</p>
           <p>Having trouble signing in? Get help at CROP Support.</p>
           <strong>-The Stripe team</strong>
            `,
     };
+    let msg = `<h1>Hello</h1>
+    <p>	We received a request to reset the password for the CROP admin account associated with ${email}.</p>
+ 
+      <a href="${process.env.STORE_URL}/pages/passwordReset?email=${email}&passkey=${authtoken}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer">Reset your password</a>
+
+      <p style="margin-bottom:0px;">	If you didn’t request to reset your password, contact us via our support site. No changes were made to your account yet.</p>
+      <p>Having trouble signing in? Get help at CROP Support.</p>
+      <strong>-The Stripe team</strong>
+       `
     const message = "message sent successfully!";
-    sendEmail(mailData, res, message);
+    // sendEmail(mailData, res, message);
+     sendEmail(email, subject, msg, message, res);
     // }
-    // return res.status(200).json({ msg: "continue" });
+    // return res.status(200).json({ msg: message });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ msg: "Server error found" });
+    // return res.status(500).json({ msg: "Server error found" });
   }
 };
+const sendEmail = (toEmail, subject, msg, resMsg, res) => {
+  var otp = Math.floor(100000 + Math.random() * 900000)
+console.log({ otp })
+
+const transporter = nodemailer.createTransport({
+  // service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+})
+console.log({ toEmail, subject, msg, resMsg })
+const mailOptions = {
+  from: process.env.EMAIL_USER,
+  to: toEmail,
+  subject: subject,
+  text: msg + " " + otp,
+}
+
+transporter.sendMail(mailOptions, async(err, result) => {
+  if (err) {
+    console.log(err)
+    return res.status(500).send({
+      msg: "Enter the correct email id",
+      status: "false",
+      data: [],
+    })
+  } else {
+      // console.log("one")
+      // const otpData = new Otp({
+      //     email: toEmail,
+      //     otp: otp,
+      //     otpType: otpType,
+      //     userType: userType,
+      // })
+      // console.log("two")
+      // await otpData.save();
+      // console.log({otpData})
+      return res.status(200).send({ msg: resMsg, status: "true" })
+  }
+})
+}
 
 module.exports = {
   passwordResetEmail,
