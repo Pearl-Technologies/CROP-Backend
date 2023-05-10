@@ -102,7 +102,10 @@ const customerRedeemTrackerSchema = mongoose.Schema({
       id:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'carts_customers'},
       user_id:{type:mongoose.Schema.Types.ObjectId, require:true, ref:'users_customers'},
       cartItems:{type:Object, require:true}
-   }
+   },
+   address_id:{type:String},
+   email:{type:String},
+   status:{type:String}
 }, {
    timestamps: true
 });

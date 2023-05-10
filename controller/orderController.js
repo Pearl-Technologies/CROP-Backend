@@ -4,6 +4,7 @@ const { User } = require("../models/User");
 const { Cart } = require("../models/Cart");
 const StateSchema = require('../models/State');
 const random = require('alphanumeric')
+const {Product} = require("../models/businessModel/product");
 const {
   customerPaymentTracker,
   customerRedeemTracker,
@@ -133,14 +134,13 @@ module.exports.paymentIntent = async (req, res) => {
 };
 
 module.exports.RedeemCrop = async (req, res) => {
-  const { cart, user_id, _id } = req.body;
+  const { cart, _id, address_id, email_id } = req.body; 
+  let user_id= req.user.user_id
   let redeemCropPoints = 0;
-  cart?.map((x) => {
-    redeemCropPoints = redeemCropPoints + x.redeemCROPs;
+  cart?.map((item) => {
+    redeemCropPoints = redeemCropPoints + item.tempRedeem;
   });
-  console.log(redeemCropPoints);
-  let findUser = await User.findOne({ _id: user_id.$oid });
-
+  let findUser = await User.findOne({ _id: user_id });  
   if (redeemCropPoints > findUser.croppoints) {
     return res
       .status(200)
@@ -151,14 +151,22 @@ module.exports.RedeemCrop = async (req, res) => {
     { _id: findUser._id },
     { $set: { croppoints: newCropPoint } }
   );
+  cart.map(async(data)=>{
+    let findProduct = await Product.findOne({_id:data._id});
+    let newQuatity = findProduct.quantity - data.cartQuantity;
+    await Product.findByIdAndUpdate({_id:findProduct._id}, {$set:{quantity:newQuatity}})
+  })
   let orderNumber = random(7)
   await customerRedeemTracker.create({
     number:orderNumber,
     cartDetails: {
-      id: _id.$oid,
-      user_id: user_id.$oid,
+      id: _id,
+      user_id: user_id,
       cartItems: cart,
     },
+    address_id:address_id,
+   email:email_id,
+   status:"paid"
   });
   
   SaveMyCropTrasaction(
@@ -167,7 +175,7 @@ module.exports.RedeemCrop = async (req, res) => {
     "debit",
     "purchase product by redeem CROP",
     orderNumber,
-    user_id.$oid
+    user_id
   );
   //
   res.status(200).send({ msg: "CROP redemption success" });

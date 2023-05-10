@@ -4,7 +4,7 @@ const invoiceAndPaymentNotification = require("../../../models/businessModel/bus
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
 const getLastFriday = require('../../../utils/dateHelper')
-console.log(new Date(getLastFriday()).toLocaleDateString(), "friday")
+
 const getAllBusiness = async (req, res) => {
   try {
     const businesses = await business.find({});
@@ -155,15 +155,22 @@ const getAllBusinessByContent = async (req, res) => {
 };
 const getPurchasedProductStatement = async (req, res) => {
   const {businessId} = req.body
-  // console.log({ businessId })
-  // console.log(await invoiceAndPaymentNotification.find({}))
-  // return
+
+  // console.log(new Date(getLastFriday()).toLocaleDateString(), "friday")
   try {
     const statement = await invoiceAndPaymentNotification.aggregate([
       {
         $match: {
           businessId: new ObjectId(businessId),
         },
+      },
+      {
+        $match:{
+          createdAt: {
+            $gte: new Date(getLastFriday()),
+            $lte: new Date()
+          }
+        }
       },
       {
         $lookup: {
@@ -195,14 +202,14 @@ const getPurchasedProductStatement = async (req, res) => {
       },
       {
         $match: {
-          user: "643cd01d448a0837e2cf24cc",
+          user: businessId,
         },
       }
     ])
     return res.status(200).send({ statement })
   } catch (error) {
     console.log(error)
-    return res.status(500).send("Internal Server Error")
+    return res.status(500).send({msg:"Internal Server Error"})
   }
 }
 module.exports = {

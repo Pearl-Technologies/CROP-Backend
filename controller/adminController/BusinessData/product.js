@@ -18,7 +18,57 @@ const client = require("twilio")(accountSid, authToken);
 
 const getAllProduct = async (req, res) => {
   try {
-    const productList = await Product.find({});
+    const productList = await Product.find({}).sort({updatedAt:-1});
+    res.status(200).json({ productList });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error" });
+  }
+};
+const getAllMostPopularProduct = async (req, res) => {
+  try {
+    const productList = await Product.aggregate(
+      [
+        {
+          '$match': {
+            'mktOfferFor': 'topRank'
+          }
+        }, {
+          '$sort': {
+            'updatedAt': -1
+          }
+        }, {
+          '$sort': {
+            'bidPrice': -1
+          }
+        }
+      ]
+    )
+    res.status(200).json({ productList });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Server error" });
+  }
+};
+const getAllPromoProduct = async (req, res) => {
+  try {
+    const productList = await Product.aggregate(
+      [
+        {
+          '$match': {
+            'mktOfferFor': 'promo'
+          }
+        }, {
+          '$sort': {
+            'updatedAt': -1
+          }
+        }, {
+          '$sort': {
+            'bidPrice': -1
+          }
+        }
+      ]
+    )
     res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
@@ -507,4 +557,4 @@ const job = schedule.scheduleJob("* * * * *", function () {
 
 // start the job
 job.schedule();
-module.exports = { getAllProduct };
+module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct };

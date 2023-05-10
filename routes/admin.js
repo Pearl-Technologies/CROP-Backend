@@ -6,7 +6,7 @@ const {
   adminLogin,
   adminPasswordReset,
   getAdminData,
-  passwordRest_email
+  passwordResetEmail
 } = require("../controller/superAdminController/user");
 const {
   getAccountBalance,
@@ -29,7 +29,7 @@ const {
 const {
   publishOffer,
 } = require("../controller/adminController/publishedOffer");
-const {getAllProduct} = require("../controller/adminController/BusinessData/product")
+const {getAllProduct, getAllMostPopularProduct, getAllPromoProduct} = require("../controller/adminController/BusinessData/product")
 const {
   createAudit,
   getAuditReport,
@@ -123,7 +123,11 @@ router.post(
   ],
   adminPasswordReset
 );
-router.post("/passwordRest_email", passwordRest_email);
+router.post("/passwordResetEmail",
+[
+  body("email", "Enter a valid email").isEmail(),
+],
+passwordResetEmail);
 router.post(
   "/adminLogin",
   [
@@ -149,6 +153,8 @@ router.post("/getAccountBalance", getAccountBalance)
 router.post("/updateAccountBalance", updateAccountBalance)
 router.post("/saveAccountBalance", saveAccountBalance);
 router.post("/getAllProduct", getAllProduct);
+router.post("/getAllMostPopularProduct", getAllMostPopularProduct);
+router.post("/getAllPromoProduct", getAllPromoProduct);
 router.post("/createAudit", createAudit);
 router.post("/getAuditReport", getAuditReport);
 router.post("/createMilestoneData", createMilestoneData);

@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback } = require("../models/User");
 const StateSchema = require('../models/State');
+const { Cart } = require("../models/Cart")
+const { Wishlist } = require("../models/Wishlist")
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
@@ -1172,7 +1174,7 @@ router.post("/getproductmissingcrop", async (req, res) => {
   try {
     const { invoice_id } = req.body;
     const tracker = await customerPaymentTracker.find({
-      invoice_id: invoice_id,
+      number: invoice_id,
     });
     if(tracker.length != 0){
       const inputDate = new Date(tracker[0].createdAt);
@@ -1334,6 +1336,36 @@ router.put('/addressByToken', async (req, res) => {
       {$push:{address:req.body}
     })
     res.status(200).json({data:aaa, status:200, message: "Address added successfully."})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ data:err, status:500 })
+  }
+})
+
+router.get('/cropPoints', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const aaa = await User.findOne({ _id:user.user });
+    const bbb = await Cart.findOne({ user_id:user.user })
+    const ccc = await Wishlist.findOne({ user_id:user.user })
+    arr = {}
+    arr['cropPoint'] = aaa.croppoints
+    arr['propPoint'] = aaa.proppoints
+    if(bbb.cart != undefined){
+      arr['cartCount'] = bbb.cart.length
+    }
+    else{
+      arr['cartCount'] = 0
+    }
+    if(ccc.cart != undefined){
+      arr['wishlistCount'] = ccc.cart.length
+    }
+    else{
+      arr['wishlistCount'] = 0
+    }
+    res.status(200).json({data:arr, status:200, message: ""})
   }
   catch(err) {
     console.log(err);
