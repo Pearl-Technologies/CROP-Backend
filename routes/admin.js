@@ -6,7 +6,7 @@ const {
   adminLogin,
   adminPasswordReset,
   getAdminData,
-  passwordRest_email
+  passwordResetEmail
 } = require("../controller/superAdminController/user");
 const {
   getAccountBalance,
@@ -123,7 +123,11 @@ router.post(
   ],
   adminPasswordReset
 );
-router.post("/passwordRest_email", passwordRest_email);
+router.post("/passwordResetEmail",
+[
+  body("email", "Enter a valid email").isEmail(),
+],
+passwordResetEmail);
 router.post(
   "/adminLogin",
   [
