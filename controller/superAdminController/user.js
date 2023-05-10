@@ -81,7 +81,7 @@ const adminLogin = async (req, res) => {
     success = true;
     const accessToken = authtoken;
     const user = email;
-    const auth = { accessToken, user };
+    const auth = { accessToken, user, profileImage: adminUser.filename, name: adminUser.name};
     res.send(auth);
     // res.json(user);
   } catch (error) {
