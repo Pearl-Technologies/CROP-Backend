@@ -1281,7 +1281,7 @@ module.exports.getBiddedProductsByBusiness = async (req, res) => {
   const bid = true
   console.log(user)
   try {
-    const biddedProducts = await Product.find({ user, bid })
+    const biddedProducts = await Product.find({ user, bid }).select("-status")
     return res.status(200).send({ success: true, biddedProducts })
   } catch (error) {
     console.log(error)
