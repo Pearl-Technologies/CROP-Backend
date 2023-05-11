@@ -1683,10 +1683,14 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
               { $size: "$details" },
             ],
           },
+          likes: 1,
+          productLikes: 1,
         },
       },
     ])
-    return res.status(200).send({ productCommentsAndRatings })
+    return res
+      .status(200)
+      .send({ productCommentsAndRatings: productCommentsAndRatings[0] })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

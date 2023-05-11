@@ -932,11 +932,8 @@ const creditMissingCropsByBusiness = async (req, res) => {
   try {
     const user = await User.findById(customerId)
     const croppoints = user.croppoints + creditCropPoints
-    await User.findByIdAndUpdate(
-      { _id: customerId },
-      { croppoints, status: "credited" }
-    )
-    const updateMissingCrops = await MissingCrop.updateOne(
+    await User.findByIdAndUpdate({ _id: customerId }, { croppoints })
+    await MissingCrop.updateOne(
       {
         _id: ObjectId(missingCropId),
         "product_id._id": ObjectId(productId),
