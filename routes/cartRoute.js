@@ -550,11 +550,21 @@ router.get("/getCart", async (req, res) => {
                     tempCart.push(finalProduct);
                     } 
                     else if (data.purchaseStatus == 0 && type == 4){
-                      const store = await StoreProduct.findById({_id: data._id})
+                      const store = await StoreProduct.findById({
+                        _id: data._id,
+                      })
                       let temp_redeem = store.redeemProps * data.cartQuantity
                       subtotal = subtotal + temp_redeem
-                      const finalProduct = {...store[0],...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus, tempRedeem:temp_redeem}}
-                      tempCart.push(finalProduct);
+                      const finalProduct = {
+                        ...store._doc,
+                        ...{
+                          cartQuantity: data.cartQuantity,
+                          purchaseStatus: data.purchaseStatus,
+                          tempRedeem: temp_redeem,
+                        },
+                      }
+                      tempCart.push(finalProduct)
+                      // return res.status(200).send({ finalProduct, store })
                     }
                 } catch (err) {
                     console.error(err);
