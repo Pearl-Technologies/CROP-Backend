@@ -43,5 +43,4 @@ router.delete("/:id", removeStoreProduct)
 
 router.get("/get-all-store-products/:pageNo/:limit", getAllStoreProducts)
 
-
 module.exports = router
