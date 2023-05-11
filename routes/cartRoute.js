@@ -515,71 +515,120 @@ router.get("/getCart", async (req, res) => {
             const newCart = await Cart.findOne({ user_id });
             const tempCart = [];
             var subtotal = 0;
-            var redeemtotal = 0;
-            if(newCart){
-                for (const data of newCart._doc.cart) {
-                  var temp_redeem = 0;
-                  var temp_price = 0;
-                try {
-                    if (data.mktOfferFor == "promo" && data.purchaseStatus == 0 && type == 1) {
-                    const products = await getPromoProducts(data._id,1, newCart._doc.cart.length);
-                    temp_price = products.price * data.cartQuantity
-                    if(products.redeemCROPs != null){
-                      temp_redeem = products.redeemCROPs * data.cartQuantity
-                    }
-                    subtotal = subtotal + temp_price
-                    redeemtotal = redeemtotal + temp_redeem
-                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price,tempRedeem:temp_redeem}}
-                    tempCart.push(finalProduct);
-                    } else if (data.apply == "earnCrop" && data.purchaseStatus == 0 && type == 2) {
-                    const products = await getEarnCropSingleProductById(data._id);              
-                    let temp_price = products.price * data.cartQuantity
-                    subtotal = subtotal + temp_price
-                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price}}
-                    tempCart.push(finalProduct);
-                    } else if (data.apply == "redeemCrop" && data.purchaseStatus == 0 && type == 3) {
-                    // const products = await getRedeemCropSingleProductById(data.mktOfferFor, data.sector, 1, newCart._doc.cart.length);
-                    const products = await getRedeemCropSingleProductById(data._id);
-                    let temp_price = products.price * data.cartQuantity
-                    if(products.ruleAppliedCrops != null){
-                      temp_redeem = products.ruleAppliedCrops * data.cartQuantity
-                    }
-                    subtotal = subtotal + temp_price
-                    redeemtotal = redeemtotal + temp_redeem
-                    const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price, tempRedeem:temp_redeem}}
-                    tempCart.push(finalProduct);
-                    } 
-                    else if (data.purchaseStatus == 0 && type == 4){
-                      const store = await StoreProduct.findById({
-                        _id: data._id,
-                      })
-                      let temp_redeem = store.redeemProps * data.cartQuantity
-                      subtotal = subtotal + temp_redeem
-                      const finalProduct = {
-                        ...store._doc,
-                        ...{
-                          cartQuantity: data.cartQuantity,
-                          purchaseStatus: data.purchaseStatus,
-                          tempRedeem: temp_redeem,
-                        },
-                      }
-                      tempCart.push(finalProduct)
-                      // return res.status(200).send({ finalProduct, store })
-                    }
-                } catch (err) {
-                    console.error(err);
+          var redeemtotal = 0
+          var storetotal = 0
+          if (newCart) {
+            for (const data of newCart._doc.cart) {
+              var temp_redeem = 0
+              var temp_price = 0
+              try {
+                if (
+                  data.mktOfferFor == "promo" &&
+                  data.purchaseStatus == 0 &&
+                  type == 1
+                ) {
+                  const products = await getPromoProducts(
+                    data._id,
+                    1,
+                    newCart._doc.cart.length
+                  )
+                  temp_price = products.price * data.cartQuantity
+                  if (products.redeemCROPs != null) {
+                    temp_redeem = products.redeemCROPs * data.cartQuantity
+                  }
+                  subtotal = subtotal + temp_price
+                  redeemtotal = redeemtotal + temp_redeem
+                  const finalProduct = {
+                    ...products,
+                    ...{
+                      cartQuantity: data.cartQuantity,
+                      purchaseStatus: data.purchaseStatus,
+                      tempPrice: temp_price,
+                      tempRedeem: temp_redeem,
+                    },
+                  }
+                  tempCart.push(finalProduct)
+                } else if (
+                  data.apply == "earnCrop" &&
+                  data.purchaseStatus == 0 &&
+                  type == 2
+                ) {
+                  const products = await getEarnCropSingleProductById(data._id)
+                  let temp_price = products.price * data.cartQuantity
+                  subtotal = subtotal + temp_price
+                  const finalProduct = {
+                    ...products,
+                    ...{
+                      cartQuantity: data.cartQuantity,
+                      purchaseStatus: data.purchaseStatus,
+                      tempPrice: temp_price,
+                    },
+                  }
+                  tempCart.push(finalProduct)
+                } else if (
+                  data.apply == "redeemCrop" &&
+                  data.purchaseStatus == 0 &&
+                  type == 3
+                ) {
+                  // const products = await getRedeemCropSingleProductById(data.mktOfferFor, data.sector, 1, newCart._doc.cart.length);
+                  const products = await getRedeemCropSingleProductById(
+                    data._id
+                  )
+                  let temp_price = products.price * data.cartQuantity
+                  if (products.ruleAppliedCrops != null) {
+                    temp_redeem = products.ruleAppliedCrops * data.cartQuantity
+                  }
+                  subtotal = subtotal + temp_price
+                  redeemtotal = redeemtotal + temp_redeem
+                  const finalProduct = {
+                    ...products,
+                    ...{
+                      cartQuantity: data.cartQuantity,
+                      purchaseStatus: data.purchaseStatus,
+                      tempPrice: temp_price,
+                      tempRedeem: temp_redeem,
+                    },
+                  }
+                  tempCart.push(finalProduct)
+                } else if (data.purchaseStatus == 0 && type == 4) {
+                  const store = await StoreProduct.findById({
+                    _id: data._id,
+                  })
+                  let temp_redeem = store.redeemProps * data.cartQuantity
+                  storetotal = storetotal + temp_redeem
+                  const finalProduct = {
+                    ...store._doc,
+                    ...{
+                      cartQuantity: data.cartQuantity,
+                      purchaseStatus: data.purchaseStatus,
+                      tempRedeem: temp_redeem,
+                    },
+                  }
+                  tempCart.push(finalProduct)
+                  // return res.status(200).send({ finalProduct, store })
                 }
-                }
-                if(tempCart.length<=0){
-                res.status(200).send({ data: [], status: "true" });
-                }
-                else{
-                res.status(200).send({ data:{_id:newCart._id,user_id:newCart.user_id,cart: tempCart,subtotal: subtotal,redeemtotal:redeemtotal}, status: "true" });
-                }
+              } catch (err) {
+                console.error(err)
+              }
             }
-            else{
-                res.status(200).send({message:"No cart found",status:false}) 
+            if (tempCart.length <= 0) {
+              res.status(200).send({ data: [], status: "true" })
+            } else {
+              res.status(200).send({
+                data: {
+                  _id: newCart._id,
+                  user_id: newCart.user_id,
+                  cart: tempCart,
+                  storetotal,
+                  subtotal: subtotal,
+                  redeemtotal: redeemtotal,
+                },
+                status: "true",
+              })
             }
+          } else {
+            res.status(200).send({ message: "No cart found", status: false })
+          }
         }
         else{
             res.status(500).send({message:"Authorization required",status:false}) 
