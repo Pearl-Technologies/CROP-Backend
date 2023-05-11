@@ -4,6 +4,7 @@ const { Cart } = require("../models/Cart")
 const { Product } = require("../models/businessModel/product")
 const { User } = require("../models/User");
 const {Token} = require("../models/User");
+const {StoreProduct} = require("../models/businessModel/storeproducts")
 const mongoose = require('mongoose');
 const { getEarnCropProductsBySector } = require("../controller/businessController/product");
 
@@ -548,9 +549,13 @@ router.get("/getCart", async (req, res) => {
                     const finalProduct = {...products,...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus,tempPrice: temp_price, tempRedeem:temp_redeem}}
                     tempCart.push(finalProduct);
                     } 
-                    // else if (data.purchaseStatus == 0 && type == 4){
-                      
-                    // }
+                    else if (data.purchaseStatus == 0 && type == 4){
+                      const store = await StoreProduct.findById({_id: data._id})
+                      let temp_redeem = store.redeemProps * data.cartQuantity
+                      subtotal = subtotal + temp_redeem
+                      const finalProduct = {...store[0],...{cartQuantity:data.cartQuantity,purchaseStatus:data.purchaseStatus, tempRedeem:temp_redeem}}
+                      tempCart.push(finalProduct);
+                    }
                 } catch (err) {
                     console.error(err);
                 }
