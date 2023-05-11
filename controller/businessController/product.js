@@ -642,12 +642,12 @@ module.exports.putProductCommentLike = async (req, res) => {
   try {
     let token = req.headers.authorization
     const token_data = await Token.findOne({ token: token })
-    const id = req.body.id
+    // const id = req.body.id
     const product_id = req.body.product_id
     const user_id = token_data.user
     const like = req.body.like
     const productFetch = await productComment.find({
-      _id: id,
+      // _id: id,
       product_id: product_id,
     })
     if (productFetch.length == 0) {
@@ -668,14 +668,14 @@ module.exports.putProductCommentLike = async (req, res) => {
       })
     } else {
       const comment = await productComment.find({
-        _id: id,
+        _id: productFetch[0]._id,
         product_id: product_id,
         "product_likes.$.user_id": user_id,
       })
       var newProductComment
       if (comment.product_likes.length == 0) {
         newProductComment = await productComment.findByIdAndUpdate(
-          { _id: id, product_id: product_id },
+          { _id: productFetch[0]._id, product_id: product_id },
           { $push: { product_likes: { like: like, user_id: user_id } } }
         )
         res.status(200).json({
@@ -686,7 +686,7 @@ module.exports.putProductCommentLike = async (req, res) => {
       } else {
         newProductComment = await productComment.findByIdAndUpdate(
           {
-            _id: id,
+            _id: productFetch[0]._id,
             product_id: product_id,
             "product_likes.$.user_id": user_id,
           },
