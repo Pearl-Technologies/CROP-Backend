@@ -94,6 +94,7 @@ const {getAllCustomerForPropPayment} = require("../controller/adminController/Cu
 const {payToBusiness}=require("../controller/adminController/PaymentController/payment")
 //customer
 const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
+const{getAllCropTrasactionByAdmin} = require('../controller/customerCropTransaction');
 //
 
 //Business
@@ -242,6 +243,7 @@ router.post("/updateBusinessRequestAndComplaintNotification", updateBusinessRequ
 router.post("/updateTier", updateTier)
 router.post("/getAllCustomerForPropPayment", getAllCustomerForPropPayment)
 router.post("/payToBusiness", payToBusiness)
+router.get("/getAllCropTrasactionByAdmin", getAllCropTrasactionByAdmin)
 // router.post("/paymentLink", paymentLink);
 //customer data
 

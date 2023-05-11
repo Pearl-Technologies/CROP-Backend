@@ -34,6 +34,7 @@ const {
   getEarnCropSingleProductById,
   getRedeemCropSingleProductById,
   getPromoProductsByBusiness,
+  getProductCommentAndRatingsByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -116,5 +117,9 @@ router.get(
 )
 router.get("/get-earn-crop-product/:id", getEarnCropSingleProductById)
 router.get("/get-redeem-crop-product/:id", getRedeemCropSingleProductById)
+router.get(
+  "/get-product-comments-ratings/:productId",
+  getProductCommentAndRatingsByBusiness
+)
 
 module.exports = router;
