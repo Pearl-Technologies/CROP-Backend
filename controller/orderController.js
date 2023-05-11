@@ -2,6 +2,7 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Order = require("../models/Order");
 const { User } = require("../models/User");
 const { Cart } = require("../models/Cart");
+const {Token} = require("../models/User");
 const StateSchema = require('../models/State');
 const random = require('alphanumeric')
 const {Product} = require("../models/businessModel/product");
@@ -134,50 +135,58 @@ module.exports.paymentIntent = async (req, res) => {
 };
 
 module.exports.RedeemCrop = async (req, res) => {
-  const { cart, _id, address_id, email_id } = req.body; 
-  let user_id= req.user.user_id
-  let redeemCropPoints = 0;
-  cart?.map((item) => {
-    redeemCropPoints = redeemCropPoints + item.tempRedeem;
-  });
-  let findUser = await User.findOne({ _id: user_id });  
-  if (redeemCropPoints > findUser.croppoints) {
-    return res
-      .status(200)
-      .send({ msg: "sorry insoffient CROP in your account" });
+  const { cart, _id, address_id, email_id } = req.body;
+  let token= req.headers.authorization
+  const token_data = await Token.findOne({ token });
+  let user_id= token_data.user;
+  if(token_data){
+    let redeemCropPoints = 0;
+    cart?.map((item) => {
+      redeemCropPoints = redeemCropPoints + item.tempRedeem;
+    });
+    let findUser = await User.findOne({ _id: user_id });  
+    if (redeemCropPoints > findUser.croppoints) {
+      return res
+        .status(200)
+        .send({ msg: "sorry insoffient CROP in your account" });
+    }
+    let newCropPoint = findUser.croppoints - redeemCropPoints;
+    await User.findByIdAndUpdate(
+      { _id: findUser._id },
+      { $set: { croppoints: newCropPoint } }
+    );
+    cart.map(async(data)=>{
+      let findProduct = await Product.findOne({_id:data._id});
+      let newQuatity = findProduct.quantity - data.cartQuantity;
+      await Product.findByIdAndUpdate({_id:findProduct._id}, {$set:{quantity:newQuatity}})
+      await Cart.updateMany({ user_id: user_id},{$pull: {cart:{_id: data._id }}})
+    })
+    let orderNumber = random(7)
+    await customerRedeemTracker.create({
+      number:orderNumber,
+      cartDetails: {
+        id: _id,
+        user_id: user_id,
+        cartItems: cart,
+      },
+      address_id:address_id,
+    email:email_id,
+    status:"paid"
+    });
+    
+    SaveMyCropTrasaction(
+      1,
+      redeemCropPoints,
+      "debit",
+      "purchase product by redeem CROP",
+      orderNumber,
+      user_id
+    );
+    //
+    res.status(200).send({ msg: "CROP redemption success", status:200 });
   }
-  let newCropPoint = findUser.croppoints - redeemCropPoints;
-  await User.findByIdAndUpdate(
-    { _id: findUser._id },
-    { $set: { croppoints: newCropPoint } }
-  );
-  cart.map(async(data)=>{
-    let findProduct = await Product.findOne({_id:data._id});
-    let newQuatity = findProduct.quantity - data.cartQuantity;
-    await Product.findByIdAndUpdate({_id:findProduct._id}, {$set:{quantity:newQuatity}})
-  })
-  let orderNumber = random(7)
-  await customerRedeemTracker.create({
-    number:orderNumber,
-    cartDetails: {
-      id: _id,
-      user_id: user_id,
-      cartItems: cart,
-    },
-    address_id:address_id,
-   email:email_id,
-   status:"paid"
-  });
-  
-  SaveMyCropTrasaction(
-    1,
-    redeemCropPoints,
-    "debit",
-    "purchase product by redeem CROP",
-    orderNumber,
-    user_id
-  );
-  //
-  res.status(200).send({ msg: "CROP redemption success" });
+  else{
+    res.status(500).send({ msg: "Token Not There", status:500 });
+  }
   return;
 };

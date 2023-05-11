@@ -7,5 +7,5 @@ const router = express.Router();
 // add a create payment intent
 router.post("/create-payment-intent", paymentIntent);
 router.put("/addOrder", addOrder);
-router.post("/createRedeemCropIntent", verifyToken, RedeemCrop)
+router.post("/createRedeemCropIntent", RedeemCrop)
 module.exports = router;
