@@ -375,7 +375,8 @@ module.exports.getEarnCropProducts = async (req, res) => {
         },
       },
     ])
-    res.json({ count: productDetails.length, productDetails })
+    // return res.json({ count: productDetails.length, productDetails })
+    return productDetails
   } catch (error) {
     console.log(error)
   }
@@ -442,18 +443,18 @@ module.exports.getRedeemCropProducts = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-04-10", today],
+                    $lte: ["2023-05-10", today],
                   },
                   {
-                    $gte: ["2023-04-16", today],
+                    $gte: ["2023-05-20", today],
                   },
                   {
                     $eq: [true, true],
                   },
                 ],
               },
-              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
-              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+              then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
+              else: 1,
             },
           },
         },
@@ -467,32 +468,32 @@ module.exports.getRedeemCropProducts = async (req, res) => {
       // {
       //   $eq: [`$slashRedemption.slashRedemptionDays.tue`, true],
       // },
-      // {
-      //   $addFields: {
-      //     cropRulesWithSlashRedemption: {
-      //       $cond: [
-      //         { $eq: ["$slashRedemptionDiscountPercentage", 0] },
-      //         "$ruleAppliedCrops",
-      //         {
-      //           $subtract: [
-      //             "$ruleAppliedCrops",
-      //             {
-      //               $divide: [
-      //                 {
-      //                   $multiply: [
-      //                     "$ruleAppliedCrops",
-      //                     "$slashRedemptionDiscountPercentage",
-      //                   ],
-      //                 },
-      //                 100,
-      //               ],
-      //             },
-      //           ],
-      //         },
-      //       ],
-      //     },
-      //   },
-      // },
+      {
+        $addFields: {
+          cropRulesWithSlashRedemption: {
+            $cond: [
+              { $eq: ["$slashRedemptionDiscountPercentage", 0] },
+              "$ruleAppliedCrops",
+              {
+                $subtract: [
+                  "$ruleAppliedCrops",
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          "$ruleAppliedCrops",
+                          "$slashRedemptionDiscountPercentage",
+                        ],
+                      },
+                      100,
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
       {
         $project: {
           title: 1,
@@ -506,7 +507,8 @@ module.exports.getRedeemCropProducts = async (req, res) => {
         },
       },
     ])
-    res.json({ count: productDetails.length, productDetails })
+    // res.json({ count: productDetails.length, productDetails })
+    return productDetails
   } catch (error) {
     console.log(error)
   }
@@ -661,6 +663,7 @@ module.exports.putProductCommentLike = async (req, res) => {
           user_id: token_data.user._id.valueOf(),
         },
       })
+      await newProductComment.save();
       res.status(200).json({
         message: "Product Likes Created Successfully",
         newProductComment,
@@ -668,14 +671,17 @@ module.exports.putProductCommentLike = async (req, res) => {
       })
     } else {
       const comment = await productComment.find({
-        _id: productFetch[0]._id,
         product_id: product_id,
-        "product_likes.$.user_id": user_id,
+        product_likes: {
+          $elemMatch: {
+            user_id: user_id
+          }
+        }
       })
       var newProductComment
-      if (comment.product_likes.length == 0) {
+      if (comment.length == 0) {
         newProductComment = await productComment.findByIdAndUpdate(
-          { _id: productFetch[0]._id, product_id: product_id },
+          { product_id: product_id },
           { $push: { product_likes: { like: like, user_id: user_id } } }
         )
         res.status(200).json({
@@ -684,11 +690,15 @@ module.exports.putProductCommentLike = async (req, res) => {
           status: 200,
         })
       } else {
-        newProductComment = await productComment.findByIdAndUpdate(
+        newProductComment = await productComment.findOneAndUpdate(
           {
-            _id: productFetch[0]._id,
+            
             product_id: product_id,
-            "product_likes.$.user_id": user_id,
+            product_likes: {
+              $elemMatch: {
+                user_id: user_id
+              }
+            }
           },
           { $set: { product_likes: { like: like, user_id: user_id } } }
         )
@@ -720,7 +730,11 @@ module.exports.putProductCommentDetails = async (req, res) => {
     const commentnew = await productComment.find({
       _id: id,
       product_id: product_id,
-      "details.$.user_id": user_id,
+      details: {
+        $elemMatch: {
+          user_id: user_id
+        }
+      }
     })
     var newProductComment
     if (commentnew.product_likes.length == 0) {
@@ -738,8 +752,12 @@ module.exports.putProductCommentDetails = async (req, res) => {
         status: 200,
       })
     } else {
-      newProductComment = await productComment.findByIdAndUpdate(
-        { _id: id, product_id: product_id, "details.$.user_id": user_id },
+      newProductComment = await productComment.findOneAndUpdate(
+        { _id: id, product_id: product_id, details: {
+          $elemMatch: {
+            user_id: user_id
+          }
+        } },
         {
           $set: {
             details: { comment: comment, user_id: user_id, rating: rating },
@@ -1095,8 +1113,31 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       { $match: { $and: match } },
       { $count: "count" },
     ])
+    let dataArray = [];
+    for(let i=0; i<productDetails.length; i++){
+      const countLikeResults = await productComment.find(
+        {
+          
+          product_id: productDetails[i]._id,
+          product_likes: {
+            $elemMatch: {
+              like: true,
+              status: true
+            }
+          }
+        }
+      )
+      if (countLikeResults.length != 0){
+        dataArray.push({...productDetails[i],...{likes: countLikeResults.length}})
+      }
+      else{
+        dataArray.push({...productDetails[i],...{likes: 0}})
+      }
+      
+    }
+    
     const count = countResults.length > 0 ? countResults[0].count : 0
-    res.json({ count, products: productDetails })
+    res.json({ count, products: dataArray })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
@@ -1268,8 +1309,30 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       { $match: { $and: match } },
       { $count: "count" },
     ])
+    let dataArray = [];
+    for(let i=0; i<productDetails.length; i++){
+      const countLikeResults = await productComment.find(
+        {
+          
+          product_id: productDetails[i]._id,
+          product_likes: {
+            $elemMatch: {
+              like: true,
+              status: true
+            }
+          }
+        }
+      )
+      if (countLikeResults.length != 0){
+        dataArray.push({...productDetails[i],...{likes: countLikeResults.length}})
+      }
+      else{
+        dataArray.push({...productDetails[i],...{likes: 0}})
+      }
+      
+    }
     const count = countResults.length > 0 ? countResults[0].count : 0
-    res.json({ count, products: productDetails })
+    res.json({ count, products: dataArray })
   } catch (error) {
     console.log(error)
   }
@@ -1691,6 +1754,18 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
     return res
       .status(200)
       .send({ productCommentsAndRatings: productCommentsAndRatings[0] })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
+  try {
+    const earnCropProducts = await this.getEarnCropProducts(req, res)
+    const redeemCropProducts = await this.getRedeemCropProducts(req, res)
+    // const promoProducts = await Product.find({})
+    return res.status(200).send({ earnCropProducts, redeemCropProducts })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
