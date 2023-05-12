@@ -1115,12 +1115,20 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     ])
     let dataArray = [];
     for(let i=0; i<productDetails.length; i++){
-      const countLikeResults = await productComment.aggregate([
-        { $match: { $and: match, product_id: productDetails[i]._id, productLikes: {like: true, status: true} } },
-        { $count: "count" },
-      ])
+      const countLikeResults = await productComment.find(
+        {
+          
+          product_id: productDetails[i]._id,
+          product_likes: {
+            $elemMatch: {
+              like: true,
+              status: true
+            }
+          }
+        }
+      )
       if (countLikeResults.length != 0){
-        dataArray.push({...productDetails[i],...{likes: countLikeResults[0].count}})
+        dataArray.push({...productDetails[i],...{likes: countLikeResults.length}})
       }
       else{
         dataArray.push({...productDetails[i],...{likes: 0}})
@@ -1303,12 +1311,20 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
     ])
     let dataArray = [];
     for(let i=0; i<productDetails.length; i++){
-      const countLikeResults = await productComment.aggregate([
-        { $match: { $and: match, product_id: productDetails[i]._id, productLikes: {like: true, status: true} } },
-        { $count: "count" },
-      ])
+      const countLikeResults = await productComment.find(
+        {
+          
+          product_id: productDetails[i]._id,
+          product_likes: {
+            $elemMatch: {
+              like: true,
+              status: true
+            }
+          }
+        }
+      )
       if (countLikeResults.length != 0){
-        dataArray.push({...productDetails[i],...{likes: countLikeResults[0].count}})
+        dataArray.push({...productDetails[i],...{likes: countLikeResults.length}})
       }
       else{
         dataArray.push({...productDetails[i],...{likes: 0}})
