@@ -663,6 +663,7 @@ module.exports.putProductCommentLike = async (req, res) => {
           user_id: token_data.user._id.valueOf(),
         },
       })
+      await newProductComment.save();
       res.status(200).json({
         message: "Product Likes Created Successfully",
         newProductComment,
