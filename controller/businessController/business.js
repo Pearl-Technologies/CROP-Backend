@@ -697,8 +697,6 @@ const getHolidayByState = async (req, res) => {
   }
 }
 
-const getPromosByBusiness = async (req, res) => {}
-
 // const updateAddress = async () => {
 //   const line1 = Math.floor(100 + Math.random() * 900)
 //   await business.updateMany({}, [
