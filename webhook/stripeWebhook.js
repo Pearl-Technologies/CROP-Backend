@@ -146,6 +146,7 @@ app.post(
                 invoice_id: session.id,
                 invoice_url: session.hosted_invoice_url,
                 invoice_pdf: session.invoice_pdf,
+                number:session.number,
               },
             }
           );
