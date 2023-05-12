@@ -65,7 +65,7 @@ const findBusinessInvoice = async (req, res) => {
     if (!user) {
       return res.status(200).send({ msg: "no record" });
     }
-    const invoices = await adminPaymentTracker.find({ businessId: user });
+    const invoices = await adminPaymentTracker.find({ businessId: user, status:'paid' },{createdAt:1, number:1, status:1, customer_email:1, invoice_url:1,invoice_pdf:1}).sort({updatedAt:-1});
     res.status(200).send({ invoices });
   } catch (error) {
     return console.log(error);

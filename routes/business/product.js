@@ -35,6 +35,7 @@ const {
   getRedeemCropSingleProductById,
   getPromoProductsByBusiness,
   getProductCommentAndRatingsByBusiness,
+  getPromoEarnAndRedeemProducts,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -45,6 +46,7 @@ const router = express.Router()
 router.post("/add", authorization, addProduct)
 router.post("/add-all", addAllProducts)
 router.get("/show", getShowingProducts)
+router.get("/get-promo-earn-redeem-products", getPromoEarnAndRedeemProducts)
 router.put("/putProductCommentLike", putProductCommentLike)
 router.put("/putProductCommentDetails", putProductCommentDetails)
 router.put("/putProductCommentPaticularLike", putProductCommentPaticularLike)
@@ -80,22 +82,6 @@ router.delete("/:id", removeProduct)
 router.post("/image/:productId", upload.array("file", 20), uploadProductImages)
 router.get("/image/:id", getProductImage)
 
-router.get("/discount", getDiscountProduct)
-
-router.get("/categoryproducts", getProductsByCatagory)
-router.get(
-  "/get-products-by-sub-category/:subCategoryId",
-  getProductsBySubCatagory
-)
-router.get(
-  "/get-all-products-by-business",
-  authorization,
-  getAllProductsByBusiness
-)
-router.get("/relatedProduct", getRelatedProducts)
-router.get("/:id", getSingleProduct)
-router.put("/:id", updateProduct)
-router.delete("/:id", removeProduct)
 router.post("/product-comment", productComment)
 router.get("/get-Product-Comment", getProductComment)
 router.delete("/deleteProductComment", deleteProductComment)
@@ -121,5 +107,6 @@ router.get(
   "/get-product-comments-ratings/:productId",
   getProductCommentAndRatingsByBusiness
 )
+
 
 module.exports = router;

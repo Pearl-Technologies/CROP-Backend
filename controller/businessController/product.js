@@ -375,7 +375,8 @@ module.exports.getEarnCropProducts = async (req, res) => {
         },
       },
     ])
-    res.json({ count: productDetails.length, productDetails })
+    // return res.json({ count: productDetails.length, productDetails })
+    return productDetails
   } catch (error) {
     console.log(error)
   }
@@ -442,18 +443,18 @@ module.exports.getRedeemCropProducts = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-04-10", today],
+                    $lte: ["2023-05-10", today],
                   },
                   {
-                    $gte: ["2023-04-16", today],
+                    $gte: ["2023-05-20", today],
                   },
                   {
                     $eq: [true, true],
                   },
                 ],
               },
-              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
-              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+              then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
+              else: 1,
             },
           },
         },
@@ -467,32 +468,32 @@ module.exports.getRedeemCropProducts = async (req, res) => {
       // {
       //   $eq: [`$slashRedemption.slashRedemptionDays.tue`, true],
       // },
-      // {
-      //   $addFields: {
-      //     cropRulesWithSlashRedemption: {
-      //       $cond: [
-      //         { $eq: ["$slashRedemptionDiscountPercentage", 0] },
-      //         "$ruleAppliedCrops",
-      //         {
-      //           $subtract: [
-      //             "$ruleAppliedCrops",
-      //             {
-      //               $divide: [
-      //                 {
-      //                   $multiply: [
-      //                     "$ruleAppliedCrops",
-      //                     "$slashRedemptionDiscountPercentage",
-      //                   ],
-      //                 },
-      //                 100,
-      //               ],
-      //             },
-      //           ],
-      //         },
-      //       ],
-      //     },
-      //   },
-      // },
+      {
+        $addFields: {
+          cropRulesWithSlashRedemption: {
+            $cond: [
+              { $eq: ["$slashRedemptionDiscountPercentage", 0] },
+              "$ruleAppliedCrops",
+              {
+                $subtract: [
+                  "$ruleAppliedCrops",
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          "$ruleAppliedCrops",
+                          "$slashRedemptionDiscountPercentage",
+                        ],
+                      },
+                      100,
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
       {
         $project: {
           title: 1,
@@ -506,7 +507,8 @@ module.exports.getRedeemCropProducts = async (req, res) => {
         },
       },
     ])
-    res.json({ count: productDetails.length, productDetails })
+    // res.json({ count: productDetails.length, productDetails })
+    return productDetails
   } catch (error) {
     console.log(error)
   }
@@ -1287,7 +1289,7 @@ module.exports.getBiddedProductsByBusiness = async (req, res) => {
   const bid = true
   console.log(user)
   try {
-    const biddedProducts = await Product.find({ user, bid })
+    const biddedProducts = await Product.find({ user, bid }).select("-status")
     return res.status(200).send({ success: true, biddedProducts })
   } catch (error) {
     console.log(error)
@@ -1697,6 +1699,18 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
     return res
       .status(200)
       .send({ productCommentsAndRatings: productCommentsAndRatings[0] })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
+  try {
+    const earnCropProducts = await this.getEarnCropProducts(req, res)
+    const redeemCropProducts = await this.getRedeemCropProducts(req, res)
+    // const promoProducts = await Product.find({})
+    return res.status(200).send({ earnCropProducts, redeemCropProducts })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
