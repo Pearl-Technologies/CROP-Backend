@@ -671,14 +671,17 @@ module.exports.putProductCommentLike = async (req, res) => {
       })
     } else {
       const comment = await productComment.find({
-        _id: productFetch[0]._id,
         product_id: product_id,
-        "product_likes.$.user_id": user_id,
+        product_likes: {
+          $elemMatch: {
+            user_id: user_id
+          }
+        }
       })
       var newProductComment
-      if (comment.product_likes.length == 0) {
+      if (comment.length == 0) {
         newProductComment = await productComment.findByIdAndUpdate(
-          { _id: productFetch[0]._id, product_id: product_id },
+          { product_id: product_id },
           { $push: { product_likes: { like: like, user_id: user_id } } }
         )
         res.status(200).json({
@@ -687,11 +690,15 @@ module.exports.putProductCommentLike = async (req, res) => {
           status: 200,
         })
       } else {
-        newProductComment = await productComment.findByIdAndUpdate(
+        newProductComment = await productComment.findOneAndUpdate(
           {
-            _id: productFetch[0]._id,
+            
             product_id: product_id,
-            "product_likes.$.user_id": user_id,
+            product_likes: {
+              $elemMatch: {
+                user_id: user_id
+              }
+            }
           },
           { $set: { product_likes: { like: like, user_id: user_id } } }
         )
@@ -723,7 +730,11 @@ module.exports.putProductCommentDetails = async (req, res) => {
     const commentnew = await productComment.find({
       _id: id,
       product_id: product_id,
-      "details.$.user_id": user_id,
+      details: {
+        $elemMatch: {
+          user_id: user_id
+        }
+      }
     })
     var newProductComment
     if (commentnew.product_likes.length == 0) {
@@ -741,8 +752,12 @@ module.exports.putProductCommentDetails = async (req, res) => {
         status: 200,
       })
     } else {
-      newProductComment = await productComment.findByIdAndUpdate(
-        { _id: id, product_id: product_id, "details.$.user_id": user_id },
+      newProductComment = await productComment.findOneAndUpdate(
+        { _id: id, product_id: product_id, details: {
+          $elemMatch: {
+            user_id: user_id
+          }
+        } },
         {
           $set: {
             details: { comment: comment, user_id: user_id, rating: rating },
