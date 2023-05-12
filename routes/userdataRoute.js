@@ -1185,8 +1185,10 @@ router.post("/missingcrop", async (req, res) => {
     req.body.user_id = token_data.user
     const missingCrops = await new MissingCrop(req.body).save()
     console.log(req.body)
+    console.log(missingCrops._id, "mcId")
     req.body.product_id.map(misCrops => {
       const { business } = misCrops
+      console.log({ business })
       createMissingCropNotification(missingCrops._id, business)
     })
     res.status(200).json({

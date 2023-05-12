@@ -1,7 +1,7 @@
 const adminBusinessRequestAndComplainNotification = require("../../../models/admin/notification/businessRequestAndComplainNotification")
 const complaintNotification = require("../../../models/businessModel/businessNotification/complaintNotification")
 
-const createMissingCropNotification = async (missingCropsId, bussinessId) => {
+const createMissingCropNotification = async (missingCropsId, businessId) => {
   try {
     const getAdminBusinessNotification =
       await adminBusinessRequestAndComplainNotification.findOne({})
@@ -10,10 +10,9 @@ const createMissingCropNotification = async (missingCropsId, bussinessId) => {
       type: "missingCrops",
       desc,
       missingCropsId,
-      bussinessId,
+      businessId,
     })
     await missingCropNotification.save()
-    return res.status(200)
   } catch (error) {
     console.log(error)
     res.status(500).send("Internal Server Error")
