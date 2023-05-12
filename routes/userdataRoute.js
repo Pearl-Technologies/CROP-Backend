@@ -23,33 +23,36 @@ const authToken = "160b8a1bf927b3fb4a71f8a4a7dff449";
 const verifySid = "VAd7985f7bf02389316934069629c48aa3";
 const client = require("twilio")(accountSid, authToken);
 const pathName = process.cwd();
-const {createCustomerAudit} = require("../controller/adminController/audit")
+const { createCustomerAudit } = require("../controller/adminController/audit")
+const {
+  createMissingCropNotification,
+} = require("../controller/businessController/businessNotification/compalintNotification")
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads");
+    cb(null, "uploads")
   },
   filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now());
+    cb(null, file.fieldname + "-" + Date.now())
   },
-});
+})
 
-var upload = multer({ storage: storage });
+var upload = multer({ storage: storage })
 
 router.put("/uploadpicture", async (req, res) => {
   try {
     if (fs.existsSync(pathName + "/uploads/" + req.files[0].originalname)) {
-      return res.send({ message: "File name already Exist" });
+      return res.send({ message: "File name already Exist" })
     } else {
       const filesName = fs.createWriteStream(
         pathName + "/uploads/" + req.files[0].originalname
-      );
-      filesName.write(req.files[0].buffer);
-      filesName.end();
+      )
+      filesName.write(req.files[0].buffer)
+      filesName.end()
 
-      var obj = pathName + "/uploads/" + req.files[0].originalname;
-      let token = req.headers.authorization;
-      const token_data = await Token.findOne({ token: token });
+      var obj = pathName + "/uploads/" + req.files[0].originalname
+      let token = req.headers.authorization
+      const token_data = await Token.findOne({ token: token })
       const result = await User.updateOne(
         { _id: token_data.user },
         {
@@ -57,32 +60,30 @@ router.put("/uploadpicture", async (req, res) => {
             avatar: obj,
           },
         }
-      );
-      res
-        .status(200)
-        .send({
-          message: "Profile pic Updated successfully",
-          status: "true",
-          data: [],
-        });
+      )
+      res.status(200).send({
+        message: "Profile pic Updated successfully",
+        status: "true",
+        data: [],
+      })
     }
   } catch (err) {
     //if any internal error occurs it will show error message
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [] });
+      .send({ message: "Internal Server error", status: "false", data: [] })
   }
-});
+})
 
 router.get("/", async (req, res) => {
-  return res.status(200).send({ message: "API works fine" });
-});
+  return res.status(200).send({ message: "API works fine" })
+})
 
 router.put("/resendotp", async (req, res) => {
-  const email = req.body.email;
-  const phone = req.body.phone;
+  const email = req.body.email
+  const phone = req.body.phone
   if (email) {
-    var otp = Math.floor(100000 + Math.random() * 900000);
+    var otp = Math.floor(100000 + Math.random() * 900000)
 
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
@@ -93,128 +94,116 @@ router.put("/resendotp", async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-    });
+    })
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "resetted password",
       text: `OTP GENERATED ${otp}`,
-    };
+    }
 
     transporter.sendMail(mailOptions, async (err, result) => {
       if (err) {
-        res
-          .status(500)
-          .send({
-            message: "Enter the correct email id",
-            status: "false",
-            data: [],
-          });
+        res.status(500).send({
+          message: "Enter the correct email id",
+          status: "false",
+          data: [],
+        })
       } else {
         const result = await Otp.updateOne(
           { email: email },
           { $set: { otp: otp, status: false } }
-        );
-        res
-          .status(200)
-          .send({
-            message: "otp sent successsfully",
-            status: "true",
-            data: [],
-          });
+        )
+        res.status(200).send({
+          message: "otp sent successsfully",
+          status: "true",
+          data: [],
+        })
       }
-    });
+    })
   } else {
     //Phone OTP
     client.verify.v2
       .services(verifySid)
       .verifications.create({ to: phone, channel: "sms" })
-      .then((verification) => {
-        res
-          .status(200)
-          .send({
-            message: "Otp sent successfully to ur phone number",
-            status: "true",
-            data: [],
-          });
+      .then(verification => {
+        res.status(200).send({
+          message: "Otp sent successfully to ur phone number",
+          status: "true",
+          data: [],
+        })
       })
       .then(() => {
         const readline = require("readline").createInterface({
           input: process.stdin,
           output: process.stdout,
-        });
-      });
+        })
+      })
   }
-});
+})
 
 router.post("/emailphone", async (req, res) => {
-  const phone = req.body.phone ? req.body.phone : "";
-  const email = req.body.email ? req.body.email : "";
+  const phone = req.body.phone ? req.body.phone : ""
+  const email = req.body.email ? req.body.email : ""
 
   //Add the status true when the otp is verified in the database
 
-  var bool1 = 0;
-  var bool2 = 0;
+  var bool1 = 0
+  var bool2 = 0
 
   if (email === "") {
-    bool1 = 1;
+    bool1 = 1
   }
   if (phone === "") {
-    bool2 = 1;
+    bool2 = 1
   }
   if (bool2 === 0) {
-    const phoneExist = await User.findOne({ mobileNumber: phone });
-    const businessMobile = await business.findOne({ mobile: phone });
+    const phoneExist = await User.findOne({ mobileNumber: phone })
+    const businessMobile = await business.findOne({ mobile: phone })
     if (phoneExist)
-      return res
-        .status(409)
-        .send({
-          message: "User with given phone number already exist",
-          status: false,
-        });
+      return res.status(409).send({
+        message: "User with given phone number already exist",
+        status: false,
+      })
     if (businessMobile)
-      return res
-        .status(409)
-        .send({
-          message: "User with given phone number already exist in business",
-          status: false,
-        });
+      return res.status(409).send({
+        message: "User with given phone number already exist in business",
+        status: false,
+      })
   }
   if (bool1 === 0) {
-    const emailExist = await User.findOne({ email: email });
-    const businessEmail = await business.findOne({ email: email });
+    const emailExist = await User.findOne({ email: email })
+    const businessEmail = await business.findOne({ email: email })
     if (emailExist)
-      return res
-        .status(409)
-        .send({
-          message: "User with given email already exist",
-          status: false,
-        });
+      return res.status(409).send({
+        message: "User with given email already exist",
+        status: false,
+      })
     if (businessEmail)
       return res
         .status(409)
-        .send({ message: "User with given email already exist in business" });
+        .send({ message: "User with given email already exist in business" })
   }
 
   if (email) {
     //Email OTP
-    var otp = Math.floor(100000 + Math.random() * 900000);
-  //   const mailTransport = nodemailer.createTransport({    
-  //     host: "smtpout.secureserver.net",  
-  //     secure: true,
-  //     secureConnection: false, // TLS requires secureConnection to be false
-  //     tls: {
-  //         ciphers:'SSLv3'
-  //     },
-  //     requireTLS:true,
-  //     port: 465,
-  //     debug: true,
-  //     auth: {
-  //         user: "put your godaddy hosted email here",
-  //         pass: "put your email password here" 
-  //     }
-  // });
+    var otp = Math.floor(100000 + Math.random() * 900000)
+    //   const mailTransport = nodemailer.createTransport({
+    //     host: "smtpout.secureserver.net",
+    //     secure: true,
+    //     secureConnection: false, // TLS requires secureConnection to be false
+    //     tls: {
+    //         ciphers:'SSLv3'
+    //     },
+    //     requireTLS:true,
+    //     port: 465,
+    //     debug: true,
+    //     auth: {
+    //         user: "put your godaddy hosted email here",
+    //         pass: "put your email password here"
+    //     }
+    // });
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
       host: "smtp.gmail.com",
@@ -224,210 +213,198 @@ router.post("/emailphone", async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-    });
+    })
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "resetted password",
       text: `OTP GENERATED ${otp}`,
-    };
+    }
 
     transporter.sendMail(mailOptions, async (err, result) => {
-      console.log(err);
+      console.log(err)
       if (err) {
-        res
-          .status(500)
-          .send({
-            message: "Enter the correct email id",
-            status: "false",
-            data: [],
-          });
+        res.status(500).send({
+          message: "Enter the correct email id",
+          status: "false",
+          data: [],
+        })
       } else {
-        res
-          .status(200)
-          .send({
-            message: "otp sent successsfully",
-            status: "true",
-            data: [],
-          });
-        const emailExists = await Otp.findOne({ email: email });
+        res.status(200).send({
+          message: "otp sent successsfully",
+          status: "true",
+          data: [],
+        })
+        const emailExists = await Otp.findOne({ email: email })
         if (emailExists) {
           const result = await Otp.updateOne(
             { email: email },
             { $set: { otp: otp, status: false } }
-          );
+          )
         } else {
           const otpdata = new Otp({
             email: email,
             otp: otp,
             status: false,
-          }).save();
+          }).save()
         }
       }
-    });
+    })
   } else {
     //Phone OTP
     client.verify.v2
       .services(verifySid)
       .verifications.create({ to: phone, channel: "sms" })
-      .then((verification) => {
-        res
-          .status(200)
-          .send({
-            message: "Otp sent successfully to ur phone number",
-            status: "true",
-            data: [],
-          });
+      .then(verification => {
+        res.status(200).send({
+          message: "Otp sent successfully to ur phone number",
+          status: "true",
+          data: [],
+        })
       })
       .then(() => {
         const readline = require("readline").createInterface({
           input: process.stdin,
           output: process.stdout,
-        });
-      });
+        })
+      })
   }
-});
+})
 
 router.post("/emailphoneverify", async (req, res) => {
-  const otp = req.body.otp;
-  const phone = req.body.phone;
-  const email = req.body.email;
+  const otp = req.body.otp
+  const phone = req.body.phone
+  const email = req.body.email
   if (email === "") {
     client.verify.v2
       .services(verifySid)
       .verificationChecks.create({ to: phone, code: otp })
-      .then((verification) =>
-        res
-          .status(200)
-          .send({
-            message: "Otp verified successfully",
-            status: "true",
-            data: [],
-          })
+      .then(verification =>
+        res.status(200).send({
+          message: "Otp verified successfully",
+          status: "true",
+          data: [],
+        })
       )
       .catch(() =>
         res
           .status(500)
           .send({ message: "Enter the correct otp", status: "false", data: [] })
       )
-      .then(() => readline.close());
+      .then(() => readline.close())
   } else {
-    const userData = await Otp.findOne({ email: email });
+    const userData = await Otp.findOne({ email: email })
     //if the email id is not present send the error message
     if (userData.otp == otp) {
       const result = await Otp.updateOne(
         { email: email },
         { $set: { status: true } }
-      );
+      )
 
       return res
         .status(200)
-        .send({ message: "valid otp", status: "true", data: [] });
+        .send({ message: "valid otp", status: "true", data: [] })
     } else {
       return res
         .status(409)
-        .send({ message: "Invalid otp", status: "false", data: [] });
+        .send({ message: "Invalid otp", status: "false", data: [] })
     }
   }
-});
+})
 
 router.put("/resetpassword", async (req, res) => {
-  const newpin = await bcrypt.hash(req.body.newpin.toString(), 10);
-  const token = req.headers?.authorization;
-  const token_data = await Token.findOne({ token: token });
-  const oldpassword = await User.findOne({ _id: token_data.user });
-  console.log(oldpassword);
+  const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
+  const token = req.headers?.authorization
+  const token_data = await Token.findOne({ token: token })
+  const oldpassword = await User.findOne({ _id: token_data.user })
+  console.log(oldpassword)
 
   if (oldpassword.password === req.body.oldpin) {
-    return res
-      .status(500)
-      .send({
-        message: "Enter the correct old password",
-        status: "false",
-        data: [],
-      });
+    return res.status(500).send({
+      message: "Enter the correct old password",
+      status: "false",
+      data: [],
+    })
   }
 
   if (req.body.oldpin === req.body.newpin) {
-    return res
-      .status(500)
-      .send({
-        message: "Both new and old password are same",
-        status: "false",
-        data: [],
-      });
+    return res.status(500).send({
+      message: "Both new and old password are same",
+      status: "false",
+      data: [],
+    })
   }
   const updatedata = await User.updateOne(
     { _id: token_data.user },
     { $set: { password: newpin } }
-  );
+  )
 
   if (updatedata) {
     res
       .status(200)
-      .send({ message: "Pin changed successfully", status: "true" });
+      .send({ message: "Pin changed successfully", status: "true" })
   } else {
     res
       .status(500)
-      .send({ message: "Pin not changed successfully", status: "false" });
+      .send({ message: "Pin not changed successfully", status: "false" })
   }
-});
+})
 
 router.post("/signup", async (req, res) => {
   try {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString();
+    const currentDate = new Date()
+    const formattedDate = currentDate.toLocaleDateString()
 
     // checking whether the given mail id is exist in database r not
     const phoneExist = await User.findOne({
       mobileNumber: req.body.mobileNumber,
-    });
-    const emailExist = await User.findOne({ email: req.body.email });
+    })
+    const emailExist = await User.findOne({ email: req.body.email })
     // const businessMobile = await business.findOne({mobile:req.body.mobileNumber});
-    const businessEmail = await business.findOne({ email: req.body.email });
+    const businessEmail = await business.findOne({ email: req.body.email })
     if (phoneExist)
       return res
         .status(409)
-        .send({ message: "User with given phone number already exist" });
+        .send({ message: "User with given phone number already exist" })
     if (emailExist)
       return res
         .status(409)
-        .send({ message: "User with given email already exist" });
+        .send({ message: "User with given email already exist" })
     // if(businessMobile)
     // return res.status(409).send({message:"User with given phone number already exist in business"})
     if (businessEmail)
       return res
         .status(409)
-        .send({ message: "User with given email already exist in business" });
+        .send({ message: "User with given email already exist in business" })
     //hashing the password
-    const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10);
+    const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10)
 
-    var promoexist = req.body.promocode;
+    var promoexist = req.body.promocode
     if (promoexist) {
       const userData = await User.findOne({
         refercode: req.body.promocode,
-      });
+      })
 
       if (userData) {
-        var promopoints = userData.croppoints + 30;
+        var promopoints = userData.croppoints + 30
 
         const result = await User.updateOne(
           { refercode: req.body.promocode },
           { $set: { croppoints: promopoints } }
-        );
+        )
       }
     }
     //generate unique referid
-    const referid = shortid.generate();
+    const referid = shortid.generate()
     //generate unique crop id
-    var crop = await User.findOne().sort({ cropid: -1 }).limit(1);
-    var prop = await User.findOne().sort({ propid: -1 }).limit(1);
-    var result = crop.cropid;
-    var cropnumber = result + 1;
+    var crop = await User.findOne().sort({ cropid: -1 }).limit(1)
+    var prop = await User.findOne().sort({ propid: -1 }).limit(1)
+    var result = crop.cropid
+    var cropnumber = result + 1
 
-    var results = prop.propid;
-    var propnumber = results + 1;
+    var results = prop.propid
+    var propnumber = results + 1
 
     const user = await new User({
       name: req.body.name,
@@ -448,37 +425,37 @@ router.post("/signup", async (req, res) => {
         status: true,
         message: `${req.body.name} have successfully registered your profile on ${formattedDate}`,
       },
-    }).save();
-    if(user){
-      createCustomerAudit(user._id, "profile successfully registered");
+    }).save()
+    if (user) {
+      createCustomerAudit(user._id, "profile successfully registered")
     }
-    var method = 0;
-    var userToken;
+    var method = 0
+    var userToken
     //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
     let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString(
       "en-US",
       { timeZone: "Asia/Kolkata" }
-    );
-    let userData = await User.findOne({ email: req.body.email });
+    )
+    let userData = await User.findOne({ email: req.body.email })
     if (req.body.login_method === 1) {
-      method = 1;
+      method = 1
       userToken = await jwt.sign({ email: req.body.email }, "CROP@12345", {
         expiresIn: "1h",
-      });
+      })
       await new Token({
         user: userData._id,
         token: userToken,
         type: method,
         expiration: oneHourFromNow,
-      }).save();
+      }).save()
     } else {
-      method = 2;
-      userToken = await jwt.sign({ email: req.body.email }, "CROP@12345");
+      method = 2
+      userToken = await jwt.sign({ email: req.body.email }, "CROP@12345")
       await new Token({
         user: userData._id,
         token: userToken,
         type: method,
-      }).save();
+      }).save()
     }
     //saving data in the database
     res.send({
@@ -493,95 +470,95 @@ router.post("/signup", async (req, res) => {
         croppoints: 0,
         propid: propnumber,
       },
-    });
+    })
   } catch (err) {
     //if any internal error occurs it will show error message
     res
       .status(500)
-      .send({ message: "Register error", status: "false", data: [err] });
+      .send({ message: "Register error", status: "false", data: [err] })
   }
-});
+})
 
 router.post("/promocode", async (req, res) => {
-  var promo = req.body.promo;
+  var promo = req.body.promo
   if (promo === "") {
-    res.status(200).send({ message: "promocode available", status: "true" });
+    res.status(200).send({ message: "promocode available", status: "true" })
   } else {
-    const userData = await User.findOne({ refercode: promo });
+    const userData = await User.findOne({ refercode: promo })
     if (userData) {
-      res.status(200).send({ message: "promocode available", status: "true" });
+      res.status(200).send({ message: "promocode available", status: "true" })
     } else {
       res
         .status(500)
-        .send({ message: "promocode not available", status: "false" });
+        .send({ message: "promocode not available", status: "false" })
     }
   }
-});
+})
 
 router.put("/logout", async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
-    const oldpassword = await Token.deleteMany({ user: token_data.user });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
+    const oldpassword = await Token.deleteMany({ user: token_data.user })
     const result = await User.updateOne(
       { _id: token_data.user },
       { $set: { token: "null" } }
-    );
+    )
     res.status(200).send({
       status: "true",
       message: "Logout successfully",
-    });
+    })
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [] });
+      .send({ message: "Internal Server error", status: "false", data: [] })
   }
-});
+})
 
 router.get("/tokenCheck", async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const result = await Token.findOne({ token: token });
+    let token = req.headers.authorization
+    const result = await Token.findOne({ token: token })
     if (result) {
       res.status(200).send({
         status: "true",
         message: "Token active",
-      });
+      })
     } else {
       res.status(500).send({
         status: "false",
         message: "Token Inactive",
-      });
+      })
     }
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [] });
+      .send({ message: "Internal Server error", status: "false", data: [] })
   }
-});
+})
 
 router.get("/details", async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
-    const userData = await User.findOne({ _id: token_data.user });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
+    const userData = await User.findOne({ _id: token_data.user })
     res.status(200).send({
       data: userData,
       status: "true",
-    });
+    })
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [] });
+      .send({ message: "Internal Server error", status: "false", data: [] })
   }
-});
+})
 
 router.post("/login", async (req, res) => {
   try {
     // let cropid=req.body.cropid;
     // let phone=req.body.phone;
-    let email = req.body.email;
-    console.log(email, "email");
+    let email = req.body.email
+    console.log(email, "email")
     //getting email from the database and compare with the given email id
 
     const userData = await User.findOne({
@@ -590,12 +567,12 @@ router.post("/login", async (req, res) => {
         { cropid: req.body.cropid },
         { mobileNumber: req.body.phone },
       ],
-    });
+    })
     //if the email id is not present send the error message
     if (!userData) {
       return res
         .status(409)
-        .send({ message: "Wrong credentialssss!", status: false });
+        .send({ message: "Wrong credentialssss!", status: false })
     }
 
     //        if(phone)
@@ -625,60 +602,56 @@ router.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(
       req.body.password,
       userData.password
-    );
+    )
 
     if (!isPasswordValid) {
       return res
         .status(409)
-        .send({ message: "given password not exist", status: false });
+        .send({ message: "given password not exist", status: false })
     }
     // if(userData.token!=="null")
     // {
     //     return res.status(500).send({message:"You already logged in"})
     // }
     //jwt joken is created when the email and password r correct so that it will generate the token for that user(email)
-    var method = 0;
-    var userToken;
+    var method = 0
+    var userToken
     //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
     let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString(
       "en-US",
       { timeZone: "Asia/Kolkata" }
-    );
+    )
     if (req.body.login_method === 1) {
-      method = 1;
+      method = 1
       userToken = await jwt.sign({ email: userData.email }, "CROP@12345", {
         expiresIn: "1h",
-      });
+      })
       await new Token({
         user: userData._id,
         token: userToken,
         type: method,
         expiration: oneHourFromNow,
-      }).save();
+      }).save()
     } else {
-      method = 2;
-      userToken = await jwt.sign({ email: userData.email }, "CROP@12345");
+      method = 2
+      userToken = await jwt.sign({ email: userData.email }, "CROP@12345")
       await new Token({
         user: userData._id,
         token: userToken,
         type: method,
-      }).save();
+      }).save()
     }
     // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});
-    res
-      .status(200)
-      .send({
-        token: userToken,
-        message: "Login successfull",
-        status: true,
-        data: { userData },
-      });
+    res.status(200).send({
+      token: userToken,
+      message: "Login successfull",
+      status: true,
+      data: { userData },
+    })
   } catch (err) {
-    res
-      .status(500)
-      .send({ message: "Login error", status: false, data: [err] });
+    res.status(500).send({ message: "Login error", status: false, data: [err] })
   }
-});
+})
 
 router.put("/forget", async (req, res) => {
   const userData = await User.findOne({
@@ -687,20 +660,20 @@ router.put("/forget", async (req, res) => {
       { cropid: req.body.cropid },
       { mobileNumber: req.body.phone },
     ],
-  });
+  })
   try {
-    const forgotpassword = await User.findOne({ email: userData.email });
+    const forgotpassword = await User.findOne({ email: userData.email })
 
     if (!forgotpassword) {
-      return res.status(409).send({ message: "Registered email not exist" });
+      return res.status(409).send({ message: "Registered email not exist" })
     }
     //updating the password in the database
-    var userEmail = userData.email;
-    var otp = Math.floor(100000 + Math.random() * 900000);
+    var userEmail = userData.email
+    var otp = Math.floor(100000 + Math.random() * 900000)
     const result = await Otp.updateOne(
       { email: userEmail },
       { $set: { otp: otp } }
-    );
+    )
 
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
@@ -711,47 +684,43 @@ router.put("/forget", async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-    });
+    })
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: userEmail,
       subject: "resetted password",
       text: `OTP GENERATED ${otp}`,
-    };
+    }
     transporter.sendMail(mailOptions, (err, result) => {
       if (err) {
-        res.json("Oops error occurred");
-        res
-          .status(500)
-          .send({
-            message: "OTP not sent successfully",
-            status: "false",
-            data: [],
-          });
+        res.json("Oops error occurred")
+        res.status(500).send({
+          message: "OTP not sent successfully",
+          status: "false",
+          data: [],
+        })
       } else {
-        res
-          .status(200)
-          .send({
-            message: "we have successfully sent the OTP",
-            status: "true",
-            data: [],
-          });
+        res.status(200).send({
+          message: "we have successfully sent the OTP",
+          status: "true",
+          data: [],
+        })
       }
-    });
+    })
   } catch (err) {
-    res.status(500).send({ message: "Enter the registered mail-id" });
+    res.status(500).send({ message: "Enter the registered mail-id" })
   }
-});
+})
 
 router.put("/forgetpassword", async (req, res) => {
-  let email = req.body.email;
+  let email = req.body.email
   const userData = await User.findOne({
     $or: [
       { email: req.body.email },
       { cropid: req.body.cropid },
       { mobileNumber: req.body.phone },
     ],
-  });
+  })
   try {
     //updating the password in the database
     if (
@@ -762,57 +731,53 @@ router.put("/forgetpassword", async (req, res) => {
       req.body.email != undefined &&
       req.body.password != undefined
     ) {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      const emailFind = await User.findOne({ email: email });
+      const hashedPassword = await bcrypt.hash(req.body.password, 10)
+      const emailFind = await User.findOne({ email: email })
       if (emailFind) {
         const result = await User.updateOne(
           { email: email },
           { $set: { password: hashedPassword } }
-        );
-        if(result){
-          createCustomerAudit(result._id, "Password changed Successfully");
+        )
+        if (result) {
+          createCustomerAudit(result._id, "Password changed Successfully")
         }
-        res
-          .status(200)
-          .send({
-            message: "Password changed Successfully",
-            status: "true",
-            data: [],
-          });
+        res.status(200).send({
+          message: "Password changed Successfully",
+          status: "true",
+          data: [],
+        })
       } else {
         res
           .status(500)
-          .send({ message: "No email found", status: "false", data: [] });
+          .send({ message: "No email found", status: "false", data: [] })
       }
     } else {
-      res
-        .status(500)
-        .send({
-          message: "Email and Password should not be empty",
-          status: "false",
-          data: [],
-        });
+      res.status(500).send({
+        message: "Email and Password should not be empty",
+        status: "false",
+        data: [],
+      })
     }
   } catch (err) {
-    console.log(err);
+    console.log(err)
     res
       .status(500)
-      .send({ message: "Error Message", status: "false", data: [] });
+      .send({ message: "Error Message", status: "false", data: [] })
   }
-});
+})
 
 router.get("/profile", async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    var base64;
-    const token_data = await Token.findOne({ token: token });
-    const profile = await User.findOne({ _id: token_data.user });
+    let token = req.headers.authorization
+    var base64
+    const token_data = await Token.findOne({ token: token })
+    const profile = await User.findOne({ _id: token_data.user })
 
     if (profile.avatar === null) {
-      base64 = null;
+      base64 = null
     } else {
-      const imageBuffer = fs.readFileSync(profile.avatar);
-      base64 = imageBuffer.toString("base64");
+      const imageBuffer = fs.readFileSync(profile.avatar)
+      base64 = imageBuffer.toString("base64")
     }
 
     var details = {
@@ -829,25 +794,25 @@ router.get("/profile", async (req, res) => {
       image: base64,
       address: profile.address,
       mktNotification: profile.mktNotification,
-    };
+    }
 
-    res.status(200).json({ profile: details, status: "true", data: [] });
+    res.status(200).json({ profile: details, status: "true", data: [] })
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal server error", status: "false", data: [err] });
+      .send({ message: "Internal server error", status: "false", data: [err] })
   }
-});
+})
 
 router.put("/updateprofile", async (req, res) => {
-  let token = req.headers.authorization;
-  const token_data = await Token.findOne({ token: token });
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString();
+  let token = req.headers.authorization
+  const token_data = await Token.findOne({ token: token })
+  const currentDate = new Date()
+  const formattedDate = currentDate.toLocaleDateString()
 
   try {
-    const id = token_data.user;
-    const result = await User.findByIdAndUpdate({ _id: id }, req.body);
+    const id = token_data.user
+    const result = await User.findByIdAndUpdate({ _id: id }, req.body)
     //       const result= await User.updateOne({_id:token_data.user},{$set:{
     //          name:req.body.name,
     //          mobileNumber:req.body.mobileNumber,
@@ -868,21 +833,22 @@ router.put("/updateprofile", async (req, res) => {
 
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
-    if(result){
-      createCustomerAudit(result._id, "Updated successfully");
+    if (result) {
+      createCustomerAudit(result._id, "Updated successfully")
     }
-    res.send({ message: "Updated successfully", status: "true", data: result });
+    res.send({ message: "Updated successfully", status: "true", data: result })
   } catch (err) {
     console.log(err)
-    res.status(500)
-      .send({ message: "Internal Server error", status: "false", data: [err] });
+    res
+      .status(500)
+      .send({ message: "Internal Server error", status: "false", data: [err] })
   }
-});
+})
 router.post("/community", async (req, res) => {
-  let token = req.headers.authorization;
+  let token = req.headers.authorization
 
   // let data=await User.findOne({"token":token})
-  const token_data = await Token.findOne({ token: token });
+  const token_data = await Token.findOne({ token: token })
   const updatedata = await User.updateOne(
     { _id: token_data.user },
     {
@@ -892,20 +858,20 @@ router.post("/community", async (req, res) => {
         emailNotification: req.body.email,
       },
     }
-  );
+  )
   if (updatedata) {
-    res.status(200).send({ message: "updated successfully", status: "true" });
+    res.status(200).send({ message: "updated successfully", status: "true" })
   } else {
     res
       .status(500)
-      .send({ message: "Not updated successfully", status: "false" });
+      .send({ message: "Not updated successfully", status: "false" })
   }
-});
+})
 
 router.get("/showcommunity", async (req, res) => {
-  let token = req.headers.authorization;
-  const token_data = await Token.findOne({ token: token });
-  const communitydata = await User.findOne({ _id: token_data.user });
+  let token = req.headers.authorization
+  const token_data = await Token.findOne({ token: token })
+  const communitydata = await User.findOne({ _id: token_data.user })
   if (communitydata) {
     res.status(200).send({
       data: {
@@ -914,90 +880,91 @@ router.get("/showcommunity", async (req, res) => {
         emailNotification: communitydata.emailNotification,
       },
       status: "true",
-    });
+    })
   } else {
-    res.status(500).send({ data: "Internal server Error", status: "false" });
+    res.status(500).send({ data: "Internal server Error", status: "false" })
   }
-});
+})
 
 router.post("/biometric", async (req, res) => {
-  let token = req.headers.authorization;
-  const token_data = await Token.findOne({ token: token });
-  const biometricdata = await User.findOne({ _id: token_data.user });
+  let token = req.headers.authorization
+  const token_data = await Token.findOne({ token: token })
+  const biometricdata = await User.findOne({ _id: token_data.user })
 
   const isPasswordValid = await bcrypt.compare(
     req.body.pin,
     biometricdata.password
-  );
+  )
 
   if (!isPasswordValid) {
-    return res.status(500).send({ message: "enter the correct pin" });
+    return res.status(500).send({ message: "enter the correct pin" })
   }
 
   const updatebiometric = await User.updateOne(
     { _id: token_data.user },
     { $set: { biometricterms: req.body.biometric } }
-  );
-  if(updatebiometric){
-    createCustomerAudit(updatebiometric._id, " Biometric Data Successfully Updated");
+  )
+  if (updatebiometric) {
+    createCustomerAudit(
+      updatebiometric._id,
+      " Biometric Data Successfully Updated"
+    )
   }
-  const userdata = await User.findOne({ _id: token_data.user });
+  const userdata = await User.findOne({ _id: token_data.user })
 
   if (userdata.biometricterms === true) {
-    res.status(200).send({ message: "Biometric enabled", status: "true" });
+    res.status(200).send({ message: "Biometric enabled", status: "true" })
   } else {
-    res.status(200).send({ message: "Biometric disabled", status: "true" });
+    res.status(200).send({ message: "Biometric disabled", status: "true" })
   }
-});
+})
 
 router.get("/biometricterms", async (req, res) => {
-  let token = req.headers.authorization;
-  const token_data = await Token.findOne({ token: token });
-  const biometricdata = await User.findOne({ _id: token_data.user });
+  let token = req.headers.authorization
+  const token_data = await Token.findOne({ token: token })
+  const biometricdata = await User.findOne({ _id: token_data.user })
   if (biometricdata) {
-    res
-      .status(200)
-      .send({
-        data: { biometricterms: biometricdata.biometricterms },
-        status: "true",
-      });
+    res.status(200).send({
+      data: { biometricterms: biometricdata.biometricterms },
+      status: "true",
+    })
   } else {
-    res.status(500).send({ message: "Internal server error", status: "false" });
+    res.status(500).send({ message: "Internal server error", status: "false" })
   }
-});
+})
 
 router.post("/feedback", async (req, res) => {
-  let token = req.headers.authorization;
+  let token = req.headers.authorization
 
-  let feedback = req.body.feedback;
+  let feedback = req.body.feedback
 
-  const token_data = await Token.findOne({ token: token });
+  const token_data = await Token.findOne({ token: token })
 
   const updatedata = await User.updateOne(
     { _id: token_data.user },
     { $set: { feedback: feedback } }
-  );
+  )
 
   if (updatedata) {
-    createCustomerAudit(updatedata._id, " Feedback updated successfully");
+    createCustomerAudit(updatedata._id, " Feedback updated successfully")
     res
       .status(200)
-      .send({ message: "Feedback updated successfully", status: "true" });
+      .send({ message: "Feedback updated successfully", status: "true" })
   } else {
     res
       .status(500)
-      .send({ message: "Feedback not updated successfully", status: "false" });
+      .send({ message: "Feedback not updated successfully", status: "false" })
   }
-});
+})
 
 router.put("/levels", async (req, res) => {
-  let token = req.headers.authorization;
+  let token = req.headers.authorization
 
-  const points = parseInt(req.body.croppoints);
+  const points = parseInt(req.body.croppoints)
 
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString();
-  const token_data = await Token.findOne({ token: token });
+  const currentDate = new Date()
+  const formattedDate = currentDate.toLocaleDateString()
+  const token_data = await Token.findOne({ token: token })
   //Changing levels according to croppoints5
   if (points === 0) {
     const updatelevels = await User.updateOne(
@@ -1012,8 +979,8 @@ router.put("/levels", async (req, res) => {
           },
         },
       }
-    );
-    res.send({ status: "true" });
+    )
+    res.send({ status: "true" })
   } else if (points <= 30) {
     const updatelevels = await User.updateOne(
       { _id: token_data.user },
@@ -1027,8 +994,8 @@ router.put("/levels", async (req, res) => {
           },
         },
       }
-    );
-    res.send({ status: "true" });
+    )
+    res.send({ status: "true" })
   } else if (points <= 60) {
     const updatelevels = await User.updateOne(
       { _id: token_data.user },
@@ -1042,8 +1009,8 @@ router.put("/levels", async (req, res) => {
           },
         },
       }
-    );
-    res.send({ status: "true" });
+    )
+    res.send({ status: "true" })
   } else if (points <= 1000) {
     const updatelevels = await User.updateOne(
       { _id: token_data.user },
@@ -1057,8 +1024,8 @@ router.put("/levels", async (req, res) => {
           },
         },
       }
-    );
-    res.send({ status: "true" });
+    )
+    res.send({ status: "true" })
   }
   // else if(points<=2800)
   // {
@@ -1078,34 +1045,32 @@ router.put("/levels", async (req, res) => {
           },
         },
       }
-    );
-    res.send({ status: "true" });
+    )
+    res.send({ status: "true" })
   }
   //comment one the mate website
-});
+})
 //comment on the page
 
 router.post("/newsletter", async (req, res) => {
-  console.log(req.body.email);
+  console.log(req.body.email)
 
-  const userdata = await Newsletter.findOne({ email: req.body.email });
+  const userdata = await Newsletter.findOne({ email: req.body.email })
 
   if (userdata) {
     res
       .status(200)
-      .send({ message: "The given mail-ID already exist", status: "false" });
-  }
-  else{
-
+      .send({ message: "The given mail-ID already exist", status: "false" })
+  } else {
     const user = new Newsletter({
-        email: req.body.email,
-    }).save();
+      email: req.body.email,
+    }).save()
 
     res
-        .status(200)
-        .send({ message: "Your email is added to newsletter", status: "true" });
-    }
-});
+      .status(200)
+      .send({ message: "Your email is added to newsletter", status: "true" })
+  }
+})
 
 router.post("/mate", async (req, res) => {
   let token = req.headers.authorization
@@ -1155,81 +1120,86 @@ router.post("/mate", async (req, res) => {
         .send({ message: "Mail sent successfully", status: "true", data: [] })
     }
   })
-});
+})
 
 router.get("/profileAdmin", async (req, res) => {
   try {
     // let token=req.headers.authorization
     // var base64;
-    const profile = await User.find().sort({ _id: -1 });
-    res.status(200).json({ profile: profile, status: "true", data: [] });
+    const profile = await User.find().sort({ _id: -1 })
+    res.status(200).json({ profile: profile, status: "true", data: [] })
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal server error", status: "false", data: [err] });
+      .send({ message: "Internal server error", status: "false", data: [err] })
   }
-});
+})
 
 router.post("/getproductmissingcrop", async (req, res) => {
   try {
-    const { invoice_id } = req.body;
+    const { invoice_id } = req.body
     const tracker = await customerPaymentTracker.find({
       number: invoice_id,
-    });
-    if(tracker.length != 0){
-      const inputDate = new Date(tracker[0].createdAt);
-    const currentDate = new Date();
+    })
+    if (tracker.length != 0) {
+      const inputDate = new Date(tracker[0].createdAt)
+      const currentDate = new Date()
 
-    const differenceInDays = (currentDate - inputDate) / (1000 * 60 * 60 * 24);
+      const differenceInDays = (currentDate - inputDate) / (1000 * 60 * 60 * 24)
 
-    if (differenceInDays <= 90) {
-      // const product = await Product.find({
-      //   _id: { $in: tracker[0].productId },
-      // });
-      res
-        .status(200)
-        .json({
-          data: { product: tracker[0].cartDetails.cartItems, invoice_date: tracker[0].createdAt, invoice_array: tracker[0] },
+      if (differenceInDays <= 90) {
+        // const product = await Product.find({
+        //   _id: { $in: tracker[0].productId },
+        // });
+        res.status(200).json({
+          data: {
+            product: tracker[0].cartDetails.cartItems,
+            invoice_date: tracker[0].createdAt,
+            invoice_array: tracker[0],
+          },
           status: 200,
-        });
-    } else {
-      res
-        .status(200)
-        .json({
+        })
+      } else {
+        res.status(200).json({
           data: "The invoice date is more than 90 days ago.",
           status: 200,
-        });
+        })
+      }
+    } else {
+      res.status(200).json({
+        data: "No invoice id found.",
+        status: 200,
+      })
     }
-    }
-    else{
-      res
-        .status(200)
-        .json({
-          data: "No invoice id found.",
-          status: 200,
-        });
-    }
-    
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal server error", status: "false", data: [err] });
+      .send({ message: "Internal server error", status: "false", data: [err] })
   }
-});
+})
 
 router.post("/missingcrop", async (req, res) => {
   try {
-    let token = req.headers.authorization;
-    const token_data = await Token.findOne({ token: token });
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
     req.body.user_id = token_data.user
-    await new MissingCrop(req.body).save();
-    res.status(200).json({ data: [req.body], status: 200,message:"Successfully submitted" });
+    const missingCrops = await new MissingCrop(req.body).save()
+    console.log(req.body)
+    req.body.product_id.map(misCrops => {
+      const { business } = misCrops
+      createMissingCropNotification(missingCrops._id, business)
+    })
+    res.status(200).json({
+      data: [req.body],
+      status: 200,
+      message: "Successfully submitted",
+    })
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal server error", status: "false", data: [err] });
+      .send({ message: "Internal server error", status: "false", data: [err] })
   }
-});
+})
 
 router.get("/getmissingcrop", async (req, res) => {
   try {
