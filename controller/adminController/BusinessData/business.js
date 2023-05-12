@@ -4,6 +4,7 @@ const invoiceAndPaymentNotification = require("../../../models/businessModel/bus
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
 const getLastFriday = require('../../../utils/dateHelper')
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 const getAllBusiness = async (req, res) => {
   try {
@@ -212,11 +213,28 @@ const getPurchasedProductStatement = async (req, res) => {
     return res.status(500).send({msg:"Internal Server Error"})
   }
 }
+
+const createStripeAccount = async()=>{
+  const account = await stripe.accounts.create({
+  country: 'AU',
+  type: 'custom',
+  capabilities: {
+    card_payments: {
+      requested: true,
+    },
+    transfers: {
+      requested: true,
+    },
+  },
+});
+console.log(account);
+}
+// createStripeAccount()
 module.exports = {
   getAllBusinessByContent,
   getAllBusiness,
   businessCrop,
   getAllBusinessCrop,
   updateBusinessAccountStatus,
-  getPurchasedProductStatement
+  getPurchasedProductStatement,
 };

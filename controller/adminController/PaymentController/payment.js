@@ -109,7 +109,7 @@ const payToBusiness= async (req, res) => {
     const transfer = await stripe.transfers.create({
       amount: 1000, // Amount in cents
       currency: 'aud',
-      destination: 'ca_NrVo58Lf9Y0mRM48THvbbxA69UDzE0EF',
+      destination: 'acct_1N6p0FIdYC2KFmZv',
       description: 'weekly payout',
     });
 
