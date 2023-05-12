@@ -1095,8 +1095,14 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       { $match: { $and: match } },
       { $count: "count" },
     ])
+    const countLikeResults = await productComment.aggregate([
+      { $match: { $and: match, productLikes: true } },
+      { $in: {product_id: productDetails._id}},
+      { $count: "count" },
+    ])
     const count = countResults.length > 0 ? countResults[0].count : 0
-    res.json({ count, products: productDetails })
+    const countLike = countLikeResults.length > 0 ? countLikeResults[0].count : 0
+    res.json({ count, products: productDetails, product_like: countLike })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
