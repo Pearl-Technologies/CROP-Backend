@@ -1285,8 +1285,22 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       { $match: { $and: match } },
       { $count: "count" },
     ])
+    let dataArray = [];
+    for(let i=0; i<productDetails.length; i++){
+      const countLikeResults = await productComment.aggregate([
+        { $match: { $and: match, product_id: productDetails[i]._id, productLikes: {like: true, status: true} } },
+        { $count: "count" },
+      ])
+      if (countLikeResults.length != 0){
+        dataArray.push({...productDetails[i],...{likes: countLikeResults[0].count}})
+      }
+      else{
+        dataArray.push({...productDetails[i],...{likes: 0}})
+      }
+      
+    }
     const count = countResults.length > 0 ? countResults[0].count : 0
-    res.json({ count, products: productDetails })
+    res.json({ count, products: dataArray })
   } catch (error) {
     console.log(error)
   }
