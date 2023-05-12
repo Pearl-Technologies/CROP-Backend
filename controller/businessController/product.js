@@ -1098,7 +1098,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       { $count: "count" },
     ])
     const countLikeResults = await productComment.aggregate([
-      { $match: { $and: match, productLikes: true } },
+      { $match: { $and: match, productLikes: {like: true, status: true} } },
       { $in: {product_id: productDetails._id}},
       { $count: "count" },
     ])
