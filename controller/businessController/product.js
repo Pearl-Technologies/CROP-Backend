@@ -1756,7 +1756,7 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
                   },
                 ],
               },
-              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
+              then: 10,
               else: 0,
             },
           },
