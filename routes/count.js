@@ -19,7 +19,7 @@ router.get("/count",async (req,res)=>{
             const userData = token_data
               ? await User.findOne({ _id: token_data.user })
               : null
-            const { croppoints, proppoints, userTier, cropid, propid } =
+            const { croppoints, proppoints, UserTier, cropid, propid } =
               userData
             const user_id = userData?._id.valueOf()
             const newCart = await Cart.find({ user_id: user_id })
@@ -27,7 +27,7 @@ router.get("/count",async (req,res)=>{
             const tempCart = []
             let cartCount = 0
             let wishlistCount = 0
-            console.log({ croppoints, proppoints, userTier, cropid, propid })
+            console.log({ croppoints, proppoints, UserTier, cropid, propid })
             if (newCart?.length > 0) {
               cartCount = newCart[0]?._doc?.cart
                 ? newCart[0]?._doc?.cart.length
@@ -48,7 +48,7 @@ router.get("/count",async (req,res)=>{
                 wishlist: wishlistCount,
                 croppoints,
                 proppoints,
-                userTier,
+                UserTier,
                 cropid,
                 propid,
               },
