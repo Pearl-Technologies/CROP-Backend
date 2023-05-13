@@ -97,7 +97,14 @@ module.exports.getSingleProduct = async (req, res) => {
       const newProductComment = await productComment.find({
         $and: [{ status: true }, { product_id: req.params.id }],
       });
-      product._doc.productComments = newProductComment[0];
+      if(newProductComment.length != 0){
+        product._doc.productComments = newProductComment[0].details;
+        product._doc.productLikes = newProductComment[0].product_likes.length;
+      }
+      else{
+        product._doc.productComments = [];
+        product._doc.productLikes = 0;
+      }
       res.status(200).json(product);
     }
     else{
