@@ -3,7 +3,7 @@ const {
   Product,
   productComment,
 } = require("../../models/businessModel/product")
-const {Cart} = require("../../models/Cart")
+const { Cart } = require("../../models/Cart")
 const { Token } = require("../../models/User")
 const {
   adminPaymentTracker,
@@ -88,37 +88,48 @@ module.exports.getDiscountProduct = async (req, res) => {
   }
 }
 
-// const newProductComment = await productComment.find({
-//   $and: [
-//     { status: "active" },
-//     { user_id: user },
-//     { product_id: req.params.id },
-//   ],
-// })
-
-
-// dataArray.push({
-//   ...productDetails[i],
-//   ...{ productComments: newProductComment },
-// })
 // getDiscountProduct
 module.exports.getSingleProduct = async (req, res) => {
   try {
-    // const token = req.headers.authorization;
-    // const token_data = await Token.findOne({ token });
-    // let merge;
-    const product = await Product.findOne({ _id: req.params.id })
-    // const cartnew = await Cart.find({
-    //   user_id: token_data.user,
-    //   cart: { $elemMatch: { _id: req.params.id } },
-    // })
-    // if (cartnew.length == 0) {
-    //   product._doc.statusCart = 0
-    // } else {
-    //   product._doc.statusCart = 1
-    // }
+    const token = req.headers.authorization
+    if (token == undefined) {
+      const product = await Product.findOne({ _id: req.params.id })
+      const newProductComment = await productComment.find({
+        $and: [{ status: true }, { product_id: req.params.id }],
+      })
+      if (newProductComment.length != 0) {
+        product._doc.productComments = newProductComment[0].details
+        product._doc.productLikes = newProductComment[0].product_likes.length
+      } else {
+        product._doc.productComments = []
+        product._doc.productLikes = 0
+      }
+      res.status(200).json(product)
+    } else {
+      const token_data = await Token.findOne({ token })
+      const product = await Product.findOne({ _id: req.params.id })
+      const cartnew = await Cart.find({
+        user_id: token_data.user,
+        cart: { $elemMatch: { _id: req.params.id } },
+      })
+      const newProductComment = await productComment.find({
+        $and: [{ status: true }, { product_id: req.params.id }],
+      })
+      if (cartnew.length == 0) {
+        product._doc.statusCart = 0
+      } else {
+        product._doc.statusCart = 1
+      }
+      if (newProductComment.length != 0) {
+        product._doc.productComments = newProductComment[0].details
+        product._doc.productLikes = newProductComment[0].product_likes.length
+      } else {
+        product._doc.productComments = []
+        product._doc.productLikes = 0
+      }
 
-    res.status(200).json(product)
+      res.status(200).json(product)
+    }
   } catch (err) {
     res.status(500).send({
       message: err.message,
@@ -866,7 +877,7 @@ module.exports.putProductCommentDetails = async (req, res) => {
       },
     })
     var newProductComment
-    if (commentnew.product_likes.length == 0) {
+    if (commentnew.length == 0) {
       newProductComment = await productComment.findByIdAndUpdate(
         { _id: id, product_id: product_id },
         {
