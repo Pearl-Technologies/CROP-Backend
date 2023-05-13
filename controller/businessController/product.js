@@ -88,32 +88,30 @@ module.exports.getDiscountProduct = async (req, res) => {
   }
 }
 
-// const newProductComment = await productComment.find({
-//   $and: [
-//     { status: "active" },
-//     { user_id: user },
-//     { product_id: req.params.id },
-//   ],
-// })
-
-
-// dataArray.push({
-//   ...productDetails[i],
-//   ...{ productComments: newProductComment },
-// })
 // getDiscountProduct
 module.exports.getSingleProduct = async (req, res) => {
   try {
     const token = req.headers.authorization;
     const token_data = await Token.findOne({ token });
-    let merge;
     const product = await Product.findOne({ _id: req.params.id })
     const cartnew = await Cart.find({user_id: token_data.user, cart:{$elemMatch:{_id:req.params.id}}})
+    const newProductComment = await productComment.find({
+    $and: [
+    { status: true },
+    { product_id: req.params.id },
+    ],
+    $lookup: {
+      foreignField: "",
+      localField: "",
+      as: ""
+    }
+    })
     if(cartnew.length == 0){
       product._doc.statusCart=0
     } else {
       product._doc.statusCart=1
     }
+    product._doc.productComments=newProductComment[0]
 
     res.status(200).json(product)
   } catch (err) {
