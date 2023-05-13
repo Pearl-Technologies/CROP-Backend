@@ -1645,9 +1645,8 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           mktOfferFor: 1,
           happyHours: 1,
           bonusCrops: 1,
+          sector: 1,
           // services: 1,
-          // happyHours: 1,
-          // bonusCrops: 1,
         },
       },
     ])
@@ -1763,6 +1762,7 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
           apply: 1,
           rating: 1,
           likes: 1,
+          sector: 1,
         },
       },
     ])
