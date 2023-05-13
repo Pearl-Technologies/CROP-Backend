@@ -105,6 +105,7 @@ module.exports.getSingleProduct = async (req, res) => {
         product._doc.productComments = [];
         product._doc.productLikes = 0;
       }
+      product._doc.statusCart = 0;
       res.status(200).json(product);
     }
     else{
