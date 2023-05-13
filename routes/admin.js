@@ -253,7 +253,7 @@ router.post("/customerProp", verifyToken, customerProp)
 router.post("/customerCrop", verifyToken, customerCrop)
 router.post("/updateCustomerStatus", updateCustomerStatus)
 router.post("/getAllCustomerByContent", getAllCustomerByContent)
-router.post("/createCategory", createCategory)
+router.post("/createCategory", verifyToken, upload.single('image'), createCategory)
 router.get("/getCategories", getCategories)
 
 

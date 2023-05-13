@@ -74,6 +74,9 @@ module.exports.paymentIntent = async (req, res) => {
             quantity: item.cartQuantity,
           };
         }),
+        discounts: [{
+          coupon: 'REEDEEMCROP',
+        }],
         success_url: `${req.headers.origin}/success`,
         cancel_url: `${req.headers.origin}/canceled`,
         customer_email: req.body.email_id
