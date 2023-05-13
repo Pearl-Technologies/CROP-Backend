@@ -3,6 +3,7 @@ const {
   Product,
   productComment,
 } = require("../../models/businessModel/product")
+const {Cart} = require("../../models/Cart")
 const { Token } = require("../../models/User")
 const {
   adminPaymentTracker,
@@ -87,11 +88,34 @@ module.exports.getDiscountProduct = async (req, res) => {
   }
 }
 
+// const newProductComment = await productComment.find({
+//   $and: [
+//     { status: "active" },
+//     { user_id: user },
+//     { product_id: req.params.id },
+//   ],
+// })
+
+
+// dataArray.push({
+//   ...productDetails[i],
+//   ...{ productComments: newProductComment },
+// })
 // getDiscountProduct
 module.exports.getSingleProduct = async (req, res) => {
   try {
+    const token = req.headers.authorization;
+    const token_data = await Token.findOne({ token });
+    let merge;
     const product = await Product.findOne({ _id: req.params.id })
-    res.json(product)
+    const cartnew = await Cart.find({user_id: token_data.user, cart:{$elemMatch:{_id:req.params.id}}})
+    if(cartnew.length == 0){
+      product._doc.statusCart=0
+    } else {
+      product._doc.statusCart=1
+    }
+
+    res.status(200).json(product)
   } catch (err) {
     res.status(500).send({
       message: err.message,
@@ -463,7 +487,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
                 ],
               },
               then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
-              else: 1,
+              else: 0,
             },
           },
         },
@@ -514,6 +538,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
           rating: 1,
           likes: 1,
           bidPrice: 1,
+          redeemCROPS: 1,
           user: 1,
           cropRules: { cropPerAudDebit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
@@ -1317,18 +1342,18 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-04-23", today],
+                    $lte: ["2023-05-12", today],
                   },
                   {
-                    $gte: ["2023-04-29", today],
+                    $gte: ["2023-05-29", today],
                   },
                   {
                     $eq: [true, true],
                   },
                 ],
               },
-              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
-              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+              then: 10,
+              else: 0,
             },
           },
         },
@@ -1344,6 +1369,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           originalPrice: 1,
           discount: 1,
           price: 1,
+          croppoints: 1,
           quantity: 1,
           image: 1,
           rating: 1,
@@ -1492,8 +1518,7 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
     } else if (currentDay == 6) {
       day = "sat"
     }
-    const id = req.params.id.toString()
-    console.log(typeof id)
+    const id = req.params.id
     const product = await Product.aggregate([
       { $match: { _id: { $eq: ObjectId(id) } } },
       {
@@ -1641,9 +1666,10 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           rating: 1,
           likes: 1,
           mktOfferFor: 1,
+          happyHours: 1,
+          bonusCrops: 1,
+          sector: 1,
           // services: 1,
-          // happyHours: 1,
-          // bonusCrops: 1,
         },
       },
     ])
@@ -1720,18 +1746,18 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-04-23", today],
+                    $lte: ["2023-05-10", today],
                   },
                   {
-                    $gte: ["2023-04-29", today],
+                    $gte: ["2023-05-29", today],
                   },
                   {
                     $eq: [true, true],
                   },
                 ],
               },
-              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
-              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+              then: 10,
+              else: 0,
             },
           },
         },
@@ -1759,6 +1785,7 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
           apply: 1,
           rating: 1,
           likes: 1,
+          sector: 1,
         },
       },
     ])

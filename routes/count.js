@@ -16,27 +16,44 @@ router.get("/count",async (req,res)=>{
         if(token_data){
             // const userData = await User.findOne({ _id: token_data.user });
             // const user_id = userData._id.valueOf();
-            const userData= token_data ? await User.findOne({_id:token_data.user}) : null; 
-            const user_id = userData?._id.valueOf();
-            const newCart = await Cart.find({ "user_id":user_id});
-            const wishCart = await Wishlist.find({"user_id":user_id});
-            const tempCart = [];
-            let cartCount = 0;
-            let wishlistCount = 0;
-            if(newCart?.length > 0){
-                cartCount = newCart[0]?._doc?.cart ? newCart[0]?._doc?.cart.length : 0;
-                // res.status(200).send({count:{
-                //     cart:newCart[0]?._doc?.cart ? newCart[0]?._doc?.cart.length : 0,
-                //     wishlist:wishCart[0]?._doc?.Wishlist ? wishCart[0]?._doc?.Wishlist.length : 0 
-                // },status:true}) 
+            const userData = token_data
+              ? await User.findOne({ _id: token_data.user })
+              : null
+            const { croppoints, proppoints, UserTier, cropid, propid } =
+              userData
+            const user_id = userData?._id.valueOf()
+            const newCart = await Cart.find({ user_id: user_id })
+            const wishCart = await Wishlist.find({ user_id: user_id })
+            const tempCart = []
+            let cartCount = 0
+            let wishlistCount = 0
+            console.log({ croppoints, proppoints, UserTier, cropid, propid })
+            if (newCart?.length > 0) {
+              cartCount = newCart[0]?._doc?.cart
+                ? newCart[0]?._doc?.cart.length
+                : 0
+              // res.status(200).send({count:{
+              //     cart:newCart[0]?._doc?.cart ? newCart[0]?._doc?.cart.length : 0,
+              //     wishlist:wishCart[0]?._doc?.Wishlist ? wishCart[0]?._doc?.Wishlist.length : 0
+              // },status:true})
             }
-            if(wishCart?.length > 0){
-                wishlistCount = wishCart[0]?._doc?.Wishlist ? wishCart[0]?._doc?.Wishlist.length : 0;
+            if (wishCart?.length > 0) {
+              wishlistCount = wishCart[0]?._doc?.Wishlist
+                ? wishCart[0]?._doc?.Wishlist.length
+                : 0
             }
-            res.status(200).send({count:{
-                cart:cartCount,
-                wishlist:wishlistCount
-            },status:true}) 
+            res.status(200).send({
+              count: {
+                cart: cartCount,
+                wishlist: wishlistCount,
+                croppoints,
+                proppoints,
+                UserTier,
+                cropid,
+                propid,
+              },
+              status: true,
+            }) 
 
         }
         else{
