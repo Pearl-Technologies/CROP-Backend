@@ -1516,8 +1516,7 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
     } else if (currentDay == 6) {
       day = "sat"
     }
-    const id = req.params.id.toString()
-    console.log(typeof id)
+    const id = req.params.id
     const product = await Product.aggregate([
       { $match: { _id: { $eq: ObjectId(id) } } },
       {
@@ -1745,10 +1744,10 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-04-23", today],
+                    $lte: ["2023-05-10", today],
                   },
                   {
-                    $gte: ["2023-04-29", today],
+                    $gte: ["2023-05-29", today],
                   },
                   {
                     $eq: [true, true],
@@ -1756,7 +1755,7 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
                 ],
               },
               then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
-              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+              else: 0,
             },
           },
         },
