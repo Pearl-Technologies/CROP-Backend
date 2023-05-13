@@ -3,7 +3,7 @@ const {
   Product,
   productComment,
 } = require("../../models/businessModel/product")
-const { Token } = require("../../models/User");
+const { Token } = require("../../models/User")
 const {
   adminPaymentTracker,
 } = require("../../models/admin/PaymentTracker/paymentIdTracker")
@@ -115,7 +115,6 @@ module.exports.getRelatedProducts = async (req, res) => {
     })
   }
 }
-
 
 module.exports.getProductsByCatagory = async (req, res) => {
   const category = req.body.category
@@ -360,9 +359,18 @@ module.exports.getEarnCropProducts = async (req, res) => {
           title: 1,
           originalPrice: 1,
           discount: 1,
+          image: 1,
           price: 1,
           quantity: 1,
           crops: "$croppoints",
+          description: 1,
+          brand: 1,
+          user: 1,
+          customiseMsg: 1,
+          user: 1,
+          apply: 1,
+          rating: 1,
+          likes: 1,
           cropRules: { cropPerAudCredit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
@@ -370,8 +378,9 @@ module.exports.getEarnCropProducts = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
-          happyHours: 1,
-          services: { $arrayElemAt: ["$services", 0] },
+          rating: 1,
+          likes: 1,
+          mktOfferFor: 1,
         },
       },
     ])
@@ -497,13 +506,27 @@ module.exports.getRedeemCropProducts = async (req, res) => {
       {
         $project: {
           title: 1,
+          originalPrice: 1,
+          discount: 1,
+          price: 1,
           quantity: 1,
-          redeemCROPs: 1,
+          image: 1,
+          rating: 1,
+          likes: 1,
+          bidPrice: 1,
           user: 1,
           cropRules: { cropPerAudDebit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
+          market: 1,
+          apply: 1,
+          sector: 1,
+          customiseMsg: 1,
+          brand: 1,
+          description: 1,
+          mktOfferFor: 1,
+          cropRulesWithBonus: 1,
         },
       },
     ])
@@ -663,7 +686,7 @@ module.exports.putProductCommentLike = async (req, res) => {
           user_id: token_data.user._id.valueOf(),
         },
       })
-      await newProductComment.save();
+      await newProductComment.save()
       res.status(200).json({
         message: "Product Likes Created Successfully",
         newProductComment,
@@ -674,9 +697,9 @@ module.exports.putProductCommentLike = async (req, res) => {
         product_id: product_id,
         product_likes: {
           $elemMatch: {
-            user_id: user_id
-          }
-        }
+            user_id: user_id,
+          },
+        },
       })
       var newProductComment
       if (comment.length == 0) {
@@ -692,13 +715,12 @@ module.exports.putProductCommentLike = async (req, res) => {
       } else {
         newProductComment = await productComment.findOneAndUpdate(
           {
-            
             product_id: product_id,
             product_likes: {
               $elemMatch: {
-                user_id: user_id
-              }
-            }
+                user_id: user_id,
+              },
+            },
           },
           { $set: { product_likes: { like: like, user_id: user_id } } }
         )
@@ -732,9 +754,9 @@ module.exports.putProductCommentDetails = async (req, res) => {
       product_id: product_id,
       details: {
         $elemMatch: {
-          user_id: user_id
-        }
-      }
+          user_id: user_id,
+        },
+      },
     })
     var newProductComment
     if (commentnew.product_likes.length == 0) {
@@ -753,11 +775,15 @@ module.exports.putProductCommentDetails = async (req, res) => {
       })
     } else {
       newProductComment = await productComment.findOneAndUpdate(
-        { _id: id, product_id: product_id, details: {
-          $elemMatch: {
-            user_id: user_id
-          }
-        } },
+        {
+          _id: id,
+          product_id: product_id,
+          details: {
+            $elemMatch: {
+              user_id: user_id,
+            },
+          },
+        },
         {
           $set: {
             details: { comment: comment, user_id: user_id, rating: rating },
@@ -887,7 +913,9 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     const t = dateTime.toLocaleString("en-GB").split(" ")
     const th = t[1].split(":")
     const time = th[0] + ":" + th[1]
+    console.log({ time })
     let day = ""
+    console.log({ today })
     if (currentDay == 0) {
       day = "sun"
     } else if (currentDay == 1) {
@@ -995,20 +1023,29 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           },
         },
       },
-
       {
         $addFields: {
           bonusCropsDiscountPercentage: {
             $cond: {
               if: {
                 $and: [
-                  [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
-                  [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
-                  [`$bonusCrops.bonusCropDays.${day}`],
+                  {
+                    $gt: [
+                      today,
+                      { $arrayElemAt: ["$bonusCrops.bonusCrop.fromDate", 0] },
+                    ],
+                  },
+                  {
+                    $lt: [
+                      today,
+                      { $arrayElemAt: ["$bonusCrops.bonusCrop.toDate", 0] },
+                    ],
+                  },
+                  { $anyElementTrue: `$bonusCrops.bonusCropDays.${day}` },
                 ],
               },
               then: { $sum: `$bonusCrops.bonusCropPercentage` },
-              else: [`$bonusCrops.bonusCropDays.${day}`, day],
+              else: 0,
             },
           },
         },
@@ -1019,15 +1056,49 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
             $cond: {
               if: {
                 $and: [
-                  [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
-                  [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
-                  // [`$happyHours.happyHoursDays.${day}`]
-                  [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
-                  [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
+                  {
+                    $lte: [
+                      {
+                        $arrayElemAt: [
+                          "$happyHours.happyHoursDates.fromDate",
+                          0,
+                        ],
+                      },
+                      today,
+                    ],
+                  },
+                  {
+                    $gte: [
+                      {
+                        $arrayElemAt: ["$happyHours.happyHoursDates.toDate", 0],
+                      },
+                      today,
+                    ],
+                  },
+                  {
+                    $lte: [
+                      {
+                        $arrayElemAt: [
+                          "$happyHours.happyHoursTime.startTime",
+                          0,
+                        ],
+                      },
+                      time,
+                    ],
+                  },
+                  {
+                    $gte: [
+                      {
+                        $arrayElemAt: ["$happyHours.happyHoursTime.endTime", 0],
+                      },
+                      time,
+                    ],
+                  },
+                  { $anyElementTrue: `$happyHours.happyHoursDays.${day}` },
                 ],
               },
               then: { $sum: "$happyHours.happyHoursPercentage" },
-              else: [`$happyHours.happyHoursDay.${day}`, day],
+              else: 0,
             },
           },
         },
@@ -1042,7 +1113,6 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           },
         },
       },
-      // { $cond: [ { $eq: [ "$happyHoursAndExtendBonusAddedPercentage", 0 ] }, "$ruleAppliedCrops", {$divide:["$upvotes", "$downvotes"]} ] }
       {
         $addFields: {
           cropRulesWithBonus: {
@@ -1069,8 +1139,6 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           },
         },
       },
-
-      // {$unwind: "$bonusCrops"},
       {
         $project: {
           title: 1,
@@ -1113,29 +1181,27 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       { $match: { $and: match } },
       { $count: "count" },
     ])
-    let dataArray = [];
-    for(let i=0; i<productDetails.length; i++){
-      const countLikeResults = await productComment.find(
-        {
-          
-          product_id: productDetails[i]._id,
-          product_likes: {
-            $elemMatch: {
-              like: true,
-              status: true
-            }
-          }
-        }
-      )
-      if (countLikeResults.length != 0){
-        dataArray.push({...productDetails[i],...{likes: countLikeResults.length}})
+    let dataArray = []
+    for (let i = 0; i < productDetails.length; i++) {
+      const countLikeResults = await productComment.find({
+        product_id: productDetails[i]._id,
+        product_likes: {
+          $elemMatch: {
+            like: true,
+            status: true,
+          },
+        },
+      })
+      if (countLikeResults.length != 0) {
+        dataArray.push({
+          ...productDetails[i],
+          ...{ likes: countLikeResults.length },
+        })
+      } else {
+        dataArray.push({ ...productDetails[i], ...{ likes: 0 } })
       }
-      else{
-        dataArray.push({...productDetails[i],...{likes: 0}})
-      }
-      
     }
-    
+
     const count = countResults.length > 0 ? countResults[0].count : 0
     res.json({ count, products: dataArray })
   } catch (error) {
@@ -1309,27 +1375,25 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       { $match: { $and: match } },
       { $count: "count" },
     ])
-    let dataArray = [];
-    for(let i=0; i<productDetails.length; i++){
-      const countLikeResults = await productComment.find(
-        {
-          
-          product_id: productDetails[i]._id,
-          product_likes: {
-            $elemMatch: {
-              like: true,
-              status: true
-            }
-          }
-        }
-      )
-      if (countLikeResults.length != 0){
-        dataArray.push({...productDetails[i],...{likes: countLikeResults.length}})
+    let dataArray = []
+    for (let i = 0; i < productDetails.length; i++) {
+      const countLikeResults = await productComment.find({
+        product_id: productDetails[i]._id,
+        product_likes: {
+          $elemMatch: {
+            like: true,
+            status: true,
+          },
+        },
+      })
+      if (countLikeResults.length != 0) {
+        dataArray.push({
+          ...productDetails[i],
+          ...{ likes: countLikeResults.length },
+        })
+      } else {
+        dataArray.push({ ...productDetails[i], ...{ likes: 0 } })
       }
-      else{
-        dataArray.push({...productDetails[i],...{likes: 0}})
-      }
-      
     }
     const count = countResults.length > 0 ? countResults[0].count : 0
     res.json({ count, products: dataArray })
@@ -1765,7 +1829,8 @@ module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
     const earnCropProducts = await this.getEarnCropProducts(req, res)
     const redeemCropProducts = await this.getRedeemCropProducts(req, res)
     // const promoProducts = await Product.find({})
-    return res.status(200).send({ earnCropProducts, redeemCropProducts })
+    const promoProducts = earnCropProducts.concat(redeemCropProducts)
+    return res.status(200).send({ promoProducts })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

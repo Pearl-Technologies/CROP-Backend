@@ -834,7 +834,7 @@ router.put("/updateprofile", async (req, res) => {
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
     if (result) {
-      createCustomerAudit(result._id, "Updated successfully")
+      createCustomerAudit(result._id, "Profile Updated successfully")
     }
     res.send({ message: "Updated successfully", status: "true", data: result })
   } catch (err) {
@@ -1185,8 +1185,10 @@ router.post("/missingcrop", async (req, res) => {
     req.body.user_id = token_data.user
     const missingCrops = await new MissingCrop(req.body).save()
     console.log(req.body)
+    console.log(missingCrops._id, "mcId")
     req.body.product_id.map(misCrops => {
       const { business } = misCrops
+      console.log({ business })
       createMissingCropNotification(missingCrops._id, business)
     })
     res.status(200).json({
