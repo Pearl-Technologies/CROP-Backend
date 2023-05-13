@@ -834,7 +834,7 @@ router.put("/updateprofile", async (req, res) => {
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
     if (result) {
-      createCustomerAudit(result._id, "Updated successfully")
+      createCustomerAudit(result._id, "Profile Updated successfully")
     }
     res.send({ message: "Updated successfully", status: "true", data: result })
   } catch (err) {

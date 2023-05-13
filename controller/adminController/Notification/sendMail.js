@@ -24,22 +24,25 @@ const sendMail = (req, res) => {
   sendEmail(mailData, res, message);
 };
 const sendMassNotification = (req, res) => {
-  const { emailData, subject, notificationBody, user } = req.body;
-  console.log(req.body);
-  return res.send("ok");
-
-  for (let i = 0; i < emailData.length; i++) {
-    console.log(emailData[i]);
-    const mailData = {
-      from: process.env.EMAIL_USER,
-      to: `${emailData[i]}`,
-      subject: subject,
-      // html: `<h2>Hello ${emailData[i].slice(0, emailData[i].indexOf("@"))}</h2>  
-      html: `<h2>Hello ${user}</h2> 
-         `,
-    };
-    const message = "message sent successfully!";
-    sendEmail(mailData, res, message);
+  const { userEmailData, subject, notificationBody, user } = req.body;
+  try {
+    for (let i = 0; i < userEmailData.length; i++) {
+      console.log(userEmailData[i]);
+      const mailData = {
+        from: process.env.EMAIL_USER,
+        to: `${userEmailData[i]}`,
+        subject: subject,
+        // html: `<h2>Hello ${emailData[i].slice(0, emailData[i].indexOf("@"))}</h2>  
+        html: `<h2>Hello ${user}</h2> 
+           `,
+      };
+      const message = "message sent successfully!";
+      sendEmail(mailData, res, message);
+      // console.log("hello")
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.send({msg:"internal error"})
   }
 };
 module.exports = { sendMail, sendMassNotification };
