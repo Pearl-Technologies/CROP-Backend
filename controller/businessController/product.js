@@ -514,7 +514,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
           rating: 1,
           likes: 1,
           bidPrice: 1,
-          croppoints: 1,
+          redeemCROPS: 1,
           user: 1,
           cropRules: { cropPerAudDebit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
