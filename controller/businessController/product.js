@@ -487,7 +487,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
                 ],
               },
               then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
-              else: 1,
+              else: 0,
             },
           },
         },
@@ -1342,18 +1342,18 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-04-23", today],
+                    $lte: ["2023-05-12", today],
                   },
                   {
-                    $gte: ["2023-04-29", today],
+                    $gte: ["2023-05-29", today],
                   },
                   {
                     $eq: [true, true],
                   },
                 ],
               },
-              then: { name: `$slashRedemption.slashRedemptionDays.${day}` },
-              else: [`$slashRedemption.slashRedemptionDays.${day}`, day],
+              then: 10,
+              else: 0,
             },
           },
         },
