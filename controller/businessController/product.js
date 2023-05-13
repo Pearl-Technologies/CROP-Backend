@@ -1316,9 +1316,11 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
         },
       })
       if (countLikeResults.length != 0) {
+        const token = req.headers.authorization
+        const token_data = await Token.findOne({ token });
         const cartnew = await Cart.find({
           user_id: token_data.user,
-          cart: { $elemMatch: { _id: req.params.id } },
+          cart: { $elemMatch: { _id: productDetails[i]._id } },
         });
         if (cartnew.length == 0) {
           dataArray.push({
@@ -1522,9 +1524,11 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
         },
       })
       if (countLikeResults.length != 0) {
+        const token = req.headers.authorization
+        const token_data = await Token.findOne({ token });
         const cartnew = await Cart.find({
           user_id: token_data.user,
-          cart: { $elemMatch: { _id: req.params.id } },
+          cart: { $elemMatch: { _id: productDetails[i]._id } },
         });
         if (cartnew.length == 0) {
           dataArray.push({
