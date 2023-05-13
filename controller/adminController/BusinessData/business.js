@@ -215,21 +215,24 @@ const getPurchasedProductStatement = async (req, res) => {
 }
 
 const createStripeAccount = async()=>{
-  const account = await stripe.accounts.create({
-  country: 'AU',
-  type: 'custom',
-  capabilities: {
-    card_payments: {
-      requested: true,
-    },
-    transfers: {
-      requested: true,
-    },
-  },
-});
-console.log(account);
+//   const account = await stripe.accounts.create({
+//   country: 'AU',
+//   type: 'custom',
+//   capabilities: {
+//     card_payments: {
+//       requested: true,
+//     },
+//     transfers: {
+//       requested: true,
+//     },
+//   },
+// });
+// const deleted = await stripe.accounts.del(
+//   'acct_1N6rvnITspZWzEVQ'
+// );
+// console.log(deleted);
 }
-// createStripeAccount()
+createStripeAccount()
 module.exports = {
   getAllBusinessByContent,
   getAllBusiness,
