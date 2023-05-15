@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback } = require("../models/User");
+const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback, loginAttemp } = require("../models/User");
 const StateSchema = require('../models/State');
 const { Cart } = require("../models/Cart")
 const { Wishlist } = require("../models/Wishlist")
@@ -568,86 +568,99 @@ router.post("/login", async (req, res) => {
         { mobileNumber: req.body.phone },
       ],
     })
-    //if the email id is not present send the error message
-    if (!userData) {
-      return res
-        .status(409)
-        .send({ message: "Wrong credentialssss!", status: false })
+    const cutoffDate = new Date();
+    cutoffDate.setHours(cutoffDate.getHours() - 24);
+    const attempt = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
+    if(attempt.length<=3){
+      return res.status(200).json({message: `Your account has been temporary blocked. Please try after 24hrs.`});
     }
+    else{
+      //if the email id is not present send the error message
+      if (!userData) {
+        return res
+          .status(409)
+          .send({ message: "Wrong credentialssss!", status: false })
+      }
 
-    //        if(phone)
-    //         {
-    //         const userData=await User.findOne({
-    //            mobileNumber:req.body.phone
-    //         });
-    //         //if the email id is not present send the error message
-    //         if(!userData.mobileNumber)
-    //         {
-    //         return res.status(409).send({message:"Wrong credentials!",status:false})
-    //         }
-    //     }
+      //        if(phone)
+      //         {
+      //         const userData=await User.findOne({
+      //            mobileNumber:req.body.phone
+      //         });
+      //         //if the email id is not present send the error message
+      //         if(!userData.mobileNumber)
+      //         {
+      //         return res.status(409).send({message:"Wrong credentials!",status:false})
+      //         }
+      //     }
 
-    //     if(cropid)
-    //     {
-    //     const userData=await User.findOne({
-    //         cropid:req.body.cropid
-    //     });
-    //     //if the email id is not present send the error message
-    //     if(!userData.cropid)
-    //     {
-    //     return res.status(409).send({message:"Wrong credentials!",status:false})
-    //     }
-    // }
-    //comparing the password with database password
-    const isPasswordValid = await bcrypt.compare(
-      req.body.password,
-      userData.password
-    )
+      //     if(cropid)
+      //     {
+      //     const userData=await User.findOne({
+      //         cropid:req.body.cropid
+      //     });
+      //     //if the email id is not present send the error message
+      //     if(!userData.cropid)
+      //     {
+      //     return res.status(409).send({message:"Wrong credentials!",status:false})
+      //     }
+      // }
+      //comparing the password with database password
+      const isPasswordValid = await bcrypt.compare(
+        req.body.password,
+        userData.password
+      )
 
-    if (!isPasswordValid) {
-      return res
-        .status(409)
-        .send({ message: "given password not exist", status: false })
-    }
-    // if(userData.token!=="null")
-    // {
-    //     return res.status(500).send({message:"You already logged in"})
-    // }
-    //jwt joken is created when the email and password r correct so that it will generate the token for that user(email)
-    var method = 0
-    var userToken
-    //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-    let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString(
-      "en-US",
-      { timeZone: "Asia/Kolkata" }
-    )
-    if (req.body.login_method === 1) {
-      method = 1
-      userToken = await jwt.sign({ email: userData.email }, "CROP@12345", {
-        expiresIn: "1h",
+      if (!isPasswordValid) {
+        await new loginAttemp({user: userData._id}).save()
+        const attemptNew = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
+        if(attemptNew.length<=3){
+          return res.status(409).json({message: `You have only ${3 - attemptNew.length} attempts left.`})
+        }
+        return res
+          .status(409)
+          .send({ message: "given password not exist", status: false })
+      }
+      // if(userData.token!=="null")
+      // {
+      //     return res.status(500).send({message:"You already logged in"})
+      // }
+      //jwt joken is created when the email and password r correct so that it will generate the token for that user(email)
+      var method = 0
+      var userToken
+      //   let now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      let oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toLocaleString(
+        "en-US",
+        { timeZone: "Asia/Kolkata" }
+      )
+      if (req.body.login_method === 1) {
+        method = 1
+        userToken = await jwt.sign({ email: userData.email }, "CROP@12345", {
+          expiresIn: "1h",
+        })
+        await new Token({
+          user: userData._id,
+          token: userToken,
+          type: method,
+          expiration: oneHourFromNow,
+        }).save()
+      } else {
+        method = 2
+        userToken = await jwt.sign({ email: userData.email }, "CROP@12345")
+        await new Token({
+          user: userData._id,
+          token: userToken,
+          type: method,
+        }).save()
+      }
+      // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});
+      res.status(200).send({
+        token: userToken,
+        message: "Login successfull",
+        status: true,
+        data: { userData },
       })
-      await new Token({
-        user: userData._id,
-        token: userToken,
-        type: method,
-        expiration: oneHourFromNow,
-      }).save()
-    } else {
-      method = 2
-      userToken = await jwt.sign({ email: userData.email }, "CROP@12345")
-      await new Token({
-        user: userData._id,
-        token: userToken,
-        type: method,
-      }).save()
     }
-    // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});
-    res.status(200).send({
-      token: userToken,
-      message: "Login successfull",
-      status: true,
-      data: { userData },
-    })
   } catch (err) {
     res.status(500).send({ message: "Login error", status: false, data: [err] })
   }

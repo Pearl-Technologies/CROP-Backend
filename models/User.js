@@ -239,6 +239,21 @@ const FeedbackSchema=new mongoose.Schema({
   timestamps: true
 });
 
+const loginAttemptSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "users_customers"
+  },
+  attempt: {
+    type:Number,
+    required: true,
+    default: 1
+  }
+},{
+  timestamps: true
+});
+
 //validate password
 //sending data to the userRouter file
 
@@ -249,5 +264,7 @@ const Token=mongoose.model('token1_customer',tokenSchema)
 const MissingCrop = mongoose.model('missing_crop_customer',MissingCropSchema)
 const CommunicationPreference = mongoose.model('communication_preferences_customer',CommunicationPreferencesSchema)
 const Feedback = mongoose.model('feedback_customer', FeedbackSchema)
-module.exports = {User, Otp, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback}
+const loginAttemp = mongoose.model('login_attempt_customer', loginAttemptSchema)
+
+module.exports = {User, Otp, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback, loginAttemp}
 
