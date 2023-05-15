@@ -420,11 +420,11 @@ router.post("/signup", async (req, res) => {
       promocode: req.body.promocode,
       refercode: referid,
       signUpDate: formattedDate,
-      auditTrail: {
-        value: "Register Profile",
-        status: true,
-        message: `${req.body.name} have successfully registered your profile on ${formattedDate}`,
-      },
+      // auditTrail: {
+      //   value: "Register Profile",
+      //   status: true,
+      //   message: `${req.body.name} have successfully registered your profile on ${formattedDate}`,
+      // },
     }).save()
     if (user) {
       createCustomerAudit(user._id, "profile successfully registered")
