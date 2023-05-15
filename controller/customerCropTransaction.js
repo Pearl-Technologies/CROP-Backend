@@ -302,17 +302,17 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
             },
           },
         },
-        {
-          $lookup: {
-            from: "customer_payment_trackers",
-            localField: "orderNumber",
-            foreignField: "payment_intent",
-            as: "pt",
-          },
-        },
-        {
-          $unwind: "$pt",
-        },
+        // {
+        //   $lookup: {
+        //     from: "customer_payment_trackers",
+        //     localField: "orderNumber",
+        //     foreignField: "payment_intent",
+        //     as: "pt",
+        //   },
+        // },
+        // {
+        //   $unwind: "$pt",
+        // },
         {
           $project: {
             orderNumber: 1,
@@ -468,27 +468,12 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
           },
         },
         {
-          $lookup: {
-            from: "customer_payment_trackers",
-            localField: "orderNumber",
-            foreignField: "payment_intent",
-            as: "pt",
-          },
-        },
-        {
-          $unwind: "$pt",
-        },
-        {
           $project: {
             orderNumber: 1,
             transactionType: 1,
             crop: 1,
             amount: 1,
             description: 1,
-            pt: {
-              invoice_url: 1,
-              invoice_pdf: 1,
-            },
             createdAt: 1,
           },
         },
@@ -504,27 +489,13 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
           },
         },
         {
-          $lookup: {
-            from: "customer_payment_trackers",
-            localField: "orderNumber",
-            foreignField: "payment_intent",
-            as: "pt",
-          },
-        },
-        {
-          $unwind: "$pt",
-        },
-        {
           $project: {
             orderNumber: 1,
             transactionType: 1,
             crop: 1,
             amount: 1,
-            description: 1,
-            pt: {
-              invoice_url: 1,
-              invoice_pdf: 1,
-            },
+            description: 1,          
+            _id:1,
             createdAt: 1,
           },
         },
@@ -545,27 +516,13 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
         },
       },
       {
-        $lookup: {
-          from: "customer_payment_trackers",
-          localField: "orderNumber",
-          foreignField: "payment_intent",
-          as: "pt",
-        },
-      },
-      {
-        $unwind: "$pt",
-      },
-      {
         $project: {
           orderNumber: 1,
           transactionType: 1,
           crop: 1,
           amount: 1,
-          description: 1,
-          pt: {
-            invoice_url: 1,
-            invoice_pdf: 1,
-          },
+          description: 1,          
+          _id:1,
           createdAt: 1,
         },
       },
