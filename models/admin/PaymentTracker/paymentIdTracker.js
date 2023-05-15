@@ -110,6 +110,23 @@ const customerRedeemTrackerSchema = mongoose.Schema({
 }, {
    timestamps: true
 });
+const customerPropRedeemTrackerSchema = mongoose.Schema({ 
+   number:{type:String, default:""},
+   customer_address:{type:Array},
+   customer_shipping:{type:Array},
+   name:{type:String},
+   cartDetails:{
+      id:{type:mongoose.Schema.Types.ObjectId, required:true, ref:'carts_customers'},
+      user_id:{type:mongoose.Schema.Types.ObjectId, require:true, ref:'users_customers'},
+      cartItems:{type:Object, require:true}
+   },
+   address_id:{type:String},
+   email:{type:String},
+   status:{type:String},
+   coupon:{type:Array},
+}, {
+   timestamps: true
+});
 
 
  
@@ -118,4 +135,5 @@ const customerPaymentTracker = mongoose.model('Customer_payment_tracker', custom
 const customerPurchsedTracker = mongoose.model('Customer_Purchased_Point_tracker', customerPurchsedTrackerSchema)
 const adminPropPaymentOnMilestoneTracker = mongoose.model('Admin_Prop_Payment_on_milestone', adminPropPaymentOnMilestoneSchema)
 const customerRedeemTracker = mongoose.model('customerRedeemTracker', customerRedeemTrackerSchema)
-module.exports = {adminPaymentTracker, customerPaymentTracker, customerPurchsedTracker, adminPropPaymentOnMilestoneTracker, customerRedeemTracker}
+const customerPropRedeemTracker = mongoose.model('customerPropRedeemTracker', customerPropRedeemTrackerSchema)
+module.exports = {adminPaymentTracker, customerPaymentTracker, customerPurchsedTracker, adminPropPaymentOnMilestoneTracker, customerRedeemTracker, customerPropRedeemTracker}

@@ -9,11 +9,14 @@ const {Product} = require("../models/businessModel/product");
 const {
   customerPaymentTracker,
   customerRedeemTracker,
+  customerPropRedeemTracker
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const {
   SaveMyCropTrasaction,
 } = require("../controller/customerCropTransaction");
+const {SaveMyPropTrasaction} = require("../controller/customerPropTransaction");
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 // create-payment-intent
 
 module.exports.addOrder = async (req, res) => {
@@ -184,6 +187,74 @@ module.exports.RedeemCrop = async (req, res) => {
     );
     //
     res.status(200).send({ msg: "CROP redemption success", status:200 });
+  }
+  else{
+    res.status(500).send({ msg: "Token Not There", status:500 });
+  }
+  return;
+};
+
+module.exports.RedeemProp = async (req, res) => {
+  const { cart, _id, address_id, email_id } = req.body;
+  let token= req.headers.authorization
+  const token_data = await Token.findOne({ token });
+  let user_id= token_data.user;
+  if(user_id){
+    let redeemPropPoints = 0;
+    cart?.map((item) => {
+      console.log(item.redeemProps)
+      redeemPropPoints = redeemPropPoints + (item?.cartQuantity * item?.redeemProps);
+    });
+
+    let findUser = await User.findOne({ _id: ObjectId(user_id) });  
+    if (redeemPropPoints > findUser.proppoints) {
+      return res
+        .status(200)
+        .send({ msg: "sorry insoffient PROP in your account", redirect:true});
+    }
+    let newPropPoint = findUser.proppoints - redeemPropPoints;
+    await User.findByIdAndUpdate(
+      { _id: findUser._id },
+      { $set: { proppoints: newPropPoint } }
+    );
+    let couponList = []
+    const stripe = require('stripe')(process.env.STRIPE_KEY);
+    cart.map(async(data)=>{
+      let findProduct = await Product.findOne({_id:data._id});
+      let newQuatity = findProduct.quantity - data.cartQuantity;
+      await Product.findByIdAndUpdate({_id:findProduct._id}, {$set:{quantity:newQuatity}})
+      await Cart.updateMany({ user_id: user_id},{$pull: {cart:{_id: data._id }}})
+    })
+    const coupon = await stripe.coupons.create({
+      percent_off: 25.5,
+      duration: 'repeating',
+      duration_in_months: 3,
+    });
+    couponList.push(coupon);
+    let orderNumber = random(7)
+    await customerPropRedeemTracker.create({
+      number:orderNumber,
+      cartDetails: {
+        id: _id,
+        user_id: user_id,
+        cartItems: cart,
+      },
+      address_id:address_id,
+    email:email_id,
+    status:"paid",
+    coupon:couponList
+    });
+    
+    SaveMyPropTrasaction(
+      0,
+      redeemPropPoints,
+      "debit",
+      "purchase product by redeem PROP",
+      orderNumber,
+      user_id
+    );
+    //
+    res.status(200).send({ msg: "PROP redemption success", status:200, couponList });
   }
   else{
     res.status(500).send({ msg: "Token Not There", status:500 });

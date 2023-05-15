@@ -474,7 +474,7 @@ const SaveMyCropTrasaction = async (
   orderNumber,
   user
 ) => {
-  if (!amount || !crop || !transactionType || !orderNumber || !user) {
+  if (!crop || !transactionType || !orderNumber || !user) {
     return console.log("all field is required");
   }
   try {
