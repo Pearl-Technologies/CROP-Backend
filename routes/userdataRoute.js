@@ -581,30 +581,6 @@ router.post("/login", async (req, res) => {
           .status(409)
           .send({ message: "Wrong credentialssss!", status: false })
       }
-
-      //        if(phone)
-      //         {
-      //         const userData=await User.findOne({
-      //            mobileNumber:req.body.phone
-      //         });
-      //         //if the email id is not present send the error message
-      //         if(!userData.mobileNumber)
-      //         {
-      //         return res.status(409).send({message:"Wrong credentials!",status:false})
-      //         }
-      //     }
-
-      //     if(cropid)
-      //     {
-      //     const userData=await User.findOne({
-      //         cropid:req.body.cropid
-      //     });
-      //     //if the email id is not present send the error message
-      //     if(!userData.cropid)
-      //     {
-      //     return res.status(409).send({message:"Wrong credentials!",status:false})
-      //     }
-      // }
       //comparing the password with database password
       const isPasswordValid = await bcrypt.compare(
         req.body.password,
@@ -653,7 +629,7 @@ router.post("/login", async (req, res) => {
           type: method,
         }).save()
       }
-      // const result= await User.updateOne({email : userData.email }, {$set: {token : userToken, login_method: method}});
+      
       res.status(200).send({
         token: userToken,
         message: "Login successfull",
