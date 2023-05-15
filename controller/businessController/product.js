@@ -3,7 +3,7 @@ const {
   Product,
   productComment,
 } = require("../../models/businessModel/product")
-const {Cart} = require("../../models/Cart")
+const { Cart } = require("../../models/Cart")
 const { Token } = require("../../models/User")
 const {
   adminPaymentTracker,
@@ -88,34 +88,53 @@ module.exports.getDiscountProduct = async (req, res) => {
   }
 }
 
-// const newProductComment = await productComment.find({
-//   $and: [
-//     { status: "active" },
-//     { user_id: user },
-//     { product_id: req.params.id },
-//   ],
-// })
-
-
-// dataArray.push({
-//   ...productDetails[i],
-//   ...{ productComments: newProductComment },
-// })
 // getDiscountProduct
 module.exports.getSingleProduct = async (req, res) => {
   try {
-    const token = req.headers.authorization;
-    const token_data = await Token.findOne({ token });
-    let merge;
-    const product = await Product.findOne({ _id: req.params.id })
-    const cartnew = await Cart.find({user_id: token_data.user, cart:{$elemMatch:{_id:req.params.id}}})
-    if(cartnew.length == 0){
-      product._doc.statusCart=0
-    } else {
-      product._doc.statusCart=1
-    }
+    const token = req.headers.authorization
+    if (token == undefined) {
+      const product = await Product.findOne({ _id: req.params.id })
+      const newProductComment = await productComment.find({
+        $and: [{ status: true }, { product_id: req.params.id }],
+      })
+      if (newProductComment.length != 0) {
+        product._doc.productComments = newProductComment[0].details
+        product._doc.productLikes = newProductComment[0].product_likes.length
+      } else {
+        product._doc.productComments = []
+        product._doc.productLikes = 0
+      }
+      product._doc.statusCart = 0;
 
-    res.status(200).json(product)
+      res.status(200).json(product);
+    }
+    else{
+      const token_data = await Token.findOne({ token });
+    const product = await Product.findOne({ _id: req.params.id });
+    const cartnew = await Cart.find({
+      user_id: token_data.user,
+      cart: { $elemMatch: { _id: req.params.id } },
+    });
+    const newProductComment = await productComment.find({
+      $and: [{ status: true }, { product_id: req.params.id }],
+    });
+    if (cartnew.length == 0) {
+      product._doc.statusCart = 0;
+    } else {
+      product._doc.statusCart = 1;
+    }
+    if(newProductComment.length != 0){
+      product._doc.productComments = newProductComment[0].details;
+      product._doc.productLikes = newProductComment[0].product_likes.length;
+    }
+    else{
+      product._doc.productComments = [];
+      product._doc.productLikes = 0;
+    }
+    
+
+    res.status(200).json(product);
+    }
   } catch (err) {
     res.status(500).send({
       message: err.message,
@@ -303,20 +322,29 @@ module.exports.getEarnCropProducts = async (req, res) => {
           },
         },
       },
-
       {
         $addFields: {
           bonusCropsDiscountPercentage: {
             $cond: {
               if: {
                 $and: [
-                  [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
-                  [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
-                  [`$bonusCrops.bonusCropDays.${day}`],
+                  {
+                    $gt: [
+                      today,
+                      { $arrayElemAt: ["$bonusCrops.bonusCrop.fromDate", 0] },
+                    ],
+                  },
+                  {
+                    $lt: [
+                      today,
+                      { $arrayElemAt: ["$bonusCrops.bonusCrop.toDate", 0] },
+                    ],
+                  },
+                  { $anyElementTrue: `$bonusCrops.bonusCropDays.${day}` },
                 ],
               },
               then: { $sum: `$bonusCrops.bonusCropPercentage` },
-              else: [`$bonusCrops.bonusCropDays.${day}`, day],
+              else: 0,
             },
           },
         },
@@ -327,19 +355,89 @@ module.exports.getEarnCropProducts = async (req, res) => {
             $cond: {
               if: {
                 $and: [
-                  [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
-                  [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
-                  // [`$happyHours.happyHoursDays.${day}`]
-                  [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
-                  [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
+                  {
+                    $lte: [
+                      {
+                        $arrayElemAt: [
+                          "$happyHours.happyHoursDates.fromDate",
+                          0,
+                        ],
+                      },
+                      today,
+                    ],
+                  },
+                  {
+                    $gte: [
+                      {
+                        $arrayElemAt: ["$happyHours.happyHoursDates.toDate", 0],
+                      },
+                      today,
+                    ],
+                  },
+                  {
+                    $lte: [
+                      {
+                        $arrayElemAt: [
+                          "$happyHours.happyHoursTime.startTime",
+                          0,
+                        ],
+                      },
+                      time,
+                    ],
+                  },
+                  {
+                    $gte: [
+                      {
+                        $arrayElemAt: ["$happyHours.happyHoursTime.endTime", 0],
+                      },
+                      time,
+                    ],
+                  },
+                  { $anyElementTrue: `$happyHours.happyHoursDays.${day}` },
                 ],
               },
               then: { $sum: "$happyHours.happyHoursPercentage" },
-              else: [`$happyHours.happyHoursDay.${day}`, day],
+              else: 0,
             },
           },
         },
       },
+      // {
+      //   $addFields: {
+      //     bonusCropsDiscountPercentage: {
+      //       $cond: {
+      //         if: {
+      //           $and: [
+      //             [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
+      //             [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
+      //             [`$bonusCrops.bonusCropDays.${day}`],
+      //           ],
+      //         },
+      //         then: { $sum: `$bonusCrops.bonusCropPercentage` },
+      //         else: [`$bonusCrops.bonusCropDays.${day}`, day],
+      //       },
+      //     },
+      //   },
+      // },
+      // {
+      //   $addFields: {
+      //     happyHoursDiscountPercentage: {
+      //       $cond: {
+      //         if: {
+      //           $and: [
+      //             [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
+      //             [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
+      //             // [`$happyHours.happyHoursDays.${day}`]
+      //             [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
+      //             [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
+      //           ],
+      //         },
+      //         then: { $sum: "$happyHours.happyHoursPercentage" },
+      //         else: [`$happyHours.happyHoursDay.${day}`, day],
+      //       },
+      //     },
+      //   },
+      // },
       {
         $addFields: {
           happyHoursAndExtendBonusAddedPercentage: {
@@ -784,7 +882,7 @@ module.exports.putProductCommentDetails = async (req, res) => {
       },
     })
     var newProductComment
-    if (commentnew.product_likes.length == 0) {
+    if (commentnew.length == 0) {
       newProductComment = await productComment.findByIdAndUpdate(
         { _id: id, product_id: product_id },
         {
@@ -1218,12 +1316,25 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
         },
       })
       if (countLikeResults.length != 0) {
-        dataArray.push({
-          ...productDetails[i],
-          ...{ likes: countLikeResults.length },
-        })
+        const token = req.headers.authorization
+        const token_data = await Token.findOne({ token });
+        const cartnew = await Cart.find({
+          user_id: token_data.user,
+          cart: { $elemMatch: { _id: productDetails[i]._id } },
+        });
+        if (cartnew.length == 0) {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 0 },
+          })
+        } else {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 1 },
+          })
+        }
       } else {
-        dataArray.push({ ...productDetails[i], ...{ likes: 0 } })
+        dataArray.push({ ...productDetails[i], ...{ likes: 0, statusCart: 0 } })
       }
     }
 
@@ -1413,12 +1524,25 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
         },
       })
       if (countLikeResults.length != 0) {
-        dataArray.push({
-          ...productDetails[i],
-          ...{ likes: countLikeResults.length },
-        })
+        const token = req.headers.authorization
+        const token_data = await Token.findOne({ token });
+        const cartnew = await Cart.find({
+          user_id: token_data.user,
+          cart: { $elemMatch: { _id: productDetails[i]._id } },
+        });
+        if (cartnew.length == 0) {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 0 },
+          })
+        } else {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 1 },
+          })
+        }
       } else {
-        dataArray.push({ ...productDetails[i], ...{ likes: 0 } })
+        dataArray.push({ ...productDetails[i], ...{ likes: 0, statusCart: 0 } })
       }
     }
     const count = countResults.length > 0 ? countResults[0].count : 0
@@ -1771,12 +1895,14 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
           quantity: 1,
           image: 1,
           rating: 1,
+          redeemCROPs: 1,
           likes: 1,
           bidPrice: 1,
           user: 1,
           cropRules: { cropPerAudDebit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           slashRedemptionDiscountPercentage: 1,
+          slashRedemption: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
           customiseMsg: 1,
           brand: 1,
@@ -1853,13 +1979,260 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
 
 module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
   try {
+    const page = req.params.page
+    const limit = req.params.limit
+    const startIndex = (page - 1) * limit
+    const endIndex = startIndex + limit
     const earnCropProducts = await this.getEarnCropProducts(req, res)
     const redeemCropProducts = await this.getRedeemCropProducts(req, res)
     // const promoProducts = await Product.find({})
     const promoProducts = earnCropProducts.concat(redeemCropProducts)
-    return res.status(200).send({ promoProducts })
+    const promoProductsWithLimit = promoProducts.slice(startIndex, endIndex)
+    return res.status(200).send({
+      count: promoProducts.length,
+      promoProducts: promoProductsWithLimit,
+    })
   } catch (error) {
     console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getEarnAndRedeemProducts = async (req, res) => {
+  try {
+    const dateTime = new Date()
+    const sDate = dateTime.toISOString()
+    const today = sDate.split("T")[0]
+    // console.log(dateTime.getDay(), "day");
+    const currentDay = dateTime.getDay()
+    const t = dateTime.toLocaleString("en-GB").split(" ")
+    const th = t[1].split(":")
+    const time = th[0] + ":" + th[1]
+    if (currentDay == 0) {
+      day = "sun"
+    } else if (currentDay == 1) {
+      day = "mon"
+    } else if (currentDay == 2) {
+      day = "tue"
+    } else if (currentDay == 3) {
+      day = "wed"
+    } else if (currentDay == 4) {
+      day = "thu"
+    } else if (currentDay == 5) {
+      day = "fri"
+    } else if (currentDay == 6) {
+      day = "sat"
+    }
+    const id = req.params.id
+    const product = await Product.aggregate([
+      { $match: { _id: { $eq: ObjectId(id) } } },
+      {
+        $lookup: {
+          from: "business_croprules",
+          localField: "user",
+          foreignField: "businessId",
+          as: "cropRules",
+        },
+      },
+      { $unwind: "$cropRules" },
+      {
+        $lookup: {
+          from: "business_slashredemptioncrops",
+          localField: "_id",
+          foreignField: "slashRedemptionProducts.productId",
+          as: "slashRedemption",
+        },
+      },
+      {
+        $lookup: {
+          from: "business_bonuscrops",
+          localField: "_id",
+          foreignField: "bonusCropProducts.productId",
+          as: "bonusCrops",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "business_happyhours",
+          localField: "_id",
+          foreignField: "happyHoursProducts.productId",
+          as: "happyHours",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "business_slashredemptioncrops",
+          localField: "_id",
+          foreignField: "slashRedemptionProducts.productId",
+          as: "slashRedemption",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "business_services",
+          localField: "user",
+          foreignField: "businessId",
+          as: "services",
+        },
+      },
+
+      {
+        $addFields: {
+          earnRuleAppliedCrops: {
+            $multiply: ["$croppoints", "$cropRules.cropPerAudCredit"],
+          },
+        },
+      },
+      {
+        $addFields: {
+          redeemRuleAppliedCrops: {
+            $multiply: ["$redeemCROPs", "$cropRules.cropPerAudDebit"],
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          slashRedemptionDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  {
+                    $lte: ["2023-05-10", today],
+                  },
+                  {
+                    $gte: ["2023-05-29", today],
+                  },
+                  {
+                    $eq: [true, true],
+                  },
+                ],
+              },
+              then: 10,
+              else: 0,
+            },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          bonusCropsDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
+                  [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
+                  [`$bonusCrops.bonusCropDays.${day}`],
+                ],
+              },
+              then: { $sum: `$bonusCrops.bonusCropPercentage` },
+              else: [`$bonusCrops.bonusCropDays.${day}`, day],
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          happyHoursDiscountPercentage: {
+            $cond: {
+              if: {
+                $and: [
+                  [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
+                  [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
+                  // [`$happyHours.happyHoursDays.${day}`]
+                  [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
+                  [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
+                ],
+              },
+              then: { $sum: "$happyHours.happyHoursPercentage" },
+              else: [`$happyHours.happyHoursDay.${day}`, day],
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          happyHoursAndExtendBonusAddedPercentage: {
+            $add: [
+              "$bonusCropsDiscountPercentage",
+              "$happyHoursDiscountPercentage",
+            ],
+          },
+        },
+      },
+      // { $cond: [ { $eq: [ "$happyHoursAndExtendBonusAddedPercentage", 0 ] }, "$ruleAppliedCrops", {$divide:["$upvotes", "$downvotes"]} ] }
+      {
+        $addFields: {
+          cropRulesWithBonus: {
+            $cond: [
+              { $eq: ["$happyHoursAndExtendBonusAddedPercentage", 0] },
+              "$ruleAppliedCrops",
+              {
+                $add: [
+                  "$ruleAppliedCrops",
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          "$ruleAppliedCrops",
+                          "$happyHoursAndExtendBonusAddedPercentage",
+                        ],
+                      },
+                      100,
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      // {$unwind: "$bonusCrops"},
+      {
+        $project: {
+          title: 1,
+          originalPrice: 1,
+          discount: 1,
+          image: 1,
+          price: 1,
+          quantity: 1,
+          crops: "$croppoints",
+          description: 1,
+          brand: 1,
+          user: 1,
+          customiseMsg: 1,
+          user: 1,
+          apply: 1,
+          rating: 1,
+          likes: 1,
+          cropRules: { cropPerAudCredit: 1, cropPerAudDebit: 1 },
+          earnRuleAppliedCrops: "$ruleAppliedCrops",
+          bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
+          happyHoursDiscountPercentage: "$happyHoursDiscountPercentage",
+          happyHoursAndExtendBonusAddedPercentage:
+            "$happyHoursAndExtendBonusAddedPercentage",
+          cropRulesWithBonus: "$cropRulesWithBonus",
+          rating: 1,
+          likes: 1,
+          mktOfferFor: 1,
+          happyHours: 1,
+          bonusCrops: 1,
+          sector: 1,
+          redeemCROPs: 1,
+          redeemRuleAppliedCrops: "$ruleAppliedCrops",
+          slashRedemptionDiscountPercentage: 1,
+          slashRedemption: 1,
+          cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
+          customiseMsg: 1,
+        },
+      },
+    ])
+    res.status(200).send({ product: product[0] })
+  } catch (error) {
     return res.status(500).send("Internal Server Error")
   }
 }

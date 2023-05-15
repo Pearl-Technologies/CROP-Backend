@@ -36,6 +36,7 @@ const {
   getPromoProductsByBusiness,
   getProductCommentAndRatingsByBusiness,
   getPromoEarnAndRedeemProducts,
+  getEarnAndRedeemProducts,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -46,7 +47,10 @@ const router = express.Router()
 router.post("/add", authorization, addProduct)
 router.post("/add-all", addAllProducts)
 router.get("/show", getShowingProducts)
-router.get("/get-promo-earn-redeem-products", getPromoEarnAndRedeemProducts)
+router.get(
+  "/get-promo-earn-redeem-products/:page/:limit",
+  getPromoEarnAndRedeemProducts
+)
 router.put("/putProductCommentLike", putProductCommentLike)
 router.put("/putProductCommentDetails", putProductCommentDetails)
 router.put("/putProductCommentPaticularLike", putProductCommentPaticularLike)
@@ -56,8 +60,8 @@ router.get("/get-promo-products", authorization, getPromoProductsByBusiness)
 router.get("/get-promo-products/:page/:limit", getPromoProducts)
 router.get("/get-all-products/:page/:limit", getAllProducts)
 
-router.get("/get-earncrop-products", getEarnCropProducts)
-router.get("/get-redeemcrop-products", getRedeemCropProducts)
+// router.get("/get-earncrop-products", getEarnCropProducts)
+// router.get("/get-redeemcrop-products", getRedeemCropProducts)
 router.get("/discount", getDiscountProduct)
 router.get("/categoryproducts", getProductsByCatagory)
 router.get(
@@ -103,6 +107,7 @@ router.get(
 )
 router.get("/get-earn-crop-product/:id", getEarnCropSingleProductById)
 router.get("/get-redeem-crop-product/:id", getRedeemCropSingleProductById)
+router.get("/get-both-product/:id", getEarnAndRedeemProducts)
 router.get(
   "/get-product-comments-ratings/:productId",
   getProductCommentAndRatingsByBusiness
