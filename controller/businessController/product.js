@@ -278,7 +278,7 @@ module.exports.getEarnCropProducts = async (req, res) => {
     console.log({ day })
 
     const productDetails = await Product.aggregate([
-      { $match: { apply: "earnCrop" } },
+      { $match: { apply: "earnCrop", mktOfferFor: "promo", market: true } },
       {
         $lookup: {
           from: "business_croprules",
@@ -503,7 +503,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
     }
     console.log({ day })
     const productDetails = await Product.aggregate([
-      { $match: { apply: "redeemCrop" } },
+      { $match: { apply: "redeemCrop", mktOfferFor: "promo", market: true } },
       {
         $lookup: {
           from: "business_croprules",
