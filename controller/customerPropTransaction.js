@@ -2,8 +2,8 @@ const customerPropTransaction = require('../models/PropTransaction');
 const mongoose = require('mongoose');
 
 const getMyPropTrasaction = async(req, res)=>{
-    const {user} =req.query; 
-
+    const {user} =req.query;
+     
     try {        
         let findone = await customerPropTransaction.find({user})
         if(!findone.length){
@@ -16,28 +16,16 @@ const getMyPropTrasaction = async(req, res)=>{
                     'user':{$eq: findone[0].user}
                   }
                 }, {
-                  '$lookup': {
-                    'from': 'customer_purchased_point_trackers', 
-                    'localField': 'orderNumber', 
-                    'foreignField': 'payment_intent', 
-                    'as': 'pt'
-                  }
-                }, {
-                  '$unwind': '$pt'
-                }, {
                   '$project': {
                     'orderNumber': 1, 
                     'transactionType': 1, 
                     'prop': 1, 
                     'amount': 1, 
                     'description':1,
-                    'pt': {
-                      'invoice_url': 1, 
-                      'invoice_pdf': 1
-                    },
                     'createdAt':1
                   }
-                }
+                },
+                { $sort: { createdAt: -1 } },
               ]
         )
         res.status(200).send({trasactionDetails})
@@ -47,7 +35,7 @@ const getMyPropTrasaction = async(req, res)=>{
     }
 }
 const SaveMyPropTrasaction=async(amount, prop, transactionType, description, orderNumber, user)=>{  
-    if(!amount || !prop || !transactionType|| !orderNumber || !user ){
+    if(!prop || !transactionType|| !orderNumber || !user ){
         return console.log("all field is required"); 
     }  
     try {
