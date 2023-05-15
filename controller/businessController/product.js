@@ -104,31 +104,36 @@ module.exports.getSingleProduct = async (req, res) => {
         product._doc.productComments = []
         product._doc.productLikes = 0
       }
-      res.status(200).json(product)
-    } else {
-      const token_data = await Token.findOne({ token })
-      const product = await Product.findOne({ _id: req.params.id })
-      const cartnew = await Cart.find({
-        user_id: token_data.user,
-        cart: { $elemMatch: { _id: req.params.id } },
-      })
-      const newProductComment = await productComment.find({
-        $and: [{ status: true }, { product_id: req.params.id }],
-      })
-      if (cartnew.length == 0) {
-        product._doc.statusCart = 0
-      } else {
-        product._doc.statusCart = 1
-      }
-      if (newProductComment.length != 0) {
-        product._doc.productComments = newProductComment[0].details
-        product._doc.productLikes = newProductComment[0].product_likes.length
-      } else {
-        product._doc.productComments = []
-        product._doc.productLikes = 0
-      }
+      product._doc.statusCart = 0;
 
-      res.status(200).json(product)
+      res.status(200).json(product);
+    }
+    else{
+      const token_data = await Token.findOne({ token });
+    const product = await Product.findOne({ _id: req.params.id });
+    const cartnew = await Cart.find({
+      user_id: token_data.user,
+      cart: { $elemMatch: { _id: req.params.id } },
+    });
+    const newProductComment = await productComment.find({
+      $and: [{ status: true }, { product_id: req.params.id }],
+    });
+    if (cartnew.length == 0) {
+      product._doc.statusCart = 0;
+    } else {
+      product._doc.statusCart = 1;
+    }
+    if(newProductComment.length != 0){
+      product._doc.productComments = newProductComment[0].details;
+      product._doc.productLikes = newProductComment[0].product_likes.length;
+    }
+    else{
+      product._doc.productComments = [];
+      product._doc.productLikes = 0;
+    }
+    
+
+    res.status(200).json(product);
     }
   } catch (err) {
     res.status(500).send({
@@ -1273,12 +1278,25 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
         },
       })
       if (countLikeResults.length != 0) {
-        dataArray.push({
-          ...productDetails[i],
-          ...{ likes: countLikeResults.length },
-        })
+        const token = req.headers.authorization
+        const token_data = await Token.findOne({ token });
+        const cartnew = await Cart.find({
+          user_id: token_data.user,
+          cart: { $elemMatch: { _id: productDetails[i]._id } },
+        });
+        if (cartnew.length == 0) {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 0 },
+          })
+        } else {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 1 },
+          })
+        }
       } else {
-        dataArray.push({ ...productDetails[i], ...{ likes: 0 } })
+        dataArray.push({ ...productDetails[i], ...{ likes: 0, statusCart: 0 } })
       }
     }
 
@@ -1468,12 +1486,25 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
         },
       })
       if (countLikeResults.length != 0) {
-        dataArray.push({
-          ...productDetails[i],
-          ...{ likes: countLikeResults.length },
-        })
+        const token = req.headers.authorization
+        const token_data = await Token.findOne({ token });
+        const cartnew = await Cart.find({
+          user_id: token_data.user,
+          cart: { $elemMatch: { _id: productDetails[i]._id } },
+        });
+        if (cartnew.length == 0) {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 0 },
+          })
+        } else {
+          dataArray.push({
+            ...productDetails[i],
+            ...{ likes: countLikeResults.length, statusCart: 1 },
+          })
+        }
       } else {
-        dataArray.push({ ...productDetails[i], ...{ likes: 0 } })
+        dataArray.push({ ...productDetails[i], ...{ likes: 0, statusCart: 0 } })
       }
     }
     const count = countResults.length > 0 ? countResults[0].count : 0
