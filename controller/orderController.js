@@ -197,12 +197,8 @@ module.exports.RedeemCrop = async (req, res) => {
 module.exports.RedeemProp = async (req, res) => {
   const { cart, _id, address_id, email_id } = req.body;
   let token= req.headers.authorization
-  // console.log(req.headers);
-  // const token_data = await Token.findOne({ token });
-  // let user_id= token_data.user;
-  let user_id= "64523209aa7185fc036b3fdb";
-  // console.log(use);
-  // return
+  const token_data = await Token.findOne({ token });
+  let user_id= token_data.user;
   if(user_id){
     let redeemPropPoints = 0;
     cart?.map((item) => {
@@ -239,8 +235,8 @@ module.exports.RedeemProp = async (req, res) => {
     await customerPropRedeemTracker.create({
       number:orderNumber,
       cartDetails: {
-        id: _id.$oid,
-        user_id: user_id.$oid,
+        id: _id,
+        user_id: user_id,
         cartItems: cart,
       },
       address_id:address_id,
