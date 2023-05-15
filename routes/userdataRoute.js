@@ -87,8 +87,8 @@ router.put("/resendotp", async (req, res) => {
 
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
-      host: "smtp.gmail.com",
-      port: 587,
+      host: process.env.HOST,
+      port: process.env.EMAIL_PORT,
       secure: true,
       auth: {
         user: process.env.EMAIL_USER,
@@ -197,7 +197,7 @@ router.post("/emailphone", async (req, res) => {
     //         ciphers:'SSLv3'
     //     },
     //     requireTLS:true,
-    //     port: 465,
+    //     port: process.env.EMAIL_PORT,
     //     debug: true,
     //     auth: {
     //         user: "put your godaddy hosted email here",
@@ -206,8 +206,8 @@ router.post("/emailphone", async (req, res) => {
     // });
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
-      host: "smtp.gmail.com",
-      port: 465,
+      host: process.env.HOST,
+      port: process.env.EMAIL_PORT,
       secure: true,
       auth: {
         user: process.env.EMAIL_USER,
@@ -228,7 +228,7 @@ router.post("/emailphone", async (req, res) => {
         res.status(500).send({
           message: "Enter the correct email id",
           status: "false",
-          data: [],
+          data: [err],
         })
       } else {
         res.status(200).send({
@@ -677,8 +677,8 @@ router.put("/forget", async (req, res) => {
 
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
-      host: "smtp.gmail.com",
-      port: 465,
+      host: process.env.HOST,
+      port: process.env.EMAIL_PORT,
       secure: true,
       auth: {
         user: process.env.EMAIL_USER,
@@ -1095,8 +1095,8 @@ router.post("/mate", async (req, res) => {
 
   const transporter = nodemailer.createTransport({
     // service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
+    host: process.env.HOST,
+    port: process.env.EMAIL_PORT,
     secure: true,
     auth: {
       user: process.env.EMAIL_USER,
