@@ -402,42 +402,6 @@ module.exports.getEarnCropProducts = async (req, res) => {
           },
         },
       },
-      // {
-      //   $addFields: {
-      //     bonusCropsDiscountPercentage: {
-      //       $cond: {
-      //         if: {
-      //           $and: [
-      //             [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
-      //             [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
-      //             [`$bonusCrops.bonusCropDays.${day}`],
-      //           ],
-      //         },
-      //         then: { $sum: `$bonusCrops.bonusCropPercentage` },
-      //         else: [`$bonusCrops.bonusCropDays.${day}`, day],
-      //       },
-      //     },
-      //   },
-      // },
-      // {
-      //   $addFields: {
-      //     happyHoursDiscountPercentage: {
-      //       $cond: {
-      //         if: {
-      //           $and: [
-      //             [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
-      //             [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
-      //             // [`$happyHours.happyHoursDays.${day}`]
-      //             [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
-      //             [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
-      //           ],
-      //         },
-      //         then: { $sum: "$happyHours.happyHoursPercentage" },
-      //         else: [`$happyHours.happyHoursDay.${day}`, day],
-      //       },
-      //     },
-      //   },
-      // },
       {
         $addFields: {
           happyHoursAndExtendBonusAddedPercentage: {
@@ -448,7 +412,6 @@ module.exports.getEarnCropProducts = async (req, res) => {
           },
         },
       },
-      // { $cond: [ { $eq: [ "$happyHoursAndExtendBonusAddedPercentage", 0 ] }, "$ruleAppliedCrops", {$divide:["$upvotes", "$downvotes"]} ] }
       {
         $addFields: {
           cropRulesWithBonus: {
@@ -475,7 +438,6 @@ module.exports.getEarnCropProducts = async (req, res) => {
           },
         },
       },
-      // {$unwind: "$bonusCrops"},
       {
         $project: {
           title: 1,
@@ -1979,8 +1941,10 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
 
 module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
   try {
-    const page = req.params.page
-    const limit = req.params.limit
+    const page = Number(req.params.page)
+    const limit = Number(req.params.limit)
+    console.log(typeof page, page, "page")
+    console.log(typeof limit, limit, "limit")
     const startIndex = (page - 1) * limit
     const endIndex = startIndex + limit
     const earnCropProducts = await this.getEarnCropProducts(req, res)
@@ -1988,6 +1952,7 @@ module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
     // const promoProducts = await Product.find({})
     const promoProducts = earnCropProducts.concat(redeemCropProducts)
     const promoProductsWithLimit = promoProducts.slice(startIndex, endIndex)
+    console.log({ startIndex, endIndex })
     return res.status(200).send({
       count: promoProducts.length,
       promoProducts: promoProductsWithLimit,
