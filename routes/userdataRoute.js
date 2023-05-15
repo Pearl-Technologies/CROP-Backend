@@ -571,7 +571,7 @@ router.post("/login", async (req, res) => {
     const cutoffDate = new Date();
     cutoffDate.setHours(cutoffDate.getHours() - 24);
     const attempt = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
-    if(attempt.length<=3){
+    if(attempt.length==3){
       return res.status(200).json({message: `Your account has been temporary blocked. Please try after 24hrs.`});
     }
     else{
@@ -588,10 +588,12 @@ router.post("/login", async (req, res) => {
       )
 
       if (!isPasswordValid) {
-        await new loginAttemp({user: userData._id}).save()
-        const attemptNew = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
-        if(attemptNew.length<=3){
-          return res.status(409).json({message: `You have only ${3 - attemptNew.length} attempts left.`})
+        if(attempt.length==1 || attempt.length==2 || attempt.length==3){
+          await new loginAttemp({user: userData._id}).save()
+          const attemptNew = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
+          if(attemptNew.length<=3){
+            return res.status(409).json({message: `You have only ${3 - attemptNew.length} attempts left.`})
+          }
         }
         return res
           .status(409)
