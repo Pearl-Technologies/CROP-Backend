@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const { User } = require("../models/User");
 const {Token} = require("../models/User");
 const pdfkit = require('pdfkit');
+const fs = require('fs');
+const pdfPath = process.cwd() + "/uploads/";
+const nodemailer = require('nodemailer');
 
 const getMyPropTrasaction = async(req, res)=>{
     const { startDate, endDate, search } = req.query;
@@ -38,7 +41,7 @@ const getMyPropTrasaction = async(req, res)=>{
             $project: {
               orderNumber: 1,
               transactionType: 1,
-              crop: 1,
+              prop: 1,
               amount: 1,
               description: 1,
               createdAt: 1,
@@ -59,7 +62,7 @@ const getMyPropTrasaction = async(req, res)=>{
             $project: {
               orderNumber: 1,
               transactionType: 1,
-              crop: 1,
+              prop: 1,
               amount: 1,
               description: 1,
               createdAt: 1,
@@ -85,7 +88,7 @@ const getMyPropTrasaction = async(req, res)=>{
           $project: {
             orderNumber: 1,
             transactionType: 1,
-            crop: 1,
+            prop: 1,
             amount: 1,
             description: 1,
             createdAt: 1,
@@ -132,7 +135,7 @@ const getMyPropTrasactionForDownloadStatement = async (req, res) => {
         {
           $project: {
             transactionType: 1,
-            crop: 1,
+            prop: 1,
             amount: 1,
             description: 1,
             createdAt: 1,
@@ -163,7 +166,7 @@ const getMyPropTrasactionForDownloadStatement = async (req, res) => {
         {
           $project: {
             transactionType: 1,
-            crop: 1,
+            prop: 1,
             amount: 1,
             description: 1,
             createdAt: 1,
@@ -199,7 +202,7 @@ const getMyPropTrasactionForDownloadStatement = async (req, res) => {
       {
         $project: {
           transactionType: 1,
-          crop: 1,
+          prop: 1,
           amount: 1,
           description: 1,
           createdAt: 1,
@@ -247,7 +250,7 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
           $project: {
             orderNumber: 1,
             transactionType: 1,
-            crop: 1,
+            prop: 1,
             amount: 1,
             description: 1,
             createdAt: 1,
@@ -261,8 +264,8 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
       
       // Set the filename for the PDF
       // const filename = `MyCropTransaction-${new Date().toISOString()}.pdf`;
-      const filename = `MyCropTransaction.pdf`;
-      const writeStream = fs.createWriteStream('MyCropTransaction.pdf');
+      const filename = `MyPropTransaction.pdf`;
+      const writeStream = fs.createWriteStream('MyPropTransaction.pdf');
       // pdfDoc.pipe(writeStream);
 
       // // Add content to the PDF document
@@ -277,11 +280,11 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
       //   });
       // pdfDoc.end();
 
-      const headers = ['Order Number', 'Transaction Type', 'Crop', 'Amount', 'Description', 'Created At'];
+      const headers = ['Order Number', 'Transaction Type', 'Prop', 'Amount', 'Description', 'Created At'];
 const rows = trasactionDetails.map(transaction => [
   transaction.orderNumber,
   transaction.transactionType,
-  transaction.crop,
+  transaction.prop,
   transaction.amount,
   transaction.description,
   transaction.createdAt,
@@ -289,7 +292,7 @@ const rows = trasactionDetails.map(transaction => [
 
 const docDefinition = {
   content: [
-    { text: 'My CROP Transaction', style: 'header' },
+    { text: 'My Prop Transaction', style: 'header' },
     {
       table: {
         headers: headers,
@@ -331,8 +334,8 @@ pdfDoc.end();
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: adddata[0].email,
-        subject: 'My Crop Transactions',
-        text: 'Please find attached the PDF of your crop transactions',
+        subject: 'My Prop Transactions',
+        text: 'Please find attached the PDF of your Prop transactions',
         attachments: [
           {
             filename,
@@ -397,7 +400,7 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
           $project: {
             orderNumber: 1,
             transactionType: 1,
-            crop: 1,
+            prop: 1,
             amount: 1,
             description: 1,
             createdAt: 1,
@@ -418,7 +421,7 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
           $project: {
             orderNumber: 1,
             transactionType: 1,
-            crop: 1,
+            prop: 1,
             amount: 1,
             description: 1,          
             _id:1,
@@ -445,7 +448,7 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
         $project: {
           orderNumber: 1,
           transactionType: 1,
-          crop: 1,
+          prop: 1,
           amount: 1,
           description: 1,          
           _id:1,
