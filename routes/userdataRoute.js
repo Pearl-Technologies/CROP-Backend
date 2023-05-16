@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback, loginAttemp } = require("../models/User");
+const {AccountNotificationCustomer, GeneralNotificationCustomer, ComplainNotificationCustomer, InvoicePaymentNotificationCustomer} = require("../models/notification");
 const StateSchema = require('../models/State');
 const { Cart } = require("../models/Cart")
 const { Wishlist } = require("../models/Wishlist")
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
+const adminCustomerAccountNotification = require("../models/admin/notification/customerAccountNotification")
+const adminGeneralAccountNotification = require("../models/admin/notification/customerGeneralNotification")
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const adminCustomerRequestAndComplainedNotification = require("../models/admin/notification/customerRequestAndComplainedNotification")
 const { Product } = require("../models/businessModel/product");
 const business = require("../models/businessModel/business");
 var mongoose = require("mongoose");
@@ -341,6 +346,9 @@ router.put("/resetpassword", async (req, res) => {
   )
 
   if (updatedata) {
+    let notification = await adminCustomerAccountNotification.find();
+    notification = notification[0]._doc
+    await new AccountNotificationCustomer({user_id: userData._id, message: notification.pin_change}).save();
     res
       .status(200)
       .send({ message: "Pin changed successfully", status: "true" })
@@ -439,7 +447,7 @@ router.post("/signup", async (req, res) => {
     let userData = await User.findOne({ email: req.body.email })
     if (req.body.login_method === 1) {
       method = 1
-      userToken = await jwt.sign({ email: req.body.email }, "CROP@12345", {
+      userToken = jwt.sign({ email: req.body.email }, "CROP@12345", {
         expiresIn: "1h",
       })
       await new Token({
@@ -450,13 +458,16 @@ router.post("/signup", async (req, res) => {
       }).save()
     } else {
       method = 2
-      userToken = await jwt.sign({ email: req.body.email }, "CROP@12345")
+      userToken = jwt.sign({ email: req.body.email }, "CROP@12345")
       await new Token({
         user: userData._id,
         token: userToken,
         type: method,
       }).save()
     }
+    let notification = await adminCustomerAccountNotification.find();
+    notification = notification[0]._doc
+    await new AccountNotificationCustomer({user_id: userData._id, message: notification.first_time_notification}).save();
     //saving data in the database
     res.send({
       message: "Register successfully",
@@ -613,7 +624,7 @@ router.post("/login", async (req, res) => {
       )
       if (req.body.login_method === 1) {
         method = 1
-        userToken = await jwt.sign({ email: userData.email }, "CROP@12345", {
+        userToken = jwt.sign({ email: userData.email }, "CROP@12345", {
           expiresIn: "1h",
         })
         await new Token({
@@ -624,7 +635,7 @@ router.post("/login", async (req, res) => {
         }).save()
       } else {
         method = 2
-        userToken = await jwt.sign({ email: userData.email }, "CROP@12345")
+        userToken = jwt.sign({ email: userData.email }, "CROP@12345")
         await new Token({
           user: userData._id,
           token: userToken,
@@ -688,7 +699,7 @@ router.put("/forget", async (req, res) => {
         res.status(500).send({
           message: "OTP not sent successfully",
           status: "false",
-          data: [],
+          data: [err],
         })
       } else {
         res.status(200).send({
@@ -699,7 +710,7 @@ router.put("/forget", async (req, res) => {
       }
     })
   } catch (err) {
-    res.status(500).send({ message: "Enter the registered mail-id" })
+    res.status(500).send({ message: "Enter the registered mail-id", data: err })
   }
 })
 
@@ -753,7 +764,7 @@ router.put("/forgetpassword", async (req, res) => {
     console.log(err)
     res
       .status(500)
-      .send({ message: "Error Message", status: "false", data: [] })
+      .send({ message: "Error Message", status: "false", data: err })
   }
 })
 
@@ -791,7 +802,7 @@ router.get("/profile", async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal server error", status: "false", data: [err] })
+      .send({ message: "Internal server error", status: "false", data: err })
   }
 })
 
@@ -832,32 +843,35 @@ router.put("/updateprofile", async (req, res) => {
     console.log(err)
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [err] })
+      .send({ message: "Internal Server error", status: "false", data: err })
   }
 })
 router.post("/community", async (req, res) => {
-  let token = req.headers.authorization
+  try{
+    let token = req.headers.authorization
 
-  // let data=await User.findOne({"token":token})
-  const token_data = await Token.findOne({ token: token })
-  const updatedata = await User.updateOne(
-    { _id: token_data.user },
-    {
-      $set: {
-        mktNotification: req.body.market,
-        smsNotification: req.body.sms,
-        emailNotification: req.body.email,
-      },
+    // let data=await User.findOne({"token":token})
+    const token_data = await Token.findOne({ token: token })
+    const updatedata = await User.updateOne(
+      { _id: token_data.user },
+      {
+        $set: {
+          mktNotification: req.body.market,
+          smsNotification: req.body.sms,
+          emailNotification: req.body.email,
+        },
+      }
+    )
+    if (updatedata) {
+      res.status(200).send({ message: "updated successfully", status: "true" })
+    } else {
+      res.status(500).send({ message: "Not updated successfully", status: "false" })
     }
-  )
-  if (updatedata) {
-    res.status(200).send({ message: "updated successfully", status: "true" })
-  } else {
-    res
-      .status(500)
-      .send({ message: "Not updated successfully", status: "false" })
   }
-})
+  catch(err){
+    res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
+  }
+  })
 
 router.get("/showcommunity", async (req, res) => {
   let token = req.headers.authorization
@@ -949,97 +963,102 @@ router.post("/feedback", async (req, res) => {
 })
 
 router.put("/levels", async (req, res) => {
-  let token = req.headers.authorization
+  try{
+    let token = req.headers.authorization
 
-  const points = parseInt(req.body.croppoints)
+    const points = parseInt(req.body.croppoints)
 
-  const currentDate = new Date()
-  const formattedDate = currentDate.toLocaleDateString()
-  const token_data = await Token.findOne({ token: token })
-  //Changing levels according to croppoints5
-  if (points === 0) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Base" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Base on ${formattedDate}`,
+    const currentDate = new Date()
+    const formattedDate = currentDate.toLocaleDateString()
+    const token_data = await Token.findOne({ token: token })
+    //Changing levels according to croppoints5
+    if (points === 0) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Base" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Base on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
-  } else if (points <= 30) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Silver" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Silver on ${formattedDate}`,
+        }
+      )
+      res.send({ status: "true" })
+    } else if (points <= 30) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Silver" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Silver on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
-  } else if (points <= 60) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Gold" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Gold on ${formattedDate}`,
+        }
+      )
+      res.send({ status: "true" })
+    } else if (points <= 60) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Gold" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Gold on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
-  } else if (points <= 1000) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Platinum" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Platinum on ${formattedDate}`,
+        }
+      )
+      res.send({ status: "true" })
+    } else if (points <= 1000) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Platinum" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Platinum on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
+        }
+      )
+      res.send({ status: "true" })
+    }
+    // else if(points<=2800)
+    // {
+    //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
+    //     res.send({status:"true"})
+    else {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Diamond" },
+          $push: {
+            auditTrail: {
+              _id: new mongoose.Types.ObjectId(),
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Diamond on ${formattedDate}`,
+            },
+          },
+        }
+      )
+      res.send({ status: "true" })
+    }
+    //comment one the mate website
   }
-  // else if(points<=2800)
-  // {
-  //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
-  //     res.send({status:"true"})
-  else {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Diamond" },
-        $push: {
-          auditTrail: {
-            _id: new mongoose.Types.ObjectId(),
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Diamond on ${formattedDate}`,
-          },
-        },
-      }
-    )
-    res.send({ status: "true" })
+  catch(err){
+    res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
   }
-  //comment one the mate website
 })
 //comment on the page
 
@@ -1100,12 +1119,15 @@ router.post("/mate", async (req, res) => {
     subject: "Refer code",
     text: `REFER CODE ${refercode}`,
   }
-  transporter.sendMail(mailOptions, (err, result) => {
+  transporter.sendMail(mailOptions, async (err, result) => {
     if (err) {
       return res
         .status(500)
         .send({ message: "Internal server error", status: "false", data: [] })
     } else {
+      let notification = await adminGeneralAccountNotification.find();
+      notification = notification[0]._doc
+      await new GeneralNotificationCustomer({user_id: userData._id, message: notification.get_a_mate}).save();
       return res
         .status(200)
         .send({ message: "Mail sent successfully", status: "true", data: [] })
@@ -1182,6 +1204,9 @@ router.post("/missingcrop", async (req, res) => {
       console.log({ business })
       createMissingCropNotification(missingCrops._id, business)
     })
+    let notification = await adminCustomerRequestAndComplainedNotification.find();
+    notification = notification[0]._doc
+    await new ComplainNotificationCustomer({user_id: token_data.user, message: notification.missing_points_claim}).save();
     res.status(200).json({
       data: [req.body],
       status: 200,
@@ -1343,6 +1368,32 @@ router.get('/cropPoints', async (req, res) => {
   catch(err) {
     console.log(err);
     res.status(500).json({ data:err, status:500 })
+  }
+})
+
+router.get('/notification', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const Account = await AccountNotificationCustomer.find({ user_id:user.user });
+    const General = await GeneralNotificationCustomer.find({ user_id:user.user })
+    const Complain = await ComplainNotificationCustomer.find({ user_id:user.user })
+    const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user })
+
+    arr = {}
+    arr['AccountCount'] = Account.length
+    arr['AccountMessage'] = Account
+    arr['GeneralCount'] = General.length
+    arr['GeneralMessage'] = General
+    arr['ComplainCount'] = Complain.length
+    arr['ComplainMessage'] = Complain
+    arr['InvoiceCount'] = Invoice.length
+    arr['InvoiceMessage'] = Invoice
+    res.status(200).json({data:arr, status:200, message: ""})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message:err, status:500 })
   }
 })
 
