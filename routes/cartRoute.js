@@ -594,7 +594,8 @@ router.get("/getCart", async (req, res) => {
                       const store = await StoreProduct.findById({
                         _id: data._id,
                       })
-                      let temp_redeem = store.redeemProps * data.cartQuantity
+                      if(store != null && store != undefined){
+                        let temp_redeem = (store.redeemProps) * data.cartQuantity;
                   storetotal = storetotal + temp_redeem
                       const finalProduct = {
                         ...store._doc,
@@ -605,6 +606,8 @@ router.get("/getCart", async (req, res) => {
                         },
                       }
                       tempCart.push(finalProduct)
+                      }
+                      
                       // return res.status(200).send({ finalProduct, store })
                     }
                 } catch (err) {

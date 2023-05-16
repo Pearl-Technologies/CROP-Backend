@@ -1341,18 +1341,28 @@ router.get('/cropPoints', async (req, res) => {
     arr = {}
     arr['cropPoint'] = aaa.croppoints
     arr['propPoint'] = aaa.proppoints
-    if(bbb.cart != undefined){
-      arr['cartCount'] = bbb.cart.length
-    }
-    else{
+    if(bbb != undefined && bbb != null){
+      if(bbb.cart != undefined){
+        arr['cartCount'] = bbb.cart.length
+      }
+      else{
+        arr['cartCount'] = 0
+      }
+    }else{
       arr['cartCount'] = 0
     }
-    if(ccc.cart != undefined){
-      arr['wishlistCount'] = ccc.cart.length
+    if(ccc != undefined && ccc != null){
+      if(ccc.cart != undefined){
+        arr['wishlistCount'] = ccc.cart.length
+      }
+      else{
+        arr['wishlistCount'] = 0
+      }
     }
     else{
       arr['wishlistCount'] = 0
     }
+    
     res.status(200).json({data:arr, status:200, message: ""})
   }
   catch(err) {
