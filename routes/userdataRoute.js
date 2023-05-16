@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback, loginAttemp } = require("../models/User");
+const {AccountNotificationCustomer, GeneralNotificationCustomer, ComplainNotificationCustomer, InvoicePaymentNotificationCustomer} = require("../models/notification");
 const StateSchema = require('../models/State');
 const { Cart } = require("../models/Cart")
 const { Wishlist } = require("../models/Wishlist")
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
+const adminCustomerAccountNotification = require("../models/admin/notification/customerAccountNotification")
+const adminGeneralAccountNotification = require("../models/admin/notification/customerGeneralNotification")
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const adminCustomerRequestAndComplainedNotification = require("../models/admin/notification/customerRequestAndComplainedNotification")
 const { Product } = require("../models/businessModel/product");
 const business = require("../models/businessModel/business");
 var mongoose = require("mongoose");
@@ -341,6 +346,9 @@ router.put("/resetpassword", async (req, res) => {
   )
 
   if (updatedata) {
+    let notification = await adminCustomerAccountNotification.find();
+    notification = notification[0]._doc
+    await new AccountNotificationCustomer({user_id: userData._id, message: notification.pin_change}).save();
     res
       .status(200)
       .send({ message: "Pin changed successfully", status: "true" })
@@ -457,6 +465,9 @@ router.post("/signup", async (req, res) => {
         type: method,
       }).save()
     }
+    let notification = await adminCustomerAccountNotification.find();
+    notification = notification[0]._doc
+    await new AccountNotificationCustomer({user_id: userData._id, message: notification.first_time_notification}).save();
     //saving data in the database
     res.send({
       message: "Register successfully",
@@ -1108,12 +1119,15 @@ router.post("/mate", async (req, res) => {
     subject: "Refer code",
     text: `REFER CODE ${refercode}`,
   }
-  transporter.sendMail(mailOptions, (err, result) => {
+  transporter.sendMail(mailOptions, async (err, result) => {
     if (err) {
       return res
         .status(500)
         .send({ message: "Internal server error", status: "false", data: [] })
     } else {
+      let notification = await adminGeneralAccountNotification.find();
+      notification = notification[0]._doc
+      await new GeneralNotificationCustomer({user_id: userData._id, message: notification.get_a_mate}).save();
       return res
         .status(200)
         .send({ message: "Mail sent successfully", status: "true", data: [] })
@@ -1190,6 +1204,9 @@ router.post("/missingcrop", async (req, res) => {
       console.log({ business })
       createMissingCropNotification(missingCrops._id, business)
     })
+    let notification = await adminCustomerRequestAndComplainedNotification.find();
+    notification = notification[0]._doc
+    await new ComplainNotificationCustomer({user_id: token_data.user, message: notification.missing_points_claim}).save();
     res.status(200).json({
       data: [req.body],
       status: 200,
@@ -1341,6 +1358,32 @@ router.get('/cropPoints', async (req, res) => {
   catch(err) {
     console.log(err);
     res.status(500).json({ data:err, status:500 })
+  }
+})
+
+router.get('/notification', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const Account = await AccountNotificationCustomer.find({ user_id:user.user });
+    const General = await GeneralNotificationCustomer.find({ user_id:user.user })
+    const Complain = await ComplainNotificationCustomer.find({ user_id:user.user })
+    const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user })
+
+    arr = {}
+    arr['AccountCount'] = Account.length
+    arr['AccountMessage'] = Account
+    arr['GeneralCount'] = General.length
+    arr['GeneralMessage'] = General
+    arr['ComplainCount'] = Complain.length
+    arr['ComplainMessage'] = Complain
+    arr['InvoiceCount'] = Invoice.length
+    arr['InvoiceMessage'] = Invoice
+    res.status(200).json({data:arr, status:200, message: ""})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message:err, status:500 })
   }
 })
 

@@ -6,6 +6,8 @@ const {Token} = require("../models/User");
 const StateSchema = require('../models/State');
 const random = require('alphanumeric')
 const {Product} = require("../models/businessModel/product");
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const {InvoicePaymentNotificationCustomer} = require("../models/notification");
 const {
   customerPaymentTracker,
   customerRedeemTracker,
@@ -121,7 +123,9 @@ module.exports.paymentIntent = async (req, res) => {
           },
           delivery_address:obj
         })
-
+        let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
+        notification = notification[0]._doc
+        await new InvoicePaymentNotificationCustomer({user_id: user_id, message: notification.points_purchased}).save();
       // await Cart.updateMany(
       //   { 'user_id': mongoose.Types.ObjectId(user_id) },
       //   { $set: { 'cart.$[].purchaseStatus': 1 } }
