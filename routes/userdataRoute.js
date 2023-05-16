@@ -81,7 +81,7 @@ router.put("/uploadpicture", async (req, res) => {
 })
 
 router.get("/", async (req, res) => {
-  return res.status(200).send({ message: "API works fine" })
+  return res.status(200).send("API works fine")
 })
 
 router.put("/resendotp", async (req, res) => {
@@ -1380,6 +1380,46 @@ router.get('/notification', async (req, res) => {
     arr['InvoiceCount'] = Invoice.length
     arr['InvoiceMessage'] = Invoice
     res.status(200).json({data:arr, status:200, message: ""})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message:err, status:500 })
+  }
+})
+
+router.delete('/notification', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const type = req.query.type;
+    const id = req.query.id;
+    const user = await Token.findOne({ token: token });
+    if(user){
+      if(type == 1){
+        const Account = await AccountNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 2){
+        const General = await GeneralNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 3){
+        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 4){
+        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 5){
+        const Account = await AccountNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+      else if(type == 6){
+        const General = await GeneralNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+      else if(type == 7){
+        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+      else if(type == 8){
+        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+    }    
+    res.status(200).json({status:200, message: "Notification deleted succesfully"})
   }
   catch(err) {
     console.log(err);
