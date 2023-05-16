@@ -9,7 +9,8 @@ const {Product} = require("../models/businessModel/product");
 const {
   customerPaymentTracker,
   customerRedeemTracker,
-  customerPropRedeemTracker
+  customerPropRedeemTracker,
+  customerPurchsedTracker
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const {
   SaveMyCropTrasaction,
@@ -261,3 +262,332 @@ module.exports.RedeemProp = async (req, res) => {
   }
   return;
 };
+module.exports.productPurchaseTrasaction = async(req, res)=>{
+  const { startDate, endDate, search } = req.query;
+    let token= req.headers.authorization
+    const token_data = await Token.findOne({ token });
+    let user= token_data?.user;
+    try {
+      let findone = await customerPaymentTracker.find({
+        "cartDetails.user_id": mongoose.Types.ObjectId(`${user}`),
+      });
+      if (!findone.length) {
+        return res
+          .status(200)
+          .send({ msg: "no order", data: findone, status: 200 });
+      }
+      if (startDate && endDate) {
+        const trasactionDetails = await customerPaymentTracker.aggregate([
+          {
+            $match: {
+              user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $match: {
+              createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+              },
+            },
+          },        
+          {
+            $project: {
+              status: 1,
+              paymentMethod: 1,
+              invoice_url: 1,
+              invoice_pdf: 1,
+              customer_email:1,
+              coupon_code:1,
+              number:1,
+              customer_address:1,
+              customer_shipping:1,
+              cartDetails:1,
+              updatedAt:1
+            },
+          },
+          { $sort: { createdAt: -1 } },
+        ]);
+        return res.status(200).send({ data: trasactionDetails, status: 200 });
+      }
+      if (search) {
+        const trasactionDetails = await customerPaymentTracker.aggregate([
+          {
+            $match: {
+              user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $project: {
+              status: 1,
+              paymentMethod: 1,
+              invoice_url: 1,
+              invoice_pdf: 1,
+              customer_email:1,
+              coupon_code:1,
+              number:1,
+              customer_address:1,
+              customer_shipping:1,
+              cartDetails:1,
+              updatedAt:1
+            },
+          },
+          {
+            $match: {
+              orderNumber: search,
+            },
+          },
+          { $sort: { createdAt: -1 } },
+        ]);
+        return res.status(200).send({ data: trasactionDetails, status: 200 });
+      }
+  
+      const trasactionDetails = await customerPaymentTracker.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $project: {
+            status: 1,
+            paymentMethod: 1,
+            invoice_url: 1,
+            invoice_pdf: 1,
+            customer_email:1,
+            coupon_code:1,
+            number:1,
+            customer_address:1,
+            customer_shipping:1,
+            cartDetails:1,
+            updatedAt:1
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ msg: "internal server error", status: 500 });
+    }
+}
+module.exports.productPurchaseTrasaction = async(req, res)=>{
+  const { startDate, endDate, search } = req.query;
+    let token= req.headers.authorization
+    const token_data = await Token.findOne({ token });
+    let user= token_data?.user;
+    if(!user){
+      return res
+      .status(401)
+      .send({ msg: "sorry you are not authorize",  status: 401 });
+    }
+    try {
+      let findone = await customerPaymentTracker.find({
+        "cartDetails.user_id": mongoose.Types.ObjectId(`${user}`),
+      });
+      if (!findone.length) {
+        return res
+          .status(200)
+          .send({ msg: "no order", data: findone, status: 200 });
+      }
+      if (startDate && endDate) {
+        const trasactionDetails = await customerPaymentTracker.aggregate([
+          {
+            $match: {
+              user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $match: {
+              createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+              },
+            },
+          },        
+          {
+            $project: {
+              status: 1,
+              paymentMethod: 1,
+              invoice_url: 1,
+              invoice_pdf: 1,
+              customer_email:1,
+              coupon_code:1,
+              number:1,
+              customer_address:1,
+              customer_shipping:1,
+              cartDetails:1,
+              updatedAt:1
+            },
+          },
+          { $sort: { createdAt: -1 } },
+        ]);
+        return res.status(200).send({ data: trasactionDetails, status: 200 });
+      }
+      if (search) {
+        const trasactionDetails = await customerPaymentTracker.aggregate([
+          {
+            $match: {
+              user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $project: {
+              status: 1,
+              paymentMethod: 1,
+              invoice_url: 1,
+              invoice_pdf: 1,
+              customer_email:1,
+              coupon_code:1,
+              number:1,
+              customer_address:1,
+              customer_shipping:1,
+              cartDetails:1,
+              updatedAt:1
+            },
+          },
+          {
+            $match: {
+              orderNumber: search,
+            },
+          },
+          { $sort: { createdAt: -1 } },
+        ]);
+        return res.status(200).send({ data: trasactionDetails, status: 200 });
+      }
+  
+      const trasactionDetails = await customerPaymentTracker.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $project: {
+            status: 1,
+            paymentMethod: 1,
+            invoice_url: 1,
+            invoice_pdf: 1,
+            customer_email:1,
+            coupon_code:1,
+            number:1,
+            customer_address:1,
+            customer_shipping:1,
+            cartDetails:1,
+            updatedAt:1
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ msg: "internal server error", status: 500 });
+    }
+}
+module.exports.pointPurchaseTrasaction = async(req, res)=>{
+  const { startDate, endDate, search } = req.query;
+    let token= req.headers.authorization
+    const token_data = await Token.findOne({ token });
+    let user= token_data?.user;
+    if(!user){
+      return res
+      .status(401)
+      .send({ msg: "sorry you are not authorize",  status: 401 });
+    }
+    try {
+      let findone = await customerPurchsedTracker.find({
+        user: mongoose.Types.ObjectId(`${user}`),
+      });
+      if (!findone.length) {
+        return res
+          .status(200)
+          .send({ msg: "no order", data: findone, status: 200 });
+      }
+      if (startDate && endDate) {
+        const trasactionDetails = await customerPurchsedTracker.aggregate([
+          {
+            $match: {
+              user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $match: {
+              createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+              },
+            },
+          },        
+          {
+            $project: {
+              status: 1,
+              paymentMethod: 1,
+              invoice_url: 1,
+              invoice_pdf: 1,
+              customer_email:1,
+              type:1,
+              amount:1,
+              quantity:1,
+              name:1,
+              createdAt:1
+            },
+          },
+          { $sort: { createdAt: -1 } },
+        ]);
+        return res.status(200).send({ data: trasactionDetails, status: 200 });
+      }
+      if (search) {
+        const trasactionDetails = await customerPurchsedTracker.aggregate([
+          {
+            $match: {
+              user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $project: {
+              status: 1,
+              paymentMethod: 1,
+              invoice_url: 1,
+              invoice_pdf: 1,
+              customer_email:1,
+              type:1,
+              amount:1,
+              quantity:1,
+              name:1,
+              createdAt:1
+            },
+          },
+          { $sort: { createdAt: -1 } },
+        ]);
+        return res.status(200).send({ data: trasactionDetails, status: 200 });
+      }
+  
+      const trasactionDetails = await customerPurchsedTracker.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $project: {
+            status: 1,
+            paymentMethod: 1,
+            invoice_url: 1,
+            invoice_pdf: 1,
+            customer_email:1,
+            type:1,
+            amount:1,
+            quantity:1,
+            name:1,
+            createdAt:1
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ msg: "internal server error", status: 500 });
+    }
+}
