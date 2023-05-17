@@ -114,7 +114,6 @@ const {getPurchasedProductStatement} =require("../controller/adminController/Bus
 router.post(
   "/adminPasswordReset",
   [
-    body("email", "Enter a valid email").isEmail(),
     body("password", "Passowrd must be atleast 5 characters").isLength({
       min: 5,
     }),
@@ -122,6 +121,7 @@ router.post(
       min: 5,
     }),
   ],
+  verifyToken,
   adminPasswordReset
 );
 router.post("/passwordResetEmail",

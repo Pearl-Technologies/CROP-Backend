@@ -106,24 +106,25 @@ const adminLogin = async (req, res) => {
   }
 };
 const adminPasswordReset = async (req, res) => {
+  let _id=(req.user.user.id);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(401).json({ msg: errors });
   }
-  const { email, password, c_password } = req.body;
+  const { password, c_password } = req.body;
   try {
     //finding users with email id
     if (password !== c_password) {
       return res.status(401).json({ msg: "confirmation password is not matching" });
     }
-    let adminUser = await admin.findOne({ email });
+    let adminUser = await admin.findOne({_id});
     if (!adminUser) {
       return res.status(400).send({ msg: "user not found" });
     }
     //secure password by bcrypt
     const salt = await bcrypt.genSalt(10);
     secPass = await bcrypt.hash(password, salt);
-    adminUser = await admin.updateOne({ email: email }, { $set: { password: secPass } });
+    adminUser = await admin.updateOne({ _id }, { $set: { password: secPass } });
     res.status(200).json({ msg: "password successfully changed" });
   } catch (error) {
     console.error(error.message);
@@ -209,8 +210,10 @@ const passwordResetEmail = async (req, res) => {
   const { email } = req.body;
   try {
     let findRecord = await admin.findOne({ email });
+
     if (!findRecord) {
-      return res.status(204).json({ msg: "Account Not Found Please Contact To SuperAdmin to Create One" });
+      res.status(404).send({ msg: "Account Not Found Please Contact To SuperAdmin to Create One" });
+      return
     }
     const data = {
       user: {
@@ -254,25 +257,23 @@ const passwordResetEmail = async (req, res) => {
   }
 };
 const sendEmail = (toEmail, subject, msg, resMsg, res) => {
-  var otp = Math.floor(100000 + Math.random() * 900000)
-console.log({ otp })
-
 const transporter = nodemailer.createTransport({
-  // service: "Gmail",
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+  
+  host: process.env.HOST,
+        service: process.env.SERVICE, //comment this line if you use custom server/domain
+        port: process.env.EMAIL_PORT,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
 })
 console.log({ toEmail, subject, msg, resMsg })
 const mailOptions = {
   from: process.env.EMAIL_USER,
   to: toEmail,
   subject: subject,
-  text: msg + " " + otp,
+  text: msg,
 }
 
 transporter.sendMail(mailOptions, async(err, result) => {
@@ -294,7 +295,7 @@ transporter.sendMail(mailOptions, async(err, result) => {
       // console.log("two")
       // await otpData.save();
       // console.log({otpData})
-      return res.status(200).send({ msg: resMsg, status: "true" })
+      return res.status(200).send({ msg: resMsg})
   }
 })
 }
