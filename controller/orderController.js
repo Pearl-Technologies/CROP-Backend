@@ -125,7 +125,7 @@ module.exports.paymentIntent = async (req, res) => {
         })
         let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
         notification = notification[0]._doc
-        await new InvoicePaymentNotificationCustomer({user_id: user_id, message: notification.points_purchased}).save();
+        await new InvoicePaymentNotificationCustomer({user_id: user_id, message: notification.payment_notifications}).save();
       // await Cart.updateMany(
       //   { 'user_id': mongoose.Types.ObjectId(user_id) },
       //   { $set: { 'cart.$[].purchaseStatus': 1 } }

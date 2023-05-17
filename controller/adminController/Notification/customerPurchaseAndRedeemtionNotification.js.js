@@ -1,5 +1,6 @@
 const customerPurchaseAndRedeemtionNotification = require("../../../models/admin/notification/customerPurchaseAndRedeemtionNotification");
-
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const {InvoicePaymentNotificationCustomer} = require("../models/notification");
 const createCustomerPurchaseAndRedeemNotification = async (req, res) => {
   try {
     const {
@@ -22,6 +23,9 @@ const createCustomerPurchaseAndRedeemNotification = async (req, res) => {
       e_vouchers,
       user,
     });
+    let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
+    notification = notification[0]._doc
+    await new InvoicePaymentNotificationCustomer({user_id: userData._id, message: notification.payment_notifications}).save();
     res.status(200).send({msg:"created"});
   } catch (error) {
     console.log(error.message);
