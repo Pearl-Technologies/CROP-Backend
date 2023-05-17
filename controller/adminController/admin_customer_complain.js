@@ -1,5 +1,6 @@
 const adminCustomerComplain = require("../../models/admin/admin_customer_complain");
-
+const adminCustomerRequestAndComplainedNotification = require("../models/admin/notification/customerRequestAndComplainedNotification")
+const {ComplainNotificationCustomer} = require("../models/notification");
 const createCustomerComplain = async (req, res) => {
   try {
     const {
@@ -22,6 +23,9 @@ const createCustomerComplain = async (req, res) => {
       complainNumber,
       user,
     });
+    let notification = await adminCustomerRequestAndComplainedNotification.find();
+    notification = notification[0]._doc
+    await new ComplainNotificationCustomer({user_id: userData._id, message: notification.complaint}).save();
     res.json({ success: true, message: "updated" });
   } catch (error) {
     console.error(error.message);
