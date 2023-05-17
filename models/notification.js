@@ -17,6 +17,8 @@ const AccountNotificationCustomerSchema = new mongoose.Schema({
   ios_push: { type: Number, require: true, default: 1 },
   notification_status: { type: Number, require: true, default: 1 },
   status: { type: Boolean, required: true, default: true },
+},{
+  timestamps: true
 });
 
 const GeneralNotificationCustomerSchema = new mongoose.Schema({
@@ -32,6 +34,8 @@ const GeneralNotificationCustomerSchema = new mongoose.Schema({
   ios_push: { type: Number, require: true, default: 1 },
   notification_status: { type: Number, require: true, default: 1 },
   status: { type: Boolean, required: true, default: true },
+},{
+  timestamps: true
 });
 
 const InvoicePaymentNotificationCustomerSchema = new mongoose.Schema({
@@ -47,6 +51,8 @@ const InvoicePaymentNotificationCustomerSchema = new mongoose.Schema({
   ios_push: { type: Number, require: true, default: 1 },
   notification_status: { type: Number, require: true, default: 1 },
   status: { type: Boolean, required: true, default: true },
+},{
+  timestamps: true
 });
 
 const ComplainNotificationCustomerSchema = new mongoose.Schema({
@@ -62,6 +68,8 @@ const ComplainNotificationCustomerSchema = new mongoose.Schema({
   ios_push: { type: Number, require: true, default: 1 },
   notification_status: { type: Number, require: true, default: 1 },
   status: { type: Boolean, required: true, default: true },
+},{
+  timestamps: true
 });
 
 const AccountNotificationCustomer = mongoose.model(
