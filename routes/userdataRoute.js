@@ -599,7 +599,7 @@ router.post("/login", async (req, res) => {
       )
 
       if (!isPasswordValid) {
-        if(attempt.length==1 || attempt.length==2 || attempt.length==3){
+        if(attempt.length==0 || attempt.length==1 || attempt.length==2 || attempt.length==3){
           await new loginAttemp({user: userData._id}).save()
           const attemptNew = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
           if(attemptNew.length<=3){
