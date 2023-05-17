@@ -1,6 +1,6 @@
 const customerPurchaseAndRedeemtionNotification = require("../../../models/admin/notification/customerPurchaseAndRedeemtionNotification");
-const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
-const {InvoicePaymentNotificationCustomer} = require("../models/notification");
+const adminCustomerPurchaseAndRedeemtionNotification = require("../../../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const {InvoicePaymentNotificationCustomer} = require("../../../models/notification");
 const createCustomerPurchaseAndRedeemNotification = async (req, res) => {
   try {
     const {
