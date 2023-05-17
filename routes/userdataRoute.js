@@ -1389,6 +1389,7 @@ router.get('/notification', async (req, res) => {
     arr['ComplainMessage'] = Complain
     arr['InvoiceCount'] = Invoice.length
     arr['InvoiceMessage'] = Invoice
+    arr['totalCount'] = Account.length + General.length + Complain.length + Invoice.length
     res.status(200).json({data:arr, status:200, message: ""})
   }
   catch(err) {

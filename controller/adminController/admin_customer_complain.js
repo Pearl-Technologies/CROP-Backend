@@ -1,6 +1,6 @@
 const adminCustomerComplain = require("../../models/admin/admin_customer_complain");
-const adminCustomerRequestAndComplainedNotification = require("../models/admin/notification/customerRequestAndComplainedNotification")
-const {ComplainNotificationCustomer} = require("../models/notification");
+const adminCustomerRequestAndComplainedNotification = require("../../models/admin/notification/customerRequestAndComplainedNotification")
+const {ComplainNotificationCustomer} = require("../../models/notification");
 const createCustomerComplain = async (req, res) => {
   try {
     const {
