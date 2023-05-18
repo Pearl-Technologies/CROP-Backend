@@ -464,6 +464,7 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
     res.status(500).send({ msg: "internal server error", status: 500 });
   }
 };
+
 const SaveMyPropTrasaction=async(amount, prop, transactionType, description, orderNumber, user)=>{  
     if(!prop || !transactionType|| !orderNumber || !user ){
         return console.log("all field is required"); 
