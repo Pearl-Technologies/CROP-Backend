@@ -1123,7 +1123,7 @@ router.post("/mate", async (req, res) => {
     } else {
       let notification = await adminGeneralAccountNotification.find();
       notification = notification[0]._doc
-      await new GeneralNotificationCustomer({user_id: userdata._id, message: notification.get_a_mate}).save();
+      await new GeneralNotificationCustomer({user_id: token1.user, message: notification.get_a_mate}).save();
       return res
         .status(200)
         .send({ message: "Mail sent successfully", status: "true", data: [] })
