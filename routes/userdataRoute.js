@@ -1097,11 +1097,7 @@ router.post("/mate", async (req, res) => {
   const userdata = await User.findOne({ email })
 
   console.log("userData", userdata)
-  if (userdata != null || userdata != undefined) {
-    return res
-      .status(500)
-      .send({ message: "The given mail-ID already exist", status: "false" })
-  }
+  if (userdata == null) {
 
   const transporter = nodemailer.createTransport({
     // service: "Gmail",
@@ -1133,6 +1129,12 @@ router.post("/mate", async (req, res) => {
         .send({ message: "Mail sent successfully", status: "true", data: [] })
     }
   })
+}
+else{
+  return res
+      .status(500)
+      .send({ message: "The given mail-ID already exist", status: "false" })
+}
 })
 
 router.get("/profileAdmin", async (req, res) => {
