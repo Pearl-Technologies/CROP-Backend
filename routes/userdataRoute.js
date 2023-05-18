@@ -1094,10 +1094,10 @@ router.post("/mate", async (req, res) => {
   if (!findUser) return res.status(401).send("User Authentication Failed")
   console.log(findUser.email)
   const refercode = findUser.refercode
-  const userdata = await User.findOne({ email })
+  const userdata = await User.find({ email })
 
   console.log("userData", userdata)
-  if (userdata == null) {
+  if (userdata.length != 0) {
     return res
       .status(500)
       .send({ message: "The given mail-ID already exist", status: "false" })
