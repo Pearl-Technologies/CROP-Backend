@@ -1094,10 +1094,10 @@ router.post("/mate", async (req, res) => {
   if (!findUser) return res.status(401).send("User Authentication Failed")
   console.log(findUser.email)
   const refercode = findUser.refercode
-  const userdata = await User.find({ email })
+  const userdata = await User.findOne({ email })
 
   console.log("userData", userdata)
-  if (userdata.length != 0) {
+  if (userdata != null || userdata != undefined) {
     return res
       .status(500)
       .send({ message: "The given mail-ID already exist", status: "false" })
@@ -1127,7 +1127,7 @@ router.post("/mate", async (req, res) => {
     } else {
       let notification = await adminGeneralAccountNotification.find();
       notification = notification[0]._doc
-      await new GeneralNotificationCustomer({user_id: userData._id, message: notification.get_a_mate}).save();
+      await new GeneralNotificationCustomer({user_id: userdata._id, message: notification.get_a_mate}).save();
       return res
         .status(200)
         .send({ message: "Mail sent successfully", status: "true", data: [] })
