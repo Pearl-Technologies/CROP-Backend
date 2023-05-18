@@ -320,7 +320,7 @@ router.post("/emailphoneverify", async (req, res) => {
 
 router.put("/resetpassword", async (req, res) => {
   const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
-  const token = req.headers?.authorization
+  const token = req.headers.authorization
   const token_data = await Token.findOne({ token: token })
   const oldpassword = await User.findOne({ _id: token_data.user })
   console.log(oldpassword)
