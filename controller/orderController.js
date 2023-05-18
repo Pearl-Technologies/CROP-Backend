@@ -190,6 +190,9 @@ module.exports.RedeemCrop = async (req, res) => {
       orderNumber,
       user_id
     );
+    let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
+    notification = notification[0]._doc
+    await new InvoicePaymentNotificationCustomer({user_id: user_id, message: notification.offers_redeemed}).save();
     //
     res.status(200).send({ msg: "CROP redemption success", status:200 });
   }
