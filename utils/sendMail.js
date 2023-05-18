@@ -7,7 +7,7 @@ const sendMail = (toEmail, subject, msg, resMsg, otpType, userType, res) => {
 
   const transporter = nodemailer.createTransport({
     // service: "Gmail",
-    host: "smtp.gmail.com",
+    host: process.env.HOST,
     port: 465,
     secure: true,
     auth: {
