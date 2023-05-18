@@ -95,6 +95,7 @@ const {payToBusiness}=require("../controller/adminController/PaymentController/p
 //customer
 const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
 const{getAllCropTrasactionByAdmin} = require('../controller/customerCropTransaction');
+const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransaction');
 //
 
 //Business
@@ -108,6 +109,7 @@ const {SavePaymentInfo} = require('../controller/adminController/PaymentControll
 const {createCategory, getCategories} =  require("../controller/adminController/admin_product_category")
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
 const {getPurchasedProductStatement} =require("../controller/adminController/BusinessData/business")
+const {productPurchaseTrasaction, pointPurchaseTrasaction} =require('../controller/adminController/CustomerData/customer')
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -244,6 +246,9 @@ router.post("/updateTier", updateTier)
 router.post("/getAllCustomerForPropPayment", getAllCustomerForPropPayment)
 router.post("/payToBusiness", payToBusiness)
 router.get("/getAllCropTrasactionByAdmin", getAllCropTrasactionByAdmin)
+router.get("/getAllPropTrasactionByAdmin", getAllPropTrasactionByAdmin)
+router.get("/productPurchaseTrasaction", productPurchaseTrasaction)
+router.get("/pointPurchaseTrasaction", pointPurchaseTrasaction)
 // router.post("/paymentLink", paymentLink);
 //customer data
 
