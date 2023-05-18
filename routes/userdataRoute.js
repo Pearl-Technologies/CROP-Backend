@@ -348,7 +348,7 @@ router.put("/resetpassword", async (req, res) => {
   if (updatedata) {
     let notification = await adminCustomerAccountNotification.find();
     notification = notification[0]._doc
-    await new AccountNotificationCustomer({user_id: userData._id, message: notification.pin_change}).save();
+    await new AccountNotificationCustomer({user_id: token_data.user, message: notification.pin_change}).save();
     res
       .status(200)
       .send({ message: "Pin changed successfully", status: "true" })
