@@ -318,7 +318,7 @@ router.post("/emailphoneverify", async (req, res) => {
   }
 })
 
-router.put("/resetpassword", async (req, res) => {
+router.put("/changepassword", async (req, res) => {
   const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
   const token = req.headers.authorization
   const token_data = await Token.findOne({ token: token })
@@ -356,6 +356,35 @@ router.put("/resetpassword", async (req, res) => {
     res
       .status(500)
       .send({ message: "Pin not changed successfully", status: "false" })
+  }
+})
+
+router.put("/resetpassword", async (req, res) => {
+  const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
+  const email = req.body.email;
+  const user = await User.findOne({ email: email })
+  if(user == null){
+    const updatedata = await User.updateOne(
+      { _id: user._id },
+      { $set: { password: newpin } }
+    )
+  
+    if (updatedata) {
+      let notification = await adminCustomerAccountNotification.find();
+      notification = notification[0]._doc
+      await new AccountNotificationCustomer({user_id: user._id, message: notification.pin_change}).save();
+      res
+        .status(200)
+        .send({ message: "Pin changed successfully", status: "true" })
+    } else {
+      res
+        .status(500)
+        .send({ message: "Pin not changed successfully", status: "false" })
+    }
+  }else{
+    res
+    .status(500)
+    .send({ message: "Invalid Email ID", status: "false" })
   }
 })
 
