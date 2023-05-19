@@ -37,6 +37,7 @@ const {
   getProductCommentAndRatingsByBusiness,
   getPromoEarnAndRedeemProducts,
   getEarnAndRedeemProducts,
+  getSingleProductByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -80,6 +81,7 @@ router.get(
   getAllProductsByBusiness
 )
 router.get("/relatedProduct", getRelatedProducts)
+router.get("/single-product/:id", getSingleProductByBusiness)
 router.get("/:id", getSingleProduct)
 router.put("/:id", updateProduct)
 router.delete("/:id", removeProduct)
