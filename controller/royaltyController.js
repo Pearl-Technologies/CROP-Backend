@@ -38,6 +38,7 @@ if(type=="CROP"){
         payment_method_types: ["card", "alipay"],
         success_url: `${req.headers.origin}/success`,
         cancel_url: `${req.headers.origin}/canceled`,
+        customer_email: req.body.email_id
       };
       const session = await stripe.checkout.sessions.create(params)
 
