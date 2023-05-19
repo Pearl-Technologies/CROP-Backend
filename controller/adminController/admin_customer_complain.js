@@ -1,27 +1,36 @@
 const adminCustomerComplain = require("../../models/admin/admin_customer_complain");
-
+const adminCustomerRequestAndComplainedNotification = require("../../models/admin/notification/customerRequestAndComplainedNotification")
+const {ComplainNotificationCustomer} = require("../../models/notification");
+const { IdGenerator } = require("custom-random-id");
+const {Token} = require("../../models/User");
+const ID = new IdGenerator("{{ number_7 }}");
+let id = ID.getFinalExpression();
 const createCustomerComplain = async (req, res) => {
+  let token= req.headers.authorization
+    const token_data = await Token.findOne({ token });
+    let user= token_data.user;
   try {
     const {
       description,
       expectedOutcoms,
       complainType,
       preferredMediumContact,
-      complainNumber,
-      user,
     } = req.body;
-    const findone = await adminCustomerComplain.find({ complainNumber });
-    if (findone.length) {
-      return res.status("400").send("one record is already exist");
+    if(!description || !expectedOutcoms || !complainType, !preferredMediumContact, !user){
+      return res.status(401).send({data:"all fields are required", status:(401)});
     }
     await adminCustomerComplain.create({
       description,
       expectedOutcoms,
       complainType,
       preferredMediumContact,
-      complainNumber,
+      complainNumber:id,
       user,
     });
+    
+    let notification = await adminCustomerRequestAndComplainedNotification.find();
+    notification = notification[0]._doc
+    await new ComplainNotificationCustomer({user_id: userData._id, message: notification.complaint}).save();
     res.json({ success: true, message: "updated" });
   } catch (error) {
     console.error(error.message);

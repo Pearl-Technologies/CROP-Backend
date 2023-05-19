@@ -1,7 +1,8 @@
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const {customerPointPurchasedTracker} = require("../controller/adminController/PaymentController/payment")
 const adminPropValuation =require("../models/admin/admin_prop_valuation")
-
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const {InvoicePaymentNotificationCustomer} = require("../models/notification");
 module.exports.purchaseRequest = async (req, res) => {
   const { type, quantity, user_id } = req.body;
   if(!type || !quantity || !user_id){
@@ -37,6 +38,7 @@ if(type=="CROP"){
         payment_method_types: ["card", "alipay"],
         success_url: `${req.headers.origin}/success`,
         cancel_url: `${req.headers.origin}/canceled`,
+        customer_email: req.body.email_id
       };
       const session = await stripe.checkout.sessions.create(params)
 
@@ -52,7 +54,9 @@ if(type=="CROP"){
           user_id
         );
       }
-
+      let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
+      notification = notification[0]._doc
+      await new InvoicePaymentNotificationCustomer({user_id: user_id, message: notification.payment_notifications}).save();
       res.status(200).json(session);
     } catch (err) {
       res.status(err.statusCode || 500).json(err.message);

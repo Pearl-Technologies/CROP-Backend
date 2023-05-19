@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const { Otp, User, Token, Newsletter, MissingCrop, CommunicationPreference, Feedback, loginAttemp } = require("../models/User");
+const {AccountNotificationCustomer, GeneralNotificationCustomer, ComplainNotificationCustomer, InvoicePaymentNotificationCustomer} = require("../models/notification");
 const StateSchema = require('../models/State');
 const { Cart } = require("../models/Cart")
 const { Wishlist } = require("../models/Wishlist")
 const {
   customerPaymentTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
+const adminCustomerAccountNotification = require("../models/admin/notification/customerAccountNotification")
+const adminGeneralAccountNotification = require("../models/admin/notification/customerGeneralNotification")
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification")
+const adminCustomerRequestAndComplainedNotification = require("../models/admin/notification/customerRequestAndComplainedNotification")
 const { Product } = require("../models/businessModel/product");
 const business = require("../models/businessModel/business");
 var mongoose = require("mongoose");
@@ -76,7 +81,7 @@ router.put("/uploadpicture", async (req, res) => {
 })
 
 router.get("/", async (req, res) => {
-  return res.status(200).send({ message: "API works fine" })
+  return res.status(200).send("API works fine")
 })
 
 router.put("/resendotp", async (req, res) => {
@@ -313,9 +318,9 @@ router.post("/emailphoneverify", async (req, res) => {
   }
 })
 
-router.put("/resetpassword", async (req, res) => {
+router.put("/changepassword", async (req, res) => {
   const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
-  const token = req.headers?.authorization
+  const token = req.headers.authorization
   const token_data = await Token.findOne({ token: token })
   const oldpassword = await User.findOne({ _id: token_data.user })
   console.log(oldpassword)
@@ -341,6 +346,9 @@ router.put("/resetpassword", async (req, res) => {
   )
 
   if (updatedata) {
+    let notification = await adminCustomerAccountNotification.find();
+    notification = notification[0]._doc
+    await new AccountNotificationCustomer({user_id: token_data.user, message: notification.pin_change}).save();
     res
       .status(200)
       .send({ message: "Pin changed successfully", status: "true" })
@@ -348,6 +356,35 @@ router.put("/resetpassword", async (req, res) => {
     res
       .status(500)
       .send({ message: "Pin not changed successfully", status: "false" })
+  }
+})
+
+router.put("/resetpassword", async (req, res) => {
+  const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
+  const email = req.body.email;
+  const user = await User.findOne({ email: email })
+  if(user == null){
+    const updatedata = await User.updateOne(
+      { _id: user._id },
+      { $set: { password: newpin } }
+    )
+  
+    if (updatedata) {
+      let notification = await adminCustomerAccountNotification.find();
+      notification = notification[0]._doc
+      await new AccountNotificationCustomer({user_id: user._id, message: notification.pin_change}).save();
+      res
+        .status(200)
+        .send({ message: "Pin changed successfully", status: "true" })
+    } else {
+      res
+        .status(500)
+        .send({ message: "Pin not changed successfully", status: "false" })
+    }
+  }else{
+    res
+    .status(500)
+    .send({ message: "Invalid Email ID", status: "false" })
   }
 })
 
@@ -439,7 +476,7 @@ router.post("/signup", async (req, res) => {
     let userData = await User.findOne({ email: req.body.email })
     if (req.body.login_method === 1) {
       method = 1
-      userToken = await jwt.sign({ email: req.body.email }, "CROP@12345", {
+      userToken = jwt.sign({ email: req.body.email }, "CROP@12345", {
         expiresIn: "1h",
       })
       await new Token({
@@ -450,13 +487,16 @@ router.post("/signup", async (req, res) => {
       }).save()
     } else {
       method = 2
-      userToken = await jwt.sign({ email: req.body.email }, "CROP@12345")
+      userToken = jwt.sign({ email: req.body.email }, "CROP@12345")
       await new Token({
         user: userData._id,
         token: userToken,
         type: method,
       }).save()
     }
+    let notification = await adminCustomerAccountNotification.find();
+    notification = notification[0]._doc
+    await new AccountNotificationCustomer({user_id: userData._id, message: notification.first_time_notification}).save();
     //saving data in the database
     res.send({
       message: "Register successfully",
@@ -588,10 +628,12 @@ router.post("/login", async (req, res) => {
       )
 
       if (!isPasswordValid) {
-        await new loginAttemp({user: userData._id}).save()
-        const attemptNew = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
-        if(attemptNew.length<=3){
-          return res.status(409).json({message: `You have only ${3 - attemptNew.length} attempts left.`})
+        if(attempt.length==0 || attempt.length==1 || attempt.length==2 || attempt.length==3){
+          await new loginAttemp({user: userData._id}).save()
+          const attemptNew = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
+          if(attemptNew.length<=3){
+            return res.status(409).json({message: `You have only ${3 - attemptNew.length} attempts left.`})
+          }
         }
         return res
           .status(409)
@@ -611,7 +653,7 @@ router.post("/login", async (req, res) => {
       )
       if (req.body.login_method === 1) {
         method = 1
-        userToken = await jwt.sign({ email: userData.email }, "CROP@12345", {
+        userToken = jwt.sign({ email: userData.email }, "CROP@12345", {
           expiresIn: "1h",
         })
         await new Token({
@@ -622,7 +664,7 @@ router.post("/login", async (req, res) => {
         }).save()
       } else {
         method = 2
-        userToken = await jwt.sign({ email: userData.email }, "CROP@12345")
+        userToken = jwt.sign({ email: userData.email }, "CROP@12345")
         await new Token({
           user: userData._id,
           token: userToken,
@@ -686,7 +728,7 @@ router.put("/forget", async (req, res) => {
         res.status(500).send({
           message: "OTP not sent successfully",
           status: "false",
-          data: [],
+          data: [err],
         })
       } else {
         res.status(200).send({
@@ -697,7 +739,7 @@ router.put("/forget", async (req, res) => {
       }
     })
   } catch (err) {
-    res.status(500).send({ message: "Enter the registered mail-id" })
+    res.status(500).send({ message: "Enter the registered mail-id", data: err })
   }
 })
 
@@ -751,7 +793,7 @@ router.put("/forgetpassword", async (req, res) => {
     console.log(err)
     res
       .status(500)
-      .send({ message: "Error Message", status: "false", data: [] })
+      .send({ message: "Error Message", status: "false", data: err })
   }
 })
 
@@ -789,7 +831,7 @@ router.get("/profile", async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal server error", status: "false", data: [err] })
+      .send({ message: "Internal server error", status: "false", data: err })
   }
 })
 
@@ -830,32 +872,35 @@ router.put("/updateprofile", async (req, res) => {
     console.log(err)
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [err] })
+      .send({ message: "Internal Server error", status: "false", data: err })
   }
 })
 router.post("/community", async (req, res) => {
-  let token = req.headers.authorization
+  try{
+    let token = req.headers.authorization
 
-  // let data=await User.findOne({"token":token})
-  const token_data = await Token.findOne({ token: token })
-  const updatedata = await User.updateOne(
-    { _id: token_data.user },
-    {
-      $set: {
-        mktNotification: req.body.market,
-        smsNotification: req.body.sms,
-        emailNotification: req.body.email,
-      },
+    // let data=await User.findOne({"token":token})
+    const token_data = await Token.findOne({ token: token })
+    const updatedata = await User.updateOne(
+      { _id: token_data.user },
+      {
+        $set: {
+          mktNotification: req.body.market,
+          smsNotification: req.body.sms,
+          emailNotification: req.body.email,
+        },
+      }
+    )
+    if (updatedata) {
+      res.status(200).send({ message: "updated successfully", status: "true" })
+    } else {
+      res.status(500).send({ message: "Not updated successfully", status: "false" })
     }
-  )
-  if (updatedata) {
-    res.status(200).send({ message: "updated successfully", status: "true" })
-  } else {
-    res
-      .status(500)
-      .send({ message: "Not updated successfully", status: "false" })
   }
-})
+  catch(err){
+    res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
+  }
+  })
 
 router.get("/showcommunity", async (req, res) => {
   let token = req.headers.authorization
@@ -947,97 +992,102 @@ router.post("/feedback", async (req, res) => {
 })
 
 router.put("/levels", async (req, res) => {
-  let token = req.headers.authorization
+  try{
+    let token = req.headers.authorization
 
-  const points = parseInt(req.body.croppoints)
+    const points = parseInt(req.body.croppoints)
 
-  const currentDate = new Date()
-  const formattedDate = currentDate.toLocaleDateString()
-  const token_data = await Token.findOne({ token: token })
-  //Changing levels according to croppoints5
-  if (points === 0) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Base" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Base on ${formattedDate}`,
+    const currentDate = new Date()
+    const formattedDate = currentDate.toLocaleDateString()
+    const token_data = await Token.findOne({ token: token })
+    //Changing levels according to croppoints5
+    if (points === 0) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Base" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Base on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
-  } else if (points <= 30) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Silver" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Silver on ${formattedDate}`,
+        }
+      )
+      res.send({ status: "true" })
+    } else if (points <= 30) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Silver" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Silver on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
-  } else if (points <= 60) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Gold" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Gold on ${formattedDate}`,
+        }
+      )
+      res.send({ status: "true" })
+    } else if (points <= 60) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Gold" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Gold on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
-  } else if (points <= 1000) {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Platinum" },
-        $push: {
-          auditTrail: {
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Platinum on ${formattedDate}`,
+        }
+      )
+      res.send({ status: "true" })
+    } else if (points <= 1000) {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Platinum" },
+          $push: {
+            auditTrail: {
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Platinum on ${formattedDate}`,
+            },
           },
-        },
-      }
-    )
-    res.send({ status: "true" })
+        }
+      )
+      res.send({ status: "true" })
+    }
+    // else if(points<=2800)
+    // {
+    //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
+    //     res.send({status:"true"})
+    else {
+      const updatelevels = await User.updateOne(
+        { _id: token_data.user },
+        {
+          $set: { UserTier: "Diamond" },
+          $push: {
+            auditTrail: {
+              _id: new mongoose.Types.ObjectId(),
+              value: "UserTier",
+              status: true,
+              message: `The usertier changed to Diamond on ${formattedDate}`,
+            },
+          },
+        }
+      )
+      res.send({ status: "true" })
+    }
+    //comment one the mate website
   }
-  // else if(points<=2800)
-  // {
-  //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
-  //     res.send({status:"true"})
-  else {
-    const updatelevels = await User.updateOne(
-      { _id: token_data.user },
-      {
-        $set: { UserTier: "Diamond" },
-        $push: {
-          auditTrail: {
-            _id: new mongoose.Types.ObjectId(),
-            value: "UserTier",
-            status: true,
-            message: `The usertier changed to Diamond on ${formattedDate}`,
-          },
-        },
-      }
-    )
-    res.send({ status: "true" })
+  catch(err){
+    res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
   }
-  //comment one the mate website
 })
 //comment on the page
 
@@ -1077,10 +1127,6 @@ router.post("/mate", async (req, res) => {
 
   console.log("userData", userdata)
   if (userdata == null) {
-    return res
-      .status(500)
-      .send({ message: "The given mail-ID already exist", status: "false" })
-  }
 
   const transporter = nodemailer.createTransport({
     // service: "Gmail",
@@ -1098,17 +1144,26 @@ router.post("/mate", async (req, res) => {
     subject: "Refer code",
     text: `REFER CODE ${refercode}`,
   }
-  transporter.sendMail(mailOptions, (err, result) => {
+  transporter.sendMail(mailOptions, async (err, result) => {
     if (err) {
       return res
         .status(500)
         .send({ message: "Internal server error", status: "false", data: [] })
     } else {
+      let notification = await adminGeneralAccountNotification.find();
+      notification = notification[0]._doc
+      await new GeneralNotificationCustomer({user_id: token1.user, message: notification.get_a_mate}).save();
       return res
         .status(200)
         .send({ message: "Mail sent successfully", status: "true", data: [] })
     }
   })
+}
+else{
+  return res
+      .status(500)
+      .send({ message: "The given mail-ID already exist", status: "false" })
+}
 })
 
 router.get("/profileAdmin", async (req, res) => {
@@ -1180,6 +1235,9 @@ router.post("/missingcrop", async (req, res) => {
       console.log({ business })
       createMissingCropNotification(missingCrops._id, business)
     })
+    let notification = await adminCustomerRequestAndComplainedNotification.find();
+    notification = notification[0]._doc
+    await new ComplainNotificationCustomer({user_id: token_data.user, message: notification.missing_points_claim}).save();
     res.status(200).json({
       data: [req.body],
       status: 200,
@@ -1314,23 +1372,100 @@ router.get('/cropPoints', async (req, res) => {
     arr = {}
     arr['cropPoint'] = aaa.croppoints
     arr['propPoint'] = aaa.proppoints
-    if(bbb.cart != undefined){
-      arr['cartCount'] = bbb.cart.length
-    }
-    else{
+    if(bbb != undefined && bbb != null){
+      if(bbb.cart != undefined){
+        arr['cartCount'] = bbb.cart.length
+      }
+      else{
+        arr['cartCount'] = 0
+      }
+    }else{
       arr['cartCount'] = 0
     }
-    if(ccc.cart != undefined){
-      arr['wishlistCount'] = ccc.cart.length
+    if(ccc != undefined && ccc != null){
+      if(ccc.cart != undefined){
+        arr['wishlistCount'] = ccc.cart.length
+      }
+      else{
+        arr['wishlistCount'] = 0
+      }
     }
     else{
       arr['wishlistCount'] = 0
     }
+    
     res.status(200).json({data:arr, status:200, message: ""})
   }
   catch(err) {
     console.log(err);
     res.status(500).json({ data:err, status:500 })
+  }
+})
+
+router.get('/notification', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const user = await Token.findOne({ token: token });
+    const Account = await AccountNotificationCustomer.find({ user_id:user.user });
+    const General = await GeneralNotificationCustomer.find({ user_id:user.user })
+    const Complain = await ComplainNotificationCustomer.find({ user_id:user.user })
+    const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user })
+
+    arr = {}
+    arr['AccountCount'] = Account.length
+    arr['AccountMessage'] = Account
+    arr['GeneralCount'] = General.length
+    arr['GeneralMessage'] = General
+    arr['ComplainCount'] = Complain.length
+    arr['ComplainMessage'] = Complain
+    arr['InvoiceCount'] = Invoice.length
+    arr['InvoiceMessage'] = Invoice
+    arr['totalCount'] = Account.length + General.length + Complain.length + Invoice.length
+    res.status(200).json({data:arr, status:200, message: ""})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message:err, status:500 })
+  }
+})
+
+router.delete('/notification', async (req, res) => {
+  try{
+    const token = req.headers.authorization;
+    const type = req.query.type;
+    const id = req.query.id;
+    const user = await Token.findOne({ token: token });
+    if(user){
+      if(type == 1){
+        const Account = await AccountNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 2){
+        const General = await GeneralNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 3){
+        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 4){
+        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+      }
+      else if(type == 5){
+        const Account = await AccountNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+      else if(type == 6){
+        const General = await GeneralNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+      else if(type == 7){
+        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+      else if(type == 8){
+        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user }).deleteMany();
+      }
+    }    
+    res.status(200).json({status:200, message: "Notification deleted succesfully"})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message:err, status:500 })
   }
 })
 
