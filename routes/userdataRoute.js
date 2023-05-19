@@ -320,7 +320,7 @@ router.post("/emailphoneverify", async (req, res) => {
 
 router.put("/resetpassword", async (req, res) => {
   const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
-  const token = req.headers?.authorization
+  const token = req.headers.authorization
   const token_data = await Token.findOne({ token: token })
   const oldpassword = await User.findOne({ _id: token_data.user })
   console.log(oldpassword)
@@ -348,7 +348,7 @@ router.put("/resetpassword", async (req, res) => {
   if (updatedata) {
     let notification = await adminCustomerAccountNotification.find();
     notification = notification[0]._doc
-    await new AccountNotificationCustomer({user_id: userData._id, message: notification.pin_change}).save();
+    await new AccountNotificationCustomer({user_id: token_data.user, message: notification.pin_change}).save();
     res
       .status(200)
       .send({ message: "Pin changed successfully", status: "true" })
@@ -1098,10 +1098,6 @@ router.post("/mate", async (req, res) => {
 
   console.log("userData", userdata)
   if (userdata == null) {
-    return res
-      .status(500)
-      .send({ message: "The given mail-ID already exist", status: "false" })
-  }
 
   const transporter = nodemailer.createTransport({
     // service: "Gmail",
@@ -1127,12 +1123,18 @@ router.post("/mate", async (req, res) => {
     } else {
       let notification = await adminGeneralAccountNotification.find();
       notification = notification[0]._doc
-      await new GeneralNotificationCustomer({user_id: userData._id, message: notification.get_a_mate}).save();
+      await new GeneralNotificationCustomer({user_id: token1.user, message: notification.get_a_mate}).save();
       return res
         .status(200)
         .send({ message: "Mail sent successfully", status: "true", data: [] })
     }
   })
+}
+else{
+  return res
+      .status(500)
+      .send({ message: "The given mail-ID already exist", status: "false" })
+}
 })
 
 router.get("/profileAdmin", async (req, res) => {
