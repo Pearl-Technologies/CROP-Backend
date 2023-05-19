@@ -2,16 +2,19 @@ const adminCustomerComplain = require("../../models/admin/admin_customer_complai
 const adminCustomerRequestAndComplainedNotification = require("../../models/admin/notification/customerRequestAndComplainedNotification")
 const {ComplainNotificationCustomer} = require("../../models/notification");
 const { IdGenerator } = require("custom-random-id");
+const {Token} = require("../../models/User");
 const ID = new IdGenerator("{{ number_7 }}");
 let id = ID.getFinalExpression();
 const createCustomerComplain = async (req, res) => {
+  let token= req.headers.authorization
+    const token_data = await Token.findOne({ token });
+    let user= token_data.user;
   try {
     const {
       description,
       expectedOutcoms,
       complainType,
       preferredMediumContact,
-      user,
     } = req.body;
     if(!description || !expectedOutcoms || !complainType, !preferredMediumContact, !user){
       return res.status(401).send({data:"all fields are required", status:(401)});

@@ -21,12 +21,17 @@ const createEveryDayPromotionSlot = async (req, res) => {
       let published_end_date = new Date(
         date + 1000 * 60 * 60 * 24 * 10
       ).toLocaleDateString();
-
+      console.log(publishingSlot, "publishing slot")
+      console.log(publishedAs, "publishedAs slot")
+      console.log(bid_start_date, "bid_start_date slot")
+      console.log(bid_end_date, "bid_end_date slot")
+      console.log(published_start_date, "published_start_date slot")
+      console.log(published_end_date, "published_end_date slot")
       let findExistingSlot = await bidding.findOne({
         $and: [{ bid_start_date, bid_end_date, publishedAs }],
       });
       let yesterday = new Date(Date.now()-1000*60*60*24*1).toLocaleDateString();
-      console.log(yesterday, "yesterday")
+    
       const deleteDoc = await bidding.find({publishingSlot: "weekday", bid_end_date:yesterday });
       if(deleteDoc.length>0){
         deleteDoc.map(async (data)=>
