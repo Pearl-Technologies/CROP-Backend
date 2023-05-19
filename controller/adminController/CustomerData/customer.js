@@ -526,18 +526,24 @@ const productPurchaseTrasaction = async(req, res)=>{
           },
         },
         {
+          $match: {
+            "status": "paid",
+          },
+        },
+        {
+          $unwind:{            
+              path: "$cartDetails.cartItems",            
+          }
+        },
+        {
           $project: {
-            status: 1,
-            paymentMethod: 1,
-            invoice_url: 1,
-            invoice_pdf: 1,
-            customer_email:1,
-            coupon_code:1,
+            invoice_pdf:1,
+            invoice_url:1,
             number:1,
-            customer_address:1,
+            "cartDetails.cartItems":1,
+            updatedAt:1,
             customer_shipping:1,
-            cartDetails:1,
-            updatedAt:1
+            customer_address:1
           },
         },
         { $sort: { updatedAt: -1 } },
@@ -633,12 +639,14 @@ const pointPurchaseTrasaction = async(req, res)=>{
           },
         },
         {
+          $match: {
+            status: "paid",
+          },
+        },
+        {
           $project: {
-            status: 1,
-            paymentMethod: 1,
             invoice_url: 1,
             invoice_pdf: 1,
-            customer_email:1,
             type:1,
             amount:1,
             quantity:1,

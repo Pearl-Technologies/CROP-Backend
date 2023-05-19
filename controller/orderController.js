@@ -144,6 +144,7 @@ module.exports.paymentIntent = async (req, res) => {
 
 module.exports.RedeemCrop = async (req, res) => {
   const { cart, _id, address_id, email_id } = req.body;
+  console.log(req.body, "redeem crop");
   let token= req.headers.authorization
   const token_data = await Token.findOne({ token });
   let user_id= token_data.user;
@@ -202,19 +203,19 @@ module.exports.RedeemCrop = async (req, res) => {
   return;
 };
 
+
 module.exports.RedeemProp = async (req, res) => {
   const { cart, _id, address_id, email_id } = req.body;
   let token= req.headers.authorization
   const token_data = await Token.findOne({ token });
   let user_id= token_data.user;
-  if(user_id){
+  if(token_data){
     let redeemPropPoints = 0;
     cart?.map((item) => {
-      console.log(item.redeemProps)
-      redeemPropPoints = redeemPropPoints + (item?.cartQuantity * item?.redeemProps);
+      redeemPropPoints = redeemPropPoints + item.tempRedeem;
     });
 
-    let findUser = await User.findOne({ _id: ObjectId(user_id) });  
+    let findUser = await User.findOne({ _id: user_id });  
     if (redeemPropPoints > findUser.proppoints) {
       return res
         .status(200)
@@ -287,7 +288,12 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
         const trasactionDetails = await customerPaymentTracker.aggregate([
           {
             $match: {
-              user: { $eq: findone[0].user },
+              "cartDetails.user_id": mongoose.Types.ObjectId(`${user}`),
+            },
+          },
+          {
+            $match: {
+              "status": "paid",
             },
           },
           {
@@ -297,6 +303,11 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
                 $lte: new Date(endDate),
               },
             },
+          },
+          {
+            $unwind:{            
+                path: "$cartDetails.cartItems",            
+            }
           },        
           {
             $project: {
@@ -310,7 +321,8 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
               customer_address:1,
               customer_shipping:1,
               cartDetails:1,
-              updatedAt:1
+              updatedAt:1,
+              "cartDetails.cartItems":1,
             },
           },
           { $sort: { createdAt: -1 } },
@@ -321,9 +333,27 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
         const trasactionDetails = await customerPaymentTracker.aggregate([
           {
             $match: {
-              user: { $eq: findone[0].user },
+              "cartDetails.user_id": mongoose.Types.ObjectId(`${user}`),
             },
           },
+          {
+            $match: {
+              "status": "paid",
+            },
+          },
+          {
+            $match: {
+              createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+              },
+            },
+          },
+          {
+            $unwind:{            
+                path: "$cartDetails.cartItems",            
+            }
+          },        
           {
             $project: {
               status: 1,
@@ -336,12 +366,13 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
               customer_address:1,
               customer_shipping:1,
               cartDetails:1,
-              updatedAt:1
+              updatedAt:1,
+              "cartDetails.cartItems":1,
             },
           },
           {
             $match: {
-              orderNumber: search,
+              number: search,
             },
           },
           { $sort: { createdAt: -1 } },
@@ -352,9 +383,27 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
       const trasactionDetails = await customerPaymentTracker.aggregate([
         {
           $match: {
-            user: { $eq: findone[0].user },
+            "cartDetails.user_id": mongoose.Types.ObjectId(`${user}`),
           },
         },
+        {
+          $match: {
+            "status": "paid",
+          },
+        },
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+          },
+        },
+        {
+          $unwind:{            
+              path: "$cartDetails.cartItems",            
+          }
+        },        
         {
           $project: {
             status: 1,
@@ -367,7 +416,8 @@ module.exports.productPurchaseTrasaction = async(req, res)=>{
             customer_address:1,
             customer_shipping:1,
             cartDetails:1,
-            updatedAt:1
+            updatedAt:1,
+            "cartDetails.cartItems":1,
           },
         },
         { $sort: { createdAt: -1 } },
@@ -411,7 +461,12 @@ module.exports.pointPurchaseTrasaction = async(req, res)=>{
                 $lte: new Date(endDate),
               },
             },
-          },        
+          },   
+          {
+            $match: {
+              status: "paid",
+            },
+          },     
           {
             $project: {
               status: 1,
@@ -435,6 +490,11 @@ module.exports.pointPurchaseTrasaction = async(req, res)=>{
           {
             $match: {
               user: { $eq: findone[0].user },
+            },
+          },
+          {
+            $match: {
+              status: "paid",
             },
           },
           {
@@ -463,17 +523,22 @@ module.exports.pointPurchaseTrasaction = async(req, res)=>{
           },
         },
         {
+          $match: {
+            status: "paid",
+          },
+        },
+        {
           $project: {
-            status: 1,
-            paymentMethod: 1,
             invoice_url: 1,
             invoice_pdf: 1,
-            customer_email:1,
             type:1,
             amount:1,
             quantity:1,
             name:1,
-            createdAt:1
+            createdAt:1,
+            status: 1,
+            paymentMethod: 1,
+            customer_email:1,             
           },
         },
         { $sort: { createdAt: -1 } },
