@@ -88,6 +88,17 @@ module.exports.getDiscountProduct = async (req, res) => {
   }
 }
 
+module.exports.getSingleProductByBusiness = async (req, res) => {
+  try {
+    const product = await Product.findOne({ _id: req.params.id })
+    return res.status(200).json(product)
+  } catch (error) {
+    return res.status(500).send({
+      message: err.message,
+    })
+  }
+}
+
 // getDiscountProduct
 module.exports.getSingleProduct = async (req, res) => {
   try {
@@ -104,36 +115,33 @@ module.exports.getSingleProduct = async (req, res) => {
         product._doc.productComments = []
         product._doc.productLikes = 0
       }
-      product._doc.statusCart = 0;
+      product._doc.statusCart = 0
 
-      res.status(200).json(product);
-    }
-    else{
-      const token_data = await Token.findOne({ token });
-    const product = await Product.findOne({ _id: req.params.id });
-    const cartnew = await Cart.find({
-      user_id: token_data.user,
-      cart: { $elemMatch: { _id: req.params.id } },
-    });
-    const newProductComment = await productComment.find({
-      $and: [{ status: true }, { product_id: req.params.id }],
-    });
-    if (cartnew.length == 0) {
-      product._doc.statusCart = 0;
+      res.status(200).json(product)
     } else {
-      product._doc.statusCart = 1;
-    }
-    if(newProductComment.length != 0){
-      product._doc.productComments = newProductComment[0].details;
-      product._doc.productLikes = newProductComment[0].product_likes.length;
-    }
-    else{
-      product._doc.productComments = [];
-      product._doc.productLikes = 0;
-    }
-    
+      const token_data = await Token.findOne({ token })
+      const product = await Product.findOne({ _id: req.params.id })
+      const cartnew = await Cart.find({
+        user_id: token_data.user,
+        cart: { $elemMatch: { _id: req.params.id } },
+      })
+      const newProductComment = await productComment.find({
+        $and: [{ status: true }, { product_id: req.params.id }],
+      })
+      if (cartnew.length == 0) {
+        product._doc.statusCart = 0
+      } else {
+        product._doc.statusCart = 1
+      }
+      if (newProductComment.length != 0) {
+        product._doc.productComments = newProductComment[0].details
+        product._doc.productLikes = newProductComment[0].product_likes.length
+      } else {
+        product._doc.productComments = []
+        product._doc.productLikes = 0
+      }
 
-    res.status(200).json(product);
+      res.status(200).json(product)
     }
   } catch (err) {
     res.status(500).send({
@@ -1279,11 +1287,10 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       })
       if (countLikeResults.length != 0) {
         const token = req.headers.authorization
-        const token_data = await Token.findOne({ token });
+        if(token == null || token == undefined){
         const cartnew = await Cart.find({
-          user_id: token_data.user,
           cart: { $elemMatch: { _id: productDetails[i]._id } },
-        });
+        })
         if (cartnew.length == 0) {
           dataArray.push({
             ...productDetails[i],
@@ -1294,6 +1301,26 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
             ...productDetails[i],
             ...{ likes: countLikeResults.length, statusCart: 1 },
           })
+        }  
+        }
+        else{
+          const token_data = await Token.findOne({ token })
+          console.log({token_data})
+          const cartnew = await Cart.find({
+            user_id: token_data.user,
+            cart: { $elemMatch: { _id: productDetails[i]._id } },
+          })
+          if (cartnew.length == 0) {
+            dataArray.push({
+              ...productDetails[i],
+              ...{ likes: countLikeResults.length, statusCart: 0 },
+            })
+          } else {
+            dataArray.push({
+              ...productDetails[i],
+              ...{ likes: countLikeResults.length, statusCart: 1 },
+            })
+          }
         }
       } else {
         dataArray.push({ ...productDetails[i], ...{ likes: 0, statusCart: 0 } })
@@ -1301,6 +1328,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     }
 
     const count = countResults.length > 0 ? countResults[0].count : 0
+    console.log({ countResults })
     res.json({ count, products: dataArray })
   } catch (error) {
     console.log(error)
@@ -1904,35 +1932,38 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
   try {
     const productCommentsAndRatings = await productComment.aggregate([
       { $match: { product_id: ObjectId(productId) } },
-      // {
-      //   $addFields: {
-      //     $add: [],
-      //   },
-      // },
+      { $unwind: "$details" },
       {
-        $project: {
-          productId: 1,
-          details: 1,
-          averageRating: {
-            $divide: [
-              {
-                $reduce: {
-                  input: "$details",
-                  initialValue: 0,
-                  in: { $add: ["$$value", "$$this.rating"] },
-                },
-              },
-              { $size: "$details" },
-            ],
+        $lookup: {
+          from: "users_customers",
+          localField: "details.user_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $group: {
+          _id: "$_id",
+          details: {
+            $push: {
+              // user_id: "$details.user_id",
+              comment: "$details.comment",
+              rating: "$details.rating",
+              // status: "$details.status",
+              _id: "$details._id",
+              // likes: "$details.likes",
+              user: "$user.name",
+              createdAt: "$details.createdAt",
+            },
           },
-          likes: 1,
-          productLikes: 1,
+          averageRating: { $avg: "$details.rating" },
         },
       },
     ])
-    return res
-      .status(200)
-      .send({ productCommentsAndRatings: productCommentsAndRatings[0] })
+    return res.status(200).send(productCommentsAndRatings)
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

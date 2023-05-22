@@ -90,15 +90,42 @@ const productCommentSchema = mongoose.Schema(
     },
     details: [
       {
-        user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" },
+        user_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+          ref: "users_customer",
+        },
         comment: { type: String, default: null },
         rating: { type: Number, default: 0 },
-        likes: [{ like: {type:Boolean}, user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" }, require: false, status:{type:Boolean,required:true, default: true} }],
-        status:{type:Boolean,required:true, default: true}
-      }
+        likes: [
+          {
+            like: { type: Boolean },
+            user_id: {
+              type: mongoose.Schema.Types.ObjectId,
+              required: true,
+              ref: "users_customer",
+            },
+            require: false,
+            status: { type: Boolean, required: true, default: true },
+          },
+        ],
+        status: { type: Boolean, required: true, default: true },
+        createdAt: { type: Date, default: Date.now },
+      },
     ],
-    product_likes: [{ like: {type:Boolean}, user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "users_customer" }, require: false, status:{type:Boolean,required:true, default: true} }],
-    status:{type:Boolean,required:true, default: true}
+    product_likes: [
+      {
+        like: { type: Boolean },
+        user_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+          ref: "users_customer",
+        },
+        require: false,
+        status: { type: Boolean, required: true, default: true },
+      },
+    ],
+    status: { type: Boolean, required: true, default: true },
   },
   {
     timestamps: true,
