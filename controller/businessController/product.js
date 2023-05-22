@@ -1287,9 +1287,8 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       })
       if (countLikeResults.length != 0) {
         const token = req.headers.authorization
-        const token_data = await Token.findOne({ token })
+        if(token == null || token == undefined){
         const cartnew = await Cart.find({
-          user_id: token_data.user,
           cart: { $elemMatch: { _id: productDetails[i]._id } },
         })
         if (cartnew.length == 0) {
@@ -1302,6 +1301,26 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
             ...productDetails[i],
             ...{ likes: countLikeResults.length, statusCart: 1 },
           })
+        }  
+        }
+        else{
+          const token_data = await Token.findOne({ token })
+          console.log({token_data})
+          const cartnew = await Cart.find({
+            user_id: token_data.user,
+            cart: { $elemMatch: { _id: productDetails[i]._id } },
+          })
+          if (cartnew.length == 0) {
+            dataArray.push({
+              ...productDetails[i],
+              ...{ likes: countLikeResults.length, statusCart: 0 },
+            })
+          } else {
+            dataArray.push({
+              ...productDetails[i],
+              ...{ likes: countLikeResults.length, statusCart: 1 },
+            })
+          }
         }
       } else {
         dataArray.push({ ...productDetails[i], ...{ likes: 0, statusCart: 0 } })
