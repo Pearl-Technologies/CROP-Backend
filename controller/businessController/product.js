@@ -1913,35 +1913,37 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
   try {
     const productCommentsAndRatings = await productComment.aggregate([
       { $match: { product_id: ObjectId(productId) } },
-      // {
-      //   $addFields: {
-      //     $add: [],
-      //   },
-      // },
+      { $unwind: "$details" },
       {
-        $project: {
-          productId: 1,
-          details: 1,
-          averageRating: {
-            $divide: [
-              {
-                $reduce: {
-                  input: "$details",
-                  initialValue: 0,
-                  in: { $add: ["$$value", "$$this.rating"] },
-                },
-              },
-              { $size: "$details" },
-            ],
+        $lookup: {
+          from: "users_customers",
+          localField: "details.user_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $group: {
+          _id: "$_id",
+          details: {
+            $push: {
+              // user_id: "$details.user_id",
+              comment: "$details.comment",
+              rating: "$details.rating",
+              // status: "$details.status",
+              _id: "$details._id",
+              // likes: "$details.likes",
+              user: "$user.name",
+            },
           },
-          likes: 1,
-          productLikes: 1,
+          averageRating: { $avg: "$details.rating" },
         },
       },
     ])
-    return res
-      .status(200)
-      .send({ productCommentsAndRatings: productCommentsAndRatings[0] })
+    return res.status(200).send(productCommentsAndRatings)
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
