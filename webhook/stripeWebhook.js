@@ -1,6 +1,10 @@
 require("dotenv").config();
 const business = require("../models/businessModel/business");
 const { User } = require("../models/User");
+const pdfkit = require('pdfkit');
+const fs = require('fs');
+const pdfPath = process.cwd() + "/uploads/";
+const nodemailer = require('nodemailer');
 const invoiceAndPaymentNotification = require("../models/businessModel/businessNotification/invoiceAndPaymentNotification");
 
 const express = require("express");
@@ -32,6 +36,33 @@ const {
   SaveMyPropTrasaction,
 } = require("../controller/customerPropTransaction");
 
+const sendMail=(email, subject, text)=>{
+  const transporter = nodemailer.createTransport({
+    host: process.env.HOST,
+    service: process.env.SERVICE, //comment this line if you use custom server/domain
+    port: process.env.EMAIL_PORT,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject,
+    html:text,
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+      // return res.status(500).send({ error });
+    } else {
+      console.log(`Email sent: ${info.response}`);
+      // return res.status(200).send({ status: 200, message: "invoice sent." });
+    }
+  });
+}
 const fulfillOrder = async (session) => {
   //market order payment method is link
   let findOne = await adminPaymentTracker.findOne({
@@ -150,10 +181,11 @@ app.post(
               },
             }
           );
+          sendMail(session.customer_email, "top ranking payment invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
           // , hosted_invoice_url,: "",
           console.log("business invoices successfully updated");
         }
-
+        
         let findOneRecord = await customerPaymentTracker.findOne({
           payment_intent: session.payment_intent,
         });
@@ -175,6 +207,7 @@ app.post(
               },
             }
           );
+          sendMail(session.customer_email, "purchased product invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
           // , hosted_invoice_url,: "",
           console.log("customer invoices successfully updated");
           let { cartDetails } = findOneRecord;
@@ -273,6 +306,7 @@ app.post(
               },
             }
           );
+          
           findUser = await User.findOne({
             _id: findOneCustomerPointPurchasePaymentRequest.user,
           });
@@ -295,6 +329,7 @@ app.post(
                 { new: true }
               );
             }
+            sendMail(session.customer_email, "purchased CROP invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
           } else if (
             findOneCustomerPointPurchasePaymentRequest.type == "PROP"
           ) {
@@ -306,6 +341,7 @@ app.post(
               findOneCustomerPointPurchasePaymentRequest.payment_intent,
               findOneCustomerPointPurchasePaymentRequest.user
             );
+            sendMail(session.customer_email, "purchased PROP invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
             if (findUser) {
               let customerNewPropPoint =
                 findUser.proppoints +
@@ -341,6 +377,7 @@ app.post(
             name: session.customer_name,
            }}
            )  
+           sendMail(session.customer_email, "you have sent milestone PROPS", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
            SaveMyCropTrasaction(
             findCustomerForMilestonePropPaymentInvoice.amount,
             findCustomerForMilestonePropPaymentInvoice.quantity,
