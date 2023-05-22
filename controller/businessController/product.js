@@ -1956,6 +1956,7 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
               _id: "$details._id",
               // likes: "$details.likes",
               user: "$user.name",
+              createdAt: "$details.createdAt",
             },
           },
           averageRating: { $avg: "$details.rating" },
