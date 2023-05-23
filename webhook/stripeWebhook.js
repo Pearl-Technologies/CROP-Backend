@@ -378,11 +378,11 @@ app.post(
            }}
            )  
            sendMail(session.customer_email, "you have sent milestone PROPS", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
-           SaveMyCropTrasaction(
+           SaveMyPropTrasaction(
             findCustomerForMilestonePropPaymentInvoice.amount,
             findCustomerForMilestonePropPaymentInvoice.quantity,
             "credit",
-            findCustomerForMilestonePropPaymentInvoice.message,
+            findCustomerForMilestonePropPaymentInvoice.type,
             findCustomerForMilestonePropPaymentInvoice.payment_intent,
             findCustomerForMilestonePropPaymentInvoice.user
           );
