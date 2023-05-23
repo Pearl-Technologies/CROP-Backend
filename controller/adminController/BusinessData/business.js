@@ -213,6 +213,55 @@ const getPurchasedProductStatement = async (req, res) => {
     return res.status(500).send({msg:"Internal Server Error"})
   }
 }
+const getBusinessCropStatement = async (req, res) => {
+  const {businessId} = req.body
+  try {
+    const statement = await invoiceAndPaymentNotification.aggregate([
+      {
+        $match: {
+          businessId: new ObjectId(businessId),
+        },
+      },
+      {
+        $lookup: {
+          from: "customer_payment_trackers",
+          localField: "purchaseOrder.orderId",
+          foreignField: "_id",
+          as: "orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          item: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          user: "$item.user",
+        },
+      },
+      {
+        $match: {
+          user: businessId,
+        },
+      },{$sort: {createdAt:-1}}
+    ])
+    return res.status(200).send({ statement })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send({msg:"Internal Server Error"})
+  }
+}
 
 const createStripeAccount = async()=>{
 //   const account = await stripe.accounts.create({
@@ -240,4 +289,5 @@ module.exports = {
   getAllBusinessCrop,
   updateBusinessAccountStatus,
   getPurchasedProductStatement,
+  getBusinessCropStatement
 };

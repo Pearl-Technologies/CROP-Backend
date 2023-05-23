@@ -30,7 +30,7 @@ const createCustomerComplain = async (req, res) => {
     
     let notification = await adminCustomerRequestAndComplainedNotification.find();
     notification = notification[0]._doc
-    await new ComplainNotificationCustomer({user_id: userData._id, message: notification.complaint}).save();
+    await new ComplainNotificationCustomer({user_id: user, message: notification.complaint}).save();
     res.json({ success: true, message: "updated" });
   } catch (error) {
     console.error(error.message);

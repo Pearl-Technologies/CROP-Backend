@@ -106,9 +106,9 @@ const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminCont
 const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
-const {createCategory, getCategories} =  require("../controller/adminController/admin_product_category")
+const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
-const {getPurchasedProductStatement} =require("../controller/adminController/BusinessData/business")
+const {getPurchasedProductStatement, getBusinessCropStatement} =require("../controller/adminController/BusinessData/business")
 const {productPurchaseTrasaction, pointPurchaseTrasaction} =require('../controller/adminController/CustomerData/customer')
 // const accountTransaction =require("../controller/adminController/account")
 //router
@@ -249,6 +249,7 @@ router.get("/getAllCropTrasactionByAdmin", getAllCropTrasactionByAdmin)
 router.get("/getAllPropTrasactionByAdmin", getAllPropTrasactionByAdmin)
 router.get("/productPurchaseTrasaction", productPurchaseTrasaction)
 router.get("/pointPurchaseTrasaction", pointPurchaseTrasaction)
+router.post("/getBusinessCropStatement", getBusinessCropStatement)
 // router.post("/paymentLink", paymentLink);
 //customer data
 
@@ -259,6 +260,9 @@ router.post("/customerCrop", verifyToken, customerCrop)
 router.post("/updateCustomerStatus", updateCustomerStatus)
 router.post("/getAllCustomerByContent", getAllCustomerByContent)
 router.post("/createCategory", verifyToken, upload.single('image'), createCategory)
+router.post("/updateCategory", verifyToken, upload.single('image'), updateCategory)
+router.post("/getCategoryById", verifyToken, getCategoryById)
+router.post("/deleteCategory", verifyToken, deleteCategory)
 router.get("/getCategories", getCategories)
 
 
