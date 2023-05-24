@@ -544,13 +544,29 @@ module.exports.getRedeemCropProducts = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-05-10", today],
+                    $gt: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.fromDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $gte: ["2023-05-20", today],
+                    $lt: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.toDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $eq: [true, true],
+                    $anyElementTrue: `$slashRedemption.slashRedemption.${day}`,
                   },
                 ],
               },
@@ -560,15 +576,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
           },
         },
       },
-      // {
-      //   $lte: ["$slashRedemption.slashRedemption.fromDate", today],
-      // },
-      // {
-      //   $gte: ["$slashRedemption.slashRedemption.toDate", today],
-      // },
-      // {
-      //   $eq: [`$slashRedemption.slashRedemptionDays.tue`, true],
-      // },
+
       {
         $addFields: {
           cropRulesWithSlashRedemption: {
@@ -1287,25 +1295,24 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
       })
       if (countLikeResults.length != 0) {
         const token = req.headers.authorization
-        if(token == null || token == undefined){
-        const cartnew = await Cart.find({
-          cart: { $elemMatch: { _id: productDetails[i]._id } },
-        })
-        if (cartnew.length == 0) {
-          dataArray.push({
-            ...productDetails[i],
-            ...{ likes: countLikeResults.length, statusCart: 0 },
+        if (token == null || token == undefined) {
+          const cartnew = await Cart.find({
+            cart: { $elemMatch: { _id: productDetails[i]._id } },
           })
+          if (cartnew.length == 0) {
+            dataArray.push({
+              ...productDetails[i],
+              ...{ likes: countLikeResults.length, statusCart: 0 },
+            })
+          } else {
+            dataArray.push({
+              ...productDetails[i],
+              ...{ likes: countLikeResults.length, statusCart: 1 },
+            })
+          }
         } else {
-          dataArray.push({
-            ...productDetails[i],
-            ...{ likes: countLikeResults.length, statusCart: 1 },
-          })
-        }  
-        }
-        else{
           const token_data = await Token.findOne({ token })
-          console.log({token_data})
+          console.log({ token_data })
           const cartnew = await Cart.find({
             user_id: token_data.user,
             cart: { $elemMatch: { _id: productDetails[i]._id } },
@@ -1443,17 +1450,33 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-05-12", today],
+                    $gte: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.fromDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $gte: ["2023-05-29", today],
+                    $lte: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.toDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $eq: [true, true],
+                    $anyElementTrue: `$slashRedemption.slashRedemptionDays.${day}`,
                   },
                 ],
               },
-              then: 10,
+              then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
               else: 0,
             },
           },
@@ -1481,6 +1504,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           ruleAppliedCrops: "$ruleAppliedCrops",
           slashRedemptionDiscountPercentage: 1,
           cropRulesWithSlashRedemption: "$cropRulesWithSlashRedemption",
+          slashRedemption: 1,
           market: 1,
           apply: 1,
           sector: 1,
@@ -1515,11 +1539,11 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       })
       if (countLikeResults.length != 0) {
         const token = req.headers.authorization
-        const token_data = await Token.findOne({ token });
+        const token_data = await Token.findOne({ token })
         const cartnew = await Cart.find({
           user_id: token_data.user,
           cart: { $elemMatch: { _id: productDetails[i]._id } },
-        });
+        })
         if (cartnew.length == 0) {
           dataArray.push({
             ...productDetails[i],
@@ -1633,6 +1657,7 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
       day = "sat"
     }
     const id = req.params.id
+
     const product = await Product.aggregate([
       { $match: { _id: { $eq: ObjectId(id) } } },
       {
@@ -1678,20 +1703,29 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           },
         },
       },
-
       {
         $addFields: {
           bonusCropsDiscountPercentage: {
             $cond: {
               if: {
                 $and: [
-                  [{ $lte: ["$bonusCrops.bonusCrop.fromDate", today] }],
-                  [{ $gte: ["$bonusCrops.bonusCrop.toDate", today] }],
-                  [`$bonusCrops.bonusCropDays.${day}`],
+                  {
+                    $gte: [
+                      today,
+                      { $arrayElemAt: ["$bonusCrops.bonusCrop.fromDate", 0] },
+                    ],
+                  },
+                  {
+                    $lte: [
+                      today,
+                      { $arrayElemAt: ["$bonusCrops.bonusCrop.toDate", 0] },
+                    ],
+                  },
+                  { $anyElementTrue: `$bonusCrops.bonusCropDays.${day}` },
                 ],
               },
               then: { $sum: `$bonusCrops.bonusCropPercentage` },
-              else: [`$bonusCrops.bonusCropDays.${day}`, day],
+              else: 0,
             },
           },
         },
@@ -1702,15 +1736,49 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
             $cond: {
               if: {
                 $and: [
-                  [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
-                  [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
-                  // [`$happyHours.happyHoursDays.${day}`]
-                  [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
-                  [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
+                  {
+                    $lte: [
+                      {
+                        $arrayElemAt: [
+                          "$happyHours.happyHoursDates.fromDate",
+                          0,
+                        ],
+                      },
+                      today,
+                    ],
+                  },
+                  {
+                    $gte: [
+                      {
+                        $arrayElemAt: ["$happyHours.happyHoursDates.toDate", 0],
+                      },
+                      today,
+                    ],
+                  },
+                  {
+                    $lte: [
+                      {
+                        $arrayElemAt: [
+                          "$happyHours.happyHoursTime.startTime",
+                          0,
+                        ],
+                      },
+                      time,
+                    ],
+                  },
+                  {
+                    $gte: [
+                      {
+                        $arrayElemAt: ["$happyHours.happyHoursTime.endTime", 0],
+                      },
+                      time,
+                    ],
+                  },
+                  { $anyElementTrue: `$happyHours.happyHoursDays.${day}` },
                 ],
               },
               then: { $sum: "$happyHours.happyHoursPercentage" },
-              else: [`$happyHours.happyHoursDay.${day}`, day],
+              else: 0,
             },
           },
         },
@@ -1725,7 +1793,7 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           },
         },
       },
-      // { $cond: [ { $eq: [ "$happyHoursAndExtendBonusAddedPercentage", 0 ] }, "$ruleAppliedCrops", {$divide:["$upvotes", "$downvotes"]} ] }
+
       {
         $addFields: {
           cropRulesWithBonus: {
@@ -1752,24 +1820,21 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           },
         },
       },
-      // {$unwind: "$bonusCrops"},
       {
         $project: {
           title: 1,
           originalPrice: 1,
           discount: 1,
-          image: 1,
           price: 1,
           quantity: 1,
-          crops: "$croppoints",
-          description: 1,
+          image: 1,
+          likes: 1,
+          bidPrice: 1,
           brand: 1,
+          description: 1,
           user: 1,
           customiseMsg: 1,
-          user: 1,
-          apply: 1,
-          rating: 1,
-          likes: 1,
+          crops: "$croppoints",
           cropRules: { cropPerAudCredit: 1 },
           ruleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
@@ -1777,13 +1842,13 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
-          rating: 1,
-          likes: 1,
-          mktOfferFor: 1,
-          happyHours: 1,
           bonusCrops: 1,
+          happyHours: 1,
+          services: { $arrayElemAt: ["$services", 0] },
+          market: 1,
+          apply: 1,
           sector: 1,
-          // services: 1,
+          mktOfferFor: 1,
         },
       },
     ])
@@ -1860,22 +1925,39 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-05-10", today],
+                    $gte: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.fromDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $gte: ["2023-05-29", today],
+                    $lte: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.toDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $eq: [true, true],
+                    $anyElementTrue: `$slashRedemption.slashRedemptionDays.${day}`,
                   },
                 ],
               },
-              then: 10,
+              then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
               else: 0,
             },
           },
         },
       },
+
       {
         $project: {
           title: 1,
@@ -1963,7 +2045,7 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
         },
       },
     ])
-    return res.status(200).send(productCommentsAndRatings)
+    return res.status(200).send(productCommentsAndRatings[0])
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
