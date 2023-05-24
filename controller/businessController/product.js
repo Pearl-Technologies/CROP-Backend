@@ -1925,22 +1925,39 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $lte: ["2023-05-10", today],
+                    $gte: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.fromDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $gte: ["2023-05-29", today],
+                    $lte: [
+                      today,
+                      {
+                        $arrayElemAt: [
+                          "$slashRedemption.slashRedemption.toDate",
+                          0,
+                        ],
+                      },
+                    ],
                   },
                   {
-                    $eq: [true, true],
+                    $anyElementTrue: `$slashRedemption.slashRedemptionDays.${day}`,
                   },
                 ],
               },
-              then: 10,
+              then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
               else: 0,
             },
           },
         },
       },
+
       {
         $project: {
           title: 1,
