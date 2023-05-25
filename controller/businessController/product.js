@@ -488,9 +488,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
     const dateTime = new Date()
     const sDate = dateTime.toISOString()
     const today = sDate.split("T")[0]
-    // console.log(dateTime.getDay(), "day");
     const currentDay = dateTime.getDay()
-    // console.log(today, "today")
     console.log("2023-04-13" < today, "Strat Date")
     console.log("2023-04-14" > today, "End Date")
     let day = ""
@@ -528,6 +526,14 @@ module.exports.getRedeemCropProducts = async (req, res) => {
           as: "slashRedemption",
         },
       },
+      {
+        $lookup: {
+          from: "business_otherservices",
+          localField: "user",
+          foreignField: "businessId",
+          as: "blueDay",
+        },
+      },
       { $unwind: "$cropRules" },
       {
         $addFields: {
@@ -544,7 +550,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $gt: [
+                    $gte: [
                       today,
                       {
                         $arrayElemAt: [
@@ -555,7 +561,7 @@ module.exports.getRedeemCropProducts = async (req, res) => {
                     ],
                   },
                   {
-                    $lt: [
+                    $lte: [
                       today,
                       {
                         $arrayElemAt: [
@@ -572,6 +578,40 @@ module.exports.getRedeemCropProducts = async (req, res) => {
               },
               then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
               else: 0,
+            },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          blueDay: {
+            $cond: {
+              if: {
+                $and: [
+                  {
+                    $gte: [
+                      today,
+                      {
+                        $arrayElemAt: ["$blueDay.blueDates.fromDate", 0],
+                      },
+                    ],
+                  },
+                  {
+                    $lte: [
+                      today,
+                      {
+                        $arrayElemAt: ["$blueDay.blueDates.toDate", 0],
+                      },
+                    ],
+                  },
+                  {
+                    $anyElementTrue: `$blueDay.blueDays.${day}`,
+                  },
+                ],
+              },
+              then: true,
+              else: false,
             },
           },
         },
@@ -602,6 +642,9 @@ module.exports.getRedeemCropProducts = async (req, res) => {
             ],
           },
         },
+      },
+      {
+        $match: { blueDay: false },
       },
       {
         $project: {
@@ -1434,6 +1477,14 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           as: "slashRedemption",
         },
       },
+      {
+        $lookup: {
+          from: "business_otherservices",
+          localField: "user",
+          foreignField: "businessId",
+          as: "blueDay",
+        },
+      },
       { $unwind: "$cropRules" },
       {
         $addFields: {
@@ -1484,8 +1535,44 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
       },
       {
         $addFields: {
+          blueDay: {
+            $cond: {
+              if: {
+                $and: [
+                  {
+                    $gte: [
+                      today,
+                      {
+                        $arrayElemAt: ["$blueDay.blueDates.fromDate", 0],
+                      },
+                    ],
+                  },
+                  {
+                    $lte: [
+                      today,
+                      {
+                        $arrayElemAt: ["$blueDay.blueDates.toDate", 0],
+                      },
+                    ],
+                  },
+                  {
+                    $anyElementTrue: `$blueDay.blueDays.${day}`,
+                  },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
           cropRulesWithBonus: 0,
         },
+      },
+      {
+        $match: { blueDay: false },
       },
       {
         $project: {
