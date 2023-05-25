@@ -55,7 +55,7 @@ router.put("/uploadpicture", async (req, res) => {
       filesName.write(req.files[0].buffer)
       filesName.end()
 
-      var obj = pathName + "/uploads/" + req.files[0].originalname
+      var obj = req.files[0].originalname
       let token = req.headers.authorization
       const token_data = await Token.findOne({ token: token })
       const result = await User.updateOne(
