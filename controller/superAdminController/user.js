@@ -62,7 +62,7 @@ const createAdmin = async (req, res) => {
     res.status(500).send("Some Error Occured");
   }
 };
-const adminLogin = async (req, res) => {
+const adminLogin = async (req, res) => {  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ msg: errors.errors[0].msg });
@@ -79,7 +79,6 @@ const adminLogin = async (req, res) => {
     //compare password by bcrypt
     const passwordCompare = await bcrypt.compare(password, adminUser.password);
     if (!passwordCompare) {
-      console.log("fail");
       return res.status(400).json({
         msg: "Please try to login with correct credentials",
       });
@@ -188,7 +187,6 @@ const sendMail = (req, res) => {
 const sendMassNotification = (req, res) => {
   const { emailData, subject, notificationBody, user } = req.body;
   for (let i = 0; i < emailData.length; i++) {
-    console.log(emailData[i]);
     const mailData = {
       from: process.env.EMAIL_USER,
       to: `${emailData[i]}`,
@@ -205,7 +203,7 @@ const sendMassNotification = (req, res) => {
 const passwordResetEmail = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(401).json({ msg: errors });
+    return res.status(401).json({ msg: "Enter a valid email" });
   }
   const { email } = req.body;
   try {
@@ -223,30 +221,31 @@ const passwordResetEmail = async (req, res) => {
 
     const authtoken = jwt.sign(data, JWT_SECRET);
     const subject = "CROP notification";
-    const mailData = {
-      from: process.env.EMAIL_USER,
-      to: `${email}`,
-      subject: `${subject}`,
-      html: `<h1>Hello</h1>
-        <p>	We received a request to reset the password for the CROP admin account associated with ${email}.</p>
+    // const mailData = {
+    //   from: process.env.EMAIL_USER,
+    //   to: `${email}`,
+    //   subject: `${subject}`,
+    //   html: `<h1>Hello</h1>
+    //     <p>	We received a request to reset the password for the CROP admin account associated with ${email}.</p>
      
-          <a href="${process.env.STORE_URL}/pages/passwordReset?email=${email}&passkey=${authtoken}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer">Reset your password</a>
+    //       <a href="${process.env.STORE_URL}/pages/passwordReset?email=${email}&passkey=${authtoken}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer">Reset your password</a>
     
-          <p style="margin-bottom:0px;">	If you didn’t request to reset your password, contact us via our support site. No changes were made to your account yet.</p>
-          <p>Having trouble signing in? Get help at CROP Support.</p>
-          <strong>-The Stripe team</strong>
-           `,
-    };
+    //       <p style="margin-bottom:0px;">	If you didn’t request to reset your password, contact us via our support site. No changes were made to your account yet.</p>
+    //       <p>Having trouble signing in? Get help at CROP Support.</p>
+    //       <strong>-The Stripe team</strong>
+    //        `,
+    // };
     let msg = `<h1>Hello</h1>
-    <p>	We received a request to reset the password for the CROP admin account associated with ${email}.</p>
+    <p>	We received a request to reset the password for the CROP account associated with ${email}.</p>
  
-      <a href="${process.env.STORE_URL}/pages/passwordReset?email=${email}&passkey=${authtoken}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:"pointer">Reset your password</a>
+   <a href="${req.headers.origin}/pages/passwordReset?email=${email}&passkey=${authtoken}"><button style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none; cursor:pointer">Reset your password</button></a>   
 
       <p style="margin-bottom:0px;">	If you didn’t request to reset your password, contact us via our support site. No changes were made to your account yet.</p>
       <p>Having trouble signing in? Get help at CROP Support.</p>
-      <strong>-The Stripe team</strong>
+      <strong>
+      -The CROP Team
        `
-    const message = "message sent successfully!";
+    const message = "A verification link has been sent to your Email";
     // sendEmail(mailData, res, message);
      sendEmail(email, subject, msg, message, res);
     // }
@@ -268,12 +267,12 @@ const transporter = nodemailer.createTransport({
           pass: process.env.EMAIL_PASS,
         },
 })
-console.log({ toEmail, subject, msg, resMsg })
+
 const mailOptions = {
   from: process.env.EMAIL_USER,
   to: toEmail,
   subject: subject,
-  text: msg,
+  html: msg,
 }
 
 transporter.sendMail(mailOptions, async(err, result) => {
@@ -285,16 +284,6 @@ transporter.sendMail(mailOptions, async(err, result) => {
       data: [],
     })
   } else {
-      // console.log("one")
-      // const otpData = new Otp({
-      //     email: toEmail,
-      //     otp: otp,
-      //     otpType: otpType,
-      //     userType: userType,
-      // })
-      // console.log("two")
-      // await otpData.save();
-      // console.log({otpData})
       return res.status(200).send({ msg: resMsg})
   }
 })
