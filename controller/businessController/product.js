@@ -590,6 +590,9 @@ module.exports.getRedeemCropProducts = async (req, res) => {
               if: {
                 $and: [
                   {
+                    $anyElementTrue: `$blueDay.blueDay`,
+                  },
+                  {
                     $gte: [
                       today,
                       {
@@ -1540,6 +1543,9 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
               if: {
                 $and: [
                   {
+                    $anyElementTrue: `$blueDay.blueDay`,
+                  },
+                  {
                     $gte: [
                       today,
                       {
@@ -2329,7 +2335,7 @@ module.exports.getEarnAndRedeemProducts = async (req, res) => {
           },
         },
       },
-      // { $cond: [ { $eq: [ "$happyHoursAndExtendBonusAddedPercentage", 0 ] }, "$ruleAppliedCrops", {$divide:["$upvotes", "$downvotes"]} ] }
+
       {
         $addFields: {
           cropRulesWithBonus: {
@@ -2356,7 +2362,7 @@ module.exports.getEarnAndRedeemProducts = async (req, res) => {
           },
         },
       },
-      // {$unwind: "$bonusCrops"},
+
       {
         $project: {
           title: 1,
