@@ -152,6 +152,8 @@ const UserSchema=new mongoose.Schema({
    smsNotification:{type:Boolean, default:true},
    emailNotification:{type:Boolean, default:true}, 
    feedback:{type:String,default:null},
+   newsletter:{type:Boolean,default:false},
+   locality:{type:Boolean,default:false},
   //  auditTrail: [{_id:mongoose.Types.ObjectId, message: String, status: Boolean, value: String}],
 //    auditTrail:{
 //     startDate:Date,
