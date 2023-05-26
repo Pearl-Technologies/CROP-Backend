@@ -342,8 +342,8 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
         text: 'Please find attached the PDF of your crop transactions',
         attachments: [
           {
-            filename,
-            content: fs.createReadStream(filename),
+            pdfPath,
+            content: fs.createReadStream(pdfPath),
           },
         ],
       };
