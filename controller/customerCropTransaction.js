@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const { User } = require("../models/User");
 const {Token} = require("../models/User");
-const pdfkit = require('pdfkit');
+const PDFDocument = require('pdfkit');
 
 const fs = require('fs');
 const pdfPath = process.cwd() + "/uploads/";
@@ -23,22 +23,17 @@ const getMyCropTrasaction = async (req, res) => {
         .status(200)
         .send({ msg: "no order", data: findone, status: 200 });
     }
-    if (startDate && endDate) {
+    if (search && startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
         {
           $match: {
             user: { $eq: findone[0].user },
-          },
-        },
-        {
-          $match: {
             createdAt: {
               $gte: new Date(startDate),
               $lte: new Date(endDate),
             },
           },
         },
-      
         {
           $project: {
             orderNumber: 1,
@@ -47,6 +42,11 @@ const getMyCropTrasaction = async (req, res) => {
             amount: 1,
             description: 1,
             createdAt: 1,
+          },
+        },
+        {
+          $match: {
+            orderNumber: search,
           },
         },
         { $sort: { createdAt: -1 } },
@@ -79,6 +79,37 @@ const getMyCropTrasaction = async (req, res) => {
       ]);
       return res.status(200).send({ data: trasactionDetails, status: 200 });
     }
+    if (startDate && endDate) {
+      const trasactionDetails = await customerCropTransaction.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+          },
+        },
+      
+        {
+          $project: {
+            orderNumber: 1,
+            transactionType: 1,
+            crop: 1,
+            amount: 1,
+            description: 1,
+            createdAt: 1,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
+    }
+    
 
     const trasactionDetails = await customerCropTransaction.aggregate([
       {
@@ -222,16 +253,17 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
   let token = req.headers.authorization;
   const token_data = await Token.findOne({ token });
   let user = token_data.user;
-  let adddata = await User.find({_id:user})
+  let adddata = await User.find({ _id: user });
+
   try {
     let findone = await customerCropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
+
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
+
     if (startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
         {
@@ -261,61 +293,32 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
       ]);
 
       // Create a new PDF document
-      // const pdfDoc = new pdfkit();
-      
-      // Set the filename for the PDF
-      // const filename = `MyCropTransaction-${new Date().toISOString()}.pdf`;
-      const filename = `MyCropTransaction.pdf`;
-      const writeStream = fs.createWriteStream('MyCropTransaction.pdf');
-      // pdfDoc.pipe(writeStream);
+      const doc = new PDFDocument();
 
-      // // Add content to the PDF document
-      // pdfDoc.text('My PDF Document');
-      // trasactionDetails.forEach(transaction => {
-      //   pdfDoc.fontSize(14).text(`Order Number: ${transaction.orderNumber}`);
-      //   pdfDoc.fontSize(12).text(`Transaction Type: ${transaction.transactionType}`);
-      //   pdfDoc.fontSize(12).text(`Crop: ${transaction.crop}`);
-      //   pdfDoc.fontSize(12).text(`Amount: ${transaction.amount}`);
-      //   pdfDoc.fontSize(12).text(`Description: ${transaction.description}`);
-      //   pdfDoc.fontSize(12).text(`Created At: ${transaction.createdAt}`);
-      //   });
-      // pdfDoc.end();
+      // Pipe the PDF document to a file
+      const pdfPath = 'transaction_statement.pdf';
+      const writeStream = fs.createWriteStream(pdfPath);
+      doc.pipe(writeStream);
 
-      const headers = ['Order Number', 'Transaction Type', 'Crop', 'Amount', 'Description', 'Created At'];
-const rows = trasactionDetails.map(transaction => [
-  transaction.orderNumber,
-  transaction.transactionType,
-  transaction.crop,
-  transaction.amount,
-  transaction.description,
-  transaction.createdAt,
-]);
+      // Add content to the PDF document
+      doc.fontSize(14).text('Transaction Statement', { align: 'center' });
+      doc.fontSize(12).text(`User: ${user}`);
+      doc.fontSize(10).text(`Start Date: ${startDate}`);
+      doc.fontSize(10).text(`End Date: ${endDate}`);
+      doc.moveDown();
 
-const docDefinition = {
-  content: [
-    { text: 'My CROP Transaction', style: 'header' },
-    {
-      table: {
-        headers: headers,
-        body: rows
-      }
-    }
-  ],
-  styles: {
-    header: {
-      fontSize: 18,
-      bold: true,
-      margin: [0, 0, 0, 10]
-    }
-  }
-};
+      trasactionDetails.forEach((transaction) => {
+        doc.fontSize(10).text(`Order Number: ${transaction.orderNumber}`);
+        doc.fontSize(10).text(`Transaction Type: ${transaction.transactionType}`);
+        doc.fontSize(10).text(`Crop: ${transaction.crop}`);
+        doc.fontSize(10).text(`Amount: ${transaction.amount}`);
+        doc.fontSize(10).text(`Description: ${transaction.description}`);
+        doc.fontSize(10).text(`Created At: ${transaction.createdAt}`);
+        doc.moveDown();
+      });
 
-const pdfDoc = new pdfkit();
-pdfDoc.pipe(writeStream).on('finish', () => {
-  console.log('PDF saved');
-});
-pdfDoc.text(JSON.stringify(docDefinition));
-pdfDoc.end();
+      // Finalize the PDF document
+      doc.end();
 
       // writeStream.on('finish', () => {
       //   console.log('PDF file created successfully');

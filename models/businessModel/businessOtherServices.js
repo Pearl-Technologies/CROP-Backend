@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const businessOtherServices = mongoose.model("Business_OtherServices", {
+  blueDay: { type: Boolean, default: false },
   blueDays: {
     all: { type: Boolean, default: false },
     sun: { type: Boolean, default: false },

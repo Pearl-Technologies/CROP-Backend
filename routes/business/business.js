@@ -54,6 +54,11 @@ const {
   createOrUpdateOtherServices,
   getOtherServices,
 } = require("../../controller/businessController/crop")
+const {
+  createPointsTransactionNotification,
+  createSalesNotification,
+  createProgramChangesNotification,
+} = require("../../controller/businessController/businessNotification/accountNotification.js")
 
 router.post("/email-register-otp", emailRegisterOtp)
 router.post("/verify-register-otp", verifyRegisterOtp)
@@ -136,6 +141,14 @@ router.put(
   rejectMisssingCropsByBusiness
 )
 router.put("/credit-missing-crops", authorization, creditMissingCropsByBusiness)
+
+router.post(
+  "/points-transaction-notification",
+  authorization,
+  createPointsTransactionNotification
+)
+
+router.post("/sales-notification", authorization, createSalesNotification)
 
 
 module.exports = router

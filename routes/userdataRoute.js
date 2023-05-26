@@ -55,7 +55,7 @@ router.put("/uploadpicture", async (req, res) => {
       filesName.write(req.files[0].buffer)
       filesName.end()
 
-      var obj = pathName + "/uploads/" + req.files[0].originalname
+      var obj = req.files[0].originalname
       let token = req.headers.authorization
       const token_data = await Token.findOne({ token: token })
       const result = await User.updateOne(
@@ -1466,6 +1466,44 @@ router.delete('/notification', async (req, res) => {
   catch(err) {
     console.log(err);
     res.status(500).json({ message:err, status:500 })
+  }
+})
+
+router.put("/newsletter", async (req, res) => {
+  const token = req.headers.authorization;
+  const newsletter = req.body.newsletter;
+  const token_new = await Token.findOne({ token: token });
+  const user = await User.updateOne({ email: token_new.user },{ $set: { newsletter: newsletter }})
+  if (newsletter == true) {
+    // let notification = await adminCustomerAccountNotification.find();
+    // notification = notification[0]._doc
+    // await new AccountNotificationCustomer({user_id: user._id, message: notification.pin_change}).save();
+    res
+      .status(200)
+      .send({ message: "Newsletter Activated Successfully", status: "true" })
+  } else {
+    res
+      .status(200)
+      .send({ message: "Newsletter De-Activated Successfully", status: "true" })
+  }
+})
+
+router.put("/locality", async (req, res) => {
+  const token = req.headers.authorization;
+  const locality = req.body.locality;
+  const token_new = await Token.findOne({ token: token });
+  const user = await User.updateOne({ email: token_new.user },{ $set: { locality: locality }})
+  if (locality == true) {
+    // let notification = await adminCustomerAccountNotification.find();
+    // notification = notification[0]._doc
+    // await new AccountNotificationCustomer({user_id: user._id, message: notification.pin_change}).save();
+    res
+      .status(200)
+      .send({ message: "Locality Activated Successfully", status: "true" })
+  } else {
+    res
+      .status(200)
+      .send({ message: "Locality De-Activated Successfully", status: "true" })
   }
 })
 
