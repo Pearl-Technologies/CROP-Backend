@@ -23,22 +23,17 @@ const getMyCropTrasaction = async (req, res) => {
         .status(200)
         .send({ msg: "no order", data: findone, status: 200 });
     }
-    if (startDate && endDate) {
+    if (search & startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
         {
           $match: {
             user: { $eq: findone[0].user },
-          },
-        },
-        {
-          $match: {
             createdAt: {
               $gte: new Date(startDate),
               $lte: new Date(endDate),
             },
           },
         },
-      
         {
           $project: {
             orderNumber: 1,
@@ -47,6 +42,11 @@ const getMyCropTrasaction = async (req, res) => {
             amount: 1,
             description: 1,
             createdAt: 1,
+          },
+        },
+        {
+          $match: {
+            orderNumber: search,
           },
         },
         { $sort: { createdAt: -1 } },
@@ -79,6 +79,37 @@ const getMyCropTrasaction = async (req, res) => {
       ]);
       return res.status(200).send({ data: trasactionDetails, status: 200 });
     }
+    if (startDate && endDate) {
+      const trasactionDetails = await customerCropTransaction.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+          },
+        },
+      
+        {
+          $project: {
+            orderNumber: 1,
+            transactionType: 1,
+            crop: 1,
+            amount: 1,
+            description: 1,
+            createdAt: 1,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
+    }
+    
 
     const trasactionDetails = await customerCropTransaction.aggregate([
       {
