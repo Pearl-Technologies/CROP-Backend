@@ -23,7 +23,7 @@ const getMyCropTrasaction = async (req, res) => {
         .status(200)
         .send({ msg: "no order", data: findone, status: 200 });
     }
-    if (search & startDate && endDate) {
+    if (search && startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
         {
           $match: {
