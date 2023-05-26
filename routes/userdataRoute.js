@@ -612,7 +612,7 @@ router.post("/login", async (req, res) => {
     cutoffDate.setHours(cutoffDate.getHours() - 24);
     const attempt = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
     if(attempt.length==3){
-      return res.status(200).json({message: `Your account has been temporary blocked. Please try after 24hrs.`});
+      return res.status(200).json({message: `Your account has been temporary blocked. Please try after 24hrs.`,status:false});
     }
     else{
       //if the email id is not present send the error message
