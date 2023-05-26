@@ -109,7 +109,7 @@ const {SavePaymentInfo} = require('../controller/adminController/PaymentControll
 const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
 const {getPurchasedProductStatement, getBusinessCropStatement} =require("../controller/adminController/BusinessData/business")
-const {productPurchaseTrasaction, pointPurchaseTrasaction} =require('../controller/adminController/CustomerData/customer')
+const {productPurchaseTrasaction, pointPurchaseTrasaction, getAllLikedProductByUser, getAllRatedProductByUser} =require('../controller/adminController/CustomerData/customer')
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -186,7 +186,8 @@ router.post("/savePropValues", savePropValues);
 router.post("/updateStoreProp", updateStoreProp);
 router.post("/getPropValues", getPropValues);
 router.post("/getAdminData", verifyToken, getAdminData);
-
+router.post("/getAllLikedProductByUser", getAllLikedProductByUser)
+router.post("/getAllRatedProductByUser", getAllRatedProductByUser)
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
