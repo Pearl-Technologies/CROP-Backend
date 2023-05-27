@@ -6,7 +6,8 @@ const invoiceAndPaymentNotificationSchema = mongoose.Schema(
     desc: { type: String, required: true },
     businessId: { type: mongoose.Schema.Types.ObjectId, required: true },
     payment: {
-      transactionId: String
+      product: {},
+      price: { type: Number },
     },
     purchaseOrder: {
       orderId: { type: mongoose.Schema.Types.ObjectId },

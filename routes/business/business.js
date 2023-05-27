@@ -24,14 +24,9 @@ const {
   rejectMisssingCropsByBusiness,
   creditMissingCropsByBusiness,
   getSinglePurchasedProductStatement,
+  mobileRegisterOtp,
 } = require("../../controller/businessController/business.js")
-const {
-  getAllBusinessCrop,
-  saveBusinessCrop,
-  saveBusinessProp,
-  resendOtp,
-  getAllBusiness,
-} = require("../../controller/businessController/business")
+
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
 
@@ -59,8 +54,13 @@ const {
   createSalesNotification,
   createProgramChangesNotification,
 } = require("../../controller/businessController/businessNotification/accountNotification.js")
+const {
+  getPaymentNotification,
+  getRedeemNotification,
+} = require("../../controller/businessController/businessNotification/invoiceAndPaymentNotification.js")
 
 router.post("/email-register-otp", emailRegisterOtp)
+router.post("/mobile-register-otp", mobileRegisterOtp)
 router.post("/verify-register-otp", verifyRegisterOtp)
 router.post("/verify-abn-number", verifyAdbnNumber)
 router.post("/signup", createBusinessAccount)
@@ -149,6 +149,12 @@ router.post(
 )
 
 router.post("/sales-notification", authorization, createSalesNotification)
+router.post(
+  "/create-payment-notification",
+  authorization,
+  getPaymentNotification
+)
+router.post("/create-redeem-notification", authorization, getRedeemNotification)
 
 
 module.exports = router
