@@ -283,9 +283,9 @@ router.post("/emailphoneverify", async (req, res) => {
   // const email = req.body.email
   const userData = await User.findOne({
     $or: [
-      { email: req.body.email },
-      { cropid: parseInt(req.body.cropid) },
-      { mobileNumber: req.body.phone },
+      { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+      { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+      { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
     ],
   },{email:1})
 
@@ -725,14 +725,22 @@ router.post("/login", async (req, res) => {
 })
 
 router.put("/forget", async (req, res) => {
-  const userData = await User.findOne({
-    $or: [
-      { email: req.body.email },
-      { cropid: req.body.cropid },
-      { mobileNumber: req.body.phone },
-    ],
-  })
+  // const userData = await User.findOne({
+  //   $or: [
+  //     { email: req.body.email },
+  //     { cropid: req.body.cropid },
+  //     { mobileNumber: req.body.phone },
+  //   ],
+  // })
+
   try {
+    const userData = await User.findOne({
+      $or: [
+        { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+        { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+        { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+      ],
+    })
     const forgotpassword = await User.findOne({ email: userData.email })
 
     if (!forgotpassword) {
@@ -783,30 +791,86 @@ router.put("/forget", async (req, res) => {
   }
 })
 
+// router.put("/forgetpassword", async (req, res) => {
+//   let email = req.body.email
+//   const userData = await User.findOne({
+//     $or: [
+//       { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+//       { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+//       { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+//     ],
+//   })
+//   try {
+//     //updating the password in the database
+//     if (
+//       req.body.email != "" &&
+//       req.body.password != "" &&
+//       req.body.email != null &&
+//       req.body.password != null &&
+//       req.body.email != undefined &&
+//       req.body.password != undefined
+//     ) {
+//       const hashedPassword = await bcrypt.hash(req.body.password, 10)
+//       const emailFind = await User.findOne({ email: email })
+//       if (emailFind) {
+//         const result = await User.updateOne(
+//           { email: email },
+//           { $set: { password: hashedPassword } }
+//         )
+//         if (result) {
+//           createCustomerAudit(result._id, "Password changed Successfully")
+//         }
+//         res.status(200).send({
+//           message: "Password changed Successfully",
+//           status: "true",
+//           data: [],
+//         })
+//       } else {
+//         res
+//           .status(500)
+//           .send({ message: "No email found", status: "false", data: [] })
+//       }
+//     } else {
+//       res.status(500).send({
+//         message: "Email and Password should not be empty",
+//         status: "false",
+//         data: [],
+//       })
+//     }
+//   } catch (err) {
+//     console.log(err)
+//     res
+//       .status(500)
+//       .send({ message: "Error Message", status: "false", data: err })
+//   }
+// })
 router.put("/forgetpassword", async (req, res) => {
   let email = req.body.email
-  const userData = await User.findOne({
-    $or: [
-      { email: req.body.email },
-      { cropid: req.body.cropid },
-      { mobileNumber: req.body.phone },
-    ],
-  })
   try {
     //updating the password in the database
     if (
-      req.body.email != "" &&
+      req.body.cropid!=null &&
+      req.body.cropid!=undefined &&
+      req.body.phone!=null &&
+      req.body.phone!=undefined &&
       req.body.password != "" &&
       req.body.email != null &&
       req.body.password != null &&
       req.body.email != undefined &&
       req.body.password != undefined
     ) {
+      const userData = await User.findOne({
+        $or: [
+          { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+          { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+          { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+        ],
+      })
       const hashedPassword = await bcrypt.hash(req.body.password, 10)
-      const emailFind = await User.findOne({ email: email })
+      const emailFind = await User.findOne({ email: userData.email })
       if (emailFind) {
         const result = await User.updateOne(
-          { email: email },
+          { email: userData.email },
           { $set: { password: hashedPassword } }
         )
         if (result) {
@@ -883,6 +947,9 @@ router.put("/updateprofile", async (req, res) => {
 
   try {
     const id = token_data.user
+    const findEmailorPhno = await User.find({mobileNumber:req.body.mobileNumber}).count();
+
+    if(findEmailorPhno==0 || findEmailorPhno=="0"){
     const result = await User.findByIdAndUpdate({ _id: id }, req.body)
     //       const result= await User.updateOne({_id:token_data.user},{$set:{
     //          name:req.body.name,
@@ -904,10 +971,14 @@ router.put("/updateprofile", async (req, res) => {
 
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
-    if (result) {
-      createCustomerAudit(result._id, "Profile Updated successfully")
+      if (result) {
+        createCustomerAudit(result._id, "Profile Updated successfully")
+      }
+      res.send({ message: "Updated successfully", status: "true", data: result })
     }
-    res.send({ message: "Updated successfully", status: "true", data: result })
+    else{
+      res.send({ message: "Phno already registered try another", status: "false", data: [] })
+    }
   } catch (err) {
     console.log(err)
     res
@@ -915,6 +986,7 @@ router.put("/updateprofile", async (req, res) => {
       .send({ message: "Internal Server error", status: "false", data: err })
   }
 })
+
 router.post("/community", async (req, res) => {
   try{
     let token = req.headers.authorization
