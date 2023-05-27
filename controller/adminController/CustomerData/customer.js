@@ -7,13 +7,14 @@ const adminCustomerProp = require("../../../models/admin/admin_customer_prop");
 const schedule = require("node-schedule");
 const adminPropValuation =require("../../../models/admin/admin_prop_valuation")
 const {adminPropPaymentOnMilestoneTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
+const ObjectId = mongoose.Types.ObjectId;
 const {
   customerPaymentTracker,
   customerRedeemTracker,
   customerPropRedeemTracker,
   customerPurchsedTracker
 } = require("../../../models/admin/PaymentTracker/paymentIdTracker");
-
+const {productComment} = require("../../../models/businessModel/product")
 const getAllCustomer = async (req, res) => {
   try {
     const customers = await User.find({});
@@ -662,7 +663,84 @@ const pointPurchaseTrasaction = async(req, res)=>{
       res.status(500).send({ msg: "internal server error", status: 500 });
     }
 }
-
+const getAllLikedProductByUser =async(req, res)=>{
+    const {customerId} =req.body
+    // console.log(customerId); 
+    // res.send("ok")
+    // return
+try {
+  const product = await productComment.aggregate(
+    [
+      {
+          '$unwind': {
+              'path': '$product_likes'
+          }
+      }, {
+          '$match': {
+              'product_likes.user_id': ObjectId(customerId)
+          }
+      }, {
+          '$match': {
+              'product_likes.like': true
+          }
+      }, {
+          '$lookup': {
+              'from': 'business_products', 
+              'localField': 'product_id', 
+              'foreignField': '_id', 
+              'as': 'likedProduct'
+          }
+      },{
+        '$project':{
+          'likedProduct':1
+        }
+      }
+  ]
+  )
+  return res.status(200).send({product});
+} catch (error) {
+  console.log(error);
+  return res.status(500).send({msg:"internal error"})
+}
+}
+const getAllRatedProductByUser =async(req, res)=>{
+  const {customerId} =req.body
+try {
+const product = await productComment.aggregate(
+  [
+    {
+        '$unwind': {
+            'path': '$details'
+        }
+    }, {
+        '$match': {
+            'details.user_id': ObjectId(customerId)
+        }
+    }, {
+        '$match': {
+            'details.status': true
+        }
+    }, {
+        '$lookup': {
+            'from': 'business_products', 
+            'localField': 'product_id', 
+            'foreignField': '_id', 
+            'as': 'ratedProduct'
+        }
+    },{
+      '$project':{
+        details:1,
+        ratedProduct:1
+      }
+    }
+]
+)
+return res.status(200).send({product});
+} catch (error) {
+console.log(error);
+return res.status(500).send({msg:"internal error"})
+}
+}
 PropPaymentNotification();
 module.exports = {
   getAllCustomerByContent,
@@ -675,5 +753,7 @@ module.exports = {
   updateCustomerStatus,
   getAllCustomerForPropPayment,
   productPurchaseTrasaction,
-  pointPurchaseTrasaction
+  pointPurchaseTrasaction,
+  getAllLikedProductByUser,
+  getAllRatedProductByUser
 };

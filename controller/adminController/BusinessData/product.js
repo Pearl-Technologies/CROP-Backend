@@ -1,6 +1,8 @@
 const schedule = require("node-schedule");
 const { Product } = require("../../../models/businessModel/product");
 const { sendEmail } = require("../../../config/email");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 const {
   SavePaymentInfo,
   findPaymentInfo,
@@ -18,13 +20,42 @@ const client = require("twilio")(accountSid, authToken);
 
 const getAllProduct = async (req, res) => {
   const {businessId} = req.body;
+  console.log(businessId);
   try {
     if(businessId){
-      const productList = await Product.find({user:businessId}).sort({updatedAt:-1});
-      return res.status(200).json({ productList });
+      // const productList = await Product.find({user:businessId}).sort({updatedAt:-1});
+      // return res.status(200).json({ productList });
+      const productList = await Product.aggregate(
+        [
+          {
+            '$match': {
+              'user': ObjectId(businessId)
+            }
+          }, {
+            '$lookup': {
+              'from': 'products_comments', 
+              'localField': '_id', 
+              'foreignField': 'product_id', 
+              'as': 'pd'
+            }
+          }, {
+            '$project': {
+              'title': 1, 
+              'image': 1, 
+              'pd': 1, 
+              'updatedAt': 1
+            }
+          }, {
+            '$sort': {
+              'updatedAt': -1
+            }
+          }
+        ])
+        console.log(productList);
+        return res.status(200).json({ productList });
     }
-    const productList = await Product.find({}).sort({updatedAt:-1});
-    return res.status(200).json({ productList });
+    // const productList = await Product.find({}).sort({updatedAt:-1});
+    // return res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error" });

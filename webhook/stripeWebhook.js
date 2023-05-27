@@ -274,7 +274,7 @@ app.post(
             );
           }
           SaveMyCropTrasaction(
-            session.subtotal,
+            session.subtotal/100,
             customerCropPoint,
             "credit",
             "purchase product",
