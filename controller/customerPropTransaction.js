@@ -496,7 +496,7 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
   }
 };
 
-const SaveMyPropTrasaction=async(amount, prop, transactionType, description, orderNumber, user)=>{  
+const SaveMyPropTrasaction=async(amount, prop, transactionType, description, orderNumber, user, invoiceNumber, invoiceUrl, invoicePdf,)=>{  
     if(!prop || !transactionType|| !orderNumber || !user ){
         return console.log("all field is required"); 
     }  
@@ -508,6 +508,9 @@ const SaveMyPropTrasaction=async(amount, prop, transactionType, description, ord
             description,
             amount,
             user,
+            invoiceNumber,
+            invoiceUrl,
+            invoicePdf,
         });
         console.log("trasaction created")
     } catch (error) {

@@ -475,7 +475,10 @@ const SaveMyCropTrasaction = async (
   transactionType,
   description,
   orderNumber,
-  user
+  user,
+  invoiceNumber,
+  invoiceUrl,
+  invoicePdf,
 ) => {
   if (!crop || !transactionType || !orderNumber || !user) {
     return console.log("all field is required");
@@ -488,6 +491,9 @@ const SaveMyCropTrasaction = async (
       description,
       amount,
       user,
+      invoiceNumber,
+      invoiceUrl,
+      invoicePdf,
     });
     console.log("trasaction created");
   } catch (error) {

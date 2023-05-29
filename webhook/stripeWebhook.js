@@ -279,7 +279,10 @@ app.post(
             "credit",
             "purchase product",
             findOneRecord.payment_intent,
-            findOneRecord.cartDetails.user_id
+            findOneRecord.cartDetails.user_id,
+            session.number,
+            session.hosted_invoice_url,
+            session.invoice_pdf,
           );
         } else {
           console.log("record is not found for updating invoice details");
@@ -339,7 +342,10 @@ app.post(
               "credit",
               "purchased PROP",
               findOneCustomerPointPurchasePaymentRequest.payment_intent,
-              findOneCustomerPointPurchasePaymentRequest.user
+              findOneCustomerPointPurchasePaymentRequest.user,
+              session.number,
+              session.hosted_invoice_url,
+              session.invoice_pdf,
             );
             sendMail(session.customer_email, "purchased PROP invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
             if (findUser) {

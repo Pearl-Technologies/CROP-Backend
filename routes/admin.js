@@ -110,6 +110,7 @@ const {createCategory, getCategories, updateCategory, getCategoryById, deleteCat
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
 const {getPurchasedProductStatement, getBusinessCropStatement} =require("../controller/adminController/BusinessData/business")
 const {productPurchaseTrasaction, pointPurchaseTrasaction, getAllLikedProductByUser, getAllRatedProductByUser} =require('../controller/adminController/CustomerData/customer')
+const {addLoyaltyProgramme} = require('../controller/adminController/loyaltyList/loyaltyProgramme');
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -251,6 +252,7 @@ router.get("/getAllPropTrasactionByAdmin", getAllPropTrasactionByAdmin)
 router.get("/productPurchaseTrasaction", productPurchaseTrasaction)
 router.get("/pointPurchaseTrasaction", pointPurchaseTrasaction)
 router.post("/getBusinessCropStatement", getBusinessCropStatement)
+router.post("/addLoyaltyProgramme", addLoyaltyProgramme)
 // router.post("/paymentLink", paymentLink);
 //customer data
 

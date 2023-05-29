@@ -16,7 +16,7 @@ const businessSchema = mongoose.Schema(
     },
     natureOfBusiness: { type: String },
     brandLogo: { type: String },
-    nameOfLoyaltyProgram: { type: String },
+    nameOfLoyaltyProgram: { type: Array },
     activeloyaltyProgram: { type: String },
     program: { type: String },
     auditTrail: [
@@ -60,6 +60,7 @@ const businessSchema = mongoose.Schema(
     bio: { type: Boolean, default: false },
     transctionInterface: { type: String, default: "online" },
     croppoint:{type:Number, default:0}
+    
   },
   {
     timestamps: true,

@@ -5,7 +5,7 @@ const adminCustomerRequest = mongoose.model("Admin_customer_request", {
   description: { type: String, required: true },
   expectedOutcoms: { type: String, required: true },
   preferredMediumContact: { type: String, required: true },
-  requestStatus: { type: String, default: "received" },
+  requestStatus: { type: String, default: "open" },
   requestUpdateDate: { type: Date, default: Date.now },
   requestResponse: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },

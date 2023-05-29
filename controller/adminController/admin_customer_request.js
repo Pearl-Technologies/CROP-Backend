@@ -1,18 +1,27 @@
 const adminCustomerRequest = require("../../models/admin/admin_customer_request");
-
+const { IdGenerator } = require("custom-random-id");
+const {Token} = require("../../models/User");
+const ID = new IdGenerator("{{ number_7 }}");
+let id = ID.getFinalExpression();
 const createCustomerRequest = async (req, res) => {
   try {
-    const {description, expectedOutcoms, requestType, preferredMediumContact, requestNumber, user} = req.body;
-    const findone = await adminCustomerRequest.find({requestNumber});
-    if (findone.length) {
-      return res.status("400").send("one record is already exist");
+    const {description, expectedOutcoms, requestType, preferredMediumContact} = req.body;
+    let token= req.headers.authorization
+    const token_data = await Token.findOne({ token });
+    let user= token_data.user;
+    // const findone = await adminCustomerRequest.find({requestNumber});
+    // if (findone.length) {
+    //   return res.status("400").send("one record is already exist");
+    // }
+    if(!description || !expectedOutcoms || !complainType, !preferredMediumContact, !user){
+      return res.status(401).send({data:"all fields are required", status:(401)});
     }
     await adminCustomerRequest.create({
       description,
       expectedOutcoms,
       requestType,
       preferredMediumContact,
-      requestNumber,
+      requestNumber:`R-${id}`,
       user
     });
     res.json({ success: true, message: "updated" });

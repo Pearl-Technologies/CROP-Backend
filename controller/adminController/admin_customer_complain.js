@@ -24,7 +24,7 @@ const createCustomerComplain = async (req, res) => {
       expectedOutcoms,
       complainType,
       preferredMediumContact,
-      complainNumber:id,
+      complainNumber:`C-${id}`,
       user,
     });
     
