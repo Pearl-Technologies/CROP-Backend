@@ -280,7 +280,17 @@ router.post("/emailphone", async (req, res) => {
 router.post("/emailphoneverify", async (req, res) => {
   const otp = req.body.otp
   const phone = req.body.phone
-  const email = req.body.email
+  // const email = req.body.email
+  const userData = await User.findOne({
+    $or: [
+      { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+      { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+      { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+    ],
+  },{email:1})
+
+  const email =  userData.email ? userData.email : ""
+
   if (email === "") {
     client.verify.v2
       .services(verifySid)
@@ -293,11 +303,8 @@ router.post("/emailphoneverify", async (req, res) => {
         })
       )
       .catch(() =>
-        res
-          .status(500)
-          .send({ message: "Enter the correct otp", status: "false", data: [] })
+        res.status(500).send({ message: "Enter the correct otp", status: "false", data: [] })
       )
-      .then(() => readline.close())
   } else {
     const userData = await Otp.findOne({ email: email })
     //if the email id is not present send the error message
@@ -319,45 +326,68 @@ router.post("/emailphoneverify", async (req, res) => {
 })
 
 router.put("/changepassword", async (req, res) => {
-  const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
-  const token = req.headers.authorization
-  const token_data = await Token.findOne({ token: token })
-  const oldpassword = await User.findOne({ _id: token_data.user })
-  console.log(oldpassword)
+  try {
+    const newpin = await bcrypt.hash(req.body.newpin.toString(), 10);
+    const token = req.headers.authorization;
+    const token_data = await Token.findOne({ token });
+    const user = await User.findOne({ _id: token_data.user });
 
-  if (oldpassword.password === req.body.oldpin) {
+    if (!user) {
+      return res.status(500).send({
+        message: "User not found",
+        status: "false",
+        data: [],
+      });
+    }
+
+    const isOldPasswordCorrect = await bcrypt.compare(
+      req.body.oldpin.toString(),
+      user.password
+    );
+
+    if (!isOldPasswordCorrect) {
+      return res.status(500).send({
+        message: "Enter the correct old password",
+        status: "false",
+        data: [],
+      });
+    }
+
+    if (req.body.oldpin === req.body.newpin) {
+      return res.status(500).send({
+        message: "Both new and old password are the same",
+        status: "false",
+        data: [],
+      });
+    }
+
+    const updatedata = await User.updateOne(
+      { _id: token_data.user },
+      { $set: { password: newpin } }
+    );
+
+    if (updatedata) {
+      let notification = await adminCustomerAccountNotification.find();
+      notification = notification[0]._doc
+      await new AccountNotificationCustomer({user_id: token_data.user, message: notification.pin_change}).save();
+      res
+        .status(200)
+        .send({ message: "Pin changed successfully", status: "true" })
+    } else {
+      res
+        .status(500)
+        .send({ message: "Pin not changed successfully", status: "false" })
+    }
+
+
+  } catch (error) {
+    console.log(error);
     return res.status(500).send({
-      message: "Enter the correct old password",
+      message: "An error occurred",
       status: "false",
-      data: [],
-    })
+    });
   }
-
-  if (req.body.oldpin === req.body.newpin) {
-    return res.status(500).send({
-      message: "Both new and old password are same",
-      status: "false",
-      data: [],
-    })
-  }
-  const updatedata = await User.updateOne(
-    { _id: token_data.user },
-    { $set: { password: newpin } }
-  )
-
-  if (updatedata) {
-    let notification = await adminCustomerAccountNotification.find();
-    notification = notification[0]._doc
-    await new AccountNotificationCustomer({user_id: token_data.user, message: notification.pin_change}).save();
-    res
-      .status(200)
-      .send({ message: "Pin changed successfully", status: "true" })
-  } else {
-    res
-      .status(500)
-      .send({ message: "Pin not changed successfully", status: "false" })
-  }
-})
+});
 
 router.put("/resetpassword", async (req, res) => {
   const newpin = await bcrypt.hash(req.body.newpin.toString(), 10)
@@ -612,7 +642,7 @@ router.post("/login", async (req, res) => {
     cutoffDate.setHours(cutoffDate.getHours() - 24);
     const attempt = await loginAttemp.find({user: userData._id, createdAt: { $gte: cutoffDate }});
     if(attempt.length==3){
-      return res.status(200).json({message: `Your account has been temporary blocked. Please try after 24hrs.`});
+      return res.status(200).json({message: `Your account has been temporary blocked. Please try after 24hrs.`,status:false});
     }
     else{
       //if the email id is not present send the error message
@@ -662,6 +692,11 @@ router.post("/login", async (req, res) => {
           type: method,
           expiration: oneHourFromNow,
         }).save()
+
+        await loginAttemp.deleteMany({
+          user:userData._id
+        })
+
       } else {
         method = 2
         userToken = jwt.sign({ email: userData.email }, "CROP@12345")
@@ -670,6 +705,11 @@ router.post("/login", async (req, res) => {
           token: userToken,
           type: method,
         }).save()
+
+        await loginAttemp.deleteMany({
+          user:userData._id
+        })
+
       }
       
       res.status(200).send({
@@ -685,14 +725,22 @@ router.post("/login", async (req, res) => {
 })
 
 router.put("/forget", async (req, res) => {
-  const userData = await User.findOne({
-    $or: [
-      { email: req.body.email },
-      { cropid: req.body.cropid },
-      { mobileNumber: req.body.phone },
-    ],
-  })
+  // const userData = await User.findOne({
+  //   $or: [
+  //     { email: req.body.email },
+  //     { cropid: req.body.cropid },
+  //     { mobileNumber: req.body.phone },
+  //   ],
+  // })
+
   try {
+    const userData = await User.findOne({
+      $or: [
+        { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+        { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+        { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+      ],
+    })
     const forgotpassword = await User.findOne({ email: userData.email })
 
     if (!forgotpassword) {
@@ -743,30 +791,86 @@ router.put("/forget", async (req, res) => {
   }
 })
 
+// router.put("/forgetpassword", async (req, res) => {
+//   let email = req.body.email
+//   const userData = await User.findOne({
+//     $or: [
+//       { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+//       { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+//       { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+//     ],
+//   })
+//   try {
+//     //updating the password in the database
+//     if (
+//       req.body.email != "" &&
+//       req.body.password != "" &&
+//       req.body.email != null &&
+//       req.body.password != null &&
+//       req.body.email != undefined &&
+//       req.body.password != undefined
+//     ) {
+//       const hashedPassword = await bcrypt.hash(req.body.password, 10)
+//       const emailFind = await User.findOne({ email: email })
+//       if (emailFind) {
+//         const result = await User.updateOne(
+//           { email: email },
+//           { $set: { password: hashedPassword } }
+//         )
+//         if (result) {
+//           createCustomerAudit(result._id, "Password changed Successfully")
+//         }
+//         res.status(200).send({
+//           message: "Password changed Successfully",
+//           status: "true",
+//           data: [],
+//         })
+//       } else {
+//         res
+//           .status(500)
+//           .send({ message: "No email found", status: "false", data: [] })
+//       }
+//     } else {
+//       res.status(500).send({
+//         message: "Email and Password should not be empty",
+//         status: "false",
+//         data: [],
+//       })
+//     }
+//   } catch (err) {
+//     console.log(err)
+//     res
+//       .status(500)
+//       .send({ message: "Error Message", status: "false", data: err })
+//   }
+// })
 router.put("/forgetpassword", async (req, res) => {
   let email = req.body.email
-  const userData = await User.findOne({
-    $or: [
-      { email: req.body.email },
-      { cropid: req.body.cropid },
-      { mobileNumber: req.body.phone },
-    ],
-  })
   try {
     //updating the password in the database
     if (
-      req.body.email != "" &&
+      req.body.cropid!=null &&
+      req.body.cropid!=undefined &&
+      req.body.phone!=null &&
+      req.body.phone!=undefined &&
       req.body.password != "" &&
       req.body.email != null &&
       req.body.password != null &&
       req.body.email != undefined &&
       req.body.password != undefined
     ) {
+      const userData = await User.findOne({
+        $or: [
+          { email: req.body.email!=null && req.body.email!=undefined && req.body.email!="" ? req.body.email : null },
+          { cropid: req.body.cropid!=null && req.body.cropid!=undefined && req.body.cropid!=""  ? parseInt(req.body.cropid) : null },
+          { mobileNumber: req.body.phone!=null && req.body.phone!=undefined && req.body.phone!= "" ? req.body.phone : null },
+        ],
+      })
       const hashedPassword = await bcrypt.hash(req.body.password, 10)
-      const emailFind = await User.findOne({ email: email })
+      const emailFind = await User.findOne({ email: userData.email })
       if (emailFind) {
         const result = await User.updateOne(
-          { email: email },
+          { email: userData.email },
           { $set: { password: hashedPassword } }
         )
         if (result) {
@@ -843,6 +947,9 @@ router.put("/updateprofile", async (req, res) => {
 
   try {
     const id = token_data.user
+    const findEmailorPhno = await User.find({mobileNumber:req.body.mobileNumber}).count();
+
+    if(findEmailorPhno==0 || findEmailorPhno=="0"){
     const result = await User.findByIdAndUpdate({ _id: id }, req.body)
     //       const result= await User.updateOne({_id:token_data.user},{$set:{
     //          name:req.body.name,
@@ -864,10 +971,14 @@ router.put("/updateprofile", async (req, res) => {
 
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
-    if (result) {
-      createCustomerAudit(result._id, "Profile Updated successfully")
+      if (result) {
+        createCustomerAudit(result._id, "Profile Updated successfully")
+      }
+      res.send({ message: "Updated successfully", status: "true", data: result })
     }
-    res.send({ message: "Updated successfully", status: "true", data: result })
+    else{
+      res.send({ message: "Phno already registered try another", status: "false", data: [] })
+    }
   } catch (err) {
     console.log(err)
     res
@@ -875,6 +986,7 @@ router.put("/updateprofile", async (req, res) => {
       .send({ message: "Internal Server error", status: "false", data: err })
   }
 })
+
 router.post("/community", async (req, res) => {
   try{
     let token = req.headers.authorization

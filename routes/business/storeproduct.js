@@ -11,7 +11,9 @@ const {
   getBiddingSelectedStoreProductsDetailsByBusiness,
   getAllStoreProducts,
   getStorePromoProductsByBusiness,
+  uploadStoreProductImages,
 } = require("../../controller/businessController/storeproducts")
+const { upload } = require("../../utils/imageUpload")
 
 // router
 const router = express.Router()
@@ -42,5 +44,10 @@ router.put("/:id", updateStoreProduct)
 router.delete("/:id", removeStoreProduct)
 
 router.get("/get-all-store-products/:pageNo/:limit", getAllStoreProducts)
+router.post(
+  "/image/:productId",
+  upload.array("file", 20),
+  uploadStoreProductImages
+)
 
 module.exports = router
