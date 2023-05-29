@@ -58,6 +58,9 @@ const {
   getPaymentNotification,
   getRedeemNotification,
 } = require("../../controller/businessController/businessNotification/invoiceAndPaymentNotification.js")
+const {
+  getEarnCropProductsSaleCountByMonth,
+} = require("../../controller/businessController/dasboard.js")
 
 router.post("/email-register-otp", emailRegisterOtp)
 router.post("/mobile-register-otp", mobileRegisterOtp)
@@ -149,12 +152,14 @@ router.post(
 )
 
 router.post("/sales-notification", authorization, createSalesNotification)
-router.post(
-  "/create-payment-notification",
+router.get("/get-payment-notification", authorization, getPaymentNotification)
+router.get("/get-redeem-notification", authorization, getRedeemNotification)
+
+router.get(
+  "/dashboard/get-earncrop-product",
   authorization,
-  getPaymentNotification
+  getEarnCropProductsSaleCountByMonth
 )
-router.post("/create-redeem-notification", authorization, getRedeemNotification)
 
 
 module.exports = router

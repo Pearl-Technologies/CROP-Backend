@@ -45,9 +45,11 @@ const getPaymentNotification = async (req, res) => {
       $project: {
         product: "$item",
         price: "$item.price",
+        image: "$item.image",
         type: 1,
         desc: 1,
         purchaseOrder: 1,
+        createdAt: 1,
       },
     },
   ]
@@ -162,10 +164,12 @@ const getRedeemNotification = async (req, res) => {
     {
       $project: {
         product: "$item",
-        price: "$item.price",
+        redeemCrops: "$item.ruleAppliedCrops",
         type: 1,
         desc: 1,
+        image: 1,
         redeemOrder: 1,
+        createdAt: 1,
       },
     },
   ]

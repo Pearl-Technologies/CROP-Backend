@@ -11,6 +11,8 @@ const {
 const business = require("../../models/businessModel/business")
 const NodeGeocoder = require("node-geocoder")
 const mongoose = require("mongoose")
+const adminBusinessGeneralNotification = require("../../models/admin/notification/businessGeneralNotification")
+const generalNotification = require("../../models/businessModel/businessNotification/generalNotification")
 const ObjectId = mongoose.Types.ObjectId
 
 // addAllProducts
@@ -23,8 +25,20 @@ module.exports.addProduct = async (req, res) => {
     req.body.city = busi.address[0].city
     req.body.croppoints = req.body.price
     const newProduct = new Product(req.body)
-    await newProduct.save()
-    console.log(newProduct, "newProduct")
+    const product = await newProduct.save()
+    const adminProductCreateNotification =
+      await adminBusinessGeneralNotification.findOne({})
+    let desc = adminProductCreateNotification.upload_and_removal_of_offer
+    const newProductNotifiaction = new generalNotification({
+      type: "productCreation",
+      desc,
+      businessId: id,
+      newProduct: {
+        productId: product._id,
+        productTitle: product.title,
+      },
+    })
+    await newProductNotifiaction.save()
     res.status(200).send({
       message: "Product added successfully",
       productId: newProduct._id,
@@ -223,7 +237,20 @@ module.exports.updateProduct = async (req, res) => {
 module.exports.removeProduct = async (req, res) => {
   const { id } = req.params
   try {
-    await Product.findByIdAndRemove({ _id: id })
+    const removedProduct = await Product.findByIdAndRemove({ _id: id })
+    console.log({ removedProduct })
+    const adminProductCreateNotification =
+      await adminBusinessGeneralNotification.findOne({})
+    let desc = adminProductCreateNotification.upload_and_removal_of_offer
+    const productRemovalNotifiaction = new generalNotification({
+      type: "productRemoval",
+      desc,
+      businessId: removedProduct.user,
+      removedProduct: {
+        productTitle: removedProduct.title,
+      },
+    })
+    await productRemovalNotifiaction.save()
     res
       .status(200)
       .json({ status: "success", msg: "Product Removed Successfully" })
@@ -1177,13 +1204,13 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
               if: {
                 $and: [
                   {
-                    $gt: [
+                    $gte: [
                       today,
                       { $arrayElemAt: ["$bonusCrops.bonusCrop.fromDate", 0] },
                     ],
                   },
                   {
-                    $lt: [
+                    $lte: [
                       today,
                       { $arrayElemAt: ["$bonusCrops.bonusCrop.toDate", 0] },
                     ],
