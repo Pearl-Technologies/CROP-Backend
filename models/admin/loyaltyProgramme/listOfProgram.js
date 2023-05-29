@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const loyalityProgrammeList = mongoose.model('loyaltyProgrammeList', { 
-    programmeId:{type:Number, require:true},
+const loyalityProgrammeList = mongoose.model('admin_loyaltyProgrammeList', { 
     programmeName:{type:String, require:true},       
     user: {
       type: mongoose.Schema.Types.ObjectId,

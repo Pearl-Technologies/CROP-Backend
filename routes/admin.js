@@ -110,7 +110,8 @@ const {createCategory, getCategories, updateCategory, getCategoryById, deleteCat
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
 const {getPurchasedProductStatement, getBusinessCropStatement} =require("../controller/adminController/BusinessData/business")
 const {productPurchaseTrasaction, pointPurchaseTrasaction, getAllLikedProductByUser, getAllRatedProductByUser} =require('../controller/adminController/CustomerData/customer')
-const {addLoyaltyProgramme} = require('../controller/adminController/loyaltyList/loyaltyProgramme');
+const {addLoyaltyProgramme, getLoyaltyProgramme, updateLoyaltyProgramme, deleteLoyaltyProgramme} = require('../controller/adminController/loyaltyList/loyaltyProgramme');
+const {addInterestName, getInterestList, updateInterest, deleteInterest} =require("../controller/adminController/InterestList/interestList")
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -252,7 +253,14 @@ router.get("/getAllPropTrasactionByAdmin", getAllPropTrasactionByAdmin)
 router.get("/productPurchaseTrasaction", productPurchaseTrasaction)
 router.get("/pointPurchaseTrasaction", pointPurchaseTrasaction)
 router.post("/getBusinessCropStatement", getBusinessCropStatement)
-router.post("/addLoyaltyProgramme", addLoyaltyProgramme)
+router.post("/addLoyaltyProgramme",verifyToken, addLoyaltyProgramme)
+router.get("/getLoyaltyProgramme", verifyToken, getLoyaltyProgramme)
+router.post("/updateLoyaltyProgramme", verifyToken, updateLoyaltyProgramme)
+router.post("/deleteLoyaltyProgramme", verifyToken, deleteLoyaltyProgramme)
+router.post("/addInterestName",verifyToken, addInterestName)
+router.get("/getInterestList", verifyToken, getInterestList)
+router.post("/updateInterest", verifyToken, updateInterest)
+router.post("/deleteInterest", verifyToken, deleteInterest)
 // router.post("/paymentLink", paymentLink);
 //customer data
 
@@ -271,7 +279,6 @@ router.get("/getCategories", getCategories)
 
 //
 //Business data
-
 router.post("/getAllBusiness", getAllBusiness)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
