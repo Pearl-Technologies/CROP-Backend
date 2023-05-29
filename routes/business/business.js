@@ -59,7 +59,7 @@ const {
   getRedeemNotification,
 } = require("../../controller/businessController/businessNotification/invoiceAndPaymentNotification.js")
 const {
-  getEarnCropProductsSaleCountByMonth,
+  getProductsSaleCountByMonthlyWise,
 } = require("../../controller/businessController/dasboard.js")
 
 router.post("/email-register-otp", emailRegisterOtp)
@@ -156,9 +156,9 @@ router.get("/get-payment-notification", authorization, getPaymentNotification)
 router.get("/get-redeem-notification", authorization, getRedeemNotification)
 
 router.get(
-  "/dashboard/get-earncrop-product",
+  "/dashboard/get-product-sale-count-monthly",
   authorization,
-  getEarnCropProductsSaleCountByMonth
+  getProductsSaleCountByMonthlyWise
 )
 
 
