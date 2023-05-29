@@ -5,7 +5,7 @@ const adminCustomerComplain = mongoose.model('Admin_customer_complain', {
     complainType:{type:String, required:true},
     preferredMediumContact:{type:String, required:true},
     complainNumber:{type:String, required:true},
-    complainStatus:{type:String, default:"received"},
+    complainStatus:{type:String, default:"open"},
     complainUpdateDate:{type:Date, default:Date.now},
     complainResponse:{type:String, default:""},
     createdAt:{type:Date, default:Date.now},   

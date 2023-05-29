@@ -27,6 +27,22 @@ module.exports.addStoreProduct = async (req, res) => {
     })
   }
 }
+
+module.exports.uploadStoreProductImages = async (req, res) => {
+  try {
+    const productId = req.params.productId
+    const fileName = req.files[0].filename
+    console.log(fileName, "fileName")
+    await StoreProduct.findByIdAndUpdate(
+      { _id: productId },
+      { $push: { image: fileName } }
+    )
+    return res.status(200).send({ success: true })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports.getAllStoreProductsByBusiness = async (req, res) => {
   console.log("running")
   const user = req.user.user.id

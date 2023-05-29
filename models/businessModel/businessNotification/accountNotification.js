@@ -5,35 +5,40 @@ const mongoose = require("mongoose");
 // Pin Change
 // Program Change
 
-const accountNotificationSchema = mongoose.Schema({ 
-    type:{type:String, required: true},
-    desc:{type:String, required:true},    
+const accountNotificationSchema = mongoose.Schema(
+  {
+    type: { type: String, required: true },
+    desc: { type: String, required: true },
     businessId: { type: mongoose.Schema.Types.ObjectId, required: true },
     pointsTransaction: {
-        givenCrops: String,
-        redeemedCrops: String,
-        totalCrops: String
+      earnedCrops: String,
+      redeemedCrops: String,
+      totalCrops: String,
     },
     sales: {
-        totalProducts: {type: Number},
-        totalAmount: {type: Number}
+      earnProducts: [{}],
+      redeemProducts: [{}],
+      totalProducts: { type: Number },
+      earnProductTotalAmount: { type: Number },
     },
     pointsOffered: {
-        type: String,
-        crops: Number
+      type: String,
+      crops: Number,
     },
     // baseThresholdLimit: {}
     transfer: {
-        type: { type: String },
-        crops: {type: Number}
+      type: { type: String },
+      crops: { type: Number },
     },
     statementGeneration: {
-        statementId: {type: mongoose.Schema.Types.ObjectId}
+      statementId: { type: mongoose.Schema.Types.ObjectId },
     },
-    readed: {type: Boolean, default: false}
-}, {
-     timestamps: true
- });
+    readed: { type: Boolean, default: false },
+  },
+  {
+    timestamps: true,
+  }
+)
 
  const accountNotification = mongoose.model('business_account_notification', accountNotificationSchema)
 

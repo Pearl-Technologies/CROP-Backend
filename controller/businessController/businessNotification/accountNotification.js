@@ -28,7 +28,10 @@ const createPointsTransactionNotification = async (req, res) => {
   const currentDate = new Date()
   console.log({ currentDate })
   try {
-    const statement = await invoiceAndPaymentNotification.aggregate([
+    const getAdminBusinessNotification =
+      await adminBusinessAccountNotification.findOne({})
+    const desc = getAdminBusinessNotification.points_transaction
+    const pointsTransactions = await invoiceAndPaymentNotification.aggregate([
       {
         $match: {
           businessId: new ObjectId(businessId),
@@ -40,65 +43,113 @@ const createPointsTransactionNotification = async (req, res) => {
           },
         },
       },
-
       {
-        $lookup: {
-          from: "customer_payment_trackers",
-          localField: "purchaseOrder.orderId",
-          foreignField: "_id",
-          as: "orders",
-        },
-      },
-      {
-        $unwind: {
-          path: "$orders",
-        },
-      },
-      {
-        $unwind: {
-          path: "$orders.cartDetails.cartItems",
-        },
-      },
-      {
-        $addFields: {
-          item: "$orders.cartDetails.cartItems",
-        },
-      },
-      {
-        $addFields: {
-          user: "$item.user",
-        },
-      },
-      {
-        $match: {
-          user: businessId,
-        },
-      },
-      {
-        $group: {
-          _id: "$type",
-          earnTotal: {
-            $sum: {
-              $cond: [
-                { $eq: ["$type", "Earn Crop"] },
-                "$item.cropRulesWithBonus",
-                0,
-              ],
+        $facet: {
+          earnTransactions: [
+            {
+              $lookup: {
+                from: "customer_payment_trackers",
+                localField: "purchaseOrder.orderId",
+                foreignField: "_id",
+                as: "orders",
+              },
             },
-          },
-          redeemTotal: {
-            $sum: {
-              $cond: [
-                { $eq: ["$type", "Redeem Crop"] },
-                "$item.cropRulesWithBonus",
-                0,
-              ],
+            {
+              $unwind: "$orders",
             },
-          },
+            {
+              $unwind: "$orders.cartDetails.cartItems",
+            },
+            {
+              $addFields: {
+                item: "$orders.cartDetails.cartItems",
+              },
+            },
+            {
+              $addFields: {
+                user: "$item.user",
+              },
+            },
+            {
+              $match: {
+                user: businessId,
+                type: "Earn Crop",
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                earnTotal: {
+                  $sum: "$item.cropRulesWithBonus",
+                },
+              },
+            },
+          ],
+          redeemTransactions: [
+            {
+              $lookup: {
+                from: "customerredeemtrackers",
+                localField: "redemptionOrder.orderId",
+                foreignField: "_id",
+                as: "orders",
+              },
+            },
+            {
+              $unwind: "$orders",
+            },
+            {
+              $unwind: "$orders.cartDetails.cartItems",
+            },
+            {
+              $addFields: {
+                item: "$orders.cartDetails.cartItems",
+              },
+            },
+            {
+              $addFields: {
+                user: "$item.user",
+              },
+            },
+            {
+              $match: {
+                user: businessId,
+                type: "Redeem Crop",
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                redeemTotal: {
+                  $sum: "$item.cropRulesWithBonus",
+                },
+              },
+            },
+          ],
         },
       },
-    ])
-    return res.status(200).send({ statement })
+      {
+        $project: {
+          _id: 0,
+          earnTotal: { $arrayElemAt: ["$earnTransactions.earnTotal", 0] },
+          redeemTotal: { $arrayElemAt: ["$redeemTransactions.redeemTotal", 0] },
+        },
+      },
+    ]);
+    console.log(pointsTransactions)
+    if (pointsTransactions.length > 0) {
+      const pointsTransactionNotification = await new accountNotification({
+        type: "pointsTransaction",
+        businessId,
+        desc,
+        pointsTransaction: {
+          earnedCrops: pointsTransactions[0].earnTotal,
+          redeemedCrops: pointsTransactions[0].redeemTotal,
+        },
+      })
+      const pointNotification = await pointsTransactionNotification.save()
+      return res.status(200).send({ pointNotification })
+    }
+    return res.status(200).send("Today Point Transaction Not Happened")
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
@@ -108,9 +159,8 @@ const createPointsTransactionNotification = async (req, res) => {
 const createSalesNotification = async (req, res) => {
   const businessId = req.user.user.id
   const currentDate = new Date()
-  console.log({ currentDate })
   try {
-    const statement = await invoiceAndPaymentNotification.aggregate([
+    const endOftheProductSold = await invoiceAndPaymentNotification.aggregate([
       {
         $match: {
           businessId: new ObjectId(businessId),
@@ -158,23 +208,56 @@ const createSalesNotification = async (req, res) => {
       },
       {
         $group: {
-          _id: "$type",
-          items: { $push: "$item" },
+          _id: null,
+          earnItems: {
+            $push: {
+              $cond: [{ $eq: ["$type", "Earn Crop"] }, "$item", null],
+            },
+          },
+          redeemItems: {
+            $push: {
+              $cond: [{ $eq: ["$type", "Redeem Crop"] }, "$item", null],
+            },
+          },
         },
       },
       {
         $project: {
           _id: 0,
-          type: "$_id",
           earnItems: {
-            $cond: [{ $eq: ["$_id", "Earn Crop"] }, "$items", []],
+            $filter: {
+              input: "$earnItems",
+              as: "item",
+              cond: { $ne: ["$$item", null] },
+            },
           },
           redeemItems: {
-            $cond: [{ $eq: ["$_id", "Redeem Crop"] }, "$items", []],
+            $filter: {
+              input: "$redeemItems",
+              as: "item",
+              cond: { $ne: ["$$item", null] },
+            },
           },
         },
       },
     ])
+    if (endOftheProductSold.length > 0) {
+      console.log(
+        "count",
+        endOftheProductSold[0].earnItems.length +
+          endOftheProductSold[0].redeemItems.length
+      )
+      const salesNotification = new accountNotification({
+        type: "sales",
+        businessId: 1,
+        earnProducts: endOftheProductSold[0].earnItems,
+        redeemProducts: endOftheProductSold[0].redeemItems,
+        totalProducts:
+          endOftheProductSold[0].earnItems.length +
+          endOftheProductSold[0].redeemItems.length,
+        earnProductTotalAmount: { type: Number },
+      })
+    }
     return res.status(200).send({ statement })
   } catch (error) {
     console.log(error)
@@ -229,3 +312,110 @@ module.exports = {
   createSalesNotification,
   createProgramChangesNotification,
 }
+
+
+// const createPointsTransactionNotification = async (req, res) => {
+//   const businessId = req.user.user.id
+//   const currentDate = new Date()
+//   console.log({ currentDate })
+//   try {
+//     const getAdminBusinessNotification =
+//       await adminBusinessAccountNotification.findOne({})
+//     const desc = getAdminBusinessNotification.points_transaction
+//     const pointsTransactions = await invoiceAndPaymentNotification.aggregate([
+//       {
+//         $match: {
+//           businessId: new ObjectId(businessId),
+//           $expr: {
+//             $eq: [
+//               { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+//               { $dateToString: { format: "%Y-%m-%d", date: currentDate } },
+//             ],
+//           },
+//         },
+//       },
+
+//       {
+//         $lookup: {
+//           from: "customer_payment_trackers",
+//           localField: "purchaseOrder.orderId",
+//           foreignField: "_id",
+//           as: "orders",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$orders",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$orders.cartDetails.cartItems",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           item: "$orders.cartDetails.cartItems",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           user: "$item.user",
+//         },
+//       },
+//       {
+//         $match: {
+//           user: businessId,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: null,
+//           earnTotal: {
+//             $sum: {
+//               $cond: [
+//                 { $eq: ["$type", "Earn Crop"] },
+//                 "$item.cropRulesWithBonus",
+//                 0,
+//               ],
+//             },
+//           },
+//           redeemTotal: {
+//             $sum: {
+//               $cond: [
+//                 { $eq: ["$type", "Redeem Crop"] },
+//                 "$item.cropRulesWithBonus",
+//                 0,
+//               ],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           earnTotal: 1,
+//           redeemTotal: 1,
+//         },
+//       },
+//     ])
+//     console.log(pointsTransactions)
+//     if (pointsTransactions.length > 0) {
+//       const pointsTransactionNotification = await new accountNotification({
+//         type: "pointsTransaction",
+//         businessId,
+//         desc,
+//         pointsTransaction: {
+//           earnedCrops: pointsTransactions[0].earnTotal,
+//           redeemedCrops: pointsTransactions[0].redeemTotal,
+//         },
+//       })
+//       const pointNotification = await pointsTransactionNotification.save()
+//       return res.status(200).send({ pointNotification })
+//     }
+//     return res.status(200).send("Today Point Transaction Not Happened")
+//   } catch (error) {
+//     console.log(error)
+//     return res.status(500).send("Internal Server Error")
+//   }
+// }

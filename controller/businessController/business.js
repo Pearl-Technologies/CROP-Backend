@@ -18,6 +18,7 @@ const { Product } = require("../../models/businessModel/product")
 const invoiceAndPaymentNotification = require("../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
 const mongoose = require("mongoose")
 const accountNotification = require("../../models/businessModel/businessNotification/accountNotification")
+const { smsOTP } = require("../../utils/smsOtp")
 const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"
@@ -37,6 +38,28 @@ const emailRegisterOtp = async (req, res) => {
     const otpType = "Business Registration"
     const userType = "Business"
     return sendMail(email, subject, msg, resMsg, otpType, userType, res)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+const mobileRegisterOtp = async (req, res) => {
+  const { mobile } = req.body
+  try {
+    // const businessFind = await business.find({ mobile })
+    // if (businessFind.length > 0) {
+    //   return res
+    //     .status(409)
+    //     .send({ success: false, msg: "Mobile Number Already Exist" })
+    // }
+    // const subject = "Crop Business Account Registration OTP"
+    // const msg = "Registration OTP"
+    // const resMsg = "OTP Sent Successfully"
+    // const otpType = "Business Registration"
+    // const userType = "Business"
+    const otp = await smsOTP()
+    return otp
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
@@ -697,28 +720,28 @@ const getHolidayByState = async (req, res) => {
   }
 }
 
-// const updateAddress = async () => {
-//   const line1 = Math.floor(100 + Math.random() * 900)
-//   await business.updateMany({}, [
-//     {
-//       $set: {
-//         address: {
-//           $map: {
-//             input: "$address",
-//             as: "addr",
-//             in: {
-//               line1: line1,
-//               line2: "line2",
-//               state: "$$addr.state",
-//               pincode: { $toInt: "$$addr.pincode" },
-//             },
-//           },
-//         },
-//       },
-//     },
-//   ])
-//   console.log("address updated")
-// }
+const updateAddress = async () => {
+  const line1 = Math.floor(100 + Math.random() * 900)
+  await business.updateMany({}, [
+    {
+      $set: {
+        address: {
+          $map: {
+            input: "$address",
+            as: "addr",
+            in: {
+              line1: line1,
+              line2: "line2",
+              state: "$$addr.state",
+              pincode: { $toInt: "$$addr.pincode" },
+            },
+          },
+        },
+      },
+    },
+  ])
+  console.log("address updated")
+}
 // // #00448b
 // // #549cda
 // updateAddress()
@@ -947,6 +970,7 @@ const creditMissingCropsByBusiness = async (req, res) => {
 
 module.exports = {
   emailRegisterOtp,
+  mobileRegisterOtp,
   verifyRegisterOtp,
   verifyAdbnNumber,
   createBusinessAccount,
