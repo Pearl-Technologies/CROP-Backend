@@ -277,7 +277,7 @@ router.post("/emailphone", async (req, res) => {
   }
 })
 
-router.post("/emailphoneverify", async (req, res) => {
+router.post("/emailphoneverify2", async (req, res) => {
   const otp = req.body.otp
   const phone = req.body.phone
   // const email = req.body.email
@@ -324,6 +324,84 @@ router.post("/emailphoneverify", async (req, res) => {
     }
   }
 })
+
+router.post("/emailphoneverify", async (req, res) => {
+  const otp = req.body.otp
+  const phone = req.body.phone
+  const email = req.body.email
+
+  if (email === "") {
+    client.verify.v2
+      .services(verifySid)
+      .verificationChecks.create({ to: phone, code: otp })
+      .then(verification =>
+        res.status(200).send({
+          message: "Otp verified successfully",
+          status: "true",
+          data: [],
+        })
+      )
+      .catch(() =>
+        res.status(500).send({ message: "Enter the correct otp", status: "false", data: [] })
+      )
+  } else {
+    const userData = await Otp.findOne({ email: email })
+    //if the email id is not present send the error message
+    if (userData.otp == otp) {
+      const result = await Otp.updateOne(
+        { email: email },
+        { $set: { status: true } }
+      )
+
+      return res
+        .status(200)
+        .send({ message: "valid otp", status: "true", data: [] })
+    } else {
+      return res
+        .status(409)
+        .send({ message: "Invalid otp", status: "false", data: [] })
+    }
+  }
+})
+
+// router.post("/emailphoneverify", async (req, res) => {
+//   const otp = req.body.otp
+//   const phone = req.body.phone
+//   const email = req.body.email
+
+//   if (email === "") {
+//     client.verify.v2
+//       .services(verifySid)
+//       .verificationChecks.create({ to: phone, code: otp })
+//       .then(verification =>
+//         res.status(200).send({
+//           message: "Otp verified successfully",
+//           status: "true",
+//           data: [],
+//         })
+//       )
+//       .catch(() =>
+//         res.status(500).send({ message: "Enter the correct otp", status: "false", data: [] })
+//       )
+//   } else {
+//     const userData = await Otp.findOne({ email: email })
+//     //if the email id is not present send the error message
+//     if (userData.otp == otp) {
+//       const result = await Otp.updateOne(
+//         { email: email },
+//         { $set: { status: true } }
+//       )
+
+//       return res
+//         .status(200)
+//         .send({ message: "valid otp", status: "true", data: [] })
+//     } else {
+//       return res
+//         .status(409)
+//         .send({ message: "Invalid otp", status: "false", data: [] })
+//     }
+//   }
+// })
 
 router.put("/changepassword", async (req, res) => {
   try {
@@ -787,7 +865,7 @@ router.put("/forget", async (req, res) => {
       }
     })
   } catch (err) {
-    res.status(500).send({ message: "Enter the registered mail-id", data: err })
+    res.status(500).send({ message: "Enter the registered mail-id", data: err , status:false })
   }
 })
 
@@ -944,10 +1022,24 @@ router.put("/updateprofile", async (req, res) => {
   const token_data = await Token.findOne({ token: token })
   const currentDate = new Date()
   const formattedDate = currentDate.toLocaleDateString()
+  const {emailType,mobileType} = req.body;
 
   try {
     const id = token_data.user
-    const findEmailorPhno = await User.find({mobileNumber:req.body.mobileNumber}).count();
+    let findEmailorPhno;
+    console.log(emailType,mobileType)
+    if(mobileType==false && emailType==false){
+      findEmailorPhno = await User.find({$or:[{email:req.body.email},{mobileNumber:req.body.mobileNumber}]}).count();
+    }
+    else if(mobileType==false){
+    findEmailorPhno = await User.find({mobileNumber:req.body.mobileNumber}).count();
+    }
+    else if(emailType==false){
+      findEmailorPhno = await User.find({email:req.body.email}).count();
+    }
+    else{
+      findEmailorPhno=0;
+    }
 
     if(findEmailorPhno==0 || findEmailorPhno=="0"){
     const result = await User.findByIdAndUpdate({ _id: id }, req.body)
