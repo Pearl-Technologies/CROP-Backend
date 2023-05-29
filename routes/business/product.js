@@ -114,6 +114,11 @@ router.get(
   "/get-product-comments-ratings/:productId",
   getProductCommentAndRatingsByBusiness
 )
+router.get(
+  "/get-product-comments-ratings/:productId",
+  authorization,
+  getProductCommentAndRatingsByBusiness
+)
 
 
 module.exports = router;
