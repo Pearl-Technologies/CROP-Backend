@@ -104,8 +104,14 @@ router.put("/resendotp", async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "resetted password",
-      text: `OTP GENERATED ${otp}`,
+      subject: "OTP Generated",
+      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n
+      
+      (Generated at ${formattedDateTime})\n\n\n
+      
+      
+      ************************************\n
+      This is an auto-generated email. Do not reply to this email.`,
     }
 
     transporter.sendMail(mailOptions, async (err, result) => {
@@ -223,8 +229,14 @@ router.post("/emailphone", async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "resetted password",
-      text: `OTP GENERATED ${otp}`,
+      subject: "OTP Generated",
+      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n
+      
+      (Generated at ${formattedDateTime})\n\n\n
+      
+      
+      ************************************\n
+      This is an auto-generated email. Do not reply to this email.`,
     }
 
     transporter.sendMail(mailOptions, async (err, result) => {
@@ -602,6 +614,61 @@ router.post("/signup", async (req, res) => {
         type: method,
       }).save()
     }
+    if(req.body.email!= "" && req.body.email!= undefined){
+      const date = new Date();
+
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      };
+
+      const formattedDateTime = date.toLocaleString('en-US', options);
+
+      console.log(formattedDateTime);
+
+      const transporter = nodemailer.createTransport({
+        // service: "Gmail",
+        host: process.env.HOST,
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      })
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: req.body.email,
+        subject: "CROP Registration Succesfull",
+        text: `Welcome to CROP. Your account has been registered successfully\n\n
+
+        Email: ${req.body.email}\n
+        Password: ${req.body.password}\n\n
+        
+        (Generated at ${formattedDateTime})\n\n\n
+        
+        
+        ************************************\n
+        This is an auto-generated email. Do not reply to this email.`,
+      }
+    
+      transporter.sendMail(mailOptions, async(err, result) => {
+        if (err) {
+          console.log(err)
+          return res.status(500).send({
+            msg: "Enter the correct email id",
+            status: "false",
+            data: [],
+          })
+        } else {
+        }
+      })
+    }
+    
     let notification = await adminCustomerAccountNotification.find();
     notification = notification[0]._doc
     await new AccountNotificationCustomer({user_id: userData._id, message: notification.first_time_notification}).save();
@@ -845,8 +912,14 @@ router.put("/forget", async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: userEmail,
-      subject: "resetted password",
-      text: `OTP GENERATED ${otp}`,
+      subject: "OTP Generated",
+      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n
+      
+      (Generated at ${formattedDateTime})\n\n\n
+      
+      
+      ************************************\n
+      This is an auto-generated email. Do not reply to this email.`,
     }
     transporter.sendMail(mailOptions, (err, result) => {
       if (err) {
@@ -1409,13 +1482,15 @@ router.post("/getproductmissingcrop", async (req, res) => {
         })
       } else {
         res.status(200).json({
-          data: "The invoice date is more than 90 days ago.",
+          data: [],
+          message: "The invoice date is more than 90 days ago.",
           status: 200,
         })
       }
     } else {
       res.status(200).json({
-        data: "No invoice id found.",
+        data: [],
+        message: "No invoice id found.",
         status: 200,
       })
     }

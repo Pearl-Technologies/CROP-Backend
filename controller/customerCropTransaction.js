@@ -4,6 +4,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const { User } = require("../models/User");
 const {Token} = require("../models/User");
 const PDFDocument = require('pdfkit');
+const table = require('table');
 
 const fs = require('fs');
 const pdfPath = process.cwd() + "/uploads/";
@@ -307,22 +308,41 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
       doc.fontSize(10).text(`End Date: ${endDate}`);
       doc.moveDown();
 
+      // Convert transaction details to a table
+      const data = [['Order Number', 'Transaction Type', 'Crop', 'Amount', 'Description', 'Created At']];
       trasactionDetails.forEach((transaction) => {
-        doc.fontSize(10).text(`Order Number: ${transaction.orderNumber}`);
-        doc.fontSize(10).text(`Transaction Type: ${transaction.transactionType}`);
-        doc.fontSize(10).text(`Crop: ${transaction.crop}`);
-        doc.fontSize(10).text(`Amount: ${transaction.amount}`);
-        doc.fontSize(10).text(`Description: ${transaction.description}`);
-        doc.fontSize(10).text(`Created At: ${transaction.createdAt}`);
-        doc.moveDown();
+        data.push([
+          transaction.orderNumber,
+          transaction.transactionType,
+          transaction.crop,
+          transaction.amount,
+          transaction.description,
+          transaction.createdAt.toString(),
+        ]);
       });
+
+      // Configure table options
+      const tableConfig = {
+        columns: {
+          0: { width: 100 },
+          1: { width: 100 },
+          2: { width: 100 },
+          3: { width: 100 },
+          4: { width: 150 },
+          5: { width: 150 },
+        },
+      };
+
+      // Generate the table
+      const tableOutput = table.table(data, tableConfig);
+
+      // Add the table to the PDF document
+      doc.fontSize(10).text(tableOutput);
+      doc.moveDown();
 
       // Finalize the PDF document
       doc.end();
 
-      // writeStream.on('finish', () => {
-      //   console.log('PDF file created successfully');
-      // });
       const transporter = nodemailer.createTransport({
         host: process.env.HOST,
         service: process.env.SERVICE, //comment this line if you use custom server/domain
@@ -333,17 +353,17 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
           pass: process.env.EMAIL_PASS,
         },
       });
-
+      let nameCus = adddata[0].name;
       // Define the email options
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: adddata[0].email,
+        to: 'p.santhosh8888@gmail.com',
         subject: 'My Crop Transactions',
-        text: 'Please find attached the PDF of your crop transactions',
+        text: `Hi ${nameCus},\nPlease find attached the PDF of your crop transactions.\n\nCheers,\nTeam CROP`,
         attachments: [
           {
-            pdfPath,
-            content: fs.createReadStream(pdfPath),
+            filename: 'transaction_statement.pdf',
+            path: pdfPath,
           },
         ],
       };
@@ -360,10 +380,9 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
       });
 
       // Delete the PDF file after sending the email
-      // fs.unlinkSync(filename);
-    }
-    else{
-      return res.status(500).send({message: "Please sent start date and end date" });  
+      // fs.unlinkSync(pdfPath);
+    } else {
+      return res.status(500).send({ message: "Please send start date and end date" });
     }
   } catch (error) {
     console.log(error);
