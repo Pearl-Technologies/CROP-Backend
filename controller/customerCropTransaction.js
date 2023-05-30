@@ -339,7 +339,7 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: adddata[0].email,
         subject: 'My Crop Transactions',
-        text: 'Please find attached the PDF of your crop transactions',
+        text: `Hi ${adddata[0].name}\nPlease find attached the PDF of your crop transactions\n\nCheers,\nTeam CROP`,
         attachments: [
           {
             pdfPath,
