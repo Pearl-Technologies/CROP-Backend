@@ -618,7 +618,7 @@ router.get("/getCart", async (req, res) => {
           }
         }
         if (tempCart.length <= 0) {
-          res.status(200).send({ data: [], status: "true" });
+          res.status(200).send({ data: [], status: "false" });
         } else {
           res.status(200).send({
             data: {

@@ -2195,7 +2195,12 @@ module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
     const earnCropProducts = await this.getEarnCropProducts(req, res)
     const redeemCropProducts = await this.getRedeemCropProducts(req, res)
     // const promoProducts = await Product.find({})
-    const promoProducts = earnCropProducts.concat(redeemCropProducts)
+    if(redeemCropProducts.length != 0){
+      const promoProducts = earnCropProducts.concat(redeemCropProducts)  
+    }
+    else{
+      const promoProducts = earnCropProducts
+    }
     const promoProductsWithLimit = promoProducts.slice(startIndex, endIndex)
     console.log({ startIndex, endIndex })
     return res.status(200).send({
