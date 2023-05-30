@@ -313,7 +313,10 @@ module.exports.getEarnCropProducts = async (req, res) => {
     console.log({ day })
 
     const productDetails = await Product.aggregate([
-      { $match: { apply: "earnCrop", mktOfferFor: "promo", market: true } },
+      { $match: { apply: "earnCrop", mktOfferFor: "promo", market: true, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $lookup: {
           from: "business_croprules",
@@ -536,7 +539,10 @@ module.exports.getRedeemCropProducts = async (req, res) => {
     }
     console.log({ day })
     const productDetails = await Product.aggregate([
-      { $match: { apply: "redeemCrop", mktOfferFor: "promo", market: true } },
+      { $match: { apply: "redeemCrop", mktOfferFor: "promo", market: true, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $lookup: {
           from: "business_croprules",
@@ -1146,7 +1152,10 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     const lim = limit ? parseInt(limit, 10) : 10
     console.log({ match })
     const productDetails = await Product.aggregate([
-      { $match: { $and: match } },
+      { $match: { $and: match, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $sort: {
           bidPrice: -1,
@@ -1483,7 +1492,10 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
     console.log({ page }, "page")
     console.log({ lim }, "limit")
     const productDetails = await Product.aggregate([
-      { $match: { $and: match } },
+      { $match: { $and: match, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $sort: {
           bidPrice: -1,
@@ -2183,7 +2195,12 @@ module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
     const earnCropProducts = await this.getEarnCropProducts(req, res)
     const redeemCropProducts = await this.getRedeemCropProducts(req, res)
     // const promoProducts = await Product.find({})
-    const promoProducts = earnCropProducts.concat(redeemCropProducts)
+    if(redeemCropProducts.length != 0){
+      const promoProducts = earnCropProducts.concat(redeemCropProducts)  
+    }
+    else{
+      const promoProducts = earnCropProducts
+    }
     const promoProductsWithLimit = promoProducts.slice(startIndex, endIndex)
     console.log({ startIndex, endIndex })
     return res.status(200).send({

@@ -2,7 +2,7 @@ const customerPropTransaction = require('../models/PropTransaction');
 const mongoose = require('mongoose');
 const { User } = require("../models/User");
 const {Token} = require("../models/User");
-const pdfkit = require('pdfkit');
+const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const pdfPath = process.cwd() + "/uploads/";
 const nodemailer = require('nodemailer');
@@ -290,62 +290,34 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
         { $sort: { createdAt: -1 } },
       ]);
 
-      // Create a new PDF document
-      // const pdfDoc = new pdfkit();
       
-      // Set the filename for the PDF
-      // const filename = `MyCropTransaction-${new Date().toISOString()}.pdf`;
-      const filename = `MyPropTransaction.pdf`;
-      const writeStream = fs.createWriteStream('MyPropTransaction.pdf');
-      // pdfDoc.pipe(writeStream);
+      // Create a new PDF document
+      const doc = new PDFDocument();
 
-      // // Add content to the PDF document
-      // pdfDoc.text('My PDF Document');
-      // trasactionDetails.forEach(transaction => {
-      //   pdfDoc.fontSize(14).text(`Order Number: ${transaction.orderNumber}`);
-      //   pdfDoc.fontSize(12).text(`Transaction Type: ${transaction.transactionType}`);
-      //   pdfDoc.fontSize(12).text(`Crop: ${transaction.crop}`);
-      //   pdfDoc.fontSize(12).text(`Amount: ${transaction.amount}`);
-      //   pdfDoc.fontSize(12).text(`Description: ${transaction.description}`);
-      //   pdfDoc.fontSize(12).text(`Created At: ${transaction.createdAt}`);
-      //   });
-      // pdfDoc.end();
+      // Pipe the PDF document to a file
+      const pdfPath = 'transaction_statement.pdf';
+      const writeStream = fs.createWriteStream(pdfPath);
+      doc.pipe(writeStream);
 
-      const headers = ['Order Number', 'Transaction Type', 'Prop', 'Amount', 'Description', 'Created At'];
-const rows = trasactionDetails.map(transaction => [
-  transaction.orderNumber,
-  transaction.transactionType,
-  transaction.prop,
-  transaction.amount,
-  transaction.description,
-  transaction.createdAt,
-]);
+      // Add content to the PDF document
+      doc.fontSize(14).text('Transaction Statement', { align: 'center' });
+      doc.fontSize(12).text(`User: ${user}`);
+      doc.fontSize(10).text(`Start Date: ${startDate}`);
+      doc.fontSize(10).text(`End Date: ${endDate}`);
+      doc.moveDown();
 
-const docDefinition = {
-  content: [
-    { text: 'My Prop Transaction', style: 'header' },
-    {
-      table: {
-        headers: headers,
-        body: rows
-      }
-    }
-  ],
-  styles: {
-    header: {
-      fontSize: 18,
-      bold: true,
-      margin: [0, 0, 0, 10]
-    }
-  }
-};
+      trasactionDetails.forEach((transaction) => {
+        doc.fontSize(10).text(`Order Number: ${transaction.orderNumber}`);
+        doc.fontSize(10).text(`Transaction Type: ${transaction.transactionType}`);
+        doc.fontSize(10).text(`Crop: ${transaction.crop}`);
+        doc.fontSize(10).text(`Amount: ${transaction.amount}`);
+        doc.fontSize(10).text(`Description: ${transaction.description}`);
+        doc.fontSize(10).text(`Created At: ${transaction.createdAt}`);
+        doc.moveDown();
+      });
 
-const pdfDoc = new pdfkit();
-pdfDoc.pipe(writeStream).on('finish', () => {
-  console.log('PDF saved');
-});
-pdfDoc.text(JSON.stringify(docDefinition));
-pdfDoc.end();
+      // Finalize the PDF document
+      doc.end();
 
       // writeStream.on('finish', () => {
       //   console.log('PDF file created successfully');
@@ -365,12 +337,12 @@ pdfDoc.end();
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: adddata[0].email,
-        subject: 'My Prop Transactions',
-        text: 'Please find attached the PDF of your Prop transactions',
+        subject: 'My Crop Transactions',
+        text: `Hi ${adddata[0].name}\nPlease find attached the PDF of your crop transactions\n\nCheers,\nTeam CROP`,
         attachments: [
           {
-            filename,
-            content: fs.createReadStream(filename),
+            pdfPath,
+            content: fs.createReadStream(pdfPath),
           },
         ],
       };
