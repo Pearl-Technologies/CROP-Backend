@@ -262,7 +262,65 @@ const getBusinessCropStatement = async (req, res) => {
     return res.status(500).send({msg:"Internal Server Error"})
   }
 }
+const getBusinessProductRated = async(req, res)=>{
+  const { businessId } = req.body
+  try {
+    const productCommentsAndRatings = await Product.aggregate([
+      {
+        $match: { user: ObjectId(businessId) },
+      },
+      {
+        $lookup: {
+          from: "products_comments",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          details: { $arrayElemAt: ["$comments.details", 0] },
+        },
+      },
+      {
+        $addFields: {
+          averageRating: {
+            $cond: [
+              { $gt: [{ $size: { $ifNull: ["$details.rating", []] } }, 0] },
+              {
+                $divide: [
+                  {
+                    $reduce: {
+                      input: "$details.rating",
+                      initialValue: 0,
+                      in: { $add: ["$$value", "$$this"] },
+                    },
+                  },
+                  { $size: "$details.rating" },
+                ],
+              },
+              null,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          comments: 1,
+          averageRating: 1,
+        },
+      },
+    ])
 
+    console.log({ productCommentsAndRatings })
+    return res.status(200).send(productCommentsAndRatings)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
 const createStripeAccount = async()=>{
 //   const account = await stripe.accounts.create({
 //   country: 'AU',
@@ -289,5 +347,6 @@ module.exports = {
   getAllBusinessCrop,
   updateBusinessAccountStatus,
   getPurchasedProductStatement,
-  getBusinessCropStatement
+  getBusinessCropStatement,
+  getBusinessProductRated
 };
