@@ -720,28 +720,28 @@ const getHolidayByState = async (req, res) => {
   }
 }
 
-const updateAddress = async () => {
-  const line1 = Math.floor(100 + Math.random() * 900)
-  await business.updateMany({}, [
-    {
-      $set: {
-        address: {
-          $map: {
-            input: "$address",
-            as: "addr",
-            in: {
-              line1: line1,
-              line2: "line2",
-              state: "$$addr.state",
-              pincode: { $toInt: "$$addr.pincode" },
-            },
-          },
-        },
-      },
-    },
-  ])
-  console.log("address updated")
-}
+// const updateAddress = async () => {
+//   const line1 = Math.floor(100 + Math.random() * 900)
+//   await business.updateMany({}, [
+//     {
+//       $set: {
+//         address: {
+//           $map: {
+//             input: "$address",
+//             as: "addr",
+//             in: {
+//               line1: line1,
+//               line2: "line2",
+//               state: "$$addr.state",
+//               pincode: { $toInt: "$$addr.pincode" },
+//             },
+//           },
+//         },
+//       },
+//     },
+//   ])
+//   console.log("address updated")
+// }
 // // #00448b
 // // #549cda
 // updateAddress()
