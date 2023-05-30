@@ -1482,13 +1482,15 @@ router.post("/getproductmissingcrop", async (req, res) => {
         })
       } else {
         res.status(200).json({
-          data: "The invoice date is more than 90 days ago.",
+          data: [],
+          message: "The invoice date is more than 90 days ago.",
           status: 200,
         })
       }
     } else {
       res.status(200).json({
-        data: "No invoice id found.",
+        data: [],
+        message: "No invoice id found.",
         status: 200,
       })
     }

@@ -1148,6 +1148,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
         { city },
       ]
     }
+    console.log("Santhosh",req.query.search)
     const page = pageNo ? parseInt(pageNo, 10) : 1
     const lim = limit ? parseInt(limit, 10) : 10
     console.log({ match })
