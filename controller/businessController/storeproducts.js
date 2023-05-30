@@ -131,9 +131,15 @@ module.exports.getAllStoreProducts = async (req, res) => {
   const page = req.params.page || 1
   const skip = (page - 1) * limit
   try {
-    const storeProducts = await StoreProduct.find().skip(skip).limit(limit)
-    const storeProductsCount = await StoreProduct.find().countDocuments()
-    return res.status(200).send({ count: storeProductsCount, storeProducts })
+    const storeProducts = await StoreProduct.aggregate([
+      { $match: { $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+      ], } }]).skip(parseInt(skip)).limit(parseInt(limit))
+    const storeProductsCount = await StoreProduct.aggregate([
+      { $match: { $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+      ], } }])
+    return res.status(200).send({ count: storeProductsCount.length, storeProducts })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

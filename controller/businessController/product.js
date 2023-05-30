@@ -313,7 +313,10 @@ module.exports.getEarnCropProducts = async (req, res) => {
     console.log({ day })
 
     const productDetails = await Product.aggregate([
-      { $match: { apply: "earnCrop", mktOfferFor: "promo", market: true } },
+      { $match: { apply: "earnCrop", mktOfferFor: "promo", market: true, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $lookup: {
           from: "business_croprules",
@@ -536,7 +539,10 @@ module.exports.getRedeemCropProducts = async (req, res) => {
     }
     console.log({ day })
     const productDetails = await Product.aggregate([
-      { $match: { apply: "redeemCrop", mktOfferFor: "promo", market: true } },
+      { $match: { apply: "redeemCrop", mktOfferFor: "promo", market: true, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $lookup: {
           from: "business_croprules",
@@ -1146,7 +1152,10 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
     const lim = limit ? parseInt(limit, 10) : 10
     console.log({ match })
     const productDetails = await Product.aggregate([
-      { $match: { $and: match } },
+      { $match: { $and: match, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $sort: {
           bidPrice: -1,
@@ -1483,7 +1492,10 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
     console.log({ page }, "page")
     console.log({ lim }, "limit")
     const productDetails = await Product.aggregate([
-      { $match: { $and: match } },
+      { $match: { $and: match, $or: [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        // { description: { $regex: search, $options: 'i' } },
+      ], } },
       {
         $sort: {
           bidPrice: -1,
