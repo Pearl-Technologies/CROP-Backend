@@ -21,7 +21,7 @@ const createBusPinChangeNofication = async (req, res) => {
   }
 }
 
-const getBusPinChangeNofication = async (req, res) => {}
+const getBusPinChangeNotification = async (req, res) => {}
 
 const createPointsTransactionNotification = async (req, res) => {
   const businessId = req.user.user.id
