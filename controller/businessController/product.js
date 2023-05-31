@@ -1148,6 +1148,7 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
         { city },
       ]
     }
+    console.log("Santhosh",req.query.search)
     const page = pageNo ? parseInt(pageNo, 10) : 1
     const lim = limit ? parseInt(limit, 10) : 10
     console.log({ match })
@@ -2194,12 +2195,11 @@ module.exports.getPromoEarnAndRedeemProducts = async (req, res) => {
     const endIndex = startIndex + limit
     const earnCropProducts = await this.getEarnCropProducts(req, res)
     const redeemCropProducts = await this.getRedeemCropProducts(req, res)
-    // const promoProducts = await Product.find({})
-    if(redeemCropProducts.length != 0){
-      const promoProducts = earnCropProducts.concat(redeemCropProducts)  
-    }
-    else{
-      const promoProducts = earnCropProducts
+    let promoProducts = []
+    if (redeemCropProducts.length != 0) {
+      promoProducts = earnCropProducts.concat(redeemCropProducts)
+    } else {
+      promoProducts = earnCropProducts
     }
     const promoProductsWithLimit = promoProducts.slice(startIndex, endIndex)
     console.log({ startIndex, endIndex })

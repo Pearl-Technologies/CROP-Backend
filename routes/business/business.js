@@ -60,6 +60,8 @@ const {
 } = require("../../controller/businessController/businessNotification/invoiceAndPaymentNotification.js")
 const {
   getProductsSaleCountByMonthlyWise,
+  getProductsSaleCountByYear,
+  getProductsSaleCountByMonth,
 } = require("../../controller/businessController/dasboard.js")
 
 router.post("/email-register-otp", emailRegisterOtp)
@@ -155,6 +157,16 @@ router.post("/sales-notification", authorization, createSalesNotification)
 router.get("/get-payment-notification", authorization, getPaymentNotification)
 router.get("/get-redeem-notification", authorization, getRedeemNotification)
 
+router.get(
+  "/dashboard/get-product-sale-month",
+  authorization,
+  getProductsSaleCountByMonth
+)
+router.get(
+  "/dashboard/get-product-sale-year",
+  authorization,
+  getProductsSaleCountByYear
+)
 router.get(
   "/dashboard/get-product-sale-count-monthly",
   authorization,
