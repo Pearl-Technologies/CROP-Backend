@@ -104,7 +104,7 @@ const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransact
 const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
 // const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
-const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
+const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus, getBusinessProductRated} = require("../controller/adminController/BusinessData/business");
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
@@ -217,8 +217,8 @@ router.post("/createBusinessInvoice", createBusinessInvoice);
 router.post("/getAllBusinessInvoice", getAllBusinessInvoice);
 router.post("/getAllCustomerInvoice", getAllCustomerInvoice);
 router.post("/getPropValuation", getPropValuation);
-router.post("/createPropValuation", createPropValuation);
-router.post("/updatePropValuation", updatePropValuation);
+router.post("/createPropValuation", verifyToken, createPropValuation);
+router.post("/updatePropValuation", verifyToken, updatePropValuation);
 router.post("/createCustomerAccountNotification", createCustomerAccountNotification);
 router.post("/getCustomerAccountNotification", getCustomerAccountNotification);
 router.post("/updateCustomerAccountNotification", updateCustomerAccountNotification);
@@ -276,8 +276,7 @@ router.post("/updateCategory", verifyToken, upload.single('image'), updateCatego
 router.post("/getCategoryById", verifyToken, getCategoryById)
 router.post("/deleteCategory", verifyToken, deleteCategory)
 router.get("/getCategories", getCategories)
-
-
+router.get("/getBusinessProductRated", verifyToken, getBusinessProductRated)
 //
 //Business data
 router.post("/getAllBusiness", getAllBusiness)
@@ -288,6 +287,7 @@ router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
 router.post('/findBusinessInvoice', findBusinessInvoice);
 router.post('/getPurchasedProductStatement', getPurchasedProductStatement);
+
 //admin update
 const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
 router.post("/sendMail", sendMail)
