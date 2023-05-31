@@ -735,25 +735,38 @@ router.put("/logout", async (req, res) => {
   }
 })
 
+function isTokenExpired(token) {
+  try {
+    const decoded = jwt.verify(token, 'CROP@12345');
+    const currentTime = Math.floor(Date.now() / 1000); // Convert current time to seconds
+    return decoded.exp < currentTime;
+  } catch (error) {
+    // Token verification failed (invalid token)
+    return true;
+  }
+}
+
+
 router.get("/tokenCheck", async (req, res) => {
   try {
     let token = req.headers.authorization
-    const result = await Token.findOne({ token: token })
-    if (result) {
+    if (isTokenExpired(token)) {
+      console.log('Token has expired');
       res.status(200).send({
-        status: "true",
-        message: "Token active",
+        status: false,
+        message: "Token Inactive",
       })
     } else {
-      res.status(500).send({
-        status: "false",
-        message: "Token Inactive",
+      console.log('Token is still valid');
+      res.status(200).send({
+        status: true,
+        message: "Token active",
       })
     }
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [] })
+      .send({ message: "Internal Server error", status: false, data: [] })
   }
 })
 
