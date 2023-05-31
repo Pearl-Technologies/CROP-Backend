@@ -89,7 +89,18 @@ router.put("/resendotp", async (req, res) => {
   const phone = req.body.phone
   if (email) {
     var otp = Math.floor(100000 + Math.random() * 900000)
+    const date = new Date();
 
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    };
+
+    const formattedDateTime = date.toLocaleString('en-US', options);
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
       host: process.env.HOST,
@@ -105,13 +116,8 @@ router.put("/resendotp", async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "OTP Generated",
-      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n
-      
-      (Generated at ${formattedDateTime})\n\n\n
-      
-      
-      ************************************\n
-      This is an auto-generated email. Do not reply to this email.`,
+      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n(Generated at ${formattedDateTime})\n\n\n
+      ************************************\nThis is an auto-generated email. Do not reply to this email.`,
     }
 
     transporter.sendMail(mailOptions, async (err, result) => {
@@ -215,6 +221,18 @@ router.post("/emailphone", async (req, res) => {
     //         pass: "put your email password here"
     //     }
     // });
+    const date = new Date();
+
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      };
+
+      const formattedDateTime = date.toLocaleString('en-US', options);
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
       host: process.env.HOST,
@@ -230,13 +248,8 @@ router.post("/emailphone", async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "OTP Generated",
-      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n
-      
-      (Generated at ${formattedDateTime})\n\n\n
-      
-      
-      ************************************\n
-      This is an auto-generated email. Do not reply to this email.`,
+      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n(Generated at ${formattedDateTime})\n\n\n
+      ************************************\nThis is an auto-generated email. Do not reply to this email.`,
     }
 
     transporter.sendMail(mailOptions, async (err, result) => {
@@ -644,16 +657,8 @@ router.post("/signup", async (req, res) => {
         from: process.env.EMAIL_USER,
         to: req.body.email,
         subject: "CROP Registration Succesfull",
-        text: `Welcome to CROP. Your account has been registered successfully\n\n
-
-        Email: ${req.body.email}\n
-        Password: ${req.body.password}\n\n
-        
-        (Generated at ${formattedDateTime})\n\n\n
-        
-        
-        ************************************\n
-        This is an auto-generated email. Do not reply to this email.`,
+        text: `Welcome to CROP. Your account has been registered successfully\n\nEmail: ${req.body.email}\nPassword: ${req.body.password}\n\n
+        (Generated at ${formattedDateTime})\n\n\n************************************\nThis is an auto-generated email. Do not reply to this email.`,
       }
     
       transporter.sendMail(mailOptions, async(err, result) => {
@@ -898,7 +903,18 @@ router.put("/forget", async (req, res) => {
       { email: userEmail },
       { $set: { otp: otp } }
     )
+    const date = new Date();
 
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    };
+
+    const formattedDateTime = date.toLocaleString('en-US', options);
     const transporter = nodemailer.createTransport({
       // service: "Gmail",
       host: process.env.HOST,
@@ -913,13 +929,8 @@ router.put("/forget", async (req, res) => {
       from: process.env.EMAIL_USER,
       to: userEmail,
       subject: "OTP Generated",
-      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n
-      
-      (Generated at ${formattedDateTime})\n\n\n
-      
-      
-      ************************************\n
-      This is an auto-generated email. Do not reply to this email.`,
+      text: `Your one time email verification code is ${otp}, and is valid for 2 minutes.\n\n(Generated at ${formattedDateTime})\n\n\n
+      ************************************\nThis is an auto-generated email. Do not reply to this email.`,
     }
     transporter.sendMail(mailOptions, (err, result) => {
       if (err) {

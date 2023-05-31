@@ -1,4 +1,5 @@
 const adminPropValuation = require("../../models/admin/admin_prop_valuation");
+const admin = require('../../models/superAdminModel/user')
 const getPropValuation=async (req, res)=>{
     try {
         let propValuationData = await adminPropValuation.find({});
@@ -27,10 +28,15 @@ const createPropValuation= async(req, res)=>{
     }
 }
 const updatePropValuation = async(req, res)=>{
+    // console.log(req.body)
     // return res.send(req.body);
-    const {defaultProp, purchaseProp, user, _id} = req.body
+    const {defaultProp, purchaseProp, defaultCrop, purchaseCrop, _id} = req.body
+    const user = req.user.user.id;
     if(!defaultProp || !purchaseProp || defaultProp==="NaN" || purchaseProp === "NaN" ){
         return res.status(401).json({msg:"default PROP/purchase PROP should not be below 1"});
+    }
+    if(!defaultCrop || !purchaseCrop || defaultCrop==="NaN" || purchaseCrop === "NaN" ){
+        return res.status(401).json({msg:"default CROP/purchase CROP should be 0"});
     }
     try{
         let findRecord = await adminPropValuation.findOne({_id});
@@ -45,13 +51,26 @@ const updatePropValuation = async(req, res)=>{
         if(purchaseProp){
             newData.purchaseProp = purchaseProp;
         }
+        if(defaultCrop){
+            newData.defaultCrop=defaultCrop;
+        }
+        if(purchaseCrop){
+            newData.purchaseCrop = purchaseCrop;
+        }
         if(!defaultProp || defaultProp < 1){
             return res.status(401).json({msg:"default prop should not be below 1"}); 
         }
         if(!purchaseProp || purchaseProp < 1){
             return res.status(401).json({msg:"default prop should not be below 1"}); 
         }
-        if(findRecord.user.toString() !== user){
+        if(!defaultCrop || defaultCrop <= 0){
+            return res.status(401).json({msg:"default prop should not be 0 or below 0"}); 
+        }
+        if(!purchaseCrop || purchaseCrop <= 0){
+            return res.status(401).json({msg:"default prop should not be 0 or below 0"}); 
+        }
+        let findAdminUser = await admin.findOne({_id:user});
+        if(!findAdminUser){
             return res.status(401).json({msg:"sorry, you are not authorise"});    
         }
         await adminPropValuation.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
