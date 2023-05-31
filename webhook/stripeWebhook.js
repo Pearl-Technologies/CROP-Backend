@@ -71,7 +71,7 @@ const fulfillOrder = async (session) => {
   if (findOne) {
     await Product.findByIdAndUpdate(
       { _id: findOne.productId },
-      { $set: { status: "published", market: true } }
+      { $set: { status: "scheduled", market: true } }
     );
     await adminPaymentTracker.findByIdAndUpdate(
       { _id: findOne._id },

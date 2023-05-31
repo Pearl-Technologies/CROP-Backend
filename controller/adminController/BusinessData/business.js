@@ -3,6 +3,7 @@ const adminBusinessCrop = require("../../../models/admin/admin_business_crop");
 const invoiceAndPaymentNotification = require("../../../models/businessModel/businessNotification/invoiceAndPaymentNotification")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId
+const {Product} = require('../../../models/businessModel/product')
 const getLastFriday = require('../../../utils/dateHelper')
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
@@ -263,7 +264,7 @@ const getBusinessCropStatement = async (req, res) => {
   }
 }
 const getBusinessProductRated = async(req, res)=>{
-  const { businessId } = req.body
+  const { businessId } = req.query
   try {
     const productCommentsAndRatings = await Product.aggregate([
       {
@@ -308,17 +309,17 @@ const getBusinessProductRated = async(req, res)=>{
         $project: {
           _id: 1,
           title: 1,
+          sector:1,
+          image:1,
           comments: 1,
           averageRating: 1,
         },
       },
     ])
-
-    console.log({ productCommentsAndRatings })
-    return res.status(200).send(productCommentsAndRatings)
+    return res.status(200).send({productCommentsAndRatings})
   } catch (error) {
-    console.log(error)
-    return res.status(500).send("Internal Server Error")
+    // console.log(error)
+    return res.status(500).send({msg:"Internal Server Error"})
   }
 }
 const createStripeAccount = async()=>{

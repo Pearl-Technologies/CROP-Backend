@@ -276,8 +276,6 @@ router.post("/getCategoryById", verifyToken, getCategoryById)
 router.post("/deleteCategory", verifyToken, deleteCategory)
 router.get("/getCategories", getCategories)
 router.get("/getBusinessProductRated", verifyToken, getBusinessProductRated)
-
-
 //
 //Business data
 router.post("/getAllBusiness", getAllBusiness)
@@ -288,7 +286,7 @@ router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
 router.post('/findBusinessInvoice', findBusinessInvoice);
 router.post('/getPurchasedProductStatement', getPurchasedProductStatement);
-router.post()
+
 //admin update
 const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
 router.post("/sendMail", sendMail)
