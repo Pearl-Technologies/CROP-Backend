@@ -273,6 +273,7 @@ app.post(
               { new: true }
             );
           }
+          console.log("Check Invoice",session)
           SaveMyCropTrasaction(
             session.subtotal/100,
             customerCropPoint,
