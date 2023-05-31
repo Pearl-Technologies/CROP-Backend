@@ -505,6 +505,7 @@ const SaveMyCropTrasaction = async (
   invoiceUrl,
   invoicePdf,
 ) => {
+  console.log("Check Invoice",invoiceUrl);
   if (!crop || !transactionType || !orderNumber || !user) {
     return console.log("all field is required");
   }
