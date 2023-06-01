@@ -8,7 +8,7 @@ const {
   getAdminData,
   passwordResetEmail
 } = require("../controller/superAdminController/user");
-const { dashboard } = require("../controller/adminController/adminDashboard");
+const { dashboard, getDetailsCount, getSalesDeatils } = require("../controller/adminController/adminDashboard");
 const {
   getAccountBalance,
   updateAccountBalance,
@@ -293,4 +293,6 @@ const {sendMail, sendMassNotification}  = require("../controller/adminController
 router.post("/sendMail", sendMail)
 router.post("/sendMassNotification", sendMassNotification)
 router.get('/getDashboard', dashboard);
+router.get('/getDetailsCount', getDetailsCount);
+router.get('/getSalesDetails', getSalesDeatils);
 module.exports = router;
