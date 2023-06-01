@@ -134,7 +134,7 @@ const getBusinessAccountNotification = async (req, res) => {
             return res.status(400).send({msg:"you are not authorize"});
           }
           await businessAccountNotification.findByIdAndUpdate({_id}, {$set:newData}, {new:true})
-          res.status(200).send({msg:"updated"});
+          res.status(200).send({msg:"updated successfully"});
         } catch (error) {
       console.log(error.message)
       return res.status(500).send({msg:"interal error"})

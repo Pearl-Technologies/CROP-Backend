@@ -9,7 +9,9 @@ const SavePaymentInfo = async (
   status,
   paymentUrl,
   businessId,
-  tries
+  tries,
+  amount,
+  description
 ) => {
   // return console.log(paymentLink, productId, status, paymentUrl)
   try {
@@ -30,6 +32,8 @@ const SavePaymentInfo = async (
       paymentUrl,
       businessId,
       tries,
+      amount,
+      description
     });
     console.log("saved successfully");
   } catch (error) {
@@ -103,6 +107,7 @@ const customerPointPurchasedTracker = async (
 // Route handler for transfer creation
 // console.log(process.env.STRIPE_KEY)
 const payToBusiness= async (req, res) => {
+  return
   // console.log(req.body);
   // res.send(req.body);
   try {

@@ -60,7 +60,7 @@ const updateBusinessAccountStatus = async (req, res) => {
       return res.status(404).json({msg:"no data found"});
     }
     await business.findByIdAndUpdate({_id}, {$set:{status}}, {new:true});
-    res.status(202).json({msg:"updated"});
+    res.status(202).json({msg:"updated successfully"});
   } catch (error) {
     console.log(error);
   }
@@ -322,6 +322,66 @@ const getBusinessProductRated = async(req, res)=>{
     return res.status(500).send({msg:"Internal Server Error"})
   }
 }
+
+const getBusinessProductRatedAll = async(req, res)=>{
+  try {
+    const productCommentsAndRatings = await Product.aggregate([
+      // {
+      //   $match: { user: ObjectId(businessId) },
+      // },
+      {
+        $lookup: {
+          from: "products_comments",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          details: { $arrayElemAt: ["$comments.details", 0] },
+        },
+      },
+      {
+        $addFields: {
+          averageRating: {
+            $cond: [
+              { $gt: [{ $size: { $ifNull: ["$details.rating", []] } }, 0] },
+              {
+                $divide: [
+                  {
+                    $reduce: {
+                      input: "$details.rating",
+                      initialValue: 0,
+                      in: { $add: ["$$value", "$$this"] },
+                    },
+                  },
+                  { $size: "$details.rating" },
+                ],
+              },
+              null,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          sector:1,
+          image:1,
+          comments: 1,
+          averageRating: 1,
+        },
+      },
+    ])
+    return res.status(200).send({productCommentsAndRatings})
+  } catch (error) {
+    // console.log(error)
+    return res.status(500).send({msg:"Internal Server Error"})
+  }
+}
+
 const createStripeAccount = async()=>{
 //   const account = await stripe.accounts.create({
 //   country: 'AU',
@@ -349,5 +409,6 @@ module.exports = {
   updateBusinessAccountStatus,
   getPurchasedProductStatement,
   getBusinessCropStatement,
-  getBusinessProductRated
+  getBusinessProductRated,
+  getBusinessProductRatedAll
 };

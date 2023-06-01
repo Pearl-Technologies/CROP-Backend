@@ -120,13 +120,14 @@ const getAllProductAndSendNotification = async (count) => {
       }
       return Date.now();
     };
+
     let dailyMarketStartDate = new Date(commingWeekDay()).toLocaleDateString();
     //weekdayTopRankProduct
     let TopRankProductForWeekday = await Product.aggregate([
       {
         $match: {
           $and: [
-            { mktOfferFor: "topRankOffer" },
+            { mktOfferFor: "topRank" },
             { status: "active" },
             { slot: "weekday" },
             { "mktDate.fromDate": dailyMarketStartDate },
@@ -205,7 +206,7 @@ const getAllProductAndSendNotification = async (count) => {
       {
         $match: {
           $and: [
-            { mktOfferFor: "topRankOffer" },
+            { mktOfferFor: "topRank" },
             { status: "active" },
             { slot: "monthly" },
             { "mktDate.fromDate": monthlyMarketStartDate },
@@ -237,7 +238,7 @@ const getAllProductAndSendNotification = async (count) => {
       {
         $match: {
           $and: [
-            { mktOfferFor: "Promo" },
+            { mktOfferFor: "promo" },
             { status: "active" },
             { slot: "monthly" },
             { "mktDate.fromDate": monthlyMarketStartDate },
@@ -279,7 +280,7 @@ const getAllProductAndSendNotification = async (count) => {
       {
         $match: {
           $and: [
-            { mktOfferFor: "topRankOffer" },
+            { mktOfferFor: "topRank" },
             { status: "active" },
             { slot: "weekly" },
             { "mktDate.fromDate": weeklyMarketStartDate },
@@ -311,7 +312,7 @@ const getAllProductAndSendNotification = async (count) => {
       {
         $match: {
           $and: [
-            { mktOfferFor: "Promo" },
+            { mktOfferFor: "promo" },
             { status: "active" },
             { slot: "weekly" },
             { "mktDate.fromDate": weeklyMarketStartDate },
@@ -352,7 +353,7 @@ const getAllProductAndSendNotification = async (count) => {
       {
         $match: {
           $and: [
-            { mktOfferFor: "topRankOffer" },
+            { mktOfferFor: "topRank" },
             { status: "active" },
             { slot: "weekday" },
             { "mktDate.fromDate": newDate },
@@ -384,7 +385,7 @@ const getAllProductAndSendNotification = async (count) => {
       {
         $match: {
           $and: [
-            { mktOfferFor: "Promo" },
+            { mktOfferFor: "promo" },
             { status: "active" },
             { slot: "weekday" },
             { "mktDate.fromDate": newDate },
@@ -414,7 +415,7 @@ const getAllProductAndSendNotification = async (count) => {
     let TopRankProductForPublicHoliday = await Product.aggregate([
       {
         $match: {
-          $and: [{ mktOfferFor: "topRankOffer" }, { status: "active" }],
+          $and: [{ mktOfferFor: "topRank" }, { status: "active" }],
         },
       },
       {
@@ -521,7 +522,7 @@ const getAllProductAndSendNotification = async (count) => {
             },
             after_completion: {
               type: "redirect",
-              redirect: { url: "http://localhost:3000/success" },
+              redirect: { url: `https://business.${process.env.HOST}/business/market/payment/success` },
             },
           });
           let link = paymentLink.url;
@@ -532,7 +533,9 @@ const getAllProductAndSendNotification = async (count) => {
             "unpaid",
             link,
             user.business._id,
-            count
+            count,
+            user.bidPrice,
+            "Top Ranking Product"
           );
 
           // return
@@ -542,7 +545,7 @@ const getAllProductAndSendNotification = async (count) => {
             link,
             user?.business?.fName,
             user.slot,
-            user.mktOfferFor
+            user.mktOfferFor,
           );
         } else {
           if (
@@ -580,7 +583,6 @@ const getAllProductAndSendNotification = async (count) => {
 var count = 1;
 const job = schedule.scheduleJob("0 0 * * *", function () {
   console.log('This job runs at midnight every day!');
-  
   if (count == 1) {
     getAllProductAndSendNotification(count)
     count++

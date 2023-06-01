@@ -532,7 +532,7 @@ router.post("/signup", async (req, res) => {
     })
     const emailExist = await User.findOne({ email: req.body.email })
     // const businessMobile = await business.findOne({mobile:req.body.mobileNumber});
-    const businessEmail = await business.findOne({ email: req.body.email })
+    // const businessEmail = await business.findOne({ email: req.body.email })
     if (phoneExist)
       return res
         .status(409)
@@ -543,10 +543,10 @@ router.post("/signup", async (req, res) => {
         .send({ message: "User with given email already exist" })
     // if(businessMobile)
     // return res.status(409).send({message:"User with given phone number already exist in business"})
-    if (businessEmail)
-      return res
-        .status(409)
-        .send({ message: "User with given email already exist in business" })
+    // if (businessEmail)
+    //   return res
+    //     .status(409)
+    //     .send({ message: "User with given email already exist in business" })
     //hashing the password
     const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10)
 
@@ -581,8 +581,7 @@ router.post("/signup", async (req, res) => {
       cropid: cropnumber,
       propid: propnumber,
       password: hashedPassword,
-      mobileNumber:
-        req.body.mobileNumber != undefined ? req.body.mobileNumber : "",
+      mobileNumber: req.body.mobileNumber != undefined ? req.body.mobileNumber : "",
       email: req.body.email != undefined ? req.body.email : "",
       UserTitle: req.body.UserTitle,
       terms: req.body.terms,

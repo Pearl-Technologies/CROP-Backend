@@ -104,7 +104,7 @@ const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransact
 const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
 // const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
-const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus, getBusinessProductRated} = require("../controller/adminController/BusinessData/business");
+const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus, getBusinessProductRated, getBusinessProductRatedAll} = require("../controller/adminController/BusinessData/business");
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
@@ -277,6 +277,7 @@ router.post("/getCategoryById", verifyToken, getCategoryById)
 router.post("/deleteCategory", verifyToken, deleteCategory)
 router.get("/getCategories", getCategories)
 router.get("/getBusinessProductRated", verifyToken, getBusinessProductRated)
+router.get("/getBusinessProductRatedAll", getBusinessProductRatedAll)
 //
 //Business data
 router.post("/getAllBusiness", getAllBusiness)
