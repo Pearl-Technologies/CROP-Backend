@@ -74,7 +74,7 @@ const updatePropValuation = async(req, res)=>{
             return res.status(401).json({msg:"sorry, you are not authorise"});    
         }
         await adminPropValuation.findByIdAndUpdate({_id}, {$set:newData}, {new:true});
-        res.status(202).json({msg:"updated"});
+        res.status(202).json({msg:"updated successfully"});
     }catch (error) {
         console.log(error.message);
         res.status(500).json({msg:"internal error"});
