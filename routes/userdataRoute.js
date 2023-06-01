@@ -737,7 +737,7 @@ router.put("/logout", async (req, res) => {
 
 function isTokenExpired(token) {
   try {
-    const decoded = jwt.verify(token, 'CROP@12345');
+    const decoded = jwt.verify(token, "CROP@12345");
     const currentTime = Math.floor(Date.now() / 1000); // Convert current time to seconds
     return decoded.exp < currentTime;
   } catch (error) {
@@ -1292,104 +1292,104 @@ router.post("/feedback", async (req, res) => {
   }
 })
 
-router.put("/levels", async (req, res) => {
-  try{
-    let token = req.headers.authorization
+// router.put("/levels", async (req, res) => {
+//   try{
+//     let token = req.headers.authorization
 
-    const points = parseInt(req.body.croppoints)
+//     const points = parseInt(req.body.croppoints)
 
-    const currentDate = new Date()
-    const formattedDate = currentDate.toLocaleDateString()
-    const token_data = await Token.findOne({ token: token })
-    //Changing levels according to croppoints5
-    if (points === 0) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Base" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Base on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    } else if (points <= 30) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Silver" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Silver on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    } else if (points <= 60) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Gold" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Gold on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    } else if (points <= 1000) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Platinum" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Platinum on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    }
-    // else if(points<=2800)
-    // {
-    //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
-    //     res.send({status:"true"})
-    else {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Diamond" },
-          $push: {
-            auditTrail: {
-              _id: new mongoose.Types.ObjectId(),
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Diamond on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    }
-    //comment one the mate website
-  }
-  catch(err){
-    res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
-  }
-})
+//     const currentDate = new Date()
+//     const formattedDate = currentDate.toLocaleDateString()
+//     const token_data = await Token.findOne({ token: token })
+//     //Changing levels according to croppoints5
+//     if (points === 0) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Base" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Base on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     } else if (points <= 30) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Silver" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Silver on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     } else if (points <= 60) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Gold" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Gold on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     } else if (points <= 1000) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Platinum" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Platinum on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     }
+//     // else if(points<=2800)
+//     // {
+//     //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
+//     //     res.send({status:"true"})
+//     else {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Diamond" },
+//           $push: {
+//             auditTrail: {
+//               _id: new mongoose.Types.ObjectId(),
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Diamond on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     }
+//     //comment one the mate website
+//   }
+//   catch(err){
+//     res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
+//   }
+// })
 //comment on the page
 
 router.post("/newsletter", async (req, res) => {
