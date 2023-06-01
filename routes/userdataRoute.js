@@ -1737,6 +1737,7 @@ router.delete('/notification', async (req, res) => {
     const token = req.headers.authorization;
     const type = req.query.type;
     const id = req.query.id;
+    console.log(req.query)
     const user = await Token.findOne({ token: token });
     if(user){
       if(type == 1){
