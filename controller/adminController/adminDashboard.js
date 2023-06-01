@@ -175,7 +175,7 @@ const getSalesDeatils = async(req, res)=>{
                   { status: "paid" },
                   {
                     $or: [
-                      { createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1), $lt: new Date() } }, // Previous month
+                      { createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1), $lt: new Date() } },
                       { createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) } } // Current month
                     ]
                   }
@@ -229,4 +229,104 @@ const getSalesDeatils = async(req, res)=>{
   }
 }
 
-module.exports = {dashboard, getDetailsCount, getSalesDeatils};
+const getWeeklyDetails=async (req,res)=>{
+  try{
+    const weeklySales = await customerPaymentTracker.aggregate([
+      {
+        $match: {
+          $and: [
+            { status: "paid" },
+            {
+              createdAt: {
+                $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+              }
+            }
+          ]
+        }
+      },
+      { $unwind: "$cartDetails.cartItems" },
+      {
+        $group: {
+          _id: "$cartDetails.cartItems._id",
+          list: {
+            $push: {
+              user: "$cartDetails.cartItems.user",
+              price: "$cartDetails.cartItems.price",
+              createdAt: "$createdAt"
+            }
+          }
+        }
+      },
+      { $unwind: "$list" },
+      {
+        $match: {
+          $expr: {
+            $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            dayOfWeek: { $dayOfWeek: "$list.createdAt" }
+          },
+          price: {
+            $sum: "$list.price"
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          weeklySales: {
+            $push: {
+              dayOfWeek: "$_id.dayOfWeek",
+              price: "$price"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          weeklySales: {
+            $map: {
+              input: { $range: [1, 8] },
+              as: "day",
+              in: {
+                dayOfWeek: "$$day",
+                price: {
+                  $let: {
+                    vars: {
+                      matchedSale: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$weeklySales",
+                              cond: { $eq: ["$$this.dayOfWeek", "$$day"] }
+                            }
+                          },
+                          0
+                        ]
+                      }
+                    },
+                    in: { $ifNull: ["$$matchedSale.price", 0] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]);
+    
+    res.status(200).json({ data:weeklySales[0].weeklySales,status:200 });
+  }
+  catch(err){
+    console.log(err)
+    res.status(500).send({msg:"Internal server error", status: 500});
+  }
+}
+
+module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails};
