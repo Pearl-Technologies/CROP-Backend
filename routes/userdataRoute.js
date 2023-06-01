@@ -1740,28 +1740,28 @@ router.delete('/notification', async (req, res) => {
     const user = await Token.findOne({ token: token });
     if(user){
       if(type == 1){
-        const Account = await AccountNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await AccountNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 2){
-        const General = await GeneralNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await GeneralNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 3){
-        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await ComplainNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 4){
-        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await InvoicePaymentNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 5){
-        const Account = await AccountNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await AccountNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
       else if(type == 6){
-        const General = await GeneralNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await GeneralNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
       else if(type == 7){
-        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await ComplainNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
       else if(type == 8){
-        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await InvoicePaymentNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
     }    
     res.status(200).json({status:200, message: "Notification deleted succesfully"})
