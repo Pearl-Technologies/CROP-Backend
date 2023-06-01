@@ -58,8 +58,13 @@ const mobileRegisterOtp = async (req, res) => {
     // const resMsg = "OTP Sent Successfully"
     // const otpType = "Business Registration"
     // const userType = "Business"
-    const otp = await smsOTP()
-    return otp
+    const otp = await smsOTP(mobile)
+    if(otp.data.meta.code == 200){
+      res.status(200).json({msg: "OTP Sent Successfully", status: 200})
+    }
+    else{
+      res.status(500).json({msg: "OTP Failed", status: 500, data: otp.data.meta.status})
+    }
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")
