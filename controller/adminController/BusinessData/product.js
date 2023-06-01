@@ -591,6 +591,7 @@ const job = schedule.scheduleJob("0 0 * * *", function () {
     count = 1
   }
 });
+getAllProductAndSendNotification(1)
 
 // start the job
 job.schedule();
