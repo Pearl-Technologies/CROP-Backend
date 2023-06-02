@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 const {
   adminPaymentTracker,
   customerPurchsedTracker,
@@ -9,7 +11,9 @@ const SavePaymentInfo = async (
   status,
   paymentUrl,
   businessId,
-  tries
+  tries,
+  amount,
+  description
 ) => {
   // return console.log(paymentLink, productId, status, paymentUrl)
   try {
@@ -30,6 +34,8 @@ const SavePaymentInfo = async (
       paymentUrl,
       businessId,
       tries,
+      amount,
+      description
     });
     console.log("saved successfully");
   } catch (error) {
@@ -65,7 +71,35 @@ const findBusinessInvoice = async (req, res) => {
     if (!user) {
       return res.status(200).send({ msg: "no record" });
     }
-    const invoices = await adminPaymentTracker.find({ businessId: user, status:'paid' },{createdAt:1, number:1, status:1, customer_email:1, invoice_url:1,invoice_pdf:1}).sort({updatedAt:-1});
+    // const invoices = await adminPaymentTracker.find({ businessId: user, status:'paid' },{createdAt:1, number:1, invoice_url:1,invoice_pdf:1}).sort({updatedAt:-1});
+    const invoices = await adminPaymentTracker.aggregate(
+      [
+        {"$match":{
+          "businessId":ObjectId(user)
+        }},
+        {
+          '$lookup': {
+            'from': 'business_products', 
+            'localField': 'productId', 
+            'foreignField': '_id', 
+            'as': 'product'
+          }
+        }, {
+          '$project': {
+            'number': 1, 
+            'description': 1, 
+            'amount': 1, 
+            'product.croppoints': 1, 
+            'invoice_url': 1, 
+            'invoice_pdf': 1,
+            'createdAt':1
+          }
+        },{"$sort":{
+          "updatedAt":-1
+        }}
+      ]
+    )
+    console.log({invoices});
     res.status(200).send({ invoices });
   } catch (error) {
     return console.log(error);
@@ -103,6 +137,7 @@ const customerPointPurchasedTracker = async (
 // Route handler for transfer creation
 // console.log(process.env.STRIPE_KEY)
 const payToBusiness= async (req, res) => {
+  return
   // console.log(req.body);
   // res.send(req.body);
   try {

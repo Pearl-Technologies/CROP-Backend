@@ -13,7 +13,9 @@ const adminPaymentTrackerSchema = mongoose.Schema({
     invoice_id:{type:String, default:""},
     payment_intent:{type:String, default:""},
     tries:{type:Number, default:0},
-    number:{type:String}
+    number:{type:String},
+    amount:{type:Number},
+    description:{type:String}
  }, {
     timestamps: true
  });

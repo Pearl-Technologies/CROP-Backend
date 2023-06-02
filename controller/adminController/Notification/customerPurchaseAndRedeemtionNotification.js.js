@@ -82,7 +82,7 @@ const updateCustomerPurchaseAndRedeemNotification = async (req, res) => {
       { $set: newData },
       { new: true }
     );
-    res.status(200).send({msg:"updated"});
+    res.status(200).send({msg:"updated successfully"});
   } catch (error) {
     console.log(error.message);
     return res.status(500).send({msg:"interal error"});

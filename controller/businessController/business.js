@@ -46,8 +46,16 @@ const emailRegisterOtp = async (req, res) => {
 }
 
 const mobileRegisterOtp = async (req, res) => {
-  const { mobile } = req.body
+  const { mobile, type } = req.body
   try {
+    if(parseInt(type)==1){
+      const businessFind = await business.find({ mobile })
+      if (businessFind.length > 0) {
+        return res
+          .status(409)
+          .send({ success: false, msg: "Mobile Number Already Exist" })
+      }  
+    }
     // const businessFind = await business.find({ mobile })
     // if (businessFind.length > 0) {
     //   return res
@@ -59,8 +67,14 @@ const mobileRegisterOtp = async (req, res) => {
     // const resMsg = "OTP Sent Successfully"
     // const otpType = "Business Registration"
     // const userType = "Business"
-    const otp = await smsOTP()
-    return otp
+    var otp = Math.floor(100000 + Math.random() * 900000)
+    const msg = await smsOTP(mobile, otp)
+    if(msg.data.meta.code == 200){
+      res.status(200).json({msg: "OTP Sent Successfully", status: 200})
+    }
+    else{
+      res.status(500).json({msg: "OTP Failed", status: 500, data: msg.data.meta.status})
+    }
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

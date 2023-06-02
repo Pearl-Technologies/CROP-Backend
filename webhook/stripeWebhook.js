@@ -229,7 +229,7 @@ app.post(
             const findBusiness = await business.findOne({ _id: user });
             if (findBusiness) {
               let cropPoint =
-                (await findBusiness.croppoint) -
+                (await findBusiness.croppoint) +
                 cartDetails.cartItems[i].cartQuantity *
                   cartDetails.cartItems[i].cropRulesWithBonus;
 

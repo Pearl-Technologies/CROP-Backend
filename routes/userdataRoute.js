@@ -532,7 +532,7 @@ router.post("/signup", async (req, res) => {
     })
     const emailExist = await User.findOne({ email: req.body.email })
     // const businessMobile = await business.findOne({mobile:req.body.mobileNumber});
-    const businessEmail = await business.findOne({ email: req.body.email })
+    // const businessEmail = await business.findOne({ email: req.body.email })
     if (phoneExist)
       return res
         .status(409)
@@ -543,10 +543,10 @@ router.post("/signup", async (req, res) => {
         .send({ message: "User with given email already exist" })
     // if(businessMobile)
     // return res.status(409).send({message:"User with given phone number already exist in business"})
-    if (businessEmail)
-      return res
-        .status(409)
-        .send({ message: "User with given email already exist in business" })
+    // if (businessEmail)
+    //   return res
+    //     .status(409)
+    //     .send({ message: "User with given email already exist in business" })
     //hashing the password
     const hashedPassword = await bcrypt.hash(req.body.password.toString(), 10)
 
@@ -581,8 +581,7 @@ router.post("/signup", async (req, res) => {
       cropid: cropnumber,
       propid: propnumber,
       password: hashedPassword,
-      mobileNumber:
-        req.body.mobileNumber != undefined ? req.body.mobileNumber : "",
+      mobileNumber: req.body.mobileNumber != undefined ? req.body.mobileNumber : "",
       email: req.body.email != undefined ? req.body.email : "",
       UserTitle: req.body.UserTitle,
       terms: req.body.terms,
@@ -735,25 +734,38 @@ router.put("/logout", async (req, res) => {
   }
 })
 
+function isTokenExpired(token) {
+  try {
+    const decoded = jwt.verify(token, "CROP@12345");
+    const currentTime = Math.floor(Date.now() / 1000); // Convert current time to seconds
+    return decoded.exp < currentTime;
+  } catch (error) {
+    // Token verification failed (invalid token)
+    return true;
+  }
+}
+
+
 router.get("/tokenCheck", async (req, res) => {
   try {
     let token = req.headers.authorization
-    const result = await Token.findOne({ token: token })
-    if (result) {
+    if (isTokenExpired(token)) {
+      console.log('Token has expired');
       res.status(200).send({
-        status: "true",
-        message: "Token active",
+        status: false,
+        message: "Token Inactive",
       })
     } else {
-      res.status(500).send({
-        status: "false",
-        message: "Token Inactive",
+      console.log('Token is still valid');
+      res.status(200).send({
+        status: true,
+        message: "Token active",
       })
     }
   } catch (err) {
     res
       .status(500)
-      .send({ message: "Internal Server error", status: "false", data: [] })
+      .send({ message: "Internal Server error", status: false, data: [] })
   }
 })
 
@@ -1279,104 +1291,104 @@ router.post("/feedback", async (req, res) => {
   }
 })
 
-router.put("/levels", async (req, res) => {
-  try{
-    let token = req.headers.authorization
+// router.put("/levels", async (req, res) => {
+//   try{
+//     let token = req.headers.authorization
 
-    const points = parseInt(req.body.croppoints)
+//     const points = parseInt(req.body.croppoints)
 
-    const currentDate = new Date()
-    const formattedDate = currentDate.toLocaleDateString()
-    const token_data = await Token.findOne({ token: token })
-    //Changing levels according to croppoints5
-    if (points === 0) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Base" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Base on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    } else if (points <= 30) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Silver" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Silver on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    } else if (points <= 60) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Gold" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Gold on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    } else if (points <= 1000) {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Platinum" },
-          $push: {
-            auditTrail: {
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Platinum on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    }
-    // else if(points<=2800)
-    // {
-    //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
-    //     res.send({status:"true"})
-    else {
-      const updatelevels = await User.updateOne(
-        { _id: token_data.user },
-        {
-          $set: { UserTier: "Diamond" },
-          $push: {
-            auditTrail: {
-              _id: new mongoose.Types.ObjectId(),
-              value: "UserTier",
-              status: true,
-              message: `The usertier changed to Diamond on ${formattedDate}`,
-            },
-          },
-        }
-      )
-      res.send({ status: "true" })
-    }
-    //comment one the mate website
-  }
-  catch(err){
-    res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
-  }
-})
+//     const currentDate = new Date()
+//     const formattedDate = currentDate.toLocaleDateString()
+//     const token_data = await Token.findOne({ token: token })
+//     //Changing levels according to croppoints5
+//     if (points === 0) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Base" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Base on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     } else if (points <= 30) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Silver" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Silver on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     } else if (points <= 60) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Gold" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Gold on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     } else if (points <= 1000) {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Platinum" },
+//           $push: {
+//             auditTrail: {
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Platinum on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     }
+//     // else if(points<=2800)
+//     // {
+//     //     const updatelevels=await User.updateOne({_id:token_data.user}, {$set: { UserTier:"Diamond" }});
+//     //     res.send({status:"true"})
+//     else {
+//       const updatelevels = await User.updateOne(
+//         { _id: token_data.user },
+//         {
+//           $set: { UserTier: "Diamond" },
+//           $push: {
+//             auditTrail: {
+//               _id: new mongoose.Types.ObjectId(),
+//               value: "UserTier",
+//               status: true,
+//               message: `The usertier changed to Diamond on ${formattedDate}`,
+//             },
+//           },
+//         }
+//       )
+//       res.send({ status: "true" })
+//     }
+//     //comment one the mate website
+//   }
+//   catch(err){
+//     res.status(500).send({ message: "Not updated successfully", status: "false", data: err })
+//   }
+// })
 //comment on the page
 
 router.post("/newsletter", async (req, res) => {
@@ -1520,10 +1532,10 @@ router.post("/missingcrop", async (req, res) => {
     const missingCrops = await new MissingCrop(req.body).save()
     console.log(req.body)
     console.log(missingCrops._id, "mcId")
-    req.body.product_id.map(misCrops => {
+    req.body.product_id.map(async misCrops => {
       const { business } = misCrops
       console.log({ business })
-      createMissingCropNotification(missingCrops._id, business)
+      await createMissingCropNotification(missingCrops._id, business)
     })
     let notification = await adminCustomerRequestAndComplainedNotification.find();
     notification = notification[0]._doc
@@ -1724,31 +1736,32 @@ router.delete('/notification', async (req, res) => {
     const token = req.headers.authorization;
     const type = req.query.type;
     const id = req.query.id;
+    console.log(req.query)
     const user = await Token.findOne({ token: token });
     if(user){
       if(type == 1){
-        const Account = await AccountNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await AccountNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 2){
-        const General = await GeneralNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await GeneralNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 3){
-        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await ComplainNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 4){
-        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
+        await InvoicePaymentNotificationCustomer.find({ user_id:user.user, _id: id }).deleteOne();
       }
       else if(type == 5){
-        const Account = await AccountNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await AccountNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
       else if(type == 6){
-        const General = await GeneralNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await GeneralNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
       else if(type == 7){
-        const Complain = await ComplainNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await ComplainNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
       else if(type == 8){
-        const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user }).deleteMany();
+        await InvoicePaymentNotificationCustomer.find({ user_id:user.user }).deleteMany();
       }
     }    
     res.status(200).json({status:200, message: "Notification deleted succesfully"})

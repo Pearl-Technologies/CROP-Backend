@@ -8,7 +8,7 @@ const {
   getAdminData,
   passwordResetEmail
 } = require("../controller/superAdminController/user");
-const { dashboard } = require("../controller/adminController/adminDashboard");
+const { dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails } = require("../controller/adminController/adminDashboard");
 const {
   getAccountBalance,
   updateAccountBalance,
@@ -104,7 +104,7 @@ const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransact
 const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
 // const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
-const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus, getBusinessProductRated} = require("../controller/adminController/BusinessData/business");
+const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus, getBusinessProductRated, getBusinessProductRatedAll} = require("../controller/adminController/BusinessData/business");
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
@@ -277,6 +277,7 @@ router.post("/getCategoryById", verifyToken, getCategoryById)
 router.post("/deleteCategory", verifyToken, deleteCategory)
 router.get("/getCategories", getCategories)
 router.get("/getBusinessProductRated", verifyToken, getBusinessProductRated)
+router.get("/getBusinessProductRatedAll", getBusinessProductRatedAll)
 //
 //Business data
 router.post("/getAllBusiness", getAllBusiness)
@@ -293,4 +294,7 @@ const {sendMail, sendMassNotification}  = require("../controller/adminController
 router.post("/sendMail", sendMail)
 router.post("/sendMassNotification", sendMassNotification)
 router.get('/getDashboard', dashboard);
+router.get('/getDetailsCount', getDetailsCount);
+router.get('/getSalesDetails', getSalesDeatils);
+router.get('/getWeeklyDetails',getWeeklyDetails);
 module.exports = router;
