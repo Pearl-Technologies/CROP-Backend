@@ -6,6 +6,7 @@ const ObjectId = mongoose.Types.ObjectId
 const {Product} = require('../../../models/businessModel/product')
 const getLastFriday = require('../../../utils/dateHelper')
 const stripe = require('stripe')(process.env.STRIPE_KEY);
+const {customerPaymentTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
 
 const getAllBusiness = async (req, res) => {
   try {
@@ -322,25 +323,44 @@ const getBusinessProductRated = async(req, res)=>{
     return res.status(500).send({msg:"Internal Server Error"})
   }
 }
-const createStripeAccount = async()=>{
-//   const account = await stripe.accounts.create({
-//   country: 'AU',
-//   type: 'custom',
-//   capabilities: {
-//     card_payments: {
-//       requested: true,
-//     },
-//     transfers: {
-//       requested: true,
-//     },
-//   },
-// });
-// const deleted = await stripe.accounts.del(
-//   'acct_1N6rvnITspZWzEVQ'
-// );
-// console.log(deleted);
+const getBusinessOfferedPoint = async(req, res)=>{
+  const user_id = req.user.user.id;
+  const {businessId} = req.body;
+  const offeredCrop = await customerPaymentTracker.aggregate(
+    [
+      {
+        '$match': {
+          'status': 'paid'
+        }
+      }, {
+        '$unwind': {
+          'path': '$cartDetails.cartItems'
+        }
+      }, {
+        '$addFields': {
+          'total': {
+            '$multiply': [
+              '$cartDetails.cartItems.cartQuantity', '$cartDetails.cartItems.cropRulesWithBonus'
+            ]
+          }
+        }
+      }, {
+        '$match': {
+          'cartDetails.cartItems.services.businessId': businessId
+        }
+      }, {
+        '$group': {
+          '_id': '$status', 
+          'count': {
+            '$sum': {
+              '$add': '$total'
+            }
+          }
+        }
+      }
+    ]
+  )
 }
-createStripeAccount()
 module.exports = {
   getAllBusinessByContent,
   getAllBusiness,
