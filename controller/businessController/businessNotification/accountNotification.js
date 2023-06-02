@@ -241,6 +241,9 @@ const createSalesNotification = async (req, res) => {
         },
       },
     ])
+    const getAdminBusinessNotification =
+      await adminBusinessAccountNotification.findOne({})
+    const desc = getAdminBusinessNotification.points_transaction
     if (endOftheProductSold.length > 0) {
       console.log(
         "count",
@@ -249,16 +252,20 @@ const createSalesNotification = async (req, res) => {
       )
       const salesNotification = new accountNotification({
         type: "sales",
-        businessId: 1,
-        earnProducts: endOftheProductSold[0].earnItems,
-        redeemProducts: endOftheProductSold[0].redeemItems,
-        totalProducts:
-          endOftheProductSold[0].earnItems.length +
-          endOftheProductSold[0].redeemItems.length,
-        earnProductTotalAmount: { type: Number },
+        businessId,
+        desc,
+        sales: {
+          earnProducts: endOftheProductSold[0].earnItems,
+          redeemProducts: endOftheProductSold[0].redeemItems,
+          totalProducts:
+            endOftheProductSold[0].earnItems.length +
+            endOftheProductSold[0].redeemItems.length,
+        },
       })
+      await salesNotification.save()
+      return res.status(200).send({ salesNotification })
     }
-    return res.status(200).send({ statement })
+    return res.status(200)
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

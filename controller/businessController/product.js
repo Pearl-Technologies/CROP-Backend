@@ -26,6 +26,7 @@ module.exports.addProduct = async (req, res) => {
     req.body.croppoints = req.body.price
     const newProduct = new Product(req.body)
     const product = await newProduct.save()
+    console.log({ product })
     const adminProductCreateNotification =
       await adminBusinessGeneralNotification.findOne({})
     let desc = adminProductCreateNotification.upload_and_removal_of_offer
@@ -36,6 +37,7 @@ module.exports.addProduct = async (req, res) => {
       newProduct: {
         productId: product._id,
         productTitle: product.title,
+        productApply: product.apply,
       },
     })
     await newProductNotifiaction.save()
