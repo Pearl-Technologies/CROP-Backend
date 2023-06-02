@@ -326,10 +326,11 @@ const getBusinessProductRated = async(req, res)=>{
 
 const getBusinessProductRatedAll = async(req, res)=>{
   try {
+    let applyType=req.query.applyType;
     const productCommentsAndRatings = await Product.aggregate([
-      // {
-      //   $match: { user: ObjectId(businessId) },
-      // },
+      {
+        $match: { apply: applyType},
+      },
       {
         $lookup: {
           from: "products_comments",
@@ -365,16 +366,10 @@ const getBusinessProductRatedAll = async(req, res)=>{
           },
         },
       },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          sector:1,
-          image:1,
-          comments: 1,
-          averageRating: 1,
-        },
-      },
+      {$sort:{
+        rating:-1,
+        likes:-1
+      }}
     ])
     return res.status(200).send({productCommentsAndRatings})
   } catch (error) {

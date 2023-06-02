@@ -60,6 +60,7 @@ const getAllProduct = async (req, res) => {
   }
 };
 const getAllMostPopularProduct = async (req, res) => {
+  let applyType=req.query.applyType;
   try {
     const productList = await Product.aggregate(
       [
@@ -78,12 +79,16 @@ const getAllMostPopularProduct = async (req, res) => {
         }
       ]
     )
+    
     res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error" });
   }
 };
+
+
+
 const getAllPromoProduct = async (req, res) => {
   try {
     const productList = await Product.aggregate(
