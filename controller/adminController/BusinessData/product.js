@@ -8,9 +8,7 @@ const {
   findPaymentInfo,
   updatePaymentInfo,
 } = require("../PaymentController/payment");
-const stripe = require("stripe")(
-  "sk_test_51Mx307GGhIV5PAANJ3ODV14y6k2SKjFrd9FuG3wybL1UsooXDDVZe6QxHnHqH0Oy7EfS6dRvqcuU8xqHGevRG9bQ00yNUMET47"
-);
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 // Your AccountSID and Auth Token from console.twilio.com
 const accountSid = process.env.TWILIO_SID;
@@ -497,7 +495,7 @@ const getAllProductAndSendNotification = async (count) => {
             // id:user._id.toString(),
           });
           const price = await stripe.prices.create({
-            unit_amount: user.bidPrice,
+            unit_amount: user.bidPrice*100,
             currency: "aud",
             product: product.id,
             tax_behavior: "inclusive",
@@ -591,7 +589,6 @@ const job = schedule.scheduleJob("0 0 * * *", function () {
     count = 1
   }
 });
-
 // start the job
 job.schedule();
 module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct };
