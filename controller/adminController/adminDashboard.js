@@ -229,104 +229,317 @@ const getSalesDeatils = async(req, res)=>{
   }
 }
 
-const getWeeklyDetails=async (req,res)=>{
-  try{
+// const getWeeklyDetails=async (req,res)=>{
+//   try{
+//     const weeklySales = await customerPaymentTracker.aggregate([
+//     //   {
+//     //     $match: {
+//     //       $and: [
+//     //         { status: "paid" },
+//     //         {
+//     //           createdAt: {
+//     //             $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+//     //             $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+//     //           }
+//     //         }
+//     //       ]
+//     //     }
+//     //   },
+//     //   { $unwind: "$cartDetails.cartItems" },
+//     //   {
+//     //     $group: {
+//     //       _id: "$cartDetails.cartItems._id",
+//     //       list: {
+//     //         $push: {
+//     //           user: "$cartDetails.cartItems.user",
+//     //           price: "$cartDetails.cartItems.price",
+//     //           createdAt: "$createdAt"
+//     //         }
+//     //       }
+//     //     }
+//     //   },
+//     //   { $unwind: "$list" },
+//     //   {
+//     //     $match: {
+//     //       $expr: {
+//     //         $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }]
+//     //       }
+//     //     }
+//     //   },
+//     //   {
+//     //     $group: {
+//     //       _id: {
+//     //         dayOfWeek: { $dayOfWeek: "$list.createdAt" }
+//     //       },
+//     //       price: {
+//     //         $sum: "$list.price"
+//     //       }
+//     //     }
+//     //   },
+//     //   {
+//     //     $group: {
+//     //       _id: null,
+//     //       weeklySales: {
+//     //         $push: {
+//     //           dayOfWeek: "$_id.dayOfWeek",
+//     //           price: "$price"
+//     //         }
+//     //       }
+//     //     }
+//     //   },
+//     //   {
+//     //     $project: {
+//     //       _id: 0,
+//     //       weeklySales: {
+//     //         $map: {
+//     //           input: { $range: [1, 8] },
+//     //           as: "day",
+//     //           in: {
+//     //             dayOfWeek: "$$day",
+//     //             price: {
+//     //               $let: {
+//     //                 vars: {
+//     //                   matchedSale: {
+//     //                     $arrayElemAt: [
+//     //                       {
+//     //                         $filter: {
+//     //                           input: "$weeklySales",
+//     //                           cond: { $eq: ["$$this.dayOfWeek", "$$day"] }
+//     //                         }
+//     //                       },
+//     //                       0
+//     //                     ]
+//     //                   }
+//     //                 },
+//     //                 in: { $ifNull: ["$$matchedSale.price", 0] }
+//     //               }
+//     //             }
+//     //           }
+//     //         }
+//     //       }
+//     //     }
+//     //   }
+//     // ]);
+    
+//     res.status(200).json({ data:weeklySales[0].weeklySales,status:200 });
+//   }
+//   catch(err){
+//     console.log(err)
+//     res.status(500).send({msg:"Internal server error", status: 500});
+//   }
+// }
+
+const getWeeklyDetails = async (req, res) => {
+  try {
     const weeklySales = await customerPaymentTracker.aggregate([
       {
-        $match: {
-          $and: [
-            { status: "paid" },
+        $facet: {
+          weeklyDetails: [
             {
-              createdAt: {
-                $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-                $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+              $match: {
+                status: "paid",
+                createdAt: {
+                  $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                  $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+                }
               }
-            }
-          ]
-        }
-      },
-      { $unwind: "$cartDetails.cartItems" },
-      {
-        $group: {
-          _id: "$cartDetails.cartItems._id",
-          list: {
-            $push: {
-              user: "$cartDetails.cartItems.user",
-              price: "$cartDetails.cartItems.price",
-              createdAt: "$createdAt"
-            }
-          }
-        }
-      },
-      { $unwind: "$list" },
-      {
-        $match: {
-          $expr: {
-            $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            dayOfWeek: { $dayOfWeek: "$list.createdAt" }
-          },
-          price: {
-            $sum: "$list.price"
-          }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          weeklySales: {
-            $push: {
-              dayOfWeek: "$_id.dayOfWeek",
-              price: "$price"
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          weeklySales: {
-            $map: {
-              input: { $range: [1, 8] },
-              as: "day",
-              in: {
-                dayOfWeek: "$$day",
-                price: {
-                  $let: {
-                    vars: {
-                      matchedSale: {
-                        $arrayElemAt: [
-                          {
-                            $filter: {
-                              input: "$weeklySales",
-                              cond: { $eq: ["$$this.dayOfWeek", "$$day"] }
+            },
+            { $unwind: "$cartDetails.cartItems" },
+            {
+              $group: {
+                _id: "$cartDetails.cartItems._id",
+                list: {
+                  $push: {
+                    user: "$cartDetails.cartItems.user",
+                    price: "$cartDetails.cartItems.price",
+                    createdAt: "$createdAt"
+                  }
+                }
+              }
+            },
+            { $unwind: "$list" },
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }]
+                }
+              }
+            },
+            {
+              $group: {
+                _id: { dayOfWeek: { $dayOfWeek: "$list.createdAt" } },
+                price: { $sum: "$list.price" }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                weeklySales: {
+                  $push: {
+                    dayOfWeek: "$_id.dayOfWeek",
+                    price: "$price"
+                  }
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                weeklySales: {
+                  $map: {
+                    input: { $range: [1, 8] },
+                    as: "day",
+                    in: {
+                      dayOfWeek: "$$day",
+                      price: {
+                        $let: {
+                          vars: {
+                            matchedSale: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: "$weeklySales",
+                                    cond: { $eq: ["$$this.dayOfWeek", "$$day"] }
+                                  }
+                                },
+                                0
+                              ]
                             }
                           },
-                          0
-                        ]
+                          in: { $ifNull: ["$$matchedSale.price", 0] }
+                        }
                       }
-                    },
-                    in: { $ifNull: ["$$matchedSale.price", 0] }
+                    }
                   }
                 }
               }
             }
-          }
+          ],
+          weeklyPercentage: [
+            {
+              $match: {
+                status: "paid",
+                createdAt: {
+                  $gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+                  $lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+                }
+              }
+            },
+            { $unwind: "$cartDetails.cartItems" },
+            {
+              $group: {
+                _id: "$cartDetails.cartItems._id",
+                list: {
+                  $push: {
+                    user: "$cartDetails.cartItems.user",
+                    price: "$cartDetails.cartItems.price",
+                    createdAt: "$createdAt"
+                  }
+                }
+              }
+            },
+            { $unwind: "$list" },
+            {
+              $group: {
+                _id: {
+                  $cond: {
+                    if: { $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }] },
+                    then: "Current Week",
+                    else: {
+                      $cond: {
+                        if: {
+                          $eq: [
+                            { $week: "$list.createdAt" },
+                            { $week: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7) }
+                          ]
+                        },
+                        then: "Previous Week",
+                        else: "Other Week"
+                      }
+                    }
+                  }
+                },
+                totalPrice: { $sum: "$list.price" }
+              }
+            }
+          ]
         }
       }
     ]);
-    
-    res.status(200).json({ data:weeklySales[0].weeklySales,status:200 });
+
+    res.status(200).json({ data: weeklySales[0], status: 200 });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ msg: "Internal server error", status: 500 });
   }
-  catch(err){
-    console.log(err)
-    res.status(500).send({msg:"Internal server error", status: 500});
+};
+
+const getPerformingProducts = async (req,res)=>{
+  let filter=req.query.filter;
+  let sort=0;
+  if(filter=="low"){
+    sort=1
   }
+  else{
+    sort=-1
+  }
+  let products = await customerPaymentTracker.aggregate([
+    {
+      $match: {
+        $and: [
+          { status: "paid" },
+          { $expr: { $eq: [{ $month: "$createdAt" }, { $month: new Date() }] } }
+        ]
+      }
+    },
+    { $unwind: "$cartDetails.cartItems" },
+    { $project: { "cartDetails.cartItems": 1 } },
+    {
+      $group: {
+        _id: "$cartDetails.cartItems._id",
+        productName: { $first: "$cartDetails.cartItems.title" },
+        price: { $sum: "$cartDetails.cartItems.price" },
+        quantity: { $sum: "$cartDetails.cartItems.cartQuantity" },
+        businessUser: { $first: "$cartDetails.cartItems.user" }
+      }
+    },
+    {
+      $addFields: {
+        businessUserId: { $toObjectId: "$businessUser" }
+      }
+    },
+    {
+      $lookup: {
+        from: "businesses",
+        localField: "businessUserId",
+        foreignField: "_id",
+        as: "productDetails"
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        productName: 1,
+        price: 1,
+        quantity: 1,
+        businessUser: 1,
+        productDetails: {
+          fName:1,
+          mName:1,
+          lName:1,
+          businessName:1
+        }
+      }
+    },
+    {
+      $sort: {
+        price: sort
+      }
+    },
+  ])
+  
+
+    res.status(200).json({ data: products, status: 200 });
 }
 
-module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails};
+module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts};
