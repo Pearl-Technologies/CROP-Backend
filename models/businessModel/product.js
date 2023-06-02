@@ -56,12 +56,12 @@ const productSchema = mongoose.Schema(
     slot: { type: String },
     mktOfferFor: { type: String, default: "" },
     mktDate: {
-      fromDate: { type: String },
-      toDate: { type: String },
+      fromDate: { type: String, default: "" },
+      toDate: { type: String, default: "" },
     },
     bidDate: {
-      fromDate: { type: String },
-      toDate: { type: String },
+      fromDate: { type: String, default: "" },
+      toDate: { type: String, default: "" },
     },
     bidPrice: { type: Number, default: 0 },
     bid: { type: Boolean, default: false },

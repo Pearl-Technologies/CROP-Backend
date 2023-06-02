@@ -14,9 +14,15 @@ const businessSchema = mongoose.Schema(
       type: String,
       default: "",
     },
+    bankDetails: {
+      bsb: { type: String, default: "" },
+      bankName: { type: String, default: "" },
+      accNo: { type: String, default: "" },
+    },
     natureOfBusiness: { type: String },
     brandLogo: { type: String },
-    loyaltyProgram: [{}],
+    loyaltyProgram: { type: [{}], default: [] },
+    interest: { type: [{}], default: [] },
     program: { type: String },
     auditTrail: [
       {
@@ -68,3 +74,5 @@ const businessSchema = mongoose.Schema(
 const business = mongoose.model("business", businessSchema)
 
 module.exports = business
+
+
