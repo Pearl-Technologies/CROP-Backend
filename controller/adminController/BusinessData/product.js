@@ -9,6 +9,7 @@ const {
   updatePaymentInfo,
 } = require("../PaymentController/payment");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
+const NodeGeocoder = require("node-geocoder")
 
 // Your AccountSID and Auth Token from console.twilio.com
 const accountSid = process.env.TWILIO_SID;
@@ -594,6 +595,26 @@ const job = schedule.scheduleJob("0 0 * * *", function () {
     count = 1
   }
 });
+
+const getNearMeProducts=async (req,res)=>{
+  const geocoder = NodeGeocoder({
+    provider: "openstreetmap",
+  })
+  const lat = parseFloat(req.params.lat)
+  const long = parseFloat(req.params.long)
+  console.log({ lat }, { long })
+  let city = ""
+  await geocoder
+    .reverse({ lat, lon: long })
+    .then(res => {
+      city = res[0].city
+      console.log(city)
+    })
+    .catch(err => {
+      console.error(err)
+    })
+}
+
 // start the job
 job.schedule();
-module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct };
+module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct, getNearMeProducts };
