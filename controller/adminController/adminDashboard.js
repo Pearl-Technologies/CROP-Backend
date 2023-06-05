@@ -742,4 +742,5 @@ const getCropPropDebitCredit = async (req, res) => {
 };
 
 
+
 module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender, getCropPropDebitCredit};
