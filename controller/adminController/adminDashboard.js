@@ -1,9 +1,6 @@
 const admin = require("../../models/superAdminModel/user");
 const { customerPaymentTracker } = require("../../models/admin/PaymentTracker/paymentIdTracker");
 const  business  = require("../../models/businessModel/business");
-const bidding = require("../../models/admin/bidding/admin_bidding")
-const customerCropTransaction = require("../../models/CropTransaction")
-const customerPropTransaction = require("../../models/PropTransaction")
 const bcrypt = require("bcryptjs");
 const { User } = require("../../models/User")
 
@@ -344,142 +341,6 @@ const getWeeklyDetails = async (req, res) => {
     let pickWeek=currentDate;
     pickWeek.setDate(pickWeek.getDate()-7)
     console.log(currentDate,nextMonth,previousMonth)
-    // const weeklySales = await customerPaymentTracker.aggregate([
-    //   {
-    //     $facet: {
-    //       weeklyDetails: [
-    //         {
-    //           $match: {
-    //             status: "paid",
-    //             createdAt: {
-    //               $gte: pickCurrentDate,
-    //               $lt: pickNextDate
-    //             }
-    //           }
-    //         },
-    //         { $unwind: "$cartDetails.cartItems" },
-    //         {
-    //           $group: {
-    //             _id: "$cartDetails.cartItems._id",
-    //             list: {
-    //               $push: {
-    //                 user: "$cartDetails.cartItems.user",
-    //                 price: "$cartDetails.cartItems.price",
-    //                 createdAt: "$createdAt"
-    //               }
-    //             }
-    //           }
-    //         },
-    //         { $unwind: "$list" },
-    //         {
-    //           $match: {
-    //             $expr: {
-    //               $eq: [{ $week: "$list.createdAt" }, { $week: currentDate }]
-    //             }
-    //           }
-    //         },
-    //         {
-    //           $group: {
-    //             _id: { dayOfWeek: { $dayOfWeek: "$list.createdAt" } },
-    //             price: { $sum: "$list.price" }
-    //           }
-    //         },
-    //         {
-    //           $group: {
-    //             _id: null,
-    //             weeklySales: {
-    //               $push: {
-    //                 dayOfWeek: "$_id.dayOfWeek",
-    //                 price: "$price"
-    //               }
-    //             }
-    //           }
-    //         },
-    //         {
-    //           $project: {
-    //             _id: 0,
-    //             weeklySales: {
-    //               $map: {
-    //                 input: { $range: [1, 8] },
-    //                 as: "day",
-    //                 in: {
-    //                   dayOfWeek: "$$day",
-    //                   price: {
-    //                     $let: {
-    //                       vars: {
-    //                         matchedSale: {
-    //                           $arrayElemAt: [
-    //                             {
-    //                               $filter: {
-    //                                 input: "$weeklySales",
-    //                                 cond: { $eq: ["$$this.dayOfWeek", "$$day"] }
-    //                               }
-    //                             },
-    //                             0
-    //                           ]
-    //                         }
-    //                       },
-    //                       in: { $ifNull: ["$$matchedSale.price", 0] }
-    //                     }
-    //                   }
-    //                 }
-    //               }
-    //             }
-    //           }
-    //         }
-    //       ],
-    //       weeklyPercentage: [
-    //         {
-    //           $match: {
-    //             status: "paid",
-    //             createdAt: {
-    //               $gte: pickCurrentDate,
-    //               $lte: pickNextDate
-    //             }
-    //           }
-    //         },
-    //         { $unwind: "$cartDetails.cartItems" },
-    //         {
-    //           $group: {
-    //             _id: "$cartDetails.cartItems._id",
-    //             list: {
-    //               $push: {
-    //                 user: "$cartDetails.cartItems.user",
-    //                 price: "$cartDetails.cartItems.price",
-    //                 createdAt: "$createdAt"
-    //               }
-    //             }
-    //           }
-    //         },
-    //         { $unwind: "$list" },
-    //         {
-    //           $group: {
-    //             _id: {
-    //               $cond: {
-    //                 if: { $eq: [{ $week: "$list.createdAt" }, { $week: currentDate }] },
-    //                 then: "Current Week",
-    //                 else: {
-    //                   $cond: {
-    //                     if: {
-    //                       $eq: [
-    //                         { $week: "$list.createdAt" },
-    //                         { $week: pickWeek }
-    //                       ]
-    //                     },
-    //                     then: "Previous Week",
-    //                     else: "Other Week"
-    //                   }
-    //                 }
-    //               }
-    //             },
-    //             totalPrice: { $sum: "$list.price" }
-    //           }
-    //         }
-    //       ]
-    //     }
-    //   }
-    // ]);
-    
     const weeklySales = await customerPaymentTracker.aggregate([
       {
         $facet: {
@@ -488,8 +349,8 @@ const getWeeklyDetails = async (req, res) => {
               $match: {
                 status: "paid",
                 createdAt: {
-                  $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-                  $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+                  $gte: pickCurrentDate,
+                  $lt: pickNextDate
                 }
               }
             },
@@ -510,7 +371,7 @@ const getWeeklyDetails = async (req, res) => {
             {
               $match: {
                 $expr: {
-                  $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }]
+                  $eq: [{ $week: "$list.createdAt" }, { $week: currentDate }]
                 }
               }
             },
@@ -569,8 +430,8 @@ const getWeeklyDetails = async (req, res) => {
               $match: {
                 status: "paid",
                 createdAt: {
-                  $gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-                  $lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+                  $gte: pickCurrentDate,
+                  $lte: pickNextDate
                 }
               }
             },
@@ -592,14 +453,14 @@ const getWeeklyDetails = async (req, res) => {
               $group: {
                 _id: {
                   $cond: {
-                    if: { $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }] },
+                    if: { $eq: [{ $week: "$list.createdAt" }, { $week: currentDate }] },
                     then: "Current Week",
                     else: {
                       $cond: {
                         if: {
                           $eq: [
                             { $week: "$list.createdAt" },
-                            { $week: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7) }
+                            { $week: pickWeek }
                           ]
                         },
                         then: "Previous Week",
@@ -615,6 +476,142 @@ const getWeeklyDetails = async (req, res) => {
         }
       }
     ]);
+    
+    // const weeklySales = await customerPaymentTracker.aggregate([
+    //   {
+    //     $facet: {
+    //       weeklyDetails: [
+    //         {
+    //           $match: {
+    //             status: "paid",
+    //             createdAt: {
+    //               $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    //               $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+    //             }
+    //           }
+    //         },
+    //         { $unwind: "$cartDetails.cartItems" },
+    //         {
+    //           $group: {
+    //             _id: "$cartDetails.cartItems._id",
+    //             list: {
+    //               $push: {
+    //                 user: "$cartDetails.cartItems.user",
+    //                 price: "$cartDetails.cartItems.price",
+    //                 createdAt: "$createdAt"
+    //               }
+    //             }
+    //           }
+    //         },
+    //         { $unwind: "$list" },
+    //         {
+    //           $match: {
+    //             $expr: {
+    //               $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }]
+    //             }
+    //           }
+    //         },
+    //         {
+    //           $group: {
+    //             _id: { dayOfWeek: { $dayOfWeek: "$list.createdAt" } },
+    //             price: { $sum: "$list.price" }
+    //           }
+    //         },
+    //         {
+    //           $group: {
+    //             _id: null,
+    //             weeklySales: {
+    //               $push: {
+    //                 dayOfWeek: "$_id.dayOfWeek",
+    //                 price: "$price"
+    //               }
+    //             }
+    //           }
+    //         },
+    //         {
+    //           $project: {
+    //             _id: 0,
+    //             weeklySales: {
+    //               $map: {
+    //                 input: { $range: [1, 8] },
+    //                 as: "day",
+    //                 in: {
+    //                   dayOfWeek: "$$day",
+    //                   price: {
+    //                     $let: {
+    //                       vars: {
+    //                         matchedSale: {
+    //                           $arrayElemAt: [
+    //                             {
+    //                               $filter: {
+    //                                 input: "$weeklySales",
+    //                                 cond: { $eq: ["$$this.dayOfWeek", "$$day"] }
+    //                               }
+    //                             },
+    //                             0
+    //                           ]
+    //                         }
+    //                       },
+    //                       in: { $ifNull: ["$$matchedSale.price", 0] }
+    //                     }
+    //                   }
+    //                 }
+    //               }
+    //             }
+    //           }
+    //         }
+    //       ],
+    //       weeklyPercentage: [
+    //         {
+    //           $match: {
+    //             status: "paid",
+    //             createdAt: {
+    //               $gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+    //               $lte: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+    //             }
+    //           }
+    //         },
+    //         { $unwind: "$cartDetails.cartItems" },
+    //         {
+    //           $group: {
+    //             _id: "$cartDetails.cartItems._id",
+    //             list: {
+    //               $push: {
+    //                 user: "$cartDetails.cartItems.user",
+    //                 price: "$cartDetails.cartItems.price",
+    //                 createdAt: "$createdAt"
+    //               }
+    //             }
+    //           }
+    //         },
+    //         { $unwind: "$list" },
+    //         {
+    //           $group: {
+    //             _id: {
+    //               $cond: {
+    //                 if: { $eq: [{ $week: "$list.createdAt" }, { $week: new Date() }] },
+    //                 then: "Current Week",
+    //                 else: {
+    //                   $cond: {
+    //                     if: {
+    //                       $eq: [
+    //                         { $week: "$list.createdAt" },
+    //                         { $week: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7) }
+    //                       ]
+    //                     },
+    //                     then: "Previous Week",
+    //                     else: "Other Week"
+    //                   }
+    //                 }
+    //               }
+    //             },
+    //             totalPrice: { $sum: "$list.price" }
+    //           }
+    //         }
+    //       ]
+    //     }
+    //   }
+    // ]);
 
     res.status(200).json({ data: weeklySales[0], status: 200 });
   } catch (err) {
@@ -691,55 +688,5 @@ const getPerformingProducts = async (req,res)=>{
     res.status(200).json({ data: products, status: 200 });
 }
 
-const getSlotCalender = async (req, res) => {
-  try {
-    const allSlot = await bidding.aggregate([
-      {
-        $group: {
-          _id: "$bid_end_date",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-    res.status(200).json({ allSlot });
-  } catch (error) {
-    console.log(error);
-  }
-};
 
-const getCropPropDebitCredit = async (req, res) => {
-  try {
-    const cropDebitCredit = await customerCropTransaction.aggregate([
-      {
-        $group: {
-          _id: "$transactionType",
-          totalDebit: {
-            $sum: { $cond: [{ $eq: ["$transactionType", "debit"] }, "$crop", 0] }
-          },
-          totalCredit: {
-            $sum: { $cond: [{ $eq: ["$transactionType", "credit"] }, "$crop", 0] }
-          }
-        }
-      }
-    ]);
-    const propDebitCredit = await customerPropTransaction.aggregate([
-      {
-        $group: {
-          _id: "$transactionType",
-          totalDebit: {
-            $sum: { $cond: [{ $eq: ["$transactionType", "debit"] }, "$prop", 0] }
-          },
-          totalCredit: {
-            $sum: { $cond: [{ $eq: ["$transactionType", "credit"] }, "$prop", 0] }
-          }
-        }
-      }
-    ]);
-    res.status(200).json({ crop: cropDebitCredit, prop: propDebitCredit });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-
-module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender, getCropPropDebitCredit};
+module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts};
