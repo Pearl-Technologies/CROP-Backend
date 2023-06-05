@@ -1,6 +1,7 @@
 const admin = require("../../models/superAdminModel/user");
 const { customerPaymentTracker } = require("../../models/admin/PaymentTracker/paymentIdTracker");
 const  business  = require("../../models/businessModel/business");
+const bidding = require("../../models/admin/bidding/admin_bidding")
 const bcrypt = require("bcryptjs");
 const { User } = require("../../models/User")
 
@@ -542,4 +543,20 @@ const getPerformingProducts = async (req,res)=>{
     res.status(200).json({ data: products, status: 200 });
 }
 
-module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts};
+const getSlotCalender = async (req, res) => {
+  try {
+    const allSlot = await bidding.aggregate([
+      {
+        $group: {
+          _id: "$bid_end_date",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    res.status(200).json({ allSlot });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender};
