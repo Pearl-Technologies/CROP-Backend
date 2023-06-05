@@ -8,7 +8,7 @@ const {
   getAdminData,
   passwordResetEmail
 } = require("../controller/superAdminController/user");
-const { dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender, getCropPropDebitCredit } = require("../controller/adminController/adminDashboard");
+const { dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts } = require("../controller/adminController/adminDashboard");
 const {
   getAccountBalance,
   updateAccountBalance,
@@ -299,6 +299,4 @@ router.get('/getSalesDetails', getSalesDeatils);
 router.get('/getWeeklyDetails',getWeeklyDetails);
 router.get('/getperformingProducts',getPerformingProducts);
 router.get("/getNearMeProducts",getNearMeProducts)
-router.get('/getSlotCalender', getSlotCalender)
-router.get('/getCropPropDebitCredit', getCropPropDebitCredit)
 module.exports = router;
