@@ -688,5 +688,56 @@ const getPerformingProducts = async (req,res)=>{
     res.status(200).json({ data: products, status: 200 });
 }
 
+const getSlotCalender = async (req, res) => {
+  try {
+    const allSlot = await bidding.aggregate([
+      {
+        $group: {
+          _id: "$bid_end_date",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    res.status(200).json({ allSlot });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts};
+const getCropPropDebitCredit = async (req, res) => {
+  try {
+    const cropDebitCredit = await customerCropTransaction.aggregate([
+      {
+        $group: {
+          _id: "$transactionType",
+          totalDebit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "debit"] }, "$crop", 0] }
+          },
+          totalCredit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "credit"] }, "$crop", 0] }
+          }
+        }
+      }
+    ]);
+    const propDebitCredit = await customerPropTransaction.aggregate([
+      {
+        $group: {
+          _id: "$transactionType",
+          totalDebit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "debit"] }, "$prop", 0] }
+          },
+          totalCredit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "credit"] }, "$prop", 0] }
+          }
+        }
+      }
+    ]);
+    res.status(200).json({ crop: cropDebitCredit, prop: propDebitCredit });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender, getCropPropDebitCredit};
