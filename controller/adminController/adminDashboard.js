@@ -2,6 +2,8 @@ const admin = require("../../models/superAdminModel/user");
 const { customerPaymentTracker } = require("../../models/admin/PaymentTracker/paymentIdTracker");
 const  business  = require("../../models/businessModel/business");
 const bidding = require("../../models/admin/bidding/admin_bidding")
+const customerCropTransaction = require("../../models/CropTransaction")
+const customerPropTransaction = require("../../models/PropTransaction")
 const bcrypt = require("bcryptjs");
 const { User } = require("../../models/User")
 
@@ -559,4 +561,39 @@ const getSlotCalender = async (req, res) => {
   }
 };
 
-module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender};
+const getCropPropDebitCredit = async (req, res) => {
+  try {
+    const cropDebitCredit = await customerCropTransaction.aggregate([
+      {
+        $group: {
+          _id: "$transactionType",
+          totalDebit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "debit"] }, "$crop", 0] }
+          },
+          totalCredit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "credit"] }, "$crop", 0] }
+          }
+        }
+      }
+    ]);
+    const propDebitCredit = await customerPropTransaction.aggregate([
+      {
+        $group: {
+          _id: "$transactionType",
+          totalDebit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "debit"] }, "$prop", 0] }
+          },
+          totalCredit: {
+            $sum: { $cond: [{ $eq: ["$transactionType", "credit"] }, "$prop", 0] }
+          }
+        }
+      }
+    ]);
+    res.status(200).json({ crop: cropDebitCredit, prop: propDebitCredit });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender, getCropPropDebitCredit};
