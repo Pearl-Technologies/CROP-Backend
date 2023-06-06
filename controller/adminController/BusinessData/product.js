@@ -9,6 +9,7 @@ const {
   updatePaymentInfo,
 } = require("../PaymentController/payment");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
+const NodeGeocoder = require("node-geocoder")
 
 // Your AccountSID and Auth Token from console.twilio.com
 const accountSid = process.env.TWILIO_SID;
@@ -60,6 +61,7 @@ const getAllProduct = async (req, res) => {
   }
 };
 const getAllMostPopularProduct = async (req, res) => {
+  let applyType=req.query.applyType;
   try {
     const productList = await Product.aggregate(
       [
@@ -67,7 +69,18 @@ const getAllMostPopularProduct = async (req, res) => {
           '$match': {
             'mktOfferFor': 'topRank'
           }
-        }, {
+        },
+        {
+          '$match': {
+            'mktDate.end': 'earnCrop'
+          }
+        },
+        {
+          '$match': {
+            'apply': 'earnCrop'
+          }
+        },
+         {
           '$sort': {
             'updatedAt': -1
           }
@@ -78,12 +91,16 @@ const getAllMostPopularProduct = async (req, res) => {
         }
       ]
     )
+    
     res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error" });
   }
 };
+
+
+
 const getAllPromoProduct = async (req, res) => {
   try {
     const productList = await Product.aggregate(
@@ -589,6 +606,26 @@ const job = schedule.scheduleJob("0 0 * * *", function () {
     count = 1
   }
 });
+
+const getNearMeProducts=async (req,res)=>{
+  const geocoder = NodeGeocoder({
+    provider: "openstreetmap",
+  })
+  const lat = parseFloat(req.params.lat)
+  const long = parseFloat(req.params.long)
+  console.log({ lat }, { long })
+  let city = ""
+  await geocoder
+    .reverse({ lat, lon: long })
+    .then(res => {
+      city = res[0].city
+      console.log(city)
+    })
+    .catch(err => {
+      console.error(err)
+    })
+}
+
 // start the job
 job.schedule();
-module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct };
+module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct, getNearMeProducts };

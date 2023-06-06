@@ -28,7 +28,7 @@ const createPropValuation= async(req, res)=>{
     }
 }
 const updatePropValuation = async(req, res)=>{
-    // console.log(req.body)
+    console.log(req.body)
     // return res.send(req.body);
     const {defaultProp, purchaseProp, defaultCrop, purchaseCrop, _id} = req.body
     const user = req.user.user.id;
