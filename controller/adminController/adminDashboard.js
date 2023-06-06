@@ -2,7 +2,9 @@ const admin = require("../../models/superAdminModel/user");
 const { customerPaymentTracker } = require("../../models/admin/PaymentTracker/paymentIdTracker");
 const  business  = require("../../models/businessModel/business");
 const bcrypt = require("bcryptjs");
-const { User } = require("../../models/User")
+const customerCropTransaction = require("../../models/CropTransaction");
+const customerPropTransaction = require("../../models/PropTransaction");
+const { User } = require("../../models/User");
 
 const dashboard = async (req, res) => {
   try {
@@ -457,12 +459,7 @@ const getWeeklyDetails = async (req, res) => {
                     then: "Current Week",
                     else: {
                       $cond: {
-                        if: {
-                          $eq: [
-                            { $week: "$list.createdAt" },
-                            { $week: pickWeek }
-                          ]
-                        },
+                        if: { $eq: [{ $week: "$list.createdAt" }, { $week: pickWeek }] },
                         then: "Previous Week",
                         else: "Other Week"
                       }
@@ -470,6 +467,44 @@ const getWeeklyDetails = async (req, res) => {
                   }
                 },
                 totalPrice: { $sum: "$list.price" }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                weeklyPercentage: {
+                  $push: {
+                    week: "$_id",
+                    totalPrice: "$totalPrice"
+                  }
+                }
+              }
+            },
+            {
+              $project: {
+                weeklyPercentage: {
+                  $map: {
+                    input: ["Current Week", "Previous Week", "Other Week"],
+                    as: "week",
+                    in: {
+                      $cond: {
+                        if: { $in: ["$$week", "$weeklyPercentage.week"] },
+                        then: {
+                          week: "$$week",
+                          totalPrice: {
+                            $arrayElemAt: [
+                              "$weeklyPercentage.totalPrice",
+                              {
+                                $indexOfArray: ["$weeklyPercentage.week", "$$week"]
+                              }
+                            ]
+                          }
+                        },
+                        else: { week: "$$week", totalPrice: 0 }
+                      }
+                    }
+                  }
+                }
               }
             }
           ]
