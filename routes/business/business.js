@@ -25,6 +25,7 @@ const {
   creditMissingCropsByBusiness,
   getSinglePurchasedProductStatement,
   mobileRegisterOtp,
+  getGeneralNotification,
 } = require("../../controller/businessController/business.js")
 
 const authorization = require("../../middleware/verifyToken")
@@ -137,6 +138,12 @@ router.get(
   "/get-account-notification/:type",
   authorization,
   getAccountNotification
+)
+
+router.get(
+  "/get-general-notification/:type",
+  authorization,
+  getGeneralNotification
 )
 
 router.get("/get-missing-crops", authorization, getMissingCropsByBusiness)

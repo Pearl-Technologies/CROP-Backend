@@ -12,6 +12,7 @@ const accountNotificationSchema = mongoose.Schema(
     newProduct: {
       productId: { type: mongoose.Schema.Types.ObjectId },
       productTitle: { type: String },
+      productApply: { type: String },
     },
     removedProduct: {
       productTitle: { type: String },

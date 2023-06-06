@@ -19,6 +19,7 @@ const invoiceAndPaymentNotification = require("../../models/businessModel/busine
 const mongoose = require("mongoose")
 const accountNotification = require("../../models/businessModel/businessNotification/accountNotification")
 const { smsOTP } = require("../../utils/smsOtp")
+const generalNotification = require("../../models/businessModel/businessNotification/generalNotification")
 const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"
@@ -107,6 +108,7 @@ const verifyRegisterOtp = async (req, res) => {
 
 const verifyAdbnNumber = async (req, res) => {
   const { abnNumber } = req.body
+  const guid = process.env.ABN_GUID
   try {
     const abnNumberFind = await business.find({ abnNumber })
     if (abnNumberFind.length > 0) {
@@ -115,25 +117,34 @@ const verifyAdbnNumber = async (req, res) => {
         .send({ success: false, msg: "ABN Number Already REgistered" })
     }
     const { default: fetch } = await import("node-fetch")
-    const response = await fetch(
-      `https://abn-search.p.rapidapi.com/abn/current?q=${abnNumber}`,
-      {
-        method: "get",
-        headers: {
-          "X-RapidAPI-Key":
-            "7ddf1639fbmsh33d69adb9550963p16f529jsn706069293abe ",
-          "X-RapidAPI-Host": "abn-search.p.rapidapi.com",
-        },
-      }
-    )
-    const data = await response.json()
-    if (data.current == null) {
+    const api = `https://abr.business.gov.au/json/AbnDetails.aspx?abn=${abnNumber}&callback=callback&guid=${guid}`
+    console.log({ api })
+    const response = await fetch(api, {
+      method: "get",
+    })
+    let responseBody = await response.buffer()
+    if (responseBody[0] === 0x1f && responseBody[1] === 0x8b) {
+      const decompressedStream = new Readable().wrap(
+        responseBody.pipe(createGunzip())
+      )
+      responseBody = await decompressedStream.buffer()
+    }
+    const responseText = responseBody.toString("utf-8")
+    const jsonStartIndex = responseText.indexOf("{")
+    const jsonEndIndex = responseText.lastIndexOf("}")
+    const jsonString = responseText.substring(jsonStartIndex, jsonEndIndex + 1)
+
+    const data = JSON.parse(jsonString)
+
+    console.log({ data })
+
+    if (data.Message == "Search text is not a valid ABN or ACN") {
       console.log(data, "not valid")
       return res
         .status(401)
-        .send({ success: false, msg: "ABN Number Verification Failed" })
+        .send({ success: false, msg: "Not Valid ABN Number" })
     }
-    if (data.current.abn_status == "Cancelled") {
+    if (data.AbnStatus == "Cancelled") {
       console.log(data, "ABN Account Cancelled")
       return res
         .status(401)
@@ -143,7 +154,7 @@ const verifyAdbnNumber = async (req, res) => {
     return res.status(200).send({
       success: true,
       msg: "ABN Number Verified",
-      abnDetails: data.current,
+      abnDetails: data,
     })
   } catch (error) {
     console.log(error)
@@ -898,6 +909,21 @@ const getAccountNotification = async (req, res) => {
   }
 }
 
+const getGeneralNotification = async (req, res) => {
+  const { type } = req.params
+  const businessId = req.user.user.id
+  try {
+    const generaltNotifications = await generalNotification.find({
+      type,
+      businessId,
+    })
+    return res.status(200).send({ generaltNotifications })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
 const getMissingCropsByBusiness = async (req, res) => {
   const businessId = req.user.user.id
   try {
@@ -1010,10 +1036,11 @@ module.exports = {
   getHolidayByState,
   getPurchasedProductStatement,
   getSinglePurchasedProductStatement,
-  getAccountNotification,
   getMissingCropsByBusiness,
   rejectMisssingCropsByBusiness,
   creditMissingCropsByBusiness,
+  getAccountNotification,
+  getGeneralNotification,
 }
 
 // const getMissingCropsByBusiness = async (req, res) => {

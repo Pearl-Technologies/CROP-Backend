@@ -1532,10 +1532,10 @@ router.post("/missingcrop", async (req, res) => {
     const missingCrops = await new MissingCrop(req.body).save()
     console.log(req.body)
     console.log(missingCrops._id, "mcId")
-    req.body.product_id.map(misCrops => {
+    req.body.product_id.map(async misCrops => {
       const { business } = misCrops
       console.log({ business })
-      createMissingCropNotification(missingCrops._id, business)
+      await createMissingCropNotification(missingCrops._id, business)
     })
     let notification = await adminCustomerRequestAndComplainedNotification.find();
     notification = notification[0]._doc

@@ -199,7 +199,7 @@ const getPromoProducts = async (temp_id,page,limit) => {
             happyHoursAndExtendBonusAddedPercentage:
               "$happyHoursAndExtendBonusAddedPercentage",
             cropRulesWithBonus: "$cropRulesWithBonus",
-            // services: 1,
+            services: 1,
             // happyHours: 1,
             // bonusCrops: 1,
           },
@@ -262,6 +262,14 @@ const getPromoProducts = async (temp_id,page,limit) => {
             as: "slashRedemption",
           },
         },
+        {
+          $lookup: {
+            from: "business_services",
+            localField: "user",
+            foreignField: "businessId",
+            as: "services",
+          },
+        },
         { $unwind: "$cropRules" },
         {
           $addFields: {
@@ -315,6 +323,7 @@ const getPromoProducts = async (temp_id,page,limit) => {
             brand: 1,
             description: 1,
             apply: 1,
+            services: 1
           },
         },
       ])
@@ -591,14 +600,25 @@ router.get("/getCart", async (req, res) => {
                     } 
                   tempCart.push(finalProduct)
                 } else if (data.purchaseStatus == 0 && type == 4) {
-                      const store = await StoreProduct.findById({
-                        _id: data._id,
-                      })
-                      if(store != null && store != undefined){
-                        let temp_redeem = (store.redeemProps) * data.cartQuantity;
+                  const store = await StoreProduct.aggregate([
+                    { $match: { _id: { $eq:mongoose.Types.ObjectId(data._id) } } },
+                    {
+                      $lookup: {
+                        from: "business_store_services",
+                        localField: "user",
+                        foreignField: "businessId",
+                        as: "services",
+                      },
+                    }
+                  ])
+                      // const store = await StoreProduct.findById({
+                      //   _id: data._id,
+                      // })
+                      if(store[0] != null && store[0] != undefined){
+                        let temp_redeem = (store[0].redeemProps) * data.cartQuantity;
                   storetotal = storetotal + temp_redeem
                       const finalProduct = {
-                        ...store._doc,
+                        ...store[0],
                         ...{
                           cartQuantity: data.cartQuantity,
                           purchaseStatus: data.purchaseStatus,
