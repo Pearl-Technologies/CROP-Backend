@@ -7,7 +7,8 @@ const {Product} = require('../../../models/businessModel/product')
 const getLastFriday = require('../../../utils/dateHelper')
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 const {customerPaymentTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
-
+const {BusinessHolidays} = require("../../../models/businessModel/businessHolidays")
+const Admin = require("../../../models/superAdminModel/user");
 const getAllBusiness = async (req, res) => {
   try {
     const businesses = await business.find({});
@@ -420,6 +421,87 @@ const getBusinessOfferedPoint = async(req, res)=>{
     ]
   )
 }
+const getAllHolidays = async(req, res)=>{
+    let user_id = (req.user.user.id);
+    try {
+      let findUser = await Admin.findOne({_id:user_id})
+      if(!findUser){
+        return res.status(401).send({"msg":"sorry, you are not authorize"})
+      }
+      let holidays = await BusinessHolidays.find({},{holidayDate:1, holidayName:1, state:1});
+      console.log(holidays);
+      res.status(200).send({holidays});
+      return
+      
+    } catch (error) {
+      console.log(error);
+      return res.status(5000).send({"msg":"internal error"})
+    }
+
+}
+const addHoiday = async(req, res)=>{
+  let user_id = (req.user.user.id);
+  let {holidayDate, holidayName, state} = req.body
+  try {
+    let findUser = await Admin.findOne({_id:user_id})
+    if(!findUser){
+      return res.status(401).send({"msg":"sorry, you are not authorize"})
+    }
+    if(!holidayDate && !holidayName && !state ){
+      return res.status(401).send({"msg":"sorry, all field is required"})
+    }
+    let holidays = await BusinessHolidays.create({holidayDate, holidayName, state});
+    res.status(200).send({"msg":"Holiday added successfully"});
+    return
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({"msg":"internal error"})
+  }
+
+}
+const updateHoliday = async(req, res)=>{
+  let user_id = (req.user.user.id);
+  let {holidayDate, holidayName, state, _id} = req.body
+  try {
+    let findUser = await Admin.findOne({_id:user_id})
+    if(!findUser){
+      return res.status(401).send({"msg":"sorry, you are not authorize"})
+    }
+    if(!holidayDate && !holidayName && !state ){
+      return res.status(401).send({"msg":"sorry, all field is required"})
+    }
+    let holidays = await BusinessHolidays.findByIdAndUpdate({_id}, {$set:{holidayDate, holidayName, state}});
+    res.status(200).send({"msg":"Holiday updated successfully"});
+    return
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({"msg":"internal error"})
+  }
+
+}
+const deleteHoliday = async(req, res)=>{
+  let user_id = (req.user.user.id);
+  let {_id} = req.body
+  try {
+    let findUser = await Admin.findOne({_id:user_id})
+    if(!findUser){
+      return res.status(401).send({"msg":"sorry, you are not authorize"})
+    }
+    if(!_id ){
+      return res.status(401).send({"msg":"id not found"})
+    }
+    let holidays = await BusinessHolidays.findByIdAndDelete({_id});
+    res.status(200).send({"msg":`${holidays.holidayName} Holiday deleted successfully`});
+    return
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({"msg":"internal error"})
+  }
+
+}
 module.exports = {
   getAllBusinessByContent,
   getAllBusiness,
@@ -429,5 +511,9 @@ module.exports = {
   getPurchasedProductStatement,
   getBusinessCropStatement,
   getBusinessProductRated,
-  getBusinessProductRatedAll
+  getBusinessProductRatedAll,
+  getAllHolidays,
+  addHoiday,
+  updateHoliday,
+  deleteHoliday
 };

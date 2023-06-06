@@ -102,17 +102,28 @@ const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransact
 //Business
 
 const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
-// const {getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus} = require("../controller/adminController/BusinessData/business");
 
-const {getAllBusinessByContent, getAllBusiness, businessCrop, getAllBusinessCrop, updateBusinessAccountStatus, getBusinessProductRated, getBusinessProductRatedAll} = require("../controller/adminController/BusinessData/business");
+const {getAllBusinessByContent, 
+  getAllBusiness, 
+  businessCrop, 
+  getAllBusinessCrop, 
+  updateBusinessAccountStatus, 
+  getBusinessProductRated, 
+  getBusinessProductRatedAll, 
+  getPurchasedProductStatement, 
+  getBusinessCropStatement, 
+  getAllHolidays,
+  addHoiday,
+  updateHoliday, 
+  deleteHoliday} = require("../controller/adminController/BusinessData/business");
 const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
 const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
-const {getPurchasedProductStatement, getBusinessCropStatement} =require("../controller/adminController/BusinessData/business")
 const {productPurchaseTrasaction, pointPurchaseTrasaction, getAllLikedProductByUser, getAllRatedProductByUser} =require('../controller/adminController/CustomerData/customer')
 const {addLoyaltyProgramme, getLoyaltyProgramme, updateLoyaltyProgramme, deleteLoyaltyProgramme} = require('../controller/adminController/loyaltyList/loyaltyProgramme');
 const {addInterestName, getInterestList, updateInterest, deleteInterest} =require("../controller/adminController/InterestList/interestList")
+
 // const accountTransaction =require("../controller/adminController/account")
 //router
 
@@ -147,17 +158,11 @@ router.post(
 // router.post("/createBalanceAccount", [body("cropId", "cropId should not be blank").exists(), body("category", "category should not be blank").exists()], createTotalBalanceAccount);
 // router.post("/accountTransaction", accountTransaction);
 // router.post("/redeemtionLimit", [body("cropId", "cropId should not be blank").exists(), body("accountType", "accountType should not be blank").exists(), body("value", "value should not be blank").exists()], redeemtionLimit);
-router.post("/CropTransaction", CropTransaction)
-router.post("/GetCropDetails", GetCropDetails)
-router.post("/PropTransaction", PropTransaction)
-router.post("/GetPropDetails", GetAllProp)
+
 router.post("/setBasePrice", setBasePrice)
 router.post("/getBasePrice", getBasePrice)
 router.post("/updateBasePrice", updateBasePrice)
 router.post("/publishOffer", publishOffer)
-router.post("/getAccountBalance", getAccountBalance)
-router.post("/updateAccountBalance", updateAccountBalance)
-router.post("/saveAccountBalance", saveAccountBalance);
 router.post("/getAllProduct", getAllProduct);
 router.post("/getAllMostPopularProduct", getAllMostPopularProduct);
 router.post("/getAllPromoProduct", getAllPromoProduct);
@@ -278,6 +283,10 @@ router.post("/deleteCategory", verifyToken, deleteCategory)
 router.get("/getCategories", getCategories)
 router.get("/getBusinessProductRated", verifyToken, getBusinessProductRated)
 router.get("/getBusinessProductRatedAll", getBusinessProductRatedAll)
+router.get("/getAllHolidays", verifyToken, getAllHolidays)
+router.post("/addHoiday", verifyToken, addHoiday)
+router.post("/updateHoliday", verifyToken, updateHoliday)
+router.post("/deleteHoliday", verifyToken, deleteHoliday)
 //
 //Business data
 router.post("/getAllBusiness", getAllBusiness)

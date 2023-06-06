@@ -321,7 +321,7 @@ const getWeeklyDetails=async (req,res)=>{
       }
     ]);
     
-    res.status(200).json({ data:weeklySales[0].weeklySales,status:200 });
+    res.status(200).json({ data:weeklySales[0]?.weeklySales,status:200 });
   }
   catch(err){
     console.log(err)
