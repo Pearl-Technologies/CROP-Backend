@@ -701,6 +701,7 @@ const getSlotCalender = async (req, res) => {
     res.status(200).json({ allSlot });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: error, status: 500 })
   }
 };
 
@@ -732,9 +733,10 @@ const getCropPropDebitCredit = async (req, res) => {
         }
       }
     ]);
-    res.status(200).json({ crop: cropDebitCredit, prop: propDebitCredit });
+    res.status(200).json({ crop: cropDebitCredit, prop: propDebitCredit, status: 200 });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: error, status: 500 })
   }
 };
 
