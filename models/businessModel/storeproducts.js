@@ -16,11 +16,11 @@ const storeProductSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    description: {
+    detailedDescription: {
       type: String,
       required: true,
     },
-    brand: {
+    briefDescription: {
       type: String,
       required: true,
     },
@@ -34,23 +34,11 @@ const storeProductSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      default: "active",
+      default: "inActive",
       enum: ["active", "inActive", "scheduled"],
     },
     customiseMsg: { type: String, required: true },
     slot: { type: String },
-    mktOfferFor: { type: String, default: "" },
-    mktDate: {
-      fromDate: { type: String },
-      toDate: { type: String },
-    },
-    bidDate: {
-      fromDate: { type: String },
-      toDate: { type: String },
-    },
-    bidPrice: { type: Number, default: 0 },
-    bid: { type: Boolean, default: false },
-    market: { type: Boolean, default: false },
     city: { type: String },
     rating: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
