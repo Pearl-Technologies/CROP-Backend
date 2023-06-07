@@ -26,6 +26,7 @@ const {
   getSinglePurchasedProductStatement,
   mobileRegisterOtp,
   getGeneralNotification,
+  getHolidayListByBusiness,
 } = require("../../controller/businessController/business.js")
 
 const authorization = require("../../middleware/verifyToken")
@@ -179,6 +180,7 @@ router.get(
   authorization,
   getProductsSaleCountByMonthlyWise
 )
+router.get("/get-holiday-list", authorization, getHolidayListByBusiness)
 
 
 module.exports = router

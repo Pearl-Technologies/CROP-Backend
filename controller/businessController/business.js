@@ -20,6 +20,7 @@ const mongoose = require("mongoose")
 const accountNotification = require("../../models/businessModel/businessNotification/accountNotification")
 const { smsOTP } = require("../../utils/smsOtp")
 const generalNotification = require("../../models/businessModel/businessNotification/generalNotification")
+const businessFeedback = require("../../models/businessModel/businessFeedBack")
 const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"
@@ -48,13 +49,13 @@ const emailRegisterOtp = async (req, res) => {
 const mobileRegisterOtp = async (req, res) => {
   const { mobile, type } = req.body
   try {
-    if(parseInt(type)==1){
+    if (parseInt(type) == 1) {
       const businessFind = await business.find({ mobile })
       if (businessFind.length > 0) {
         return res
           .status(409)
           .send({ success: false, msg: "Mobile Number Already Exist" })
-      }  
+      }
     }
     // const businessFind = await business.find({ mobile })
     // if (businessFind.length > 0) {
@@ -69,11 +70,12 @@ const mobileRegisterOtp = async (req, res) => {
     // const userType = "Business"
     var otp = Math.floor(100000 + Math.random() * 900000)
     const msg = await smsOTP(mobile, otp)
-    if(msg.data.meta.code == 200){
-      res.status(200).json({msg: "OTP Sent Successfully", status: 200})
-    }
-    else{
-      res.status(500).json({msg: "OTP Failed", status: 500, data: msg.data.meta.status})
+    if (msg.data.meta.code == 200) {
+      res.status(200).json({ msg: "OTP Sent Successfully", status: 200 })
+    } else {
+      res
+        .status(500)
+        .json({ msg: "OTP Failed", status: 500, data: msg.data.meta.status })
     }
   } catch (error) {
     console.log(error)
@@ -681,18 +683,18 @@ const updateCommunicationPreference = async (req, res) => {
 const createOrUpdateFeedback = async (req, res) => {
   const businessId = req.user.user.id
   try {
-    const businessFeedBackFind = await businessFeedBack.find({ businessId })
-    if (businessFeedBackFind.length <= 0) {
+    const businessFeedbackFind = await businessFeedback.find({ businessId })
+    if (businessFeedbackFind.length <= 0) {
       req.body.businessId = businessId
       console.log(req.body)
-      const feedBack = new businessFeedBack(req.body)
+      const feedBack = new businessFeedback(req.body)
       await feedBack.save()
       return res.status(200).json({ success: true, feedBack })
     } else {
       console.log("exist running")
       console.log("body", req.body)
-      const feedBack = await businessFeedBack.findByIdAndUpdate(
-        { _id: businessFeedBackFind[0]._id },
+      const feedBack = await businessFeedback.findByIdAndUpdate(
+        { _id: businessFeedbackFind[0]._id },
         req.body
       )
       return res.status(201).json({ success: true, feedBack })
@@ -709,7 +711,7 @@ const getFeedback = async (req, res) => {
   console.log("Api running")
   console.log({ businessId })
   try {
-    const feedBack = await businessFeedBack.findOne({ businessId })
+    const feedBack = await businessFeedback.findOne({ businessId })
     return res.status(200).send({ success: true, feedBack })
   } catch (error) {
     console.log("err start", error, "error end")
@@ -739,7 +741,7 @@ const getHolidayByState = async (req, res) => {
   const { state } = req.body
   try {
     const holidayByState = await BusinessHolidays.find({ state })
-    return re.status(200).send({ success: true, holidayByState })
+    return res.status(200).send({ success: true, holidayByState })
   } catch (error) {
     console.log(error)
   }
@@ -1008,6 +1010,19 @@ const creditMissingCropsByBusiness = async (req, res) => {
   }
 }
 
+const getHolidayListByBusiness = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const businessDetails = await business.findById(businessId)
+    const businessState = businessDetails.address[0].state
+    const holidays = await BusinessHolidays.find({ state: businessState })
+    return res.status(200).send({ holidays })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
 module.exports = {
   emailRegisterOtp,
   mobileRegisterOtp,
@@ -1041,6 +1056,7 @@ module.exports = {
   creditMissingCropsByBusiness,
   getAccountNotification,
   getGeneralNotification,
+  getHolidayListByBusiness,
 }
 
 // const getMissingCropsByBusiness = async (req, res) => {
