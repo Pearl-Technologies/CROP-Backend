@@ -24,6 +24,7 @@ module.exports.addProduct = async (req, res) => {
     req.body.user = id
     req.body.city = busi.address[0].city
     req.body.croppoints = req.body.price
+    console.log(req.body.city, "city")
     const newProduct = new Product(req.body)
     const product = await newProduct.save()
     console.log({ product })

@@ -22,11 +22,11 @@ const productSchema = mongoose.Schema(
     discount: {
       type: Number,
     },
-    description: {
+    detailedDescription: {
       type: String,
       required: true,
     },
-    brand: {
+    briefDescription: {
       type: String,
       required: true,
     },
@@ -67,7 +67,7 @@ const productSchema = mongoose.Schema(
     bid: { type: Boolean, default: false },
     market: { type: Boolean, default: false },
     city: { type: String },
-    zipcode:{ type: Number },
+    zipcode: { type: Number },
     rating: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     user: {

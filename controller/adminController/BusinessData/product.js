@@ -69,7 +69,18 @@ const getAllMostPopularProduct = async (req, res) => {
           '$match': {
             'mktOfferFor': 'topRank'
           }
-        }, {
+        },
+        {
+          '$match': {
+            'mktDate.end': 'earnCrop'
+          }
+        },
+        {
+          '$match': {
+            'apply': 'earnCrop'
+          }
+        },
+         {
           '$sort': {
             'updatedAt': -1
           }
