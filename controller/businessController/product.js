@@ -907,12 +907,13 @@ module.exports.checkProductLike = async (req, res) => {
       },
     ]);
 
-    // if (data.length === 0) {
-    //   return res.status(404).json({
-    //     message: 'Product not found',
-    //     status: 200,
-    //   });
-    // }
+    if (data.length === 0) {
+      return res.status(200).json({
+        message: 'Product not found',
+        data:[],
+        status: 200,
+      });
+    }
 
     res.status(200).json({
       message: 'Success',
