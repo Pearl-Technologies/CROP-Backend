@@ -20,7 +20,7 @@ const mongoose = require("mongoose")
 const accountNotification = require("../../models/businessModel/businessNotification/accountNotification")
 const { smsOTP } = require("../../utils/smsOtp")
 const generalNotification = require("../../models/businessModel/businessNotification/generalNotification")
-const {businessFeedback} = require("../../models/businessModel/BusinessFeedback")
+// const {businessFeedback} = require("../../models/businessModel/BusinessFeedback")
 const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"
@@ -680,44 +680,44 @@ const updateCommunicationPreference = async (req, res) => {
   }
 }
 
-const createOrUpdateFeedback = async (req, res) => {
-  const businessId = req.user.user.id
-  try {
-    const businessFeedbackFind = await businessFeedback.find({ businessId })
-    if (businessFeedbackFind.length <= 0) {
-      req.body.businessId = businessId
-      console.log(req.body)
-      const feedBack = new businessFeedback(req.body)
-      await feedBack.save()
-      return res.status(200).json({ success: true, feedBack })
-    } else {
-      console.log("exist running")
-      console.log("body", req.body)
-      const feedBack = await businessFeedback.findByIdAndUpdate(
-        { _id: businessFeedbackFind[0]._id },
-        req.body
-      )
-      return res.status(201).json({ success: true, feedBack })
-    }
-  } catch (error) {
-    console.log("err start", error, "error end")
-    res.status(500).send("Internal Sever Error Occured")
-  }
-}
+// const createOrUpdateFeedback = async (req, res) => {
+//   const businessId = req.user.user.id
+//   try {
+//     const businessFeedbackFind = await businessFeedback.find({ businessId })
+//     if (businessFeedbackFind.length <= 0) {
+//       req.body.businessId = businessId
+//       console.log(req.body)
+//       const feedBack = new businessFeedback(req.body)
+//       await feedBack.save()
+//       return res.status(200).json({ success: true, feedBack })
+//     } else {
+//       console.log("exist running")
+//       console.log("body", req.body)
+//       const feedBack = await businessFeedback.findByIdAndUpdate(
+//         { _id: businessFeedbackFind[0]._id },
+//         req.body
+//       )
+//       return res.status(201).json({ success: true, feedBack })
+//     }
+//   } catch (error) {
+//     console.log("err start", error, "error end")
+//     res.status(500).send("Internal Sever Error Occured")
+//   }
+// }
 
-const getFeedback = async (req, res) => {
-  console.log(req.user)
-  const businessId = req.user.user.id
-  console.log("Api running")
-  console.log({ businessId })
-  try {
-    const feedBack = await businessFeedback.findOne({ businessId })
-    return res.status(200).send({ success: true, feedBack })
-  } catch (error) {
-    console.log("err start", error, "error end")
-    res.status(500).send("Internal Sever Error Occured")
-  }
-}
+// const getFeedback = async (req, res) => {
+//   console.log(req.user)
+//   const businessId = req.user.user.id
+//   console.log("Api running")
+//   console.log({ businessId })
+//   try {
+//     const feedBack = await businessFeedback.findOne({ businessId })
+//     return res.status(200).send({ success: true, feedBack })
+//   } catch (error) {
+//     console.log("err start", error, "error end")
+//     res.status(500).send("Internal Sever Error Occured")
+//   }
+// }
 
 const uploadProfileImage = async (req, res) => {
   try {
@@ -1046,8 +1046,8 @@ module.exports = {
   customerCreditOrDebitCrops,
   pinChange,
   updateCommunicationPreference,
-  createOrUpdateFeedback,
-  getFeedback,
+  // createOrUpdateFeedback,
+  // getFeedback,
   getHolidayByState,
   getPurchasedProductStatement,
   getSinglePurchasedProductStatement,
