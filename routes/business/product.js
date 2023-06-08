@@ -38,6 +38,7 @@ const {
   getPromoEarnAndRedeemProducts,
   getEarnAndRedeemProducts,
   getSingleProductByBusiness,
+  checkProductLike,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -60,6 +61,7 @@ router.get("/get-redeem-products", authorization, getRedeemProducts)
 router.get("/get-promo-products", authorization, getPromoProductsByBusiness)
 router.get("/get-promo-products/:page/:limit", getPromoProducts)
 router.get("/get-all-products/:page/:limit", getAllProducts)
+router.get("/checkProductLike",checkProductLike)
 
 // router.get("/get-earncrop-products", getEarnCropProducts)
 // router.get("/get-redeemcrop-products", getRedeemCropProducts)
