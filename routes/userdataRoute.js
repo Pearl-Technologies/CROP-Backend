@@ -1627,7 +1627,8 @@ router.get('/addressByToken', async (req, res) => {
     if(data.address.length != 0){
       for(let i=0; i<data.address.length; i++){
         console.log(data.address[i].id, "hello");
-        let state = await StateSchema.findOne({name:data.address[i].state})
+        console.log(data.address[i].state, "state");
+        let state = await StateSchema.findOne({id:data.address[i].state})
         let arr = {}
         arr['line1'] = data.address[i].line1,
         arr['line2'] = data.address[i].line2,

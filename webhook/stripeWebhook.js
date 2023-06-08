@@ -471,7 +471,7 @@ app.post(
           "debit",
           "purchase product by redeem CROP",
           session.payment_intent,
-          user_id
+          findOneForRedeemInvoiceUpdate.cartDetails.user_id
         );
         findOneForRedeemInvoiceUpdate.cartDetails.cartItems.map(async(data)=>{
           let findProduct = await Product.findOne({_id:data._id});
