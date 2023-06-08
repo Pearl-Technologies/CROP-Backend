@@ -3,8 +3,8 @@ const slot = require("../../../models/admin/bidding/admin_bidding");
 const schedule = require("node-schedule");
 const moment = require("moment");
 const createEveryDayPromotionSlot = async (req, res) => {
-  // res.send(req.body);
-  // return console.log("need to to change front end");
+  res.send(req.body);
+  return console.log("need to to change front end");
   let { publishedAs, publishingSlot } = req.body;
   try {
     if (publishingSlot === "weekday") {
@@ -485,6 +485,18 @@ let datas = [
     publishedAs: "topRank",
     publishingSlot: "weekly",
   },
+  {
+    publishedAs: "both",
+    publishingSlot: "monthly",
+  },
+  {
+    publishedAs: "both",
+    publishingSlot: "weekday",
+  },
+  {
+    publishedAs: "both",
+    publishingSlot: "weekly",
+  },
 ];
 const everyDayRender = () => {
   datas.map((data) => {
@@ -544,4 +556,5 @@ const yearlySlot = () => {
 };
 // start the job
 job.schedule();
+// everyDayRender();
 module.exports = { createEveryDayPromotionSlot, getSlot };

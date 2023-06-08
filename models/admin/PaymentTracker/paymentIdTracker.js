@@ -108,7 +108,31 @@ const customerRedeemTrackerSchema = mongoose.Schema({
    },
    address_id:{type:String},
    email:{type:String},
-   status:{type:String}
+   status:{type:String},
+   paymentId:{type:String},
+   productId:[{type:mongoose.Schema.Types.ObjectId, required:true, ref:'business_products'}],
+   paymentUrl:{type:String},
+   paymentMethod:{type:Array},
+   redeemCropPoints:{type:Number},
+   invoice_url:{type:String, default:""},
+   invoice_paid_time:{type:Number, defalut:0},
+   invoice_pdf:{type:String, default:""},
+   customer_email:{type:String, default:""},
+   coupon_code:{type:String, default: ""},
+   invoice_id:{type:String, default:""},
+   payment_intent:{type:String, default:""},
+   number:{type:String, default:""},
+   customer_address:{type:Array},
+   customer_shipping:{type:Array},
+   delivery_address:{
+      status: {type:Boolean, default:true},
+      line1:{type:String},
+       line2:{type:String},
+      line3:{type:String},
+       state:{type:String},
+       city:{type:String},
+       pin:{type:Number}
+       },
 }, {
    timestamps: true
 });

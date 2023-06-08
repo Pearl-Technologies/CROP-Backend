@@ -10,6 +10,7 @@ const {
 } = require("../PaymentController/payment");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const NodeGeocoder = require("node-geocoder")
+const moment = require('moment');
 
 // Your AccountSID and Auth Token from console.twilio.com
 const accountSid = process.env.TWILIO_SID;
@@ -130,7 +131,7 @@ const getAllProductAndSendNotification = async (count) => {
   try {
     let commingWeekDay = () => {
       let today = Date.now() + 1000 * 60 * 60 * 24 * 8;
-      if (new Date(today).getDay() !== 6) {
+      if (new Date(today).getDay() !== 6 || new Date(today).getDay() !== 0) {
         return today;
       }
       return Date.now();
@@ -138,6 +139,7 @@ const getAllProductAndSendNotification = async (count) => {
 
     let dailyMarketStartDate = new Date(commingWeekDay()).toLocaleDateString();
     //weekdayTopRankProduct
+
     let TopRankProductForWeekday = await Product.aggregate([
       {
         $match: {
@@ -282,11 +284,12 @@ const getAllProductAndSendNotification = async (count) => {
     ]);
     let commingWeeklyDay = () => {
       let today = Date.now() + 1000 * 60 * 60 * 24 * 8;
-      if (new Date(today).getDay() === 0) {
+      if (new Date(today).getDay() === 1) {
         return today;
       }
       return Date.now();
     };
+
     let weeklyMarketStartDate = new Date(
       commingWeeklyDay()
     ).toLocaleDateString();
@@ -625,7 +628,7 @@ const getNearMeProducts=async (req,res)=>{
       console.error(err)
     })
 }
-
+// getAllProductAndSendNotification(1)
 // start the job
 job.schedule();
 module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct, getNearMeProducts };

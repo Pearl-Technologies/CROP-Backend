@@ -6,10 +6,13 @@ const fs = require('fs');
 const pdfPath = process.cwd() + "/uploads/";
 const nodemailer = require('nodemailer');
 const invoiceAndPaymentNotification = require("../models/businessModel/businessNotification/invoiceAndPaymentNotification");
-
+const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
 const express = require("express");
 const bodyParser = require("body-parser");
 const ConnectDb = require("../config/db");
+const {
+  InvoicePaymentNotificationCustomer,
+} = require("../models/notification");
 ConnectDb();
 const app = express();
 const {
@@ -17,6 +20,7 @@ const {
   customerPaymentTracker,
   customerPurchsedTracker,
   adminPropPaymentOnMilestoneTracker,
+  customerRedeemTracker
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const { Cart } = require("../models/Cart");
 const { Product } = require("../models/businessModel/product");
@@ -124,6 +128,15 @@ const fulfillOrder = async (session) => {
       )
       await stripe.paymentLinks.update(findRecordForMilestonePaymentProp.paymentLink, { active: false })  
     console.log("payment intent updated on milestone prop payment")
+  }
+  let findOneForRedeem = await customerRedeemTracker.findOne({
+    paymentId: session.id
+  })
+  if(await findOneForRedeem){
+    await customerRedeemTracker.findByIdAndUpdate(
+      { _id: findOneForRedeem._id },
+      { $set: { status: "paid", payment_intent: session.payment_intent } }
+    );
   }  
 };
 
@@ -416,6 +429,56 @@ app.post(
           }else{
             console.log("milestone flag updation failed")
           }
+        }
+
+        let findOneForRedeemInvoiceUpdate = await customerRedeemTracker.findOne({
+          payment_intent: session.payment_intent,
+        })
+
+        if(await findOneForRedeemInvoiceUpdate){
+          await customerRedeemTracker.findByIdAndUpdate(
+            { _id: findOneForRedeemInvoiceUpdate._id },
+            {
+              $set: {
+                status: session.status,
+                invoice_paid_time: session.created,
+                customer_email: session.customer_email,
+                invoice_id: session.id,
+                invoice_url: session.hosted_invoice_url,
+                invoice_pdf: session.invoice_pdf,
+                number: session.number,
+                name: session.customer_name,
+              },
+            }
+          );
+            let notification =
+            await adminCustomerPurchaseAndRedeemtionNotification.find();
+          notification = notification[0]._doc;
+          await new InvoicePaymentNotificationCustomer({
+            user_id: findOneForRedeemInvoiceUpdate.cartDetails.user_id,
+            message: notification.payment_notifications,
+          }).save();
+        
+          let findUserForRedeem = await User.findOne({_id:findOneForRedeemInvoiceUpdate.cartDetails.user_id})
+        let newCropPoint = findUserForRedeem.croppoints - findOneForRedeemInvoiceUpdate.redeemCropPoints;
+        await User.findByIdAndUpdate(
+          { _id:findOneForRedeemInvoiceUpdate.cartDetails.user_id },
+          { $set: { croppoints: newCropPoint } }
+        );
+        SaveMyCropTrasaction(
+          session.total,
+          findOneForRedeemInvoiceUpdate.redeemCropPoints,
+          "debit",
+          "purchase product by redeem CROP",
+          session.payment_intent,
+          user_id
+        );
+        findOneForRedeemInvoiceUpdate.cartDetails.cartItems.map(async(data)=>{
+          let findProduct = await Product.findOne({_id:data._id});
+          let newQuatity = findProduct.quantity - data.cartQuantity;
+          await Product.findByIdAndUpdate({_id:findProduct._id}, {$set:{quantity:newQuatity}})
+          await Cart.updateMany({ user_id: findOneForRedeemInvoiceUpdate.cartDetails.user_id},{$pull: {cart:{_id: data._id }}})
+        })
         }
         break;
       }
