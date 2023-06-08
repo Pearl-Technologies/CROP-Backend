@@ -6,6 +6,8 @@ const { Token } = require("../models/User");
 const StateSchema = require("../models/State");
 const random = require("alphanumeric");
 const { Product } = require("../models/businessModel/product");
+const { StoreProduct } = require("../models/businessModel/storeproducts");
+
 const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
 const {
   InvoicePaymentNotificationCustomer,
@@ -313,78 +315,236 @@ module.exports.RedeemCrop = async (req, res) => {
 };
 
 module.exports.RedeemProp = async (req, res) => {
-  const { cart, _id, address_id, email_id } = req.body;
-  let token = req.headers.authorization;
-  const token_data = await Token.findOne({ token });
-  let user_id = token_data.user;
-  if (token_data) {
-    let redeemPropPoints = 0;
-    cart?.map((item) => {
-      redeemPropPoints = redeemPropPoints + item.tempRedeem;
-    });
+  try {
+    let token = req.headers.authorization;
+    const token_data = await Token.findOne({ token });
+    let user_id = token_data.user;
 
-    let findUser = await User.findOne({ _id: user_id });
-    if (redeemPropPoints > findUser.proppoints) {
-      return res
-        .status(200)
-        .send({ msg: "sorry insoffient PROP in your account", redirect: true });
+    if (!token_data) {
+      return res.status(500).send({ msg: "Token Not There", status: 500 });
     }
-    let newPropPoint = findUser.proppoints - redeemPropPoints;
-    await User.findByIdAndUpdate(
-      { _id: findUser._id },
-      { $set: { proppoints: newPropPoint } }
-    );
-    let couponList = [];
-    const stripe = require("stripe")(process.env.STRIPE_KEY);
-    cart.map(async (data) => {
-      let findProduct = await Product.findOne({ _id: data._id });
-      let newQuatity = findProduct.quantity - data.cartQuantity;
-      await Product.findByIdAndUpdate(
-        { _id: findProduct._id },
-        { $set: { quantity: newQuatity } }
-      );
-      await Cart.updateMany(
-        { user_id: user_id },
-        { $pull: { cart: { _id: data._id } } }
-      );
-    });
-    const coupon = await stripe.coupons.create({
-      percent_off: 25.5,
-      duration: "repeating",
-      duration_in_months: 3,
-    });
-    couponList.push(coupon);
-    let orderNumber = random(7);
-    await customerPropRedeemTracker.create({
-      number: orderNumber,
-      cartDetails: {
-        id: _id,
-        user_id: user_id,
-        cartItems: cart,
-      },
-      address_id: address_id,
-      email: email_id,
-      status: "paid",
-      coupon: couponList,
-    });
+    
+    const { deliverycharges, cart, _id, address_id, email_id } = req.body;
 
-    SaveMyPropTrasaction(
-      0,
-      redeemPropPoints,
-      "debit",
-      "purchase product by redeem PROP",
-      orderNumber,
-      user_id
-    );
-    //
-    res
-      .status(200)
-      .send({ msg: "PROP redemption success", status: 200, couponList });
-  } else {
-    res.status(500).send({ msg: "Token Not There", status: 500 });
+    if (deliverycharges) {
+      const params = {
+        submit_type: "pay",
+        mode: "payment",
+        invoice_creation: { enabled: true },
+        payment_method_types: ["card", "alipay"],
+        billing_address_collection: "auto",
+        shipping_options: [
+          {
+            shipping_rate_data: {
+              type: "fixed_amount",
+              fixed_amount: {
+                amount: deliverycharges * 100,
+                currency: "aud",
+              },
+              display_name: "Normal Delivery",
+            },
+          },
+        ],
+        line_items: cart.map((item) => {
+          return {
+            price_data: {
+              currency: "aud",
+              product_data: {
+                name: item.title,
+                images: item.image,
+              },
+              unit_amount: 0 * 100,
+            },
+            quantity: item.cartQuantity,
+          };
+        }),
+        success_url: `${req.headers.origin}/success`,
+        cancel_url: `${req.headers.origin}/canceled`,
+        customer_email: req.body.email_id,
+      };
+
+      let redeemPropPoints = 0;
+      cart?.map((item) => {
+        redeemPropPoints = redeemPropPoints + item.tempRedeem;
+      });
+      let findUser = await User.findOne({ _id: user_id });
+      if (redeemPropPoints > findUser.proppoints) {
+        return res
+          .status(200)
+          .send({ msg: "sorry insoffient PROP in your account" });
+      }
+      const session = await stripe.checkout.sessions.create(params);
+      if (session.id) {
+        let adddata = await User.find({ _id: user_id });
+        for (let i = 0; i < adddata[0].address.length; i++) {
+          if (address_id == adddata[0].address[i]._id.valueOf()) {
+            var state = await StateSchema.findOne({
+              id: adddata[0].address[i].state,
+            });
+            var obj = {
+              line1: adddata[0].address[i].line1,
+              line2: adddata[0].address[i].line2,
+              line3: adddata[0].address[i].line3,
+              state: state.name,
+              city: adddata[0].address[i].city,
+              pin: adddata[0].address[i].pin,
+            };
+          }
+        }
+
+        await customerRedeemTracker.create({
+          paymentId: session.id,
+          status: "unpaid",
+          paymentMethod: session.payment_method_types,
+          paymentUrl: session.url,
+          cartDetails: {
+            id: req.body._id,
+            user_id: req.body.user_id,
+            cartItems: req.body.cart,
+          },
+          delivery_address: obj,
+          redeemPropPoints,
+        });
+
+        return res.status(200).json(session);
+      }
+    } else {
+      let redeemPropPoints = 0;
+      cart?.map((item) => {
+        redeemPropPoints = redeemPropPoints + item.tempRedeem;
+      });
+      let findUser = await User.findOne({ _id: user_id });
+      if (redeemPropPoints > findUser.proppoints) {
+        return res
+          .status(200)
+          .send({ msg: "sorry insoffient PROP in your account" });
+      }
+      let newPropPoint = findUser.proppoints - redeemPropPoints;
+      await User.findByIdAndUpdate(
+        { _id: findUser._id },
+        { $set: { proppoints: newPropPoint } }
+      );
+      cart.map(async (data) => {
+        let findProduct = await StoreProduct.findOne({ _id: data._id });
+        let newQuatity = findProduct.quantity - data.cartQuantity;
+        await StoreProduct.findByIdAndUpdate(
+          { _id: findProduct._id },
+          { $set: { quantity: newQuatity } }
+        );
+        await Cart.updateMany(
+          { user_id: user_id },
+          { $pull: { cart: { _id: data._id } } }
+        );
+      });
+      let orderNumber = random(7);
+      await customerRedeemTracker.create({
+        number: orderNumber,
+        cartDetails: {
+          id: _id,
+          user_id: user_id,
+          cartItems: cart,
+        },
+        address_id: address_id,
+        email: email_id,
+        status: "paid",
+      });
+
+      SaveMyPropTrasaction(
+        0,
+        redeemPropPoints,
+        "debit",
+        "purchase product by redeem PROP",
+        orderNumber,
+        user_id
+      );
+      let notification =
+        await adminCustomerPurchaseAndRedeemtionNotification.find();
+      notification = notification[0]._doc;
+      await new InvoicePaymentNotificationCustomer({
+        user_id: user_id,
+        message: notification.offers_redeemed,
+      }).save();
+      //
+      res.status(200).send({ msg: "PROP redemption success", status: 200 });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(error.statusCode || 500).json(error.message);
   }
-  return;
 };
+// module.exports.RedeemProp = async (req, res) => {
+//   const { cart, _id, address_id, email_id } = req.body;
+//   let token = req.headers.authorization;
+//   const token_data = await Token.findOne({ token });
+//   let user_id = token_data.user;
+//   if (token_data) {
+//     let redeemPropPoints = 0;
+//     cart?.map((item) => {
+//       redeemPropPoints = redeemPropPoints + item.tempRedeem;
+//     });
+
+//     let findUser = await User.findOne({ _id: user_id });
+//     if (redeemPropPoints > findUser.proppoints) {
+//       return res
+//         .status(200)
+//         .send({ msg: "sorry insoffient PROP in your account", redirect: true });
+//     }
+//     let newPropPoint = findUser.proppoints - redeemPropPoints;
+//     await User.findByIdAndUpdate(
+//       { _id: findUser._id },
+//       { $set: { proppoints: newPropPoint } }
+//     );
+//     let couponList = [];
+//     const stripe = require("stripe")(process.env.STRIPE_KEY);
+//     cart.map(async (data) => {
+//       let findProduct = await Product.findOne({ _id: data._id });
+//       let newQuatity = findProduct.quantity - data.cartQuantity;
+//       await Product.findByIdAndUpdate(
+//         { _id: findProduct._id },
+//         { $set: { quantity: newQuatity } }
+//       );
+//       await Cart.updateMany(
+//         { user_id: user_id },
+//         { $pull: { cart: { _id: data._id } } }
+//       );
+//     });
+//     const coupon = await stripe.coupons.create({
+//       percent_off: 25.5,
+//       duration: "repeating",
+//       duration_in_months: 3,
+//     });
+//     couponList.push(coupon);
+//     let orderNumber = random(7);
+//     await customerPropRedeemTracker.create({
+//       number: orderNumber,
+//       cartDetails: {
+//         id: _id,
+//         user_id: user_id,
+//         cartItems: cart,
+//       },
+//       address_id: address_id,
+//       email: email_id,
+//       status: "paid",
+//       coupon: couponList,
+//     });
+
+//     SaveMyPropTrasaction(
+//       0,
+//       redeemPropPoints,
+//       "debit",
+//       "purchase product by redeem PROP",
+//       orderNumber,
+//       user_id
+//     );
+//     //
+//     res
+//       .status(200)
+//       .send({ msg: "PROP redemption success", status: 200, couponList });
+//   } else {
+//     res.status(500).send({ msg: "Token Not There", status: 500 });
+//   }
+//   return;
+// };
 module.exports.productPurchaseTrasaction = async (req, res) => {
   const { startDate, endDate, search } = req.query;
   let token = req.headers.authorization;

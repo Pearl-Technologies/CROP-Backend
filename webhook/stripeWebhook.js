@@ -1,10 +1,10 @@
 require("dotenv").config();
 const business = require("../models/businessModel/business");
 const { User } = require("../models/User");
-const pdfkit = require('pdfkit');
-const fs = require('fs');
+const pdfkit = require("pdfkit");
+const fs = require("fs");
 const pdfPath = process.cwd() + "/uploads/";
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const invoiceAndPaymentNotification = require("../models/businessModel/businessNotification/invoiceAndPaymentNotification");
 const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
 const express = require("express");
@@ -20,10 +20,11 @@ const {
   customerPaymentTracker,
   customerPurchsedTracker,
   adminPropPaymentOnMilestoneTracker,
-  customerRedeemTracker
+  customerRedeemTracker,
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const { Cart } = require("../models/Cart");
 const { Product } = require("../models/businessModel/product");
+const { StoreProduct } = require("../models/businessModel/storeproducts");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret =
@@ -34,13 +35,14 @@ const createOrder = (session) => {
 };
 
 const {
-  SaveMyCropTrasaction, SaveMyCropExpiry
+  SaveMyCropTrasaction,
+  SaveMyCropExpiry,
 } = require("../controller/customerCropTransaction");
 const {
   SaveMyPropTrasaction,
 } = require("../controller/customerPropTransaction");
 
-const sendMail=(email, subject, text)=>{
+const sendMail = (email, subject, text) => {
   const transporter = nodemailer.createTransport({
     host: process.env.HOST,
     service: process.env.SERVICE, //comment this line if you use custom server/domain
@@ -55,7 +57,7 @@ const sendMail=(email, subject, text)=>{
     from: process.env.EMAIL_USER,
     to: email,
     subject,
-    html:text,
+    html: text,
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
@@ -66,7 +68,7 @@ const sendMail=(email, subject, text)=>{
       // return res.status(200).send({ status: 200, message: "invoice sent." });
     }
   });
-}
+};
 const fulfillOrder = async (session) => {
   //market order payment method is link
   let findOne = await adminPaymentTracker.findOne({
@@ -120,24 +122,28 @@ const fulfillOrder = async (session) => {
 
   let findRecordForMilestonePaymentProp =
     await adminPropPaymentOnMilestoneTracker.findOne({
-      paymentLink:session.payment_link,
+      paymentLink: session.payment_link,
     });
-  if(findRecordForMilestonePaymentProp){
-    await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate({_id:findRecordForMilestonePaymentProp._id},
-      {$set: { status: "paid", payment_intent: session.payment_intent }} 
-      )
-      await stripe.paymentLinks.update(findRecordForMilestonePaymentProp.paymentLink, { active: false })  
-    console.log("payment intent updated on milestone prop payment")
+  if (findRecordForMilestonePaymentProp) {
+    await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate(
+      { _id: findRecordForMilestonePaymentProp._id },
+      { $set: { status: "paid", payment_intent: session.payment_intent } }
+    );
+    await stripe.paymentLinks.update(
+      findRecordForMilestonePaymentProp.paymentLink,
+      { active: false }
+    );
+    console.log("payment intent updated on milestone prop payment");
   }
   let findOneForRedeem = await customerRedeemTracker.findOne({
-    paymentId: session.id
-  })
-  if(await findOneForRedeem){
+    paymentId: session.id,
+  });
+  if (await findOneForRedeem) {
     await customerRedeemTracker.findByIdAndUpdate(
       { _id: findOneForRedeem._id },
       { $set: { status: "paid", payment_intent: session.payment_intent } }
     );
-  }  
+  }
 };
 
 const emailCustomerAboutFailedPayment = async (session) => {
@@ -190,15 +196,19 @@ app.post(
                 invoice_id: session.id,
                 invoice_url: session.hosted_invoice_url,
                 invoice_pdf: session.invoice_pdf,
-                number:session.number,
+                number: session.number,
               },
             }
           );
-          sendMail(session.customer_email, "top ranking payment invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
+          sendMail(
+            session.customer_email,
+            "top ranking payment invoice",
+            `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`
+          );
           // , hosted_invoice_url,: "",
           console.log("business invoices successfully updated");
         }
-        
+
         let findOneRecord = await customerPaymentTracker.findOne({
           payment_intent: session.payment_intent,
         });
@@ -220,7 +230,11 @@ app.post(
               },
             }
           );
-          sendMail(session.customer_email, "purchased product invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
+          sendMail(
+            session.customer_email,
+            "purchased product invoice",
+            `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`
+          );
           // , hosted_invoice_url,: "",
           console.log("customer invoices successfully updated");
           let { cartDetails } = findOneRecord;
@@ -232,9 +246,16 @@ app.post(
                 cartDetails.cartItems[i].cropRulesWithBonus *
                   cartDetails.cartItems[i].cartQuantity
               );
-            let quantity = await Product.findOne({_id:cartDetails.cartItems[i]._id})
-            quantity = parseInt(quantity.quantity) - parseInt(cartDetails.cartItems[i].cartQuantity)
-            await Product.findByIdAndUpdate({_id:cartDetails.cartItems[i]._id},{$set:{quantity: quantity}})
+            let quantity = await Product.findOne({
+              _id: cartDetails.cartItems[i]._id,
+            });
+            quantity =
+              parseInt(quantity.quantity) -
+              parseInt(cartDetails.cartItems[i].cartQuantity);
+            await Product.findByIdAndUpdate(
+              { _id: cartDetails.cartItems[i]._id },
+              { $set: { quantity: quantity } }
+            );
             console.log("product id", cartDetails.cartItems[i]._id);
             console.log("business id", cartDetails.cartItems[i]?.user);
             const user = cartDetails.cartItems[i]?.user;
@@ -267,7 +288,10 @@ app.post(
               });
               console.log("payment notification created");
             };
-            await Cart.updateMany({ user_id: findOneRecord.cartDetails.user_id},{$pull: {cart:{_id: cartDetails.cartItems[i]._id }}})
+            await Cart.updateMany(
+              { user_id: findOneRecord.cartDetails.user_id },
+              { $pull: { cart: { _id: cartDetails.cartItems[i]._id } } }
+            );
             // await Cart.find({ 'user_id': findOneRecord.cartDetails.user_id }).deleteOne({'cart.$._id':cartDetails.cartItems[i]._id})
             savePaymentAndNotification();
           }
@@ -286,9 +310,9 @@ app.post(
               { new: true }
             );
           }
-          console.log("Check Invoice",session)
+          console.log("Check Invoice", session);
           SaveMyCropTrasaction(
-            session.subtotal/100,
+            session.subtotal / 100,
             customerCropPoint,
             "credit",
             "purchase product",
@@ -296,7 +320,7 @@ app.post(
             findOneRecord.cartDetails.user_id,
             session.number,
             session.hosted_invoice_url,
-            session.invoice_pdf,
+            session.invoice_pdf
           );
         } else {
           console.log("record is not found for updating invoice details");
@@ -323,7 +347,7 @@ app.post(
               },
             }
           );
-          
+
           findUser = await User.findOne({
             _id: findOneCustomerPointPurchasePaymentRequest.user,
           });
@@ -346,7 +370,11 @@ app.post(
                 { new: true }
               );
             }
-            sendMail(session.customer_email, "purchased CROP invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
+            sendMail(
+              session.customer_email,
+              "purchased CROP invoice",
+              `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`
+            );
           } else if (
             findOneCustomerPointPurchasePaymentRequest.type == "PROP"
           ) {
@@ -359,9 +387,13 @@ app.post(
               findOneCustomerPointPurchasePaymentRequest.user,
               session.number,
               session.hosted_invoice_url,
-              session.invoice_pdf,
+              session.invoice_pdf
             );
-            sendMail(session.customer_email, "purchased PROP invoice", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
+            sendMail(
+              session.customer_email,
+              "purchased PROP invoice",
+              `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`
+            );
             if (findUser) {
               let customerNewPropPoint =
                 findUser.proppoints +
@@ -380,25 +412,31 @@ app.post(
           );
         }
 
-        let findCustomerForMilestonePropPaymentInvoice = 
-        await adminPropPaymentOnMilestoneTracker.findOne({
-          payment_intent: session.payment_intent,
-        })
-        if(findCustomerForMilestonePropPaymentInvoice){
+        let findCustomerForMilestonePropPaymentInvoice =
+          await adminPropPaymentOnMilestoneTracker.findOne({
+            payment_intent: session.payment_intent,
+          });
+        if (findCustomerForMilestonePropPaymentInvoice) {
           await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate(
-            {_id: findCustomerForMilestonePropPaymentInvoice._id},
-           {$set:{
-            invoice_paid_time: session.created,
-            customer_email: session.customer_email,
-            invoice_id: session.id,
-            invoice_url: session.hosted_invoice_url,
-            invoice_pdf: session.invoice_pdf,
-            number: session.number,
-            name: session.customer_name,
-           }}
-           )  
-           sendMail(session.customer_email, "you have sent milestone PROPS", `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`)
-           SaveMyPropTrasaction(
+            { _id: findCustomerForMilestonePropPaymentInvoice._id },
+            {
+              $set: {
+                invoice_paid_time: session.created,
+                customer_email: session.customer_email,
+                invoice_id: session.id,
+                invoice_url: session.hosted_invoice_url,
+                invoice_pdf: session.invoice_pdf,
+                number: session.number,
+                name: session.customer_name,
+              },
+            }
+          );
+          sendMail(
+            session.customer_email,
+            "you have sent milestone PROPS",
+            `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`
+          );
+          SaveMyPropTrasaction(
             findCustomerForMilestonePropPaymentInvoice.amount,
             findCustomerForMilestonePropPaymentInvoice.quantity,
             "credit",
@@ -406,36 +444,49 @@ app.post(
             findCustomerForMilestonePropPaymentInvoice.payment_intent,
             findCustomerForMilestonePropPaymentInvoice.user
           );
-          if(findCustomerForMilestonePropPaymentInvoice.milestone === 5000){
+          if (findCustomerForMilestonePropPaymentInvoice.milestone === 5000) {
             await User.findByIdAndUpdate(
-              {_id:findCustomerForMilestonePropPaymentInvoice.user},
-              {$set:{fiveKCropMileStone:true}}
-            )
-          }else if(findCustomerForMilestonePropPaymentInvoice.milestone === 10000){        
-          await User.findByIdAndUpdate(
-            {_id:findCustomerForMilestonePropPaymentInvoice.user},
-            {$set:{tenKCropMileStone:true}}
-          )
-          }else if(findCustomerForMilestonePropPaymentInvoice.milestone === 25000){        
+              { _id: findCustomerForMilestonePropPaymentInvoice.user },
+              { $set: { fiveKCropMileStone: true } }
+            );
+          } else if (
+            findCustomerForMilestonePropPaymentInvoice.milestone === 10000
+          ) {
             await User.findByIdAndUpdate(
-              {_id:findCustomerForMilestonePropPaymentInvoice.user},
-              {$set:{twentyFiveKCropMileStone:true}}
-            )
-          }else if(findCustomerForMilestonePropPaymentInvoice.milestone >= 30000){        
+              { _id: findCustomerForMilestonePropPaymentInvoice.user },
+              { $set: { tenKCropMileStone: true } }
+            );
+          } else if (
+            findCustomerForMilestonePropPaymentInvoice.milestone === 25000
+          ) {
             await User.findByIdAndUpdate(
-              {_id:findCustomerForMilestonePropPaymentInvoice.user},
-              {$set:{newMileStone:findCustomerForMilestonePropPaymentInvoice.milestone+5000}}
-            )
-          }else{
-            console.log("milestone flag updation failed")
+              { _id: findCustomerForMilestonePropPaymentInvoice.user },
+              { $set: { twentyFiveKCropMileStone: true } }
+            );
+          } else if (
+            findCustomerForMilestonePropPaymentInvoice.milestone >= 30000
+          ) {
+            await User.findByIdAndUpdate(
+              { _id: findCustomerForMilestonePropPaymentInvoice.user },
+              {
+                $set: {
+                  newMileStone:
+                    findCustomerForMilestonePropPaymentInvoice.milestone + 5000,
+                },
+              }
+            );
+          } else {
+            console.log("milestone flag updation failed");
           }
         }
 
-        let findOneForRedeemInvoiceUpdate = await customerRedeemTracker.findOne({
-          payment_intent: session.payment_intent,
-        })
+        let findOneForRedeemInvoiceUpdate = await customerRedeemTracker.findOne(
+          {
+            payment_intent: session.payment_intent,
+          }
+        );
 
-        if(await findOneForRedeemInvoiceUpdate){
+        if (await findOneForRedeemInvoiceUpdate) {
           await customerRedeemTracker.findByIdAndUpdate(
             { _id: findOneForRedeemInvoiceUpdate._id },
             {
@@ -451,34 +502,64 @@ app.post(
               },
             }
           );
-            let notification =
+          let notification =
             await adminCustomerPurchaseAndRedeemtionNotification.find();
           notification = notification[0]._doc;
           await new InvoicePaymentNotificationCustomer({
             user_id: findOneForRedeemInvoiceUpdate.cartDetails.user_id,
             message: notification.payment_notifications,
           }).save();
-        
-          let findUserForRedeem = await User.findOne({_id:findOneForRedeemInvoiceUpdate.cartDetails.user_id})
-        let newCropPoint = findUserForRedeem.croppoints - findOneForRedeemInvoiceUpdate.redeemCropPoints;
-        await User.findByIdAndUpdate(
-          { _id:findOneForRedeemInvoiceUpdate.cartDetails.user_id },
-          { $set: { croppoints: newCropPoint } }
-        );
-        SaveMyCropTrasaction(
-          session.total,
-          findOneForRedeemInvoiceUpdate.redeemCropPoints,
-          "debit",
-          "purchase product by redeem CROP",
-          session.payment_intent,
-          findOneForRedeemInvoiceUpdate.cartDetails.user_id
-        );
-        findOneForRedeemInvoiceUpdate.cartDetails.cartItems.map(async(data)=>{
-          let findProduct = await Product.findOne({_id:data._id});
-          let newQuatity = findProduct.quantity - data.cartQuantity;
-          await Product.findByIdAndUpdate({_id:findProduct._id}, {$set:{quantity:newQuatity}})
-          await Cart.updateMany({ user_id: findOneForRedeemInvoiceUpdate.cartDetails.user_id},{$pull: {cart:{_id: data._id }}})
-        })
+
+          let findUserForRedeem = await User.findOne({
+            _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id,
+          });
+          if (findOneForRedeemInvoiceUpdate.redeemCropPoints) {
+            let newCropPoint =
+              findUserForRedeem.croppoints -
+              findOneForRedeemInvoiceUpdate.redeemCropPoints;
+            await User.findByIdAndUpdate(
+              { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
+              { $set: { croppoints: newCropPoint } }
+            );
+            SaveMyCropTrasaction(
+              session.total,
+              findOneForRedeemInvoiceUpdate.redeemCropPoints,
+              "debit",
+              "purchase product by redeem CROP",
+              session.payment_intent,
+              findOneForRedeemInvoiceUpdate.cartDetails.user_id
+            );
+          } else if (findOneForRedeemInvoiceUpdate.redeemPropPoints) {
+            let newPropPoint =
+              findUserForRedeem.proppoints -
+              findOneForRedeemInvoiceUpdate.redeemPropPoints;
+            await User.findByIdAndUpdate(
+              { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
+              { $set: { proppoints: newPropPoint } }
+            );
+            SaveMyPropTrasaction(
+              session.total,
+              findOneForRedeemInvoiceUpdate.redeemPropPoints,
+              "debit",
+              "purchase product by redeem PROP",
+              session.payment_intent,
+              findOneForRedeemInvoiceUpdate.cartDetails.user_id
+            );
+          }
+          findOneForRedeemInvoiceUpdate.cartDetails.cartItems.map(
+            async (data) => {
+              let findProduct = await StoreProduct.findOne({ _id: data._id });
+              let newQuatity = findProduct.quantity - data.cartQuantity;
+              await StoreProduct.findByIdAndUpdate(
+                { _id: findProduct._id },
+                { $set: { quantity: newQuatity } }
+              );
+              await Cart.updateMany(
+                { user_id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
+                { $pull: { cart: { _id: data._id } } }
+              );
+            }
+          );
         }
         break;
       }

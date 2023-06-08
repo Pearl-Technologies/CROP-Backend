@@ -114,6 +114,7 @@ const customerRedeemTrackerSchema = mongoose.Schema({
    paymentUrl:{type:String},
    paymentMethod:{type:Array},
    redeemCropPoints:{type:Number},
+   redeemPropPoints:{type:Number},
    invoice_url:{type:String, default:""},
    invoice_paid_time:{type:Number, defalut:0},
    invoice_pdf:{type:String, default:""},
