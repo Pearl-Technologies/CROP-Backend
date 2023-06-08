@@ -20,7 +20,7 @@ const mongoose = require("mongoose")
 const accountNotification = require("../../models/businessModel/businessNotification/accountNotification")
 const { smsOTP } = require("../../utils/smsOtp")
 const generalNotification = require("../../models/businessModel/businessNotification/generalNotification")
-const businessFeedback = require("../../models/businessModel/businessFeedBack");
+const {businessFeedback} = require("../../models/businessModel/BusinessFeedback")
 const ObjectId = mongoose.Types.ObjectId
 
 const JWT_SECRET = "CROP@12345"

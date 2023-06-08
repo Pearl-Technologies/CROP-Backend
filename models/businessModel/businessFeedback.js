@@ -9,4 +9,4 @@ const businessFeedback = mongoose.model("Business_Feedback", {
   },
 })
 
-module.exports = businessFeedback
+module.exports = { businessFeedback }
