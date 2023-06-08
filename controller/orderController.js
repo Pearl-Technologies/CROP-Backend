@@ -162,10 +162,10 @@ module.exports.RedeemCrop = async (req, res) => {
 
     if (deliverycharges) {
       let quantity = 0;
-      cart.map(data=>{
-        quantity = data.cartQuantity;
-      })
-      console.log(quantity, 'quantity');
+      cart.map((data) => {
+        quantity = quantity + data.cartQuantity;
+      });
+      console.log(quantity, "quantity");
       const params = {
         submit_type: "pay",
         mode: "payment",
@@ -175,41 +175,25 @@ module.exports.RedeemCrop = async (req, res) => {
         shipping_options: [
           {
             shipping_rate_data: {
-              type: 'fixed_amount',
+              type: "fixed_amount",
               fixed_amount: {
-                amount: (deliverycharges-1)*100,
-                currency: 'aud',
+                amount: deliverycharges * 100,
+                currency: "aud",
               },
-              display_name: 'Normal Delivery',
+              display_name: "Normal Delivery",
             },
           },
         ],
-        // line_items: [
-        //   {
-        //     price_data: {
-        //       currency: 'aud',
-        //       product_data: {
-        //         name: 'redeem product',
-        //       },
-        //       unit_amount: (deliverycharges-(deliverycharges-1))*100,
-        //     },
-        //     quantity: 1,
-        //   },
-        // ],
         line_items: cart.map((item) => {
           return {
             price_data: {
               currency: "aud",
               product_data: {
                 name: item.title,
-                images: item.image[0],
+                images: item.image,
               },
-              unit_amount: 0,
+              unit_amount: item.price * 100,
             },
-            // adjustable_quantity: {
-            //   enabled: true,
-            //   minimum: 1,
-            // },
             quantity: item.cartQuantity,
           };
         }),
@@ -217,12 +201,111 @@ module.exports.RedeemCrop = async (req, res) => {
         cancel_url: `${req.headers.origin}/canceled`,
         customer_email: req.body.email_id,
       };
-      console.log(params, 'params');
-      return
+
+      let redeemCropPoints = 0;
+      cart?.map((item) => {
+        redeemCropPoints = redeemCropPoints + item.tempRedeem;
+      });
+      let findUser = await User.findOne({ _id: user_id });
+      if (redeemCropPoints > findUser.croppoints) {
+        return res
+          .status(200)
+          .send({ msg: "sorry insoffient CROP in your account" });
+      }
       const session = await stripe.checkout.sessions.create(params);
-      return res.status(200).json(session);
+      if (session.id) {
+        let adddata = await User.find({ _id: user_id });
+        for (let i = 0; i < adddata[0].address.length; i++) {
+          if (address_id == adddata[0].address[i]._id.valueOf()) {
+            var state = await StateSchema.findOne({
+              id: adddata[0].address[i].state,
+            });
+            var obj = {
+              line1: adddata[0].address[i].line1,
+              line2: adddata[0].address[i].line2,
+              line3: adddata[0].address[i].line3,
+              state: state.name,
+              city: adddata[0].address[i].city,
+              pin: adddata[0].address[i].pin,
+            };
+          }
+        }
+
+        await customerRedeemTracker.create({
+          paymentId: session.id,
+          status: "unpaid",
+          paymentMethod: session.payment_method_types,
+          paymentUrl: session.url,
+          cartDetails: {
+            id: req.body._id,
+            user_id: req.body.user_id,
+            cartItems: req.body.cart,
+          },
+          delivery_address: obj,
+          redeemCropPoints,
+        });
+
+        return res.status(200).json(session);
+      }
+    } else {
+      let redeemCropPoints = 0;
+      cart?.map((item) => {
+        redeemCropPoints = redeemCropPoints + item.tempRedeem;
+      });
+      let findUser = await User.findOne({ _id: user_id });
+      if (redeemCropPoints > findUser.croppoints) {
+        return res
+          .status(200)
+          .send({ msg: "sorry insoffient CROP in your account" });
+      }
+      let newCropPoint = findUser.croppoints - redeemCropPoints;
+      await User.findByIdAndUpdate(
+        { _id: findUser._id },
+        { $set: { croppoints: newCropPoint } }
+      );
+      cart.map(async (data) => {
+        let findProduct = await Product.findOne({ _id: data._id });
+        let newQuatity = findProduct.quantity - data.cartQuantity;
+        await Product.findByIdAndUpdate(
+          { _id: findProduct._id },
+          { $set: { quantity: newQuatity } }
+        );
+        await Cart.updateMany(
+          { user_id: user_id },
+          { $pull: { cart: { _id: data._id } } }
+        );
+      });
+      let orderNumber = random(7);
+      await customerRedeemTracker.create({
+        number: orderNumber,
+        cartDetails: {
+          id: _id,
+          user_id: user_id,
+          cartItems: cart,
+        },
+        address_id: address_id,
+        email: email_id,
+        status: "paid",
+      });
+
+      SaveMyCropTrasaction(
+        0,
+        redeemCropPoints,
+        "debit",
+        "purchase product by redeem CROP",
+        orderNumber,
+        user_id
+      );
+      let notification =
+        await adminCustomerPurchaseAndRedeemtionNotification.find();
+      notification = notification[0]._doc;
+      await new InvoicePaymentNotificationCustomer({
+        user_id: user_id,
+        message: notification.offers_redeemed,
+      }).save();
+      //
+      res.status(200).send({ msg: "CROP redemption success", status: 200 });
     }
-    res.send('ok')
   } catch (error) {
     console.log(error);
     return res.status(error.statusCode || 500).json(error.message);
