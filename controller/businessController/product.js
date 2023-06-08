@@ -845,6 +845,89 @@ module.exports.productComment = async (req, res) => {
   }
 }
 
+// db.products_comments.aggregate([
+  // {
+  //   $match: { product_id: ObjectId("641d8706a98f25b7232d3203") }
+  // },
+  // {
+  //   $project: {
+  //     name: {
+  //       $cond: {
+  //         if: {
+  //           $gt: [
+  //             { $size: { $filter: { input: "$product_likes", cond: { $and:[{$eq:["$$this.like",true]},{$eq: ["$$this.user_id", ObjectId("6433d23903a970bb517e5d7a")]}] } } } },
+  //             0
+  //           ]
+  //         },
+  //         then: "exists",
+  //         else: "No exists"
+  //       }
+  //     },
+  //     totalLikes:{$size:"$product_likes"}
+  //   }
+  // }
+// ]);
+
+
+module.exports.checkProductLike = async (req, res) => {
+  try {
+    const productId = req.query.id;
+    const token = req.headers.authorization;
+    const tokenData = await Token.findOne({ token });
+    // const user_id=req.query.user;
+
+    if (!tokenData) {
+      return res.status(401).json({
+        message: 'Invalid token',
+        status: 401,
+      });
+    }
+
+    const data = await productComment.aggregate([
+      {
+        $match: { product_id: ObjectId(productId) },
+      },
+      {
+        $project: {
+          exists : {
+            $cond: {
+              if: {
+                $gt: [
+                  { $size: { $filter: { input: '$product_likes', cond: { $and: [{ $eq: ['$$this.like', true] }, { $eq: ['$$this.user_id', ObjectId(tokenData.user._id)] }] } } } },
+                  0,
+                ],
+              },
+              then: 'true',
+              else: 'false',
+            },
+          },
+          totalLikes: { $size: '$product_likes' },
+        },
+      },
+    ]);
+
+    // if (data.length === 0) {
+    //   return res.status(404).json({
+    //     message: 'Product not found',
+    //     status: 200,
+    //   });
+    // }
+
+    res.status(200).json({
+      message: 'Success',
+      data,
+      status: 200,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Internal server error',
+      status: 500,
+    });
+  }
+};
+
+
 module.exports.putProductCommentLike = async (req, res) => {
   try {
     let token = req.headers.authorization

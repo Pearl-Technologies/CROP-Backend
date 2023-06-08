@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const customerCropTransaction = mongoose.model("customer_crop_trasaction", {
+const customerCropTransactionExpiry = mongoose.model("crop_transactions_expiry", {
 orderNumber:{type:String, require:true},
 transactionType:{type:String, require:true},
 crop:{type:Number, require:true},
@@ -14,4 +14,4 @@ user:{type:mongoose.Schema.Types.ObjectId, ref:"user_customer", required:true},
 createdAt:{type:Date, default:Date.now()}
 })
 
-module.exports = customerCropTransaction
+module.exports = customerCropTransactionExpiry
