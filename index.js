@@ -23,6 +23,7 @@ const address = require("./routes/addresRoute")
 const customerCropTransaction = require("./routes/customerCropTrasaction")
 const count = require("./routes/count");
 const purchaseRequest = require("./routes/purchaseProintConroller")
+const tokenExpiry = require("./routes/expire");
 
 const allowedOrigins = [
   "http://192.168.0.107:3000",
@@ -76,6 +77,7 @@ app.use("/api/superAdmin", superAdmin)
 app.use("/api/address", address)
 app.use("/api",count);
 app.use("/api/customer/royalty", purchaseRequest)
+app.use("/api/checkToken",tokenExpiry);
 
 
 app.get("/", (req, res) => {
