@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
 const businessFeedback = mongoose.model("Business_Feedback", {
   rating: { type: Number, required: true },
@@ -9,4 +9,4 @@ const businessFeedback = mongoose.model("Business_Feedback", {
   },
 })
 
-module.exports = { businessFeedback }
+module.exports = businessFeedback

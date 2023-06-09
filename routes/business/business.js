@@ -13,8 +13,8 @@ const {
   pinChange,
   updateCommunicationPreference,
   updateProfile,
-  // createOrUpdateFeedback,
-  // getFeedback,
+  createOrUpdateFeedback,
+  getFeedback,
   uploadProfileImage,
   getHolidayByState,
   getPurchasedProductStatement,
@@ -130,8 +130,8 @@ router.post(
   customerCreditOrDebitCrops
 )
 
-// router.post("/feedback", authorization, createOrUpdateFeedback)
-// router.get("/feedback", authorization, getFeedback)
+router.post("/feedback", authorization, createOrUpdateFeedback)
+router.get("/feedback", authorization, getFeedback)
 
 router.get("/get-holidays-by-state", authorization, getHolidayByState)
 
