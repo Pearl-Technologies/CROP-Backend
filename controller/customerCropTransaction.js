@@ -1,4 +1,5 @@
 const customerCropTransaction = require("../models/CropTransaction");
+const customerCropTransactionExpiry = require("../models/CropTransactionExpiry");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const { User } = require("../models/User");
@@ -526,4 +527,37 @@ const SaveMyCropTrasaction = async (
   }
 };
 
-module.exports = { getMyCropTrasaction, SaveMyCropTrasaction, getEmailStatementMyCropTrasaction, getAllCropTrasactionByAdmin, getMyCropTrasactionForDownloadStatement };
+const SaveMyCropExpiry = async (
+  amount,
+  crop,
+  transactionType,
+  description,
+  orderNumber,
+  user,
+  invoiceNumber,
+  invoiceUrl,
+  invoicePdf,
+) => {
+  if (!crop || !transactionType || !orderNumber || !user) {
+    return console.log("all field is required");
+  }
+  try {
+    await customerCropTransactionExpiry.create({
+      orderNumber,
+      transactionType,
+      crop,
+      description,
+      amount,
+      user,
+      invoiceNumber,
+      invoiceUrl,
+      invoicePdf,
+    });
+    console.log("trasaction created");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+module.exports = { getMyCropTrasaction, SaveMyCropTrasaction, SaveMyCropExpiry, getEmailStatementMyCropTrasaction, getAllCropTrasactionByAdmin, getMyCropTrasactionForDownloadStatement };
