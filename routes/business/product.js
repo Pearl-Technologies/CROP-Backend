@@ -38,6 +38,7 @@ const {
   getPromoEarnAndRedeemProducts,
   getEarnAndRedeemProducts,
   getSingleProductByBusiness,
+  createMarketProducts,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -119,6 +120,7 @@ router.get(
   authorization,
   getProductCommentAndRatingsByBusiness
 )
+router.post("/market/:id", authorization, createMarketProducts)
 
 
 module.exports = router;

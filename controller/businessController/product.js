@@ -13,6 +13,7 @@ const NodeGeocoder = require("node-geocoder")
 const mongoose = require("mongoose")
 const adminBusinessGeneralNotification = require("../../models/admin/notification/businessGeneralNotification")
 const generalNotification = require("../../models/businessModel/businessNotification/generalNotification")
+const businessMarketOffer = require("../../models/businessModel/marketOffer")
 const ObjectId = mongoose.Types.ObjectId
 
 // addAllProducts
@@ -30,7 +31,9 @@ module.exports.addProduct = async (req, res) => {
     console.log({ product })
     const adminProductCreateNotification =
       await adminBusinessGeneralNotification.findOne({})
-    let desc = adminProductCreateNotification.upload_and_removal_of_offer
+    let desc =
+      adminProductCreateNotification?.upload_and_removal_of_offer ||
+      "New Product Created"
     const newProductNotifiaction = new generalNotification({
       type: "productCreation",
       desc,
@@ -53,6 +56,19 @@ module.exports.addProduct = async (req, res) => {
   }
 }
 // addAllProducts
+
+module.exports.createMarketProducts = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    req.body.businessId = businessId
+    req.body.bid = true
+    const businessMarket = new businessMarketOffer(req.body)
+    await businessMarket.save()
+    return res.status(200)
+  } catch (error) {
+    res.status(500).send("Internal Server Error")
+  }
+}
 
 module.exports.addAllProducts = async (req, res) => {
   try {
@@ -244,7 +260,9 @@ module.exports.removeProduct = async (req, res) => {
     console.log({ removedProduct })
     const adminProductCreateNotification =
       await adminBusinessGeneralNotification.findOne({})
-    let desc = adminProductCreateNotification.upload_and_removal_of_offer
+    let desc =
+      adminProductCreateNotification?.upload_and_removal_of_offer ||
+      "Product Removed"
     const productRemovalNotifiaction = new generalNotification({
       type: "productRemoval",
       desc,
