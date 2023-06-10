@@ -1720,7 +1720,7 @@ router.get('/notification', async (req, res) => {
         let notification = await adminGeneralAccountNotification.find();
         notification = notification[0]._doc
         await new GeneralNotificationCustomer({user_id: user.user, message: `${notification.feedback}${purchaseTracker[i].cartDetails.cartItems[j].title}`, feedback_details: purchaseTracker[i].cartDetails.cartItems[j]}).save();
-        await customerPaymentTracker.updateOne({"cartDetails.user_id":mongoose.Types.ObjectId(`${purchaseTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
+        await customerPaymentTracker.updateOne({_id:purchaseTracker[i]._id, "cartDetails.user_id":mongoose.Types.ObjectId(`${purchaseTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
       }
     }
 
@@ -1729,7 +1729,7 @@ router.get('/notification', async (req, res) => {
         let notification = await adminGeneralAccountNotification.find();
         notification = notification[0]._doc
         await new GeneralNotificationCustomer({user_id: user.user, message: `${notification.feedback}${redeemTracker[i].cartDetails.cartItems[j].title}`, feedback_details: purchaseTracker[i].cartDetails.cartItems[j]}).save();
-        await customerPaymentTracker.updateOne({"cartDetails.user_id":mongoose.Types.ObjectId(`${redeemTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
+        await customerPaymentTracker.updateOne({_id:redeemTracker[i]._id, "cartDetails.user_id":mongoose.Types.ObjectId(`${redeemTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
       }
     }
     const General = await GeneralNotificationCustomer.find({ user_id:user.user })
@@ -1737,7 +1737,7 @@ router.get('/notification', async (req, res) => {
     arr = {}
     arr['AccountCount'] = Account.length
     arr['AccountMessage'] = Account
-    arr['GeneralCount'] = General.length + purchaseTracker.length + redeemTracker.length
+    arr['GeneralCount'] = General.length
     arr['GeneralMessage'] = General
     arr['purchaseMessage'] = purchaseTracker
     arr['redeemMessage'] = redeemTracker
