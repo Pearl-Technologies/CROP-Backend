@@ -1729,7 +1729,7 @@ router.get('/notification', async (req, res) => {
         let notification = await adminGeneralAccountNotification.find();
         notification = notification[0]._doc
         await new GeneralNotificationCustomer({user_id: user.user, message: `${notification.feedback}${redeemTracker[i].cartDetails.cartItems[j].title}`, feedback_details: redeemTracker[i].cartDetails.cartItems[j]}).save();
-        await customerPaymentTracker.updateOne({_id:redeemTracker[i]._id, "cartDetails.user_id":mongoose.Types.ObjectId(`${redeemTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
+        await customerRedeemTracker.updateOne({_id:redeemTracker[i]._id, "cartDetails.user_id":mongoose.Types.ObjectId(`${redeemTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
       }
     }
     const General = await GeneralNotificationCustomer.find({ user_id:user.user })
