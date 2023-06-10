@@ -51,6 +51,7 @@ const adminPaymentTrackerSchema = mongoose.Schema({
        city:{type:String},
        pin:{type:Number}
        },
+   notification_status: {type:Boolean, default: false}
 }, {
    timestamps: true
 });
@@ -134,6 +135,7 @@ const customerRedeemTrackerSchema = mongoose.Schema({
        city:{type:String},
        pin:{type:Number}
        },
+   notification_status: {type:Boolean, default: false}
 }, {
    timestamps: true
 });

@@ -29,6 +29,7 @@ const GeneralNotificationCustomerSchema = new mongoose.Schema({
   },
   message: { type: String, require: true },
   owner_account: { type: Number, require: true, default: 1 },
+  feedback_details:[{}],
   web_push: { type: Number, require: true, default: 1 },
   android_push: { type: Number, require: true, default: 1 },
   ios_push: { type: Number, require: true, default: 1 },
