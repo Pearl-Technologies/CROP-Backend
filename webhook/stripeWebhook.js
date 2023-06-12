@@ -535,13 +535,13 @@ app.post(
                   count_new += 1;
                   if(ids.length == count_new){
                     let firstAmount = cropamount - findOneForRedeemInvoiceUpdate.redeemCropPoints
-                    await customerCropTransaction.findByIdAndUpdate({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount}});
+                    await customerCropTransaction.updateOne({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount}});
                     break;
                   }
                   else{
                     let obj = cropDebitCredit[y].crop - cropDebitCredit[y].usedCrop
                     let firstAmount =  obj + cropDebitCredit[y].usedCrop
-                    await customerCropTransaction.findByIdAndUpdate({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount, expired: true}});
+                    await customerCropTransaction.updateOne({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount, expired: true}});
                   }
                 }
               }
