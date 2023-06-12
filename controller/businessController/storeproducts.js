@@ -3,6 +3,10 @@ const {
 } = require("../../models/admin/PaymentTracker/paymentIdTracker")
 const business = require("../../models/businessModel/business")
 const { StoreProduct } = require("../../models/businessModel/storeproducts")
+const {
+  createStoreProductServiceRequest,
+  updateStoreProductServiceRequest,
+} = require("./businessNotification/compalintNotification")
 
 module.exports.addStoreProduct = async (req, res) => {
   try {
@@ -14,8 +18,8 @@ module.exports.addStoreProduct = async (req, res) => {
     req.body.city = busi.address[0].city
     req.body.croppoints = req.body.price
     const newProduct = new StoreProduct(req.body)
-    await newProduct.save()
-    console.log(newProduct, "newProduct")
+    const storeProduct = await newProduct.save()
+    createStoreProductServiceRequest(id, storeProduct._id)
     res.status(200).send({
       message: "Product added successfully",
       productId: newProduct._id,
@@ -37,7 +41,7 @@ module.exports.uploadStoreProductImages = async (req, res) => {
       { _id: productId },
       { $push: { image: fileName } }
     )
-    return res.status(200).send({ success: true })
+    return res.status(200).send({ success: true, fileName })
   } catch (error) {
     console.log(error)
   }
@@ -73,7 +77,10 @@ module.exports.updateStoreProduct = async (req, res) => {
   const { id } = req.params
   try {
     delete req.body._id
+    req.body.status = "inActive"
     const products = await StoreProduct.findByIdAndUpdate({ _id: id }, req.body)
+    console.log("running")
+    await updateStoreProductServiceRequest(id)
     res.status(200).json({ products, productId: products._id })
   } catch (error) {
     console.log(error)
@@ -132,14 +139,36 @@ module.exports.getAllStoreProducts = async (req, res) => {
   const skip = (page - 1) * limit
   try {
     const storeProducts = await StoreProduct.aggregate([
-      { $match: { $or: [
-        { title: { $regex: req.query.search, $options: 'i' } },
-      ], } }]).skip(parseInt(skip)).limit(parseInt(limit))
+      {
+        $match: {
+          status: "active",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              title: {
+                $regex: req.query.search,
+                $options: "i",
+              },
+            },
+          ],
+        },
+      },
+    ])
+      .skip(parseInt(skip))
+      .limit(parseInt(limit))
     const storeProductsCount = await StoreProduct.aggregate([
-      { $match: { $or: [
-        { title: { $regex: req.query.search, $options: 'i' } },
-      ], } }])
-    return res.status(200).send({ count: storeProductsCount.length, storeProducts })
+      {
+        $match: {
+          $or: [{ title: { $regex: req.query.search, $options: "i" } }],
+        },
+      },
+    ])
+    return res
+      .status(200)
+      .send({ count: storeProductsCount.length, storeProducts })
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error")

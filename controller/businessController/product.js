@@ -2238,7 +2238,7 @@ module.exports.getPromoProductsByBusiness = async (req, res) => {
     const promoProducts = await Product.find({
       user,
       mktOfferFor: "promo",
-      market: true,
+      // market: true,
     })
     return res.status(200).send({ promoProducts })
   } catch (error) {
@@ -2276,6 +2276,7 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
               _id: "$details._id",
               // likes: "$details.likes",
               user: "$user.name",
+              profilePic: "$user.avatar",
               createdAt: "$details.createdAt",
             },
           },
