@@ -515,11 +515,11 @@ app.post(
           let findUserForRedeem = await User.findOne({
             _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id,
           });
-          console.log("First Initial Transaction Data", findUserForRedeem);
+          console.log(`First Initial Transaction Data ${findUserForRedeem}`);
           if (findOneForRedeemInvoiceUpdate.redeemCropPoints) {
             console.log("First Initial Transaction")
             const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"}).sort( { "createdAt": -1 } );
-            console.log("First Transaction", cropDebitCredit)
+            console.log(`First Transaction ${cropDebitCredit}`)
             let ids = [];
             let cropamount = 0;
             for(let r=0; r<cropDebitCredit.length; r++){
@@ -531,7 +531,7 @@ app.post(
                 }
               }
             }
-            console.log("Transaction IDS", ids, cropamount)
+            console.log(`Transaction IDS, ${ids}, ${cropamount}`)
             let count_new = 0;
             for(let s=0; s<ids.length; s++){
               for(let y=0; y<cropDebitCredit.length; y++){
