@@ -517,6 +517,19 @@ app.post(
           });
           console.log(`First Initial Transaction Data ${findUserForRedeem}`);
           if (findOneForRedeemInvoiceUpdate.redeemCropPoints) {
+            let newCropPoint = findUserForRedeem.croppoints - findOneForRedeemInvoiceUpdate.redeemCropPoints;
+            await User.findByIdAndUpdate(
+              { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
+              { $set: { croppoints: newCropPoint } }
+            );
+            SaveMyCropTrasaction(
+              session.total,
+              findOneForRedeemInvoiceUpdate.redeemCropPoints,
+              "debit",
+              "purchase product by redeem CROP",
+              session.payment_intent,
+              findOneForRedeemInvoiceUpdate.cartDetails.user_id
+            );
             console.log("First Initial Transaction")
             const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"}).sort( { "createdAt": -1 } );
             console.log(`First Transaction ${cropDebitCredit}`)
@@ -552,21 +565,6 @@ app.post(
                 }
               }
             }
-            let newCropPoint =
-              findUserForRedeem.croppoints -
-              findOneForRedeemInvoiceUpdate.redeemCropPoints;
-            await User.findByIdAndUpdate(
-              { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
-              { $set: { croppoints: newCropPoint } }
-            );
-            SaveMyCropTrasaction(
-              session.total,
-              findOneForRedeemInvoiceUpdate.redeemCropPoints,
-              "debit",
-              "purchase product by redeem CROP",
-              session.payment_intent,
-              findOneForRedeemInvoiceUpdate.cartDetails.user_id
-            );
           } else if (findOneForRedeemInvoiceUpdate.redeemPropPoints) {
             let newPropPoint =
               findUserForRedeem.proppoints -
