@@ -7,6 +7,8 @@ const pdfPath = process.cwd() + "/uploads/";
 const nodemailer = require("nodemailer");
 const invoiceAndPaymentNotification = require("../models/businessModel/businessNotification/invoiceAndPaymentNotification");
 const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
+const customerCropTransaction = require("../../models/CropTransaction");
+const customerPropTransaction = require("../../models/PropTransaction");
 const express = require("express");
 const bodyParser = require("body-parser");
 const ConnectDb = require("../config/db");
@@ -514,6 +516,36 @@ app.post(
             _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id,
           });
           if (findOneForRedeemInvoiceUpdate.redeemCropPoints) {
+            const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"}).sort( { "createdAt": -1 } );
+            let ids = [];
+            let cropamount = 0;
+            for(let r=0; r<cropDebitCredit.length; r++){
+              if(findOneForRedeemInvoiceUpdate.redeemCropPoints < cropDebitCredit[r].crop - cropDebitCredit[r].usedCrop){
+                ids.push(cropDebitCredit[r]._id.valueOf())
+                cropamount += cropDebitCredit[r].crop - cropDebitCredit[r].usedCrop
+                if(findOneForRedeemInvoiceUpdate.redeemCropPoints < cropamount){
+                  break;
+                }
+              }
+            }
+            let count_new = 0;
+            for(let s=0; s<ids.length; s++){
+              for(let y=0; y<cropDebitCredit.length; y++){
+                if(ids[s] == cropDebitCredit[y]._id.valueOf()){
+                  count_new += 1;
+                  if(ids.length == count_new){
+                    let firstAmount = cropamount - findOneForRedeemInvoiceUpdate.redeemCropPoints
+                    await customerCropTransaction.findByIdAndUpdate({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount}});
+                    break;
+                  }
+                  else{
+                    let obj = cropDebitCredit[y].crop - cropDebitCredit[y].usedCrop
+                    let firstAmount =  obj + cropDebitCredit[y].usedCrop
+                    await customerCropTransaction.findByIdAndUpdate({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount, expired: true}});
+                  }
+                }
+              }
+            }
             let newCropPoint =
               findUserForRedeem.croppoints -
               findOneForRedeemInvoiceUpdate.redeemCropPoints;
