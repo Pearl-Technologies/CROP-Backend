@@ -530,9 +530,9 @@ app.post(
               session.payment_intent,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
-            console.log("First Initial Transaction")
+            console.log("First Initial Transaction");
             const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"}).sort( { "createdAt": -1 } );
-            console.log(`First Transaction ${cropDebitCredit}`)
+            console.log(`First Transaction ${cropDebitCredit}`);
             let ids = [];
             let cropamount = 0;
             for(let r=0; r<cropDebitCredit.length; r++){
@@ -553,14 +553,14 @@ app.post(
                   if(ids.length == count_new){
                     let firstAmount = cropamount - findOneForRedeemInvoiceUpdate.redeemCropPoints
                     await customerCropTransaction.updateOne({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount}});
-                    console.log("updated One", cropDebitCredit[y]._id)
+                    console.log("updated One", cropDebitCredit[y]._id);
                     break;
                   }
                   else{
                     let obj = cropDebitCredit[y].crop - cropDebitCredit[y].usedCrop
                     let firstAmount =  obj + cropDebitCredit[y].usedCrop
                     await customerCropTransaction.updateOne({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount, expired: true}});
-                    console.log("updated Many", cropDebitCredit[y]._id)
+                    console.log("updated Many", cropDebitCredit[y]._id);
                   }
                 }
               }
