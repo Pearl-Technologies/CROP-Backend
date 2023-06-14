@@ -64,7 +64,51 @@ module.exports.createMarketProducts = async (req, res) => {
     req.body.bid = true
     const businessMarket = new businessMarketOffer(req.body)
     await businessMarket.save()
-    return res.status(200)
+    return res.status(200).send("Product Applied For Market")
+  } catch (error) {
+    res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getMarketProductsByBusiness = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const marketProducts = await businessMarketOffer.aggregate([
+      { $match: { businessId: ObjectId(businessId) } },
+      {
+        $lookup: {
+          from: "business_products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $lookup: {
+          from: "admin_payment_trackers",
+          localField: "productId",
+          foreignField: "productId",
+          as: "payment",
+        },
+      },
+      { $unwind: "$payment" },
+      {
+        $project: {
+          product: 1,
+          payment: 1,
+          _id: 1,
+          marketOfferFor: 1,
+          slot: 1,
+          marketDate: 1,
+          bidPrice: 1,
+          basePrice: 1,
+          market: 1,
+          bid: 1,
+        },
+      },
+    ])
+    return res.status(200).send({ marketProducts })
   } catch (error) {
     res.status(500).send("Internal Server Error")
   }
@@ -334,10 +378,17 @@ module.exports.getEarnCropProducts = async (req, res) => {
     console.log({ day })
 
     const productDetails = await Product.aggregate([
-      { $match: { apply: "earnCrop", mktOfferFor: "promo", market: true, $or: [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        // { description: { $regex: search, $options: 'i' } },
-      ], } },
+      {
+        $match: {
+          apply: "earnCrop",
+          mktOfferFor: "promo",
+          market: true,
+          $or: [
+            { title: { $regex: req.query.search, $options: "i" } },
+            // { description: { $regex: search, $options: 'i' } },
+          ],
+        },
+      },
       {
         $lookup: {
           from: "business_croprules",
@@ -560,10 +611,17 @@ module.exports.getRedeemCropProducts = async (req, res) => {
     }
     console.log({ day })
     const productDetails = await Product.aggregate([
-      { $match: { apply: "redeemCrop", mktOfferFor: "promo", market: true, $or: [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        // { description: { $regex: search, $options: 'i' } },
-      ], } },
+      {
+        $match: {
+          apply: "redeemCrop",
+          mktOfferFor: "promo",
+          market: true,
+          $or: [
+            { title: { $regex: req.query.search, $options: "i" } },
+            // { description: { $regex: search, $options: 'i' } },
+          ],
+        },
+      },
       {
         $lookup: {
           from: "business_croprules",
@@ -865,41 +923,40 @@ module.exports.productComment = async (req, res) => {
 }
 
 // db.products_comments.aggregate([
-  // {
-  //   $match: { product_id: ObjectId("641d8706a98f25b7232d3203") }
-  // },
-  // {
-  //   $project: {
-  //     name: {
-  //       $cond: {
-  //         if: {
-  //           $gt: [
-  //             { $size: { $filter: { input: "$product_likes", cond: { $and:[{$eq:["$$this.like",true]},{$eq: ["$$this.user_id", ObjectId("6433d23903a970bb517e5d7a")]}] } } } },
-  //             0
-  //           ]
-  //         },
-  //         then: "exists",
-  //         else: "No exists"
-  //       }
-  //     },
-  //     totalLikes:{$size:"$product_likes"}
-  //   }
-  // }
+// {
+//   $match: { product_id: ObjectId("641d8706a98f25b7232d3203") }
+// },
+// {
+//   $project: {
+//     name: {
+//       $cond: {
+//         if: {
+//           $gt: [
+//             { $size: { $filter: { input: "$product_likes", cond: { $and:[{$eq:["$$this.like",true]},{$eq: ["$$this.user_id", ObjectId("6433d23903a970bb517e5d7a")]}] } } } },
+//             0
+//           ]
+//         },
+//         then: "exists",
+//         else: "No exists"
+//       }
+//     },
+//     totalLikes:{$size:"$product_likes"}
+//   }
+// }
 // ]);
-
 
 module.exports.checkProductLike = async (req, res) => {
   try {
-    const productId = req.query.id;
-    const token = req.headers.authorization;
-    const tokenData = await Token.findOne({ token });
+    const productId = req.query.id
+    const token = req.headers.authorization
+    const tokenData = await Token.findOne({ token })
     // const user_id=req.query.user;
 
     if (!tokenData) {
       return res.status(401).json({
-        message: 'Invalid token',
+        message: "Invalid token",
         status: 401,
-      });
+      })
     }
 
     const data = await productComment.aggregate([
@@ -908,45 +965,61 @@ module.exports.checkProductLike = async (req, res) => {
       },
       {
         $project: {
-          exists : {
+          exists: {
             $cond: {
               if: {
                 $gt: [
-                  { $size: { $filter: { input: '$product_likes', cond: { $and: [{ $eq: ['$$this.like', true] }, { $eq: ['$$this.user_id', ObjectId(tokenData.user._id)] }] } } } },
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$product_likes",
+                        cond: {
+                          $and: [
+                            { $eq: ["$$this.like", true] },
+                            {
+                              $eq: [
+                                "$$this.user_id",
+                                ObjectId(tokenData.user._id),
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
                   0,
                 ],
               },
-              then: 'true',
-              else: 'false',
+              then: "true",
+              else: "false",
             },
           },
-          totalLikes: { $size: '$product_likes' },
+          totalLikes: { $size: "$product_likes" },
         },
       },
-    ]);
+    ])
 
     if (data.length === 0) {
       return res.status(200).json({
-        message: 'Product not found',
-        data:[],
+        message: "Product not found",
+        data: [],
         status: 200,
-      });
+      })
     }
 
     res.status(200).json({
-      message: 'Success',
+      message: "Success",
       data,
       status: 200,
-    });
+    })
   } catch (error) {
-    console.error(error);
+    console.error(error)
     res.status(500).json({
-      message: 'Internal server error',
+      message: "Internal server error",
       status: 500,
-    });
+    })
   }
-};
-
+}
 
 module.exports.putProductCommentLike = async (req, res) => {
   try {
@@ -1253,15 +1326,20 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
         { city },
       ]
     }
-    console.log("Santhosh",req.query.search)
+    console.log("Santhosh", req.query.search)
     const page = pageNo ? parseInt(pageNo, 10) : 1
     const lim = limit ? parseInt(limit, 10) : 10
     console.log({ match })
     const productDetails = await Product.aggregate([
-      { $match: { $and: match, $or: [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        // { description: { $regex: search, $options: 'i' } },
-      ], } },
+      {
+        $match: {
+          $and: match,
+          $or: [
+            { title: { $regex: req.query.search, $options: "i" } },
+            // { description: { $regex: search, $options: 'i' } },
+          ],
+        },
+      },
       {
         $sort: {
           bidPrice: -1,
@@ -1598,10 +1676,15 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
     console.log({ page }, "page")
     console.log({ lim }, "limit")
     const productDetails = await Product.aggregate([
-      { $match: { $and: match, $or: [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        // { description: { $regex: search, $options: 'i' } },
-      ], } },
+      {
+        $match: {
+          $and: match,
+          $or: [
+            { title: { $regex: req.query.search, $options: "i" } },
+            // { description: { $regex: search, $options: 'i' } },
+          ],
+        },
+      },
       {
         $sort: {
           bidPrice: -1,
@@ -1623,6 +1706,14 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           localField: "_id",
           foreignField: "slashRedemptionProducts.productId",
           as: "slashRedemption",
+        },
+      },
+      {
+        $lookup: {
+          from: "business_services",
+          localField: "user",
+          foreignField: "businessId",
+          as: "services",
         },
       },
       {
@@ -1746,6 +1837,7 @@ module.exports.getRedeemCropProductsBySector = async (req, res) => {
           market: 1,
           apply: 1,
           sector: 1,
+          services: { $arrayElemAt: ["$services", 0] },
           customiseMsg: 1,
           brand: 1,
           description: 1,
@@ -2262,6 +2354,15 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "business_products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
         $unwind: "$user",
       },
       {
@@ -2274,12 +2375,12 @@ module.exports.getProductCommentAndRatingsByBusiness = async (req, res) => {
               rating: "$details.rating",
               // status: "$details.status",
               _id: "$details._id",
-              // likes: "$details.likes",
               user: "$user.name",
               profilePic: "$user.avatar",
               createdAt: "$details.createdAt",
             },
           },
+          product: { $first: "$product" },
           averageRating: { $avg: "$details.rating" },
         },
       },
@@ -2554,6 +2655,52 @@ module.exports.getEarnAndRedeemProducts = async (req, res) => {
     ])
     res.status(200).send({ product: product[0] })
   } catch (error) {
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getAllProductCommentAndRatingsByBusiness = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const productCommentsAndRatings = await Product.aggregate([
+      { $match: { user: ObjectId(businessId) } },
+      {
+        $lookup: {
+          from: "products_comments",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "comments",
+        },
+      },
+      { $unwind: "$comments" },
+      { $unwind: "$comments.details" },
+      {
+        $group: {
+          _id: "$_id",
+          title: { $first: "$title" },
+          image: { $first: "$image" },
+          comment: {
+            // $first: {
+            $push: {
+              _id: "$comments._id",
+              product_id: "$comments.product_id",
+              details: "$comments.details",
+              product_likes: "$comments.product_likes",
+              status: "$comments.status",
+              createdAt: "$comments.createdAt",
+              updatedAt: "$comments.updatedAt",
+              __v: "$comments.__v",
+            },
+          },
+          // },
+          likes: { $first: "$comments.product_likes" },
+          averageRating: { $avg: "$comments.details.rating" },
+        },
+      },
+    ])
+    return res.status(200).send(productCommentsAndRatings)
+  } catch (error) {
+    console.log(error)
     return res.status(500).send("Internal Server Error")
   }
 }

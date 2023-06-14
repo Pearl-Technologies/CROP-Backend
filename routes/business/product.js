@@ -39,6 +39,8 @@ const {
   getEarnAndRedeemProducts,
   getSingleProductByBusiness,
   createMarketProducts,
+  getAllProductCommentAndRatingsByBusiness,
+  getMarketProductsByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -53,6 +55,7 @@ router.get(
   "/get-promo-earn-redeem-products/:page/:limit",
   getPromoEarnAndRedeemProducts
 )
+router.get("/market", authorization, getMarketProductsByBusiness)
 router.put("/putProductCommentLike", putProductCommentLike)
 router.put("/putProductCommentDetails", putProductCommentDetails)
 router.put("/putProductCommentPaticularLike", putProductCommentPaticularLike)
@@ -80,6 +83,11 @@ router.get(
   "/get-all-products-by-business",
   authorization,
   getAllProductsByBusiness
+)
+router.get(
+  "/get-all-product-comments-ratings",
+  authorization,
+  getAllProductCommentAndRatingsByBusiness
 )
 router.get("/relatedProduct", getRelatedProducts)
 router.get("/single-product/:id", getSingleProductByBusiness)
