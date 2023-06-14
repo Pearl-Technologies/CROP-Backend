@@ -517,9 +517,22 @@ app.post(
           });
           console.log(`First Initial Transaction Data ${findUserForRedeem}`);
           if (findOneForRedeemInvoiceUpdate.redeemCropPoints) {
-            console.log("First Initial Transaction")
+            let newCropPoint = findUserForRedeem.croppoints - findOneForRedeemInvoiceUpdate.redeemCropPoints;
+            await User.findByIdAndUpdate(
+              { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
+              { $set: { croppoints: newCropPoint } }
+            );
+            SaveMyCropTrasaction(
+              session.total,
+              findOneForRedeemInvoiceUpdate.redeemCropPoints,
+              "debit",
+              "purchase product by redeem CROP",
+              session.payment_intent,
+              findOneForRedeemInvoiceUpdate.cartDetails.user_id
+            );
+            console.log("First Initial Transaction");
             const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"}).sort( { "createdAt": -1 } );
-            console.log(`First Transaction ${cropDebitCredit}`)
+            console.log(`First Transaction ${cropDebitCredit}`);
             let ids = [];
             let cropamount = 0;
             for(let r=0; r<cropDebitCredit.length; r++){
@@ -540,33 +553,18 @@ app.post(
                   if(ids.length == count_new){
                     let firstAmount = cropamount - findOneForRedeemInvoiceUpdate.redeemCropPoints
                     await customerCropTransaction.updateOne({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount}});
-                    console.log("updated One", cropDebitCredit[y]._id)
+                    console.log("updated One", cropDebitCredit[y]._id);
                     break;
                   }
                   else{
                     let obj = cropDebitCredit[y].crop - cropDebitCredit[y].usedCrop
                     let firstAmount =  obj + cropDebitCredit[y].usedCrop
                     await customerCropTransaction.updateOne({_id: cropDebitCredit[y]._id},{$set:{usedCrop: firstAmount, expired: true}});
-                    console.log("updated Many", cropDebitCredit[y]._id)
+                    console.log("updated Many", cropDebitCredit[y]._id);
                   }
                 }
               }
             }
-            let newCropPoint =
-              findUserForRedeem.croppoints -
-              findOneForRedeemInvoiceUpdate.redeemCropPoints;
-            await User.findByIdAndUpdate(
-              { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
-              { $set: { croppoints: newCropPoint } }
-            );
-            SaveMyCropTrasaction(
-              session.total,
-              findOneForRedeemInvoiceUpdate.redeemCropPoints,
-              "debit",
-              "purchase product by redeem CROP",
-              session.payment_intent,
-              findOneForRedeemInvoiceUpdate.cartDetails.user_id
-            );
           } else if (findOneForRedeemInvoiceUpdate.redeemPropPoints) {
             let newPropPoint =
               findUserForRedeem.proppoints -
