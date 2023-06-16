@@ -39,7 +39,8 @@ const getCategories = async (req, res) => {
         const limits = Number(limit) || 4;
         const skip = (pages - 1) * limits;
         const categories = await ProductCategory.find().sort({ _id: -1 }).skip(skip).limit(limits);
-        return res.status(200).send({success: true, categories})
+        const categoriesCount = await ProductCategory.count();
+        return res.status(200).send({success: true, categories, count: categoriesCount})
     } catch (error) {
         console.log(error)
         return res.status(500).send("Internal Server Error")
