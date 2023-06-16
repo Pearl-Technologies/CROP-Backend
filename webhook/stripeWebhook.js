@@ -26,6 +26,7 @@ const { Cart } = require("../models/Cart");
 const { Product } = require("../models/businessModel/product");
 const { StoreProduct } = require("../models/businessModel/storeproducts");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
+const {createVoucher}  = require("../controller/adminController/VoucherController/voucher")
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret =
   "whsec_c7b83955ccd4f1692c9b257ff94d8ea58502d4fd02259e4a796d1f70b537bb67";
@@ -322,6 +323,13 @@ app.post(
             session.hosted_invoice_url,
             session.invoice_pdf
           );
+          createVoucher(
+            "",
+            session.payment_intent,
+            "code_voucher",
+            session.number,
+            customer
+          )
         } else {
           console.log("record is not found for updating invoice details");
         }
@@ -529,6 +537,13 @@ app.post(
               session.payment_intent,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
+            createVoucher(
+              "",
+              session.payment_intent,
+              "code_voucher",
+              session.number,
+              findOneForRedeemInvoiceUpdate.cartDetails.user_id
+            )
           } else if (findOneForRedeemInvoiceUpdate.redeemPropPoints) {
             let newPropPoint =
               findUserForRedeem.proppoints -
@@ -545,6 +560,13 @@ app.post(
               session.payment_intent,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
+            createVoucher(
+              "",
+              session.payment_intent,
+              "code_voucher",
+              session.number,
+              findOneForRedeemInvoiceUpdate.cartDetails.user_id
+            )
           }
           findOneForRedeemInvoiceUpdate.cartDetails.cartItems.map(
             async (data) => {
