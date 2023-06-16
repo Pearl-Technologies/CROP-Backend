@@ -16,7 +16,7 @@ const businessOtherServices = mongoose.model("Business_OtherServices", {
     fromDate: { type: String },
     toDate: { type: String },
   },
-  listOfHolidays: [{ date: { type: Date }, description: { type: String } }],
+  listOfHolidays: [],
   defaultSettings: { type: Boolean },
   businessId: {
     type: mongoose.Schema.Types.ObjectId,

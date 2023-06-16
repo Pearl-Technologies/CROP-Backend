@@ -6,7 +6,7 @@ const StateSchema = require('../models/State');
 const { Cart } = require("../models/Cart")
 const { Wishlist } = require("../models/Wishlist")
 const {
-  customerPaymentTracker,
+  customerPaymentTracker, customerRedeemTracker
 } = require("../models/admin/PaymentTracker/paymentIdTracker");
 const adminCustomerAccountNotification = require("../models/admin/notification/customerAccountNotification")
 const adminGeneralAccountNotification = require("../models/admin/notification/customerGeneralNotification")
@@ -1710,16 +1710,42 @@ router.get('/notification', async (req, res) => {
   try{
     const token = req.headers.authorization;
     const user = await Token.findOne({ token: token });
-    const Account = await AccountNotificationCustomer.find({ user_id:user.user });
-    const General = await GeneralNotificationCustomer.find({ user_id:user.user })
-    const Complain = await ComplainNotificationCustomer.find({ user_id:user.user })
-    const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user })
+    const Account = await AccountNotificationCustomer.find({ user_id:user.user, status: true });
+    const Complain = await ComplainNotificationCustomer.find({ user_id:user.user, status: true })
+    const Invoice = await InvoicePaymentNotificationCustomer.find({ user_id:user.user, status: true })
+    const purchaseTracker = await customerPaymentTracker.find({notification_status: false, "cartDetails.user_id": mongoose.Types.ObjectId(`${user.user}`) })
+    const redeemTracker = await customerRedeemTracker.find({notification_status: false, "cartDetails.user_id": mongoose.Types.ObjectId(`${user.user}`)})
+    
+    if(purchaseTracker.length != 0){
+      for(let i=0; i<purchaseTracker.length; i++){
+        for(let j=0; j<purchaseTracker[i].cartDetails.cartItems.length; j++){
+          let notification = await adminGeneralAccountNotification.find();
+          notification = notification[0]._doc
+          await new GeneralNotificationCustomer({user_id: user.user, message: `${notification.feedback}${purchaseTracker[i].cartDetails.cartItems[j].title}`, feedback_details: purchaseTracker[i].cartDetails.cartItems[j]}).save();
+          await customerPaymentTracker.updateOne({_id:purchaseTracker[i]._id, "cartDetails.user_id":mongoose.Types.ObjectId(`${purchaseTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
+        }
+      }
+    }
+    if(redeemTracker.length != 0){
+      for(let i=0; i<redeemTracker.length; i++){
+        for(let j=0; j<redeemTracker[i].cartDetails.cartItems.length; j++){
+          let notification = await adminGeneralAccountNotification.find();
+          notification = notification[0]._doc
+          await new GeneralNotificationCustomer({user_id: user.user, message: `${notification.feedback}${redeemTracker[i].cartDetails.cartItems[j].title}`, feedback_details: redeemTracker[i].cartDetails.cartItems[j]}).save();
+          await customerRedeemTracker.updateOne({_id:redeemTracker[i]._id, "cartDetails.user_id":mongoose.Types.ObjectId(`${redeemTracker[i].cartDetails.user_id}`)},{$set:{notification_status: true}})
+        }
+      }
+    }
+
+    const General = await GeneralNotificationCustomer.find({ user_id:user.user, status: true })
 
     arr = {}
     arr['AccountCount'] = Account.length
     arr['AccountMessage'] = Account
     arr['GeneralCount'] = General.length
     arr['GeneralMessage'] = General
+    arr['purchaseMessage'] = purchaseTracker
+    arr['redeemMessage'] = redeemTracker
     arr['ComplainCount'] = Complain.length
     arr['ComplainMessage'] = Complain
     arr['InvoiceCount'] = Invoice.length

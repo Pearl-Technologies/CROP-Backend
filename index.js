@@ -24,6 +24,7 @@ const customerCropTransaction = require("./routes/customerCropTrasaction")
 const count = require("./routes/count");
 const purchaseRequest = require("./routes/purchaseProintConroller")
 const tokenExpiry = require("./routes/expire");
+const chatRoute = require("./routes/chatRoute");
 
 const allowedOrigins = [
   "http://192.168.0.107:3000",
@@ -78,6 +79,7 @@ app.use("/api/address", address)
 app.use("/api",count);
 app.use("/api/customer/royalty", purchaseRequest)
 app.use("/api/checkToken",tokenExpiry);
+app.use("/api",chatRoute);
 
 
 app.get("/", (req, res) => {

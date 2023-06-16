@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const customerCropTransaction = require("../../models/CropTransaction");
 const customerPropTransaction = require("../../models/PropTransaction");
 const { User } = require("../../models/User");
+const schedule = require("node-schedule");
 
 const dashboard = async (req, res) => {
   try {
@@ -775,6 +776,89 @@ const getCropPropDebitCredit = async (req, res) => {
   }
 };
 
+function isOneYearAgo(dateString) {
+  const givenDate = new Date(dateString);
+  const currentDate = new Date();
 
+  const timeDiff = currentDate.getTime() - givenDate.getTime();
 
+  const millisecondsInYear = 365 * 24 * 60 * 60 * 1000;
+
+  return timeDiff >= millisecondsInYear;
+}
+const jobCropPropExpire = schedule.scheduleJob("0 0 * * *", function () {
+  console.log("This job runs at midnight every day for CropPropExpire!");
+  cropPointExpire();
+});
+const cropPointExpire = async () => {
+  try {
+    const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"});
+    for(let i=0; i<cropDebitCredit.length; i++){
+      const crop = isOneYearAgo(cropDebitCredit[i].createdAt); 
+      console.log(`Is ${cropDebitCredit[i].createdAt} one year ago or more? ${crop}`);
+      if(crop == true){
+        await customerCropTransaction.updateOne({_id:cropDebitCredit[i]._id}, { $set: { expired: true }});
+        const croppoints = await customerCropTransaction.aggregate([
+          {
+            $match: {
+              user: cropDebitCredit[i].user,
+              expired: false
+            }
+          },
+          {
+            $group: {
+              _id: "$transactionType",
+              totalCredit: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$transactionType", "credit"] },
+                    "$crop",
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        ]);        
+        await User.updateOne({_id: cropDebitCredit[i].user},{$set:{croppoints:croppoints[0].totalCredit != 0 ?croppoints[0].totalCredit : croppoints[1].totalCredit}})
+      }
+    }
+    const propDebitCredit = await customerPropTransaction.find({expired: false, transactionType: "credit"});
+    for(let i=0; i<propDebitCredit.length; i++){
+      const prop = isOneYearAgo(propDebitCredit[i].createdAt); 
+      console.log(`Is ${propDebitCredit[i].createdAt} one year ago or more? ${prop}`);
+      if(prop == true){
+        await customerPropTransaction.updateOne({_id:propDebitCredit[i]._id}, { $set: { expired: true }});
+        const proppoints = await customerPropTransaction.aggregate([
+          {
+            $match: {
+              user: propDebitCredit[i].user,
+              expired: false
+            }
+          },
+          {
+            $group: {
+              _id: "$transactionType",
+              totalCredit: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$transactionType", "credit"] },
+                    "$prop",
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        ]);        
+        await User.updateOne({_id: propDebitCredit[i].user},{$set:{proppoints:proppoints[0].totalCredit != 0 ?proppoints[0].totalCredit : proppoints[1].totalCredit}})
+      }
+    }
+    return true;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+jobCropPropExpire.schedule();
 module.exports = {dashboard, getDetailsCount, getSalesDeatils, getWeeklyDetails, getPerformingProducts, getSlotCalender, getCropPropDebitCredit};

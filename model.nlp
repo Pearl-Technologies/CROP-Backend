@@ -1,0 +1,3170 @@
+{
+  "settings": {
+    "languages": [
+      "en"
+    ],
+    "forceNER": true,
+    "tag": "nlp",
+    "threshold": 0.5,
+    "autoLoad": true,
+    "autoSave": true,
+    "modelFileName": "model.nlp",
+    "executeActionsBeforeAnswers": false,
+    "calculateSentiment": true
+  },
+  "nluManager": {
+    "settings": {
+      "tag": "nlu-manager"
+    },
+    "locales": [
+      "en"
+    ],
+    "languageNames": {},
+    "domainManagers": {
+      "en": {
+        "settings": {
+          "locale": "en",
+          "trainByDomain": false,
+          "tag": "domain-manager-en",
+          "nluByDomain": {
+            "default": {
+              "className": "NeuralNlu",
+              "settings": {}
+            }
+          },
+          "useStemDict": true
+        },
+        "stemDict": {
+          "for,goodby,now": {
+            "intent": "greetings.bye",
+            "domain": "default"
+          },
+          "bye,care,take": {
+            "intent": "greetings.bye",
+            "domain": "default"
+          },
+          "later,okay,see,you": {
+            "intent": "greetings.bye",
+            "domain": "default"
+          },
+          "bye,for,now": {
+            "intent": "greetings.bye",
+            "domain": "default"
+          },
+          "go,i,must": {
+            "intent": "greetings.bye",
+            "domain": "default"
+          },
+          "hello": {
+            "intent": "greetings.hello",
+            "domain": "default"
+          },
+          "hi": {
+            "intent": "greetings.hello",
+            "domain": "default"
+          },
+          "howdi": {
+            "intent": "greetings.hello",
+            "domain": "default"
+          },
+          "start": {
+            "intent": "welcome",
+            "domain": "default"
+          },
+          "help,need": {
+            "intent": "welcome",
+            "domain": "default"
+          },
+          "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2": {
+            "intent": "complaint",
+            "domain": "default"
+          },
+          "c3d12fd5-19e3-44b6-8852-30fde8545ed2": {
+            "intent": "issue.croplogin",
+            "domain": "default"
+          },
+          "8241fecd-f648-4ece-96d8-58374c6e7097": {
+            "intent": "issue.mobilelogin",
+            "domain": "default"
+          },
+          "3634cf75-0d5a-43a0-8515-983fa8c47646": {
+            "intent": "issue.emaillogin",
+            "domain": "default"
+          },
+          "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd": {
+            "intent": "issue.croploginerr",
+            "domain": "default"
+          },
+          "ca0b4d71-ee3e-466e-af8e-0e548f28c803": {
+            "intent": "issue.mobileloginerr",
+            "domain": "default"
+          },
+          "24b96328-0cb2-458e-bd9d-ae0a68a0686a": {
+            "intent": "issue.emailloginerr",
+            "domain": "default"
+          },
+          "e6901434-ad37-4dff-97b6-1d12616fc326": {
+            "intent": "issue.tempdisabled",
+            "domain": "default"
+          },
+          "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47": {
+            "intent": "issue.mobiletempdisabled",
+            "domain": "default"
+          },
+          "ce0ccb51-e793-44fe-91b8-f6d21f5436d8": {
+            "intent": "issue.emailtempdisabled",
+            "domain": "default"
+          },
+          "b42f6af9-16ba-4e0a-ad0b-b2514260346b": {
+            "intent": "issue.accountdeactive",
+            "domain": "default"
+          },
+          "bcf59278-48f4-4e04-9e76-acefcd9b501c": {
+            "intent": "issue.mobileaccountdeactive",
+            "domain": "default"
+          },
+          "3499f7c8-356b-4c8d-8578-71c91740da11": {
+            "intent": "issue.emailaccountdeactive",
+            "domain": "default"
+          },
+          "36f5c654-76b3-48ca-abe4-bef52da62761": {
+            "intent": "issue.cropforgetpinyes",
+            "domain": "default"
+          },
+          "4c73259d-a2ce-433e-8108-c53907de6e48": {
+            "intent": "issue.mobileforgetpinyes",
+            "domain": "default"
+          },
+          "a8d407c1-8313-45fc-8e60-821dad4de945": {
+            "intent": "issue.emailforgetpinyes",
+            "domain": "default"
+          },
+          "92044808-f5db-4166-945b-f1433a274eb9": {
+            "intent": "issue.cropforgetpinno",
+            "domain": "default"
+          },
+          "6650eae9-fdbf-4b5a-99ba-46d1a7971746": {
+            "intent": "issue.mobileforgetpinno",
+            "domain": "default"
+          },
+          "a0a000b0-b7ee-4c9c-974e-e061a142d4eb": {
+            "intent": "issue.emailforgetpinno",
+            "domain": "default"
+          },
+          "10716821-852f-44fd-b163-25161be690f8": {
+            "intent": "loggedrequestyes",
+            "domain": "default"
+          },
+          "7712f552-fbd7-4675-836c-635133fe3bfb": {
+            "intent": "mobileloggedrequestyes",
+            "domain": "default"
+          },
+          "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58": {
+            "intent": "emailloggedrequestyes",
+            "domain": "default"
+          },
+          "8ea96fae-49af-49e7-8afc-663e3a1c8b35": {
+            "intent": "loggedrequestno",
+            "domain": "default"
+          },
+          "1092abc5-801d-49b1-8312-a18ae8c60b7": {
+            "intent": "mobileloggedrequestno",
+            "domain": "default"
+          },
+          "bf1ea06b-2fe9-4242-9435-9e207464ccc7": {
+            "intent": "emailloggedrequestno",
+            "domain": "default"
+          },
+          "6566cc18-b1c2-492d-8802-efc9bdc9607c": {
+            "intent": "loggedrequestsure",
+            "domain": "default"
+          },
+          "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805": {
+            "intent": "mobileloggedrequestsure",
+            "domain": "default"
+          },
+          "c79c5880-4f0e-45cd-8984-9d14c825fa19": {
+            "intent": "emailloggedrequestsure",
+            "domain": "default"
+          },
+          "fcb53414-3537-4d89-a70a-918bf309db": {
+            "intent": "order.payunable",
+            "domain": "default"
+          }
+        },
+        "intentDict": {
+          "greetings.bye": "default",
+          "greetings.hello": "default",
+          "welcome": "default",
+          "complaint": "default",
+          "issue.croplogin": "default",
+          "issue.mobilelogin": "default",
+          "issue.emaillogin": "default",
+          "issue.croploginerr": "default",
+          "issue.mobileloginerr": "default",
+          "issue.emailloginerr": "default",
+          "issue.tempdisabled": "default",
+          "issue.mobiletempdisabled": "default",
+          "issue.emailtempdisabled": "default",
+          "issue.accountdeactive": "default",
+          "issue.mobileaccountdeactive": "default",
+          "issue.emailaccountdeactive": "default",
+          "issue.cropforgetpinyes": "default",
+          "issue.mobileforgetpinyes": "default",
+          "issue.emailforgetpinyes": "default",
+          "issue.cropforgetpinno": "default",
+          "issue.mobileforgetpinno": "default",
+          "issue.emailforgetpinno": "default",
+          "loggedrequestyes": "default",
+          "mobileloggedrequestyes": "default",
+          "emailloggedrequestyes": "default",
+          "loggedrequestno": "default",
+          "mobileloggedrequestno": "default",
+          "emailloggedrequestno": "default",
+          "loggedrequestsure": "default",
+          "mobileloggedrequestsure": "default",
+          "emailloggedrequestsure": "default",
+          "order.payunable": "default"
+        },
+        "sentences": [
+          {
+            "domain": "default",
+            "utterance": "goodbye for now",
+            "intent": "greetings.bye"
+          },
+          {
+            "domain": "default",
+            "utterance": "bye bye take care",
+            "intent": "greetings.bye"
+          },
+          {
+            "domain": "default",
+            "utterance": "okay see you later",
+            "intent": "greetings.bye"
+          },
+          {
+            "domain": "default",
+            "utterance": "bye for now",
+            "intent": "greetings.bye"
+          },
+          {
+            "domain": "default",
+            "utterance": "i must go",
+            "intent": "greetings.bye"
+          },
+          {
+            "domain": "default",
+            "utterance": "hello",
+            "intent": "greetings.hello"
+          },
+          {
+            "domain": "default",
+            "utterance": "hi",
+            "intent": "greetings.hello"
+          },
+          {
+            "domain": "default",
+            "utterance": "howdy",
+            "intent": "greetings.hello"
+          },
+          {
+            "domain": "default",
+            "utterance": "start",
+            "intent": "welcome"
+          },
+          {
+            "domain": "default",
+            "utterance": "Need help",
+            "intent": "welcome"
+          },
+          {
+            "domain": "default",
+            "utterance": "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2",
+            "intent": "complaint"
+          },
+          {
+            "domain": "default",
+            "utterance": "c3d12fd5-19e3-44b6-8852-30fde8545ed2",
+            "intent": "issue.croplogin"
+          },
+          {
+            "domain": "default",
+            "utterance": "8241fecd-f648-4ece-96d8-58374c6e7097",
+            "intent": "issue.mobilelogin"
+          },
+          {
+            "domain": "default",
+            "utterance": "3634cf75-0d5a-43a0-8515-983fa8c47646",
+            "intent": "issue.emaillogin"
+          },
+          {
+            "domain": "default",
+            "utterance": "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd",
+            "intent": "issue.croploginerr"
+          },
+          {
+            "domain": "default",
+            "utterance": "ca0b4d71-ee3e-466e-af8e-0e548f28c803",
+            "intent": "issue.mobileloginerr"
+          },
+          {
+            "domain": "default",
+            "utterance": "24b96328-0cb2-458e-bd9d-ae0a68a0686a",
+            "intent": "issue.emailloginerr"
+          },
+          {
+            "domain": "default",
+            "utterance": "e6901434-ad37-4dff-97b6-1d12616fc326",
+            "intent": "issue.tempdisabled"
+          },
+          {
+            "domain": "default",
+            "utterance": "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47",
+            "intent": "issue.mobiletempdisabled"
+          },
+          {
+            "domain": "default",
+            "utterance": "ce0ccb51-e793-44fe-91b8-f6d21f5436d8",
+            "intent": "issue.emailtempdisabled"
+          },
+          {
+            "domain": "default",
+            "utterance": "b42f6af9-16ba-4e0a-ad0b-b2514260346b",
+            "intent": "issue.accountdeactive"
+          },
+          {
+            "domain": "default",
+            "utterance": "bcf59278-48f4-4e04-9e76-acefcd9b501c",
+            "intent": "issue.mobileaccountdeactive"
+          },
+          {
+            "domain": "default",
+            "utterance": "3499f7c8-356b-4c8d-8578-71c91740da11",
+            "intent": "issue.emailaccountdeactive"
+          },
+          {
+            "domain": "default",
+            "utterance": "36f5c654-76b3-48ca-abe4-bef52da62761",
+            "intent": "issue.cropforgetpinyes"
+          },
+          {
+            "domain": "default",
+            "utterance": "4c73259d-a2ce-433e-8108-c53907de6e48",
+            "intent": "issue.mobileforgetpinyes"
+          },
+          {
+            "domain": "default",
+            "utterance": "a8d407c1-8313-45fc-8e60-821dad4de945",
+            "intent": "issue.emailforgetpinyes"
+          },
+          {
+            "domain": "default",
+            "utterance": "92044808-f5db-4166-945b-f1433a274eb9",
+            "intent": "issue.cropforgetpinno"
+          },
+          {
+            "domain": "default",
+            "utterance": "6650eae9-fdbf-4b5a-99ba-46d1a7971746",
+            "intent": "issue.mobileforgetpinno"
+          },
+          {
+            "domain": "default",
+            "utterance": "a0a000b0-b7ee-4c9c-974e-e061a142d4eb",
+            "intent": "issue.emailforgetpinno"
+          },
+          {
+            "domain": "default",
+            "utterance": "10716821-852f-44fd-b163-25161be690f8",
+            "intent": "loggedrequestyes"
+          },
+          {
+            "domain": "default",
+            "utterance": "7712f552-fbd7-4675-836c-635133fe3bfb",
+            "intent": "mobileloggedrequestyes"
+          },
+          {
+            "domain": "default",
+            "utterance": "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58",
+            "intent": "emailloggedrequestyes"
+          },
+          {
+            "domain": "default",
+            "utterance": "8ea96fae-49af-49e7-8afc-663e3a1c8b35",
+            "intent": "loggedrequestno"
+          },
+          {
+            "domain": "default",
+            "utterance": "1092abc5-801d-49b1-8312-a18ae8c60b7e",
+            "intent": "mobileloggedrequestno"
+          },
+          {
+            "domain": "default",
+            "utterance": "bf1ea06b-2fe9-4242-9435-9e207464ccc7",
+            "intent": "emailloggedrequestno"
+          },
+          {
+            "domain": "default",
+            "utterance": "6566cc18-b1c2-492d-8802-efc9bdc9607c",
+            "intent": "loggedrequestsure"
+          },
+          {
+            "domain": "default",
+            "utterance": "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805",
+            "intent": "mobileloggedrequestsure"
+          },
+          {
+            "domain": "default",
+            "utterance": "c79c5880-4f0e-45cd-8984-9d14c825fa19",
+            "intent": "emailloggedrequestsure"
+          },
+          {
+            "domain": "default",
+            "utterance": "fcb53414-3537-4d89-a70a-918bf309dbed",
+            "intent": "order.payunable"
+          }
+        ],
+        "domains": {
+          "master_domain": {
+            "settings": {
+              "locale": "en",
+              "tag": "nlu-en",
+              "keepStopwords": true,
+              "nonefeatureValue": 1,
+              "nonedeltaMultiplier": 1.2,
+              "spellCheck": false,
+              "spellCheckDistance": 1,
+              "filterZeros": true,
+              "log": true
+            },
+            "features": {
+              "goodby": 1,
+              "for": 1,
+              "now": 1,
+              "bye": 1,
+              "take": 1,
+              "care": 1,
+              "okay": 1,
+              "see": 1,
+              "you": 1,
+              "later": 1,
+              "i": 1,
+              "must": 1,
+              "go": 1,
+              "hello": 1,
+              "hi": 1,
+              "howdi": 1,
+              "start": 1,
+              "need": 1,
+              "help": 1,
+              "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2": 1,
+              "c3d12fd5-19e3-44b6-8852-30fde8545ed2": 1,
+              "8241fecd-f648-4ece-96d8-58374c6e7097": 1,
+              "3634cf75-0d5a-43a0-8515-983fa8c47646": 1,
+              "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd": 1,
+              "ca0b4d71-ee3e-466e-af8e-0e548f28c803": 1,
+              "24b96328-0cb2-458e-bd9d-ae0a68a0686a": 1,
+              "e6901434-ad37-4dff-97b6-1d12616fc326": 1,
+              "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47": 1,
+              "ce0ccb51-e793-44fe-91b8-f6d21f5436d8": 1,
+              "b42f6af9-16ba-4e0a-ad0b-b2514260346b": 1,
+              "bcf59278-48f4-4e04-9e76-acefcd9b501c": 1,
+              "3499f7c8-356b-4c8d-8578-71c91740da11": 1,
+              "36f5c654-76b3-48ca-abe4-bef52da62761": 1,
+              "4c73259d-a2ce-433e-8108-c53907de6e48": 1,
+              "a8d407c1-8313-45fc-8e60-821dad4de945": 1,
+              "92044808-f5db-4166-945b-f1433a274eb9": 1,
+              "6650eae9-fdbf-4b5a-99ba-46d1a7971746": 1,
+              "a0a000b0-b7ee-4c9c-974e-e061a142d4eb": 1,
+              "10716821-852f-44fd-b163-25161be690f8": 1,
+              "7712f552-fbd7-4675-836c-635133fe3bfb": 1,
+              "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58": 1,
+              "8ea96fae-49af-49e7-8afc-663e3a1c8b35": 1,
+              "1092abc5-801d-49b1-8312-a18ae8c60b7": 1,
+              "bf1ea06b-2fe9-4242-9435-9e207464ccc7": 1,
+              "6566cc18-b1c2-492d-8802-efc9bdc9607c": 1,
+              "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805": 1,
+              "c79c5880-4f0e-45cd-8984-9d14c825fa19": 1,
+              "fcb53414-3537-4d89-a70a-918bf309db": 1
+            },
+            "intents": {
+              "greetings.bye": 1,
+              "greetings.hello": 1,
+              "welcome": 1,
+              "complaint": 1,
+              "issue.croplogin": 1,
+              "issue.mobilelogin": 1,
+              "issue.emaillogin": 1,
+              "issue.croploginerr": 1,
+              "issue.mobileloginerr": 1,
+              "issue.emailloginerr": 1,
+              "issue.tempdisabled": 1,
+              "issue.mobiletempdisabled": 1,
+              "issue.emailtempdisabled": 1,
+              "issue.accountdeactive": 1,
+              "issue.mobileaccountdeactive": 1,
+              "issue.emailaccountdeactive": 1,
+              "issue.cropforgetpinyes": 1,
+              "issue.mobileforgetpinyes": 1,
+              "issue.emailforgetpinyes": 1,
+              "issue.cropforgetpinno": 1,
+              "issue.mobileforgetpinno": 1,
+              "issue.emailforgetpinno": 1,
+              "loggedrequestyes": 1,
+              "mobileloggedrequestyes": 1,
+              "emailloggedrequestyes": 1,
+              "loggedrequestno": 1,
+              "mobileloggedrequestno": 1,
+              "emailloggedrequestno": 1,
+              "loggedrequestsure": 1,
+              "mobileloggedrequestsure": 1,
+              "emailloggedrequestsure": 1,
+              "order.payunable": 1
+            },
+            "intentFeatures": {
+              "greetings.bye": {
+                "goodby": 1,
+                "for": 1,
+                "now": 1,
+                "bye": 1,
+                "take": 1,
+                "care": 1,
+                "okay": 1,
+                "see": 1,
+                "you": 1,
+                "later": 1,
+                "i": 1,
+                "must": 1,
+                "go": 1
+              },
+              "greetings.hello": {
+                "hello": 1,
+                "hi": 1,
+                "howdi": 1
+              },
+              "welcome": {
+                "start": 1,
+                "need": 1,
+                "help": 1
+              },
+              "complaint": {
+                "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2": 1
+              },
+              "issue.croplogin": {
+                "c3d12fd5-19e3-44b6-8852-30fde8545ed2": 1
+              },
+              "issue.mobilelogin": {
+                "8241fecd-f648-4ece-96d8-58374c6e7097": 1
+              },
+              "issue.emaillogin": {
+                "3634cf75-0d5a-43a0-8515-983fa8c47646": 1
+              },
+              "issue.croploginerr": {
+                "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd": 1
+              },
+              "issue.mobileloginerr": {
+                "ca0b4d71-ee3e-466e-af8e-0e548f28c803": 1
+              },
+              "issue.emailloginerr": {
+                "24b96328-0cb2-458e-bd9d-ae0a68a0686a": 1
+              },
+              "issue.tempdisabled": {
+                "e6901434-ad37-4dff-97b6-1d12616fc326": 1
+              },
+              "issue.mobiletempdisabled": {
+                "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47": 1
+              },
+              "issue.emailtempdisabled": {
+                "ce0ccb51-e793-44fe-91b8-f6d21f5436d8": 1
+              },
+              "issue.accountdeactive": {
+                "b42f6af9-16ba-4e0a-ad0b-b2514260346b": 1
+              },
+              "issue.mobileaccountdeactive": {
+                "bcf59278-48f4-4e04-9e76-acefcd9b501c": 1
+              },
+              "issue.emailaccountdeactive": {
+                "3499f7c8-356b-4c8d-8578-71c91740da11": 1
+              },
+              "issue.cropforgetpinyes": {
+                "36f5c654-76b3-48ca-abe4-bef52da62761": 1
+              },
+              "issue.mobileforgetpinyes": {
+                "4c73259d-a2ce-433e-8108-c53907de6e48": 1
+              },
+              "issue.emailforgetpinyes": {
+                "a8d407c1-8313-45fc-8e60-821dad4de945": 1
+              },
+              "issue.cropforgetpinno": {
+                "92044808-f5db-4166-945b-f1433a274eb9": 1
+              },
+              "issue.mobileforgetpinno": {
+                "6650eae9-fdbf-4b5a-99ba-46d1a7971746": 1
+              },
+              "issue.emailforgetpinno": {
+                "a0a000b0-b7ee-4c9c-974e-e061a142d4eb": 1
+              },
+              "loggedrequestyes": {
+                "10716821-852f-44fd-b163-25161be690f8": 1
+              },
+              "mobileloggedrequestyes": {
+                "7712f552-fbd7-4675-836c-635133fe3bfb": 1
+              },
+              "emailloggedrequestyes": {
+                "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58": 1
+              },
+              "loggedrequestno": {
+                "8ea96fae-49af-49e7-8afc-663e3a1c8b35": 1
+              },
+              "mobileloggedrequestno": {
+                "1092abc5-801d-49b1-8312-a18ae8c60b7": 1
+              },
+              "emailloggedrequestno": {
+                "bf1ea06b-2fe9-4242-9435-9e207464ccc7": 1
+              },
+              "loggedrequestsure": {
+                "6566cc18-b1c2-492d-8802-efc9bdc9607c": 1
+              },
+              "mobileloggedrequestsure": {
+                "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805": 1
+              },
+              "emailloggedrequestsure": {
+                "c79c5880-4f0e-45cd-8984-9d14c825fa19": 1
+              },
+              "order.payunable": {
+                "fcb53414-3537-4d89-a70a-918bf309db": 1
+              }
+            },
+            "featuresToIntent": {
+              "goodby": [
+                "greetings.bye"
+              ],
+              "for": [
+                "greetings.bye"
+              ],
+              "now": [
+                "greetings.bye"
+              ],
+              "bye": [
+                "greetings.bye"
+              ],
+              "take": [
+                "greetings.bye"
+              ],
+              "care": [
+                "greetings.bye"
+              ],
+              "okay": [
+                "greetings.bye"
+              ],
+              "see": [
+                "greetings.bye"
+              ],
+              "you": [
+                "greetings.bye"
+              ],
+              "later": [
+                "greetings.bye"
+              ],
+              "i": [
+                "greetings.bye"
+              ],
+              "must": [
+                "greetings.bye"
+              ],
+              "go": [
+                "greetings.bye"
+              ],
+              "hello": [
+                "greetings.hello"
+              ],
+              "hi": [
+                "greetings.hello"
+              ],
+              "howdi": [
+                "greetings.hello"
+              ],
+              "start": [
+                "welcome"
+              ],
+              "need": [
+                "welcome"
+              ],
+              "help": [
+                "welcome"
+              ],
+              "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2": [
+                "complaint"
+              ],
+              "c3d12fd5-19e3-44b6-8852-30fde8545ed2": [
+                "issue.croplogin"
+              ],
+              "8241fecd-f648-4ece-96d8-58374c6e7097": [
+                "issue.mobilelogin"
+              ],
+              "3634cf75-0d5a-43a0-8515-983fa8c47646": [
+                "issue.emaillogin"
+              ],
+              "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd": [
+                "issue.croploginerr"
+              ],
+              "ca0b4d71-ee3e-466e-af8e-0e548f28c803": [
+                "issue.mobileloginerr"
+              ],
+              "24b96328-0cb2-458e-bd9d-ae0a68a0686a": [
+                "issue.emailloginerr"
+              ],
+              "e6901434-ad37-4dff-97b6-1d12616fc326": [
+                "issue.tempdisabled"
+              ],
+              "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47": [
+                "issue.mobiletempdisabled"
+              ],
+              "ce0ccb51-e793-44fe-91b8-f6d21f5436d8": [
+                "issue.emailtempdisabled"
+              ],
+              "b42f6af9-16ba-4e0a-ad0b-b2514260346b": [
+                "issue.accountdeactive"
+              ],
+              "bcf59278-48f4-4e04-9e76-acefcd9b501c": [
+                "issue.mobileaccountdeactive"
+              ],
+              "3499f7c8-356b-4c8d-8578-71c91740da11": [
+                "issue.emailaccountdeactive"
+              ],
+              "36f5c654-76b3-48ca-abe4-bef52da62761": [
+                "issue.cropforgetpinyes"
+              ],
+              "4c73259d-a2ce-433e-8108-c53907de6e48": [
+                "issue.mobileforgetpinyes"
+              ],
+              "a8d407c1-8313-45fc-8e60-821dad4de945": [
+                "issue.emailforgetpinyes"
+              ],
+              "92044808-f5db-4166-945b-f1433a274eb9": [
+                "issue.cropforgetpinno"
+              ],
+              "6650eae9-fdbf-4b5a-99ba-46d1a7971746": [
+                "issue.mobileforgetpinno"
+              ],
+              "a0a000b0-b7ee-4c9c-974e-e061a142d4eb": [
+                "issue.emailforgetpinno"
+              ],
+              "10716821-852f-44fd-b163-25161be690f8": [
+                "loggedrequestyes"
+              ],
+              "7712f552-fbd7-4675-836c-635133fe3bfb": [
+                "mobileloggedrequestyes"
+              ],
+              "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58": [
+                "emailloggedrequestyes"
+              ],
+              "8ea96fae-49af-49e7-8afc-663e3a1c8b35": [
+                "loggedrequestno"
+              ],
+              "1092abc5-801d-49b1-8312-a18ae8c60b7": [
+                "mobileloggedrequestno"
+              ],
+              "bf1ea06b-2fe9-4242-9435-9e207464ccc7": [
+                "emailloggedrequestno"
+              ],
+              "6566cc18-b1c2-492d-8802-efc9bdc9607c": [
+                "loggedrequestsure"
+              ],
+              "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805": [
+                "mobileloggedrequestsure"
+              ],
+              "c79c5880-4f0e-45cd-8984-9d14c825fa19": [
+                "emailloggedrequestsure"
+              ],
+              "fcb53414-3537-4d89-a70a-918bf309db": [
+                "order.payunable"
+              ]
+            },
+            "neuralNetwork": {
+              "settings": {
+                "locale": "en",
+                "tag": "nlu-en",
+                "keepStopwords": true,
+                "nonefeatureValue": 1,
+                "nonedeltaMultiplier": 1.2,
+                "spellCheck": false,
+                "spellCheckDistance": 1,
+                "filterZeros": true,
+                "log": true
+              },
+              "features": [
+                "goodby",
+                "for",
+                "now",
+                "bye",
+                "take",
+                "care",
+                "okay",
+                "see",
+                "you",
+                "later",
+                "i",
+                "must",
+                "go",
+                "hello",
+                "hi",
+                "howdi",
+                "start",
+                "need",
+                "help",
+                "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2",
+                "c3d12fd5-19e3-44b6-8852-30fde8545ed2",
+                "8241fecd-f648-4ece-96d8-58374c6e7097",
+                "3634cf75-0d5a-43a0-8515-983fa8c47646",
+                "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd",
+                "ca0b4d71-ee3e-466e-af8e-0e548f28c803",
+                "24b96328-0cb2-458e-bd9d-ae0a68a0686a",
+                "e6901434-ad37-4dff-97b6-1d12616fc326",
+                "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47",
+                "ce0ccb51-e793-44fe-91b8-f6d21f5436d8",
+                "b42f6af9-16ba-4e0a-ad0b-b2514260346b",
+                "bcf59278-48f4-4e04-9e76-acefcd9b501c",
+                "3499f7c8-356b-4c8d-8578-71c91740da11",
+                "36f5c654-76b3-48ca-abe4-bef52da62761",
+                "4c73259d-a2ce-433e-8108-c53907de6e48",
+                "a8d407c1-8313-45fc-8e60-821dad4de945",
+                "92044808-f5db-4166-945b-f1433a274eb9",
+                "6650eae9-fdbf-4b5a-99ba-46d1a7971746",
+                "a0a000b0-b7ee-4c9c-974e-e061a142d4eb",
+                "10716821-852f-44fd-b163-25161be690f8",
+                "7712f552-fbd7-4675-836c-635133fe3bfb",
+                "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58",
+                "8ea96fae-49af-49e7-8afc-663e3a1c8b35",
+                "1092abc5-801d-49b1-8312-a18ae8c60b7",
+                "bf1ea06b-2fe9-4242-9435-9e207464ccc7",
+                "6566cc18-b1c2-492d-8802-efc9bdc9607c",
+                "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805",
+                "c79c5880-4f0e-45cd-8984-9d14c825fa19",
+                "fcb53414-3537-4d89-a70a-918bf309db"
+              ],
+              "intents": [
+                "greetings.bye",
+                "greetings.hello",
+                "welcome",
+                "complaint",
+                "issue.croplogin",
+                "issue.mobilelogin",
+                "issue.emaillogin",
+                "issue.croploginerr",
+                "issue.mobileloginerr",
+                "issue.emailloginerr",
+                "issue.tempdisabled",
+                "issue.mobiletempdisabled",
+                "issue.emailtempdisabled",
+                "issue.accountdeactive",
+                "issue.mobileaccountdeactive",
+                "issue.emailaccountdeactive",
+                "issue.cropforgetpinyes",
+                "issue.mobileforgetpinyes",
+                "issue.emailforgetpinyes",
+                "issue.cropforgetpinno",
+                "issue.mobileforgetpinno",
+                "issue.emailforgetpinno",
+                "loggedrequestyes",
+                "mobileloggedrequestyes",
+                "emailloggedrequestyes",
+                "loggedrequestno",
+                "mobileloggedrequestno",
+                "emailloggedrequestno",
+                "loggedrequestsure",
+                "mobileloggedrequestsure",
+                "emailloggedrequestsure",
+                "order.payunable"
+              ],
+              "perceptrons": [
+                [
+                  4.435231685638428,
+                  4.657163143157959,
+                  4.657163143157959,
+                  4.752208709716797,
+                  4.535445690155029,
+                  4.535445690155029,
+                  3.474478006362915,
+                  3.474478006362915,
+                  3.474478006362915,
+                  3.474478006362915,
+                  4.635579586029053,
+                  4.635579586029053,
+                  4.635579586029053,
+                  -0.6861766576766968,
+                  -0.6903475522994995,
+                  -0.6676434278488159,
+                  -0.6456523537635803,
+                  -0.4837324619293213,
+                  -0.4837324619293213,
+                  -0.6074185371398926,
+                  -0.587306797504425,
+                  -0.5678330659866333,
+                  -0.5649515986442566,
+                  -0.5474774241447449,
+                  -0.5305044651031494,
+                  -0.5140202641487122,
+                  -0.4980124831199646,
+                  -0.49205729365348816,
+                  -0.47780317068099976,
+                  -0.46391618251800537,
+                  -0.45038914680480957,
+                  -0.4372149109840393,
+                  -0.43137234449386597,
+                  -0.41963666677474976,
+                  -0.40817055106163025,
+                  -0.40182894468307495,
+                  -0.39162102341651917,
+                  -0.3849438726902008,
+                  -0.3793920874595642,
+                  -0.37681567668914795,
+                  -0.3756135404109955,
+                  -0.37449076771736145,
+                  -0.37328580021858215,
+                  -0.37199991941452026,
+                  -0.3706345558166504,
+                  -0.3691912293434143,
+                  -0.3676714301109314,
+                  -0.36607688665390015,
+                  0.3765580119349482
+                ],
+                [
+                  -0.31631433963775635,
+                  -0.39074257016181946,
+                  -0.39074257016181946,
+                  -0.4152315855026245,
+                  -0.340803325176239,
+                  -0.340803325176239,
+                  -0.2753376364707947,
+                  -0.2753376364707947,
+                  -0.2753376364707947,
+                  -0.2753376364707947,
+                  -0.3650626838207245,
+                  -0.3650626838207245,
+                  -0.3650626838207245,
+                  12.748775482177734,
+                  12.719708442687988,
+                  12.644674301147461,
+                  -1.247060775756836,
+                  -0.7400715947151184,
+                  -0.7400715947151184,
+                  -1.2287893295288086,
+                  -1.2170960903167725,
+                  -1.2064417600631714,
+                  -1.1978150606155396,
+                  -1.1898188591003418,
+                  -1.1821765899658203,
+                  -1.1758503913879395,
+                  -1.170217752456665,
+                  -1.164853811264038,
+                  -1.1590393781661987,
+                  -1.1529606580734253,
+                  -1.146626353263855,
+                  -1.1400457620620728,
+                  -1.1332274675369263,
+                  -1.1261805295944214,
+                  -1.1189136505126953,
+                  -1.1114357709884644,
+                  -1.1037553548812866,
+                  -1.095881462097168,
+                  -1.0878221988677979,
+                  -1.0795862674713135,
+                  -1.0711816549301147,
+                  -1.0626171827316284,
+                  -1.0539005994796753,
+                  -1.0450400114059448,
+                  -1.036043405532837,
+                  -1.026918649673462,
+                  -1.0176732540130615,
+                  -1.008314609527588,
+                  1.1136894272961442
+                ],
+                [
+                  -0.15363383293151855,
+                  -0.20224905014038086,
+                  -0.20224905014038086,
+                  -0.2183692902326584,
+                  -0.1697540432214737,
+                  -0.1697540432214737,
+                  -0.1397603452205658,
+                  -0.1397603452205658,
+                  -0.1397603452205658,
+                  -0.1397603452205658,
+                  -0.18581415712833405,
+                  -0.18581415712833405,
+                  -0.18581415712833405,
+                  -0.5123600363731384,
+                  -0.5077213644981384,
+                  -0.5030226707458496,
+                  13.229681968688965,
+                  6.8499436378479,
+                  6.8499436378479,
+                  -0.6497088670730591,
+                  -0.6402832865715027,
+                  -0.6313644647598267,
+                  -0.6230435967445374,
+                  -0.6162446141242981,
+                  -0.6091760993003845,
+                  -0.6027466058731079,
+                  -0.5974138379096985,
+                  -0.5922451615333557,
+                  -0.5879899263381958,
+                  -0.5842110514640808,
+                  -0.5809168815612793,
+                  -0.5780837535858154,
+                  -0.5756725668907166,
+                  -0.573036253452301,
+                  -0.5702665448188782,
+                  -0.5673678517341614,
+                  -0.5643441081047058,
+                  -0.5611996054649353,
+                  -0.5579385757446289,
+                  -0.5545649528503418,
+                  -0.5510830879211426,
+                  -0.5474971532821655,
+                  -0.543811023235321,
+                  -0.5400291085243225,
+                  -0.5361551642417908,
+                  -0.5321933031082153,
+                  -0.5281476378440857,
+                  -0.5240219235420227,
+                  0.5620336955329598
+                ],
+                [
+                  -0.10546408593654633,
+                  -0.1337108314037323,
+                  -0.1337108314037323,
+                  -0.1430472433567047,
+                  -0.11480040848255157,
+                  -0.11480040848255157,
+                  -0.0934339240193367,
+                  -0.0934339240193367,
+                  -0.0934339240193367,
+                  -0.0934339240193367,
+                  -0.12408065795898438,
+                  -0.12408065795898438,
+                  -0.12408065795898438,
+                  -0.3362957835197449,
+                  -0.33290895819664,
+                  -0.3294920325279236,
+                  -0.3260473906993866,
+                  -0.1785363107919693,
+                  -0.1785363107919693,
+                  13.406791687011719,
+                  -0.42114317417144775,
+                  -0.41632965207099915,
+                  -0.41191810369491577,
+                  -0.40788090229034424,
+                  -0.4041896164417267,
+                  -0.4011783301830292,
+                  -0.398151695728302,
+                  -0.3956553041934967,
+                  -0.3933739960193634,
+                  -0.39121147990226746,
+                  -0.3894309103488922,
+                  -0.38743430376052856,
+                  -0.3853481113910675,
+                  -0.3831753432750702,
+                  -0.3809192180633545,
+                  -0.3785828649997711,
+                  -0.376169353723526,
+                  -0.37368184328079224,
+                  -0.3711232542991638,
+                  -0.36849677562713623,
+                  -0.36580541729927063,
+                  -0.3630519509315491,
+                  -0.3602394759654999,
+                  -0.35737088322639465,
+                  -0.35444897413253784,
+                  -0.3514765799045563,
+                  -0.348456472158432,
+                  -0.3453914225101471,
+                  0.37646035483176854
+                ],
+                [
+                  -0.10546007007360458,
+                  -0.13471095263957977,
+                  -0.13471095263957977,
+                  -0.14439140260219574,
+                  -0.11514057219028473,
+                  -0.11514057219028473,
+                  -0.09390528500080109,
+                  -0.09390528500080109,
+                  -0.09390528500080109,
+                  -0.09390528500080109,
+                  -0.12477181106805801,
+                  -0.12477181106805801,
+                  -0.12477181106805801,
+                  -0.3396529257297516,
+                  -0.33629894256591797,
+                  -0.3329121172428131,
+                  -0.3294951319694519,
+                  -0.17991550266742706,
+                  -0.17991550266742706,
+                  -0.32465964555740356,
+                  13.406787872314453,
+                  -0.42114731669425964,
+                  -0.4163338541984558,
+                  -0.4119223356246948,
+                  -0.4078851640224457,
+                  -0.4041937291622162,
+                  -0.4011824131011963,
+                  -0.39815565943717957,
+                  -0.39565908908843994,
+                  -0.393377423286438,
+                  -0.3912148177623749,
+                  -0.389433890581131,
+                  -0.38743728399276733,
+                  -0.3853510320186615,
+                  -0.3831782639026642,
+                  -0.3809221386909485,
+                  -0.37858572602272034,
+                  -0.3761722445487976,
+                  -0.37368467450141907,
+                  -0.37112608551979065,
+                  -0.36849963665008545,
+                  -0.3658081591129303,
+                  -0.36305472254753113,
+                  -0.36024221777915955,
+                  -0.35737356543540955,
+                  -0.35445162653923035,
+                  -0.3514792323112488,
+                  -0.3484591245651245,
+                  0.3779077805823425
+                ],
+                [
+                  -0.10540660470724106,
+                  -0.13569588959217072,
+                  -0.13569588959217072,
+                  -0.14573201537132263,
+                  -0.1154426857829094,
+                  -0.1154426857829094,
+                  -0.09435670077800751,
+                  -0.09435670077800751,
+                  -0.09435670077800751,
+                  -0.09435670077800751,
+                  -0.12543648481369019,
+                  -0.12543648481369019,
+                  -0.12543648481369019,
+                  -0.34297433495521545,
+                  -0.3396559953689575,
+                  -0.3363020420074463,
+                  -0.3329152464866638,
+                  -0.18126408755779266,
+                  -0.18126408755779266,
+                  -0.32813772559165955,
+                  -0.32466286420822144,
+                  13.406786918640137,
+                  -0.4211512506008148,
+                  -0.41633790731430054,
+                  -0.41192638874053955,
+                  -0.4078892469406128,
+                  -0.4041977822780609,
+                  -0.40118634700775146,
+                  -0.39815956354141235,
+                  -0.39566272497177124,
+                  -0.3933807909488678,
+                  -0.3912179470062256,
+                  -0.3894367516040802,
+                  -0.38744014501571655,
+                  -0.3853538930416107,
+                  -0.38318106532096863,
+                  -0.38092494010925293,
+                  -0.37858855724334717,
+                  -0.37617501616477966,
+                  -0.37368741631507874,
+                  -0.3711288273334503,
+                  -0.3685023784637451,
+                  -0.3658108413219452,
+                  -0.363057404756546,
+                  -0.36024489998817444,
+                  -0.35737621784210205,
+                  -0.3544542193412781,
+                  -0.35148176550865173,
+                  0.37928014124114456
+                ],
+                [
+                  -0.10530205816030502,
+                  -0.13666532933712006,
+                  -0.13666532933712006,
+                  -0.14706890285015106,
+                  -0.11570563167333603,
+                  -0.11570563167333603,
+                  -0.09478765726089478,
+                  -0.09478765726089478,
+                  -0.09478765726089478,
+                  -0.09478765726089478,
+                  -0.12607380747795105,
+                  -0.12607380747795105,
+                  -0.12607380747795105,
+                  -0.34625735878944397,
+                  -0.342977374792099,
+                  -0.33965903520584106,
+                  -0.33630508184432983,
+                  -0.1825806200504303,
+                  -0.1825806200504303,
+                  -0.3315896689891815,
+                  -0.3281409442424774,
+                  -0.3246660530567169,
+                  13.406783103942871,
+                  -0.42115506529808044,
+                  -0.4163418710231781,
+                  -0.4119303822517395,
+                  -0.40789321064949036,
+                  -0.4042017161846161,
+                  -0.40119025111198425,
+                  -0.3981633186340332,
+                  -0.39566630125045776,
+                  -0.3933841288089752,
+                  -0.39122113585472107,
+                  -0.3894396424293518,
+                  -0.3874429762363434,
+                  -0.38535672426223755,
+                  -0.38318392634391785,
+                  -0.380927711725235,
+                  -0.3785913586616516,
+                  -0.37617775797843933,
+                  -0.3736902177333832,
+                  -0.37113156914711,
+                  -0.3685050308704376,
+                  -0.36581355333328247,
+                  -0.36306002736091614,
+                  -0.36024749279022217,
+                  -0.35737884044647217,
+                  -0.3544568121433258,
+                  0.3805762109075265
+                ],
+                [
+                  -0.10514483600854874,
+                  -0.1376188099384308,
+                  -0.1376188099384308,
+                  -0.1484021097421646,
+                  -0.11592812091112137,
+                  -0.11592812091112137,
+                  -0.09519755840301514,
+                  -0.09519755840301514,
+                  -0.09519755840301514,
+                  -0.09519755840301514,
+                  -0.12668290734291077,
+                  -0.12668290734291077,
+                  -0.12668290734291077,
+                  -0.34949904680252075,
+                  -0.34626027941703796,
+                  -0.34298038482666016,
+                  -0.3396620452404022,
+                  -0.18386361002922058,
+                  -0.18386361002922058,
+                  -0.3350129723548889,
+                  -0.331592857837677,
+                  -0.3281441032886505,
+                  -0.3246691823005676,
+                  13.406779289245605,
+                  -0.42115893959999084,
+                  -0.4163457453250885,
+                  -0.4119343161582947,
+                  -0.4078971743583679,
+                  -0.40420567989349365,
+                  -0.40119412541389465,
+                  -0.39816704392433167,
+                  -0.3956698775291443,
+                  -0.39338743686676025,
+                  -0.39122432470321655,
+                  -0.38944247364997864,
+                  -0.387445867061615,
+                  -0.38535958528518677,
+                  -0.3831866979598999,
+                  -0.3809305429458618,
+                  -0.3785941004753113,
+                  -0.376180499792099,
+                  -0.37369292974472046,
+                  -0.37113431096076965,
+                  -0.3685077428817749,
+                  -0.365816205739975,
+                  -0.36306267976760864,
+                  -0.3602500855922699,
+                  -0.3573814034461975,
+                  0.38179458948669637
+                ],
+                [
+                  -0.10493335872888565,
+                  -0.1385558843612671,
+                  -0.1385558843612671,
+                  -0.14973145723342896,
+                  -0.1161089763045311,
+                  -0.1161089763045311,
+                  -0.09558586776256561,
+                  -0.09558586776256561,
+                  -0.09558586776256561,
+                  -0.09558586776256561,
+                  -0.12726296484470367,
+                  -0.12726296484470367,
+                  -0.12726296484470367,
+                  -0.3526964485645294,
+                  -0.34950193762779236,
+                  -0.34626322984695435,
+                  -0.34298333525657654,
+                  -0.18511146306991577,
+                  -0.18511146306991577,
+                  -0.3384047746658325,
+                  -0.33501604199409485,
+                  -0.33159592747688293,
+                  -0.32814717292785645,
+                  -0.32467231154441833,
+                  13.406774520874023,
+                  -0.42116257548332214,
+                  -0.41634953022003174,
+                  -0.4119381606578827,
+                  -0.40790098905563354,
+                  -0.4042094349861145,
+                  -0.4011978507041931,
+                  -0.39817067980766296,
+                  -0.3956732451915741,
+                  -0.39339062571525574,
+                  -0.3912273645401001,
+                  -0.3894452154636383,
+                  -0.38744860887527466,
+                  -0.38536226749420166,
+                  -0.38318946957588196,
+                  -0.3809332251548767,
+                  -0.3785967528820038,
+                  -0.3761831820011139,
+                  -0.37369558215141296,
+                  -0.37113696336746216,
+                  -0.36851033568382263,
+                  -0.36581873893737793,
+                  -0.363065242767334,
+                  -0.3602526783943176,
+                  0.3829339559731402
+                ],
+                [
+                  -0.10466603189706802,
+                  -0.13947607576847076,
+                  -0.13947607576847076,
+                  -0.1510569453239441,
+                  -0.11624691635370255,
+                  -0.11624691635370255,
+                  -0.09595199674367905,
+                  -0.09595199674367905,
+                  -0.09595199674367905,
+                  -0.09595199674367905,
+                  -0.12781305611133575,
+                  -0.12781305611133575,
+                  -0.12781305611133575,
+                  -0.3558465838432312,
+                  -0.3526991903781891,
+                  -0.349504679441452,
+                  -0.3462660610675812,
+                  -0.1863226443529129,
+                  -0.1863226443529129,
+                  -0.3417624235153198,
+                  -0.3384077548980713,
+                  -0.33501899242401123,
+                  -0.3315989077091217,
+                  -0.3281501531600952,
+                  -0.3246752917766571,
+                  13.40677261352539,
+                  -0.4211661219596863,
+                  -0.41635316610336304,
+                  -0.4119418263435364,
+                  -0.40790465474128723,
+                  -0.4042131304740906,
+                  -0.40120142698287964,
+                  -0.3981741666793823,
+                  -0.3956765830516815,
+                  -0.3933936357498169,
+                  -0.3912302851676941,
+                  -0.3894478380680084,
+                  -0.3874512016773224,
+                  -0.3853648900985718,
+                  -0.3831920325756073,
+                  -0.38093581795692444,
+                  -0.3785993754863739,
+                  -0.37618574500083923,
+                  -0.37369799613952637,
+                  -0.37113940715789795,
+                  -0.3685128092765808,
+                  -0.3658211827278137,
+                  -0.3630676567554474,
+                  0.3839929344223889
+                ],
+                [
+                  -0.10434123873710632,
+                  -0.1403791457414627,
+                  -0.1403791457414627,
+                  -0.15237870812416077,
+                  -0.11634077876806259,
+                  -0.11634077876806259,
+                  -0.09629085659980774,
+                  -0.09629085659980774,
+                  -0.09629085659980774,
+                  -0.09629085659980774,
+                  -0.1283322125673294,
+                  -0.1283322125673294,
+                  -0.1283322125673294,
+                  -0.35894641280174255,
+                  -0.35584914684295654,
+                  -0.3527018427848816,
+                  -0.3495073616504669,
+                  -0.18749557435512543,
+                  -0.18749557435512543,
+                  -0.3450830578804016,
+                  -0.34176522493362427,
+                  -0.33841052651405334,
+                  -0.33502182364463806,
+                  -0.33160173892974854,
+                  -0.32815295457839966,
+                  -0.32467809319496155,
+                  13.406770706176758,
+                  -0.42116954922676086,
+                  -0.4163567125797272,
+                  -0.4119454622268677,
+                  -0.40790829062461853,
+                  -0.4042167067527771,
+                  -0.40120500326156616,
+                  -0.3981776237487793,
+                  -0.39567986130714417,
+                  -0.3933967351913452,
+                  -0.3912332057952881,
+                  -0.38945040106773376,
+                  -0.3874537944793701,
+                  -0.38536739349365234,
+                  -0.3831945061683655,
+                  -0.3809382915496826,
+                  -0.3786018192768097,
+                  -0.376188188791275,
+                  -0.3737005293369293,
+                  -0.37114182114601135,
+                  -0.3685152232646942,
+                  -0.3658236265182495,
+                  0.3849692015936801
+                ],
+                [
+                  -0.10390269756317139,
+                  -0.14131683111190796,
+                  -0.14131683111190796,
+                  -0.1537686586380005,
+                  -0.11635445803403854,
+                  -0.11635445803403854,
+                  -0.09665947407484055,
+                  -0.09665947407484055,
+                  -0.09665947407484055,
+                  -0.09665947407484055,
+                  -0.12882310152053833,
+                  -0.12882310152053833,
+                  -0.12882310152053833,
+                  -0.3619862198829651,
+                  -0.35894256830215454,
+                  -0.3558456301689148,
+                  -0.35269853472709656,
+                  -0.1886221319437027,
+                  -0.1886221319437027,
+                  -0.34835848212242126,
+                  -0.34508055448532104,
+                  -0.3417629301548004,
+                  -0.33840838074684143,
+                  -0.3350197672843933,
+                  -0.3315998315811157,
+                  -0.3281511962413788,
+                  -0.32467642426490784,
+                  13.40677261352539,
+                  -0.4211718738079071,
+                  -0.41635939478874207,
+                  -0.41194823384284973,
+                  -0.407911092042923,
+                  -0.40421944856643677,
+                  -0.4012078046798706,
+                  -0.3981802761554718,
+                  -0.3956823945045471,
+                  -0.3933989703655243,
+                  -0.39123472571372986,
+                  -0.38944751024246216,
+                  -0.3874509334564209,
+                  -0.3853646218776703,
+                  -0.3831918239593506,
+                  -0.3809356689453125,
+                  -0.37859922647476196,
+                  -0.3761855959892273,
+                  -0.3736979365348816,
+                  -0.3711392879486084,
+                  -0.36851266026496887,
+                  0.3858295078163591
+                ],
+                [
+                  -0.10351376235485077,
+                  -0.14235763251781464,
+                  -0.14235763251781464,
+                  -0.15531891584396362,
+                  -0.11647506803274155,
+                  -0.11647506803274155,
+                  -0.09708821028470993,
+                  -0.09708821028470993,
+                  -0.09708821028470993,
+                  -0.09708821028470993,
+                  -0.1293891817331314,
+                  -0.1293891817331314,
+                  -0.1293891817331314,
+                  -0.3649442791938782,
+                  -0.36195826530456543,
+                  -0.3589158058166504,
+                  -0.3558199107646942,
+                  -0.18968871235847473,
+                  -0.18968871235847473,
+                  -0.35157036781311035,
+                  -0.34833601117134094,
+                  -0.3450589179992676,
+                  -0.34174221754074097,
+                  -0.3383885622024536,
+                  -0.33500078320503235,
+                  -0.3315816819667816,
+                  -0.32813379168510437,
+                  -0.3246597647666931,
+                  13.40678882598877,
+                  -0.42117467522621155,
+                  -0.41636228561401367,
+                  -0.4119512438774109,
+                  -0.4079141616821289,
+                  -0.4042224884033203,
+                  -0.40121084451675415,
+                  -0.39818325638771057,
+                  -0.39568498730659485,
+                  -0.39339759945869446,
+                  -0.39122945070266724,
+                  -0.38943251967430115,
+                  -0.38743656873703003,
+                  -0.38535091280937195,
+                  -0.3831786811351776,
+                  -0.38092300295829773,
+                  -0.37858709692955017,
+                  -0.37617403268814087,
+                  -0.37368687987327576,
+                  -0.3711286783218384,
+                  0.386582173138134
+                ],
+                [
+                  -0.10323697328567505,
+                  -0.1435643583536148,
+                  -0.1435643583536148,
+                  -0.15698012709617615,
+                  -0.11665277928113937,
+                  -0.11665277928113937,
+                  -0.09761835634708405,
+                  -0.09761835634708405,
+                  -0.09761835634708405,
+                  -0.09761835634708405,
+                  -0.1300988495349884,
+                  -0.1300988495349884,
+                  -0.1300988495349884,
+                  -0.3678150773048401,
+                  -0.36489078402519226,
+                  -0.36190667748451233,
+                  -0.3588660955429077,
+                  -0.1906932294368744,
+                  -0.1906932294368744,
+                  -0.3547128438949585,
+                  -0.35152575373649597,
+                  -0.3482930064201355,
+                  -0.34501755237579346,
+                  -0.34170231223106384,
+                  -0.3383501470088959,
+                  -0.334963858127594,
+                  -0.3315460979938507,
+                  -0.3280995488166809,
+                  -0.3246268033981323,
+                  13.406820297241211,
+                  -0.4211774468421936,
+                  -0.4163651764392853,
+                  -0.41195425391197205,
+                  -0.4079171419143677,
+                  -0.40422549843788147,
+                  -0.4012138545513153,
+                  -0.39818575978279114,
+                  -0.3956819474697113,
+                  -0.39322224259376526,
+                  -0.39121076464653015,
+                  -0.3894032835960388,
+                  -0.38740843534469604,
+                  -0.38532379269599915,
+                  -0.3831526041030884,
+                  -0.3808978796005249,
+                  -0.37856295704841614,
+                  -0.3761507570743561,
+                  -0.3736644685268402,
+                  0.3872337331922894
+                ],
+                [
+                  -0.10306327044963837,
+                  -0.14493000507354736,
+                  -0.14493000507354736,
+                  -0.15886783599853516,
+                  -0.11700110137462616,
+                  -0.11700110137462616,
+                  -0.09826440364122391,
+                  -0.09826440364122391,
+                  -0.09826440364122391,
+                  -0.09826440364122391,
+                  -0.1309327781200409,
+                  -0.1309327781200409,
+                  -0.1309327781200409,
+                  -0.37059450149536133,
+                  -0.3677358627319336,
+                  -0.3648141026496887,
+                  -0.36183249950408936,
+                  -0.19163598120212555,
+                  -0.19163598120212555,
+                  -0.35778123140335083,
+                  -0.35464516282081604,
+                  -0.35146021842956543,
+                  -0.34822964668273926,
+                  -0.3449562191963196,
+                  -0.34164297580718994,
+                  -0.33829277753829956,
+                  -0.33490827679634094,
+                  -0.3314923644065857,
+                  -0.32804757356643677,
+                  -0.3245765268802643,
+                  13.406867980957031,
+                  -0.4211787283420563,
+                  -0.4163670539855957,
+                  -0.41195639967918396,
+                  -0.4079195559024811,
+                  -0.40422800183296204,
+                  -0.4012131690979004,
+                  -0.3981805741786957,
+                  -0.3956650495529175,
+                  -0.393199622631073,
+                  -0.3911767303943634,
+                  -0.3893589973449707,
+                  -0.38736557960510254,
+                  -0.38528239727020264,
+                  -0.3831125795841217,
+                  -0.3808591663837433,
+                  -0.3785254657268524,
+                  -0.37611454725265503,
+                  0.3877811299715537
+                ],
+                [
+                  -0.10303253680467606,
+                  -0.14649653434753418,
+                  -0.14649653434753418,
+                  -0.1609950065612793,
+                  -0.11753100901842117,
+                  -0.11753100901842117,
+                  -0.09915143996477127,
+                  -0.09915143996477127,
+                  -0.09915143996477127,
+                  -0.09915143996477127,
+                  -0.1320236474275589,
+                  -0.1320236474275589,
+                  -0.1320236474275589,
+                  -0.37325939536094666,
+                  -0.3704703152179718,
+                  -0.3676147758960724,
+                  -0.36469605565071106,
+                  -0.19250765442848206,
+                  -0.19250765442848206,
+                  -0.3607524335384369,
+                  -0.35767099261283875,
+                  -0.354537695646286,
+                  -0.35135555267333984,
+                  -0.3481276035308838,
+                  -0.3448568284511566,
+                  -0.34154611825942993,
+                  -0.3381984233856201,
+                  -0.3348163366317749,
+                  -0.3314027786254883,
+                  -0.3279602527618408,
+                  -0.3244915008544922,
+                  13.406950950622559,
+                  -0.4211689531803131,
+                  -0.4163581430912018,
+                  -0.41194748878479004,
+                  -0.40790891647338867,
+                  -0.40421339869499207,
+                  -0.40118569135665894,
+                  -0.3981466293334961,
+                  -0.39561766386032104,
+                  -0.3931468427181244,
+                  -0.39111241698265076,
+                  -0.3892844617366791,
+                  -0.3872929811477661,
+                  -0.385211706161499,
+                  -0.38304370641708374,
+                  -0.3807922601699829,
+                  -0.3784603476524353,
+                  0.388205185261785
+                ],
+                [
+                  -0.10332126170396805,
+                  -0.14844614267349243,
+                  -0.14844614267349243,
+                  -0.16358812153339386,
+                  -0.11846257001161575,
+                  -0.11846257001161575,
+                  -0.10028240084648132,
+                  -0.10028240084648132,
+                  -0.10028240084648132,
+                  -0.10028240084648132,
+                  -0.13354572653770447,
+                  -0.13354572653770447,
+                  -0.13354572653770447,
+                  -0.3757331967353821,
+                  -0.3730180561542511,
+                  -0.37023302912712097,
+                  -0.3673815131187439,
+                  -0.19326403737068176,
+                  -0.19326403737068176,
+                  -0.36355069279670715,
+                  -0.3605284094810486,
+                  -0.35745102167129517,
+                  -0.35432168841362,
+                  -0.35114341974258423,
+                  -0.3479193150997162,
+                  -0.3446524143218994,
+                  -0.34134548902511597,
+                  -0.3380015194416046,
+                  -0.33462315797805786,
+                  -0.33121320605278015,
+                  -0.32777437567710876,
+                  -0.3243091404438019,
+                  13.40713119506836,
+                  -0.42111441493034363,
+                  -0.41629523038864136,
+                  -0.4118758738040924,
+                  -0.40782883763313293,
+                  -0.4041251838207245,
+                  -0.4010797142982483,
+                  -0.398034006357193,
+                  -0.39548975229263306,
+                  -0.3930135667324066,
+                  -0.3909659683704376,
+                  -0.3891257047653198,
+                  -0.3871377110481262,
+                  -0.38505980372428894,
+                  -0.38289517164230347,
+                  -0.3806469440460205,
+                  0.38843462254425865
+                ],
+                [
+                  -0.10415789484977722,
+                  -0.15102969110012054,
+                  -0.15102969110012054,
+                  -0.16696171462535858,
+                  -0.12010280787944794,
+                  -0.12010280787944794,
+                  -0.10172193497419357,
+                  -0.10172193497419357,
+                  -0.10172193497419357,
+                  -0.10172193497419357,
+                  -0.13548029959201813,
+                  -0.13548029959201813,
+                  -0.13548029959201813,
+                  -0.37803852558135986,
+                  -0.37540119886398315,
+                  -0.3726905584335327,
+                  -0.36991003155708313,
+                  -0.19403254985809326,
+                  -0.19403254985809326,
+                  -0.36619141697883606,
+                  -0.36323225498199463,
+                  -0.36021479964256287,
+                  -0.3571421802043915,
+                  -0.35401761531829834,
+                  -0.35084420442581177,
+                  -0.34762486815452576,
+                  -0.34436261653900146,
+                  -0.34106048941612244,
+                  -0.3377211391925812,
+                  -0.3343474268913269,
+                  -0.33094215393066406,
+                  -0.327507883310318,
+                  -0.3240472078323364,
+                  13.407386779785156,
+                  -0.42036643624305725,
+                  -0.416171669960022,
+                  -0.4117432236671448,
+                  -0.40768760442733765,
+                  -0.4039759933948517,
+                  -0.4009113907814026,
+                  -0.3978590667247772,
+                  -0.39529815316200256,
+                  -0.39281654357910156,
+                  -0.39075344800949097,
+                  -0.38889646530151367,
+                  -0.3869129717350006,
+                  -0.3848395347595215,
+                  -0.3826793432235718,
+                  0.3884706868934248
+                ],
+                [
+                  -0.10576751828193665,
+                  -0.1544572114944458,
+                  -0.1544572114944458,
+                  -0.17024455964565277,
+                  -0.12154369056224823,
+                  -0.12154369056224823,
+                  -0.10495143383741379,
+                  -0.10495143383741379,
+                  -0.10495143383741379,
+                  -0.10495143383741379,
+                  -0.13785822689533234,
+                  -0.13785822689533234,
+                  -0.13785822689533234,
+                  -0.38020917773246765,
+                  -0.3776533305644989,
+                  -0.3750207722187042,
+                  -0.372314989566803,
+                  -0.19500021636486053,
+                  -0.19500021636486053,
+                  -0.36870595812797546,
+                  -0.36581388115882874,
+                  -0.3628602623939514,
+                  -0.3598482608795166,
+                  -0.3567810356616974,
+                  -0.3536618947982788,
+                  -0.350493848323822,
+                  -0.34727993607521057,
+                  -0.34402307868003845,
+                  -0.34072625637054443,
+                  -0.33739224076271057,
+                  -0.3340238928794861,
+                  -0.3306238353252411,
+                  -0.32719478011131287,
+                  -0.32373932003974915,
+                  13.407690048217773,
+                  -0.42023637890815735,
+                  -0.4160163402557373,
+                  -0.41157886385917664,
+                  -0.4075148105621338,
+                  -0.40379518270492554,
+                  -0.4007107615470886,
+                  -0.39765164256095886,
+                  -0.3950730264186859,
+                  -0.3925846815109253,
+                  -0.3905019164085388,
+                  -0.38862574100494385,
+                  -0.3866475522518158,
+                  -0.3845793306827545,
+                  0.388360495606711
+                ],
+                [
+                  -0.10750097781419754,
+                  -0.15811219811439514,
+                  -0.15811219811439514,
+                  -0.1750068962574005,
+                  -0.12445192039012909,
+                  -0.12445192039012909,
+                  -0.10827521979808807,
+                  -0.10827521979808807,
+                  -0.10827521979808807,
+                  -0.10827521979808807,
+                  -0.14014677703380585,
+                  -0.14014677703380585,
+                  -0.14014677703380585,
+                  -0.3822546601295471,
+                  -0.37978410720825195,
+                  -0.3772333562374115,
+                  -0.3746059536933899,
+                  -0.19614362716674805,
+                  -0.19614362716674805,
+                  -0.3711042106151581,
+                  -0.36828306317329407,
+                  -0.36539700627326965,
+                  -0.36244937777519226,
+                  -0.359443336725235,
+                  -0.3563821315765381,
+                  -0.35326895117759705,
+                  -0.3501068651676178,
+                  -0.3468988537788391,
+                  -0.34364792704582214,
+                  -0.3403569459915161,
+                  -0.33702877163887024,
+                  -0.33366620540618896,
+                  -0.3302719295024872,
+                  -0.3268486559391022,
+                  -0.3233988583087921,
+                  13.408024787902832,
+                  -0.4200875461101532,
+                  -0.4158419966697693,
+                  -0.41139551997184753,
+                  -0.40732303261756897,
+                  -0.4035952687263489,
+                  -0.40049034357070923,
+                  -0.39742395281791687,
+                  -0.39462026953697205,
+                  -0.39232659339904785,
+                  -0.3902219831943512,
+                  -0.3883258104324341,
+                  -0.38635337352752686,
+                  0.3881166346980379
+                ],
+                [
+                  -0.10914113372564316,
+                  -0.1618202030658722,
+                  -0.1618202030658722,
+                  -0.17918431758880615,
+                  -0.12662266194820404,
+                  -0.12662266194820404,
+                  -0.10890626907348633,
+                  -0.10890626907348633,
+                  -0.10890626907348633,
+                  -0.10890626907348633,
+                  -0.14375858008861542,
+                  -0.14375858008861542,
+                  -0.14375858008861542,
+                  -0.38416582345962524,
+                  -0.3817843794822693,
+                  -0.3793192207813263,
+                  -0.37677404284477234,
+                  -0.19748182594776154,
+                  -0.19748182594776154,
+                  -0.3733775317668915,
+                  -0.37063121795654297,
+                  -0.3678165674209595,
+                  -0.36493703722953796,
+                  -0.36199578642845154,
+                  -0.3589962422847748,
+                  -0.3559415340423584,
+                  -0.3528348207473755,
+                  -0.3496791422367096,
+                  -0.34647756814956665,
+                  -0.34323301911354065,
+                  -0.3399484157562256,
+                  -0.33662664890289307,
+                  -0.3332703709602356,
+                  -0.32988235354423523,
+                  -0.32646530866622925,
+                  -0.32302168011665344,
+                  13.408395767211914,
+                  -0.41991764307022095,
+                  -0.41564610600471497,
+                  -0.41119059920310974,
+                  -0.40710946917533875,
+                  -0.40337345004081726,
+                  -0.3999537527561188,
+                  -0.3971693515777588,
+                  -0.39435601234436035,
+                  -0.3920375108718872,
+                  -0.38990986347198486,
+                  -0.3878820538520813,
+                  0.3877264315585919
+                ],
+                [
+                  -0.11210039258003235,
+                  -0.1667836755514145,
+                  -0.1667836755514145,
+                  -0.18310301005840302,
+                  -0.12836872041225433,
+                  -0.12836872041225433,
+                  -0.11261310428380966,
+                  -0.11261310428380966,
+                  -0.11261310428380966,
+                  -0.11261310428380966,
+                  -0.14599411189556122,
+                  -0.14599411189556122,
+                  -0.14599411189556122,
+                  -0.38594791293144226,
+                  -0.38365936279296875,
+                  -0.3812836706638336,
+                  -0.378824383020401,
+                  -0.19903682172298431,
+                  -0.19903682172298431,
+                  -0.3755318224430084,
+                  -0.3728640675544739,
+                  -0.37012454867362976,
+                  -0.367316871881485,
+                  -0.36444419622421265,
+                  -0.36150994896888733,
+                  -0.35851728916168213,
+                  -0.3554694652557373,
+                  -0.35236960649490356,
+                  -0.34922078251838684,
+                  -0.34602606296539307,
+                  -0.34278833866119385,
+                  -0.3395105004310608,
+                  -0.3361954689025879,
+                  -0.3328459858894348,
+                  -0.32946470379829407,
+                  -0.32605424523353577,
+                  -0.3226172924041748,
+                  13.408794403076172,
+                  -0.4197359085083008,
+                  -0.4149059057235718,
+                  -0.41097286343574524,
+                  -0.406882643699646,
+                  -0.40313664078712463,
+                  -0.3997062146663666,
+                  -0.39689359068870544,
+                  -0.3940698504447937,
+                  -0.3917253911495209,
+                  -0.38942450284957886,
+                  0.3872163072488625
+                ],
+                [
+                  -0.11364147067070007,
+                  -0.1707126796245575,
+                  -0.1707126796245575,
+                  -0.1888798475265503,
+                  -0.1320640593767166,
+                  -0.1320640593767166,
+                  -0.11644016951322556,
+                  -0.11644016951322556,
+                  -0.11644016951322556,
+                  -0.11644016951322556,
+                  -0.1500522792339325,
+                  -0.1500522792339325,
+                  -0.1500522792339325,
+                  -0.38759273290634155,
+                  -0.38540083169937134,
+                  -0.38311830163002014,
+                  -0.3807486593723297,
+                  -0.20080247521400452,
+                  -0.20080247521400452,
+                  -0.3775588572025299,
+                  -0.3749733567237854,
+                  -0.3723127543926239,
+                  -0.3695804476737976,
+                  -0.3667799234390259,
+                  -0.36391448974609375,
+                  -0.36098748445510864,
+                  -0.35800209641456604,
+                  -0.35496148467063904,
+                  -0.3518688976764679,
+                  -0.3487273156642914,
+                  -0.34553980827331543,
+                  -0.34230929613113403,
+                  -0.3390386402606964,
+                  -0.33573076128959656,
+                  -0.33238834142684937,
+                  -0.3290141224861145,
+                  -0.3256107568740845,
+                  -0.322180837392807,
+                  13.409222602844238,
+                  -0.41953805088996887,
+                  -0.41469714045524597,
+                  -0.41073665022850037,
+                  -0.40663471817970276,
+                  -0.40287670493125916,
+                  -0.39943426847457886,
+                  -0.3965917229652405,
+                  -0.39375731348991394,
+                  -0.3913858234882355,
+                  0.3866920631670188
+                ],
+                [
+                  -0.11705146729946136,
+                  -0.17629298567771912,
+                  -0.17629298567771912,
+                  -0.19482113420963287,
+                  -0.13584601879119873,
+                  -0.13584601879119873,
+                  -0.12039108574390411,
+                  -0.12039108574390411,
+                  -0.12039108574390411,
+                  -0.12039108574390411,
+                  -0.15419845283031464,
+                  -0.15419845283031464,
+                  -0.15419845283031464,
+                  -0.3890746533870697,
+                  -0.387029767036438,
+                  -0.3848438262939453,
+                  -0.38256722688674927,
+                  -0.20308980345726013,
+                  -0.20308980345726013,
+                  -0.3794785141944885,
+                  -0.3769786059856415,
+                  -0.37440019845962524,
+                  -0.3717467188835144,
+                  -0.36902162432670593,
+                  -0.366228312253952,
+                  -0.3633701205253601,
+                  -0.3604503273963928,
+                  -0.3574722111225128,
+                  -0.3544389307498932,
+                  -0.35135361552238464,
+                  -0.3482193052768707,
+                  -0.34503909945487976,
+                  -0.3418157994747162,
+                  -0.33855247497558594,
+                  -0.3352518677711487,
+                  -0.3319166898727417,
+                  -0.32854965329170227,
+                  -0.3251534700393677,
+                  -0.32173067331314087,
+                  13.40966510772705,
+                  -0.419337660074234,
+                  -0.41448476910591125,
+                  -0.41049104928970337,
+                  -0.4063759744167328,
+                  -0.4026051163673401,
+                  -0.39915022253990173,
+                  -0.3962768018245697,
+                  -0.3934314250946045,
+                  0.38616725714588646
+                ],
+                [
+                  -0.1205509603023529,
+                  -0.18204401433467865,
+                  -0.18204401433467865,
+                  -0.19897869229316711,
+                  -0.13736969232559204,
+                  -0.13736969232559204,
+                  -0.12446953356266022,
+                  -0.12446953356266022,
+                  -0.12446953356266022,
+                  -0.12446953356266022,
+                  -0.15631331503391266,
+                  -0.15631331503391266,
+                  -0.15631331503391266,
+                  -0.390733003616333,
+                  -0.3884865343570709,
+                  -0.386452853679657,
+                  -0.3842724859714508,
+                  -0.20521517097949982,
+                  -0.20521517097949982,
+                  -0.38128453493118286,
+                  -0.37887337803840637,
+                  -0.37638023495674133,
+                  -0.3738086223602295,
+                  -0.3711619973182678,
+                  -0.36844393610954285,
+                  -0.36565762758255005,
+                  -0.3628065586090088,
+                  -0.35989391803741455,
+                  -0.35692298412323,
+                  -0.3538968861103058,
+                  -0.35081884264945984,
+                  -0.34769174456596375,
+                  -0.344518780708313,
+                  -0.3413028419017792,
+                  -0.33804675936698914,
+                  -0.3347533941268921,
+                  -0.3314254879951477,
+                  -0.3280657231807709,
+                  -0.3246767818927765,
+                  -0.3212612271308899,
+                  13.410127639770508,
+                  -0.4191248118877411,
+                  -0.414257287979126,
+                  -0.4097640812397003,
+                  -0.40609824657440186,
+                  -0.4023141860961914,
+                  -0.39884650707244873,
+                  -0.3959411084651947,
+                  0.3856245172728214
+                ],
+                [
+                  -0.12173763662576675,
+                  -0.18626707792282104,
+                  -0.18626707792282104,
+                  -0.20560497045516968,
+                  -0.14165525138378143,
+                  -0.14165525138378143,
+                  -0.1286793053150177,
+                  -0.1286793053150177,
+                  -0.1286793053150177,
+                  -0.1286793053150177,
+                  -0.16098564863204956,
+                  -0.16098564863204956,
+                  -0.16098564863204956,
+                  -0.3928278088569641,
+                  -0.3901127874851227,
+                  -0.38787904381752014,
+                  -0.3858575224876404,
+                  -0.20793186128139496,
+                  -0.20793186128139496,
+                  -0.3829699158668518,
+                  -0.3806505501270294,
+                  -0.37824583053588867,
+                  -0.3757592439651489,
+                  -0.37319430708885193,
+                  -0.37055444717407227,
+                  -0.3678431510925293,
+                  -0.3650638163089752,
+                  -0.3622196912765503,
+                  -0.3593141436576843,
+                  -0.35635027289390564,
+                  -0.35333138704299927,
+                  -0.35026052594184875,
+                  -0.34714072942733765,
+                  -0.3439750373363495,
+                  -0.34076637029647827,
+                  -0.337517648935318,
+                  -0.33423155546188354,
+                  -0.3309110105037689,
+                  -0.32755860686302185,
+                  -0.3241770267486572,
+                  -0.3207687437534332,
+                  13.410614967346191,
+                  -0.41889339685440063,
+                  -0.4140099585056305,
+                  -0.40950125455856323,
+                  -0.40579843521118164,
+                  -0.4020007252693176,
+                  -0.3985198736190796,
+                  0.38505817230315653
+                ],
+                [
+                  -0.12573161721229553,
+                  -0.19271418452262878,
+                  -0.19271418452262878,
+                  -0.21243762969970703,
+                  -0.14605967700481415,
+                  -0.14605967700481415,
+                  -0.12776772677898407,
+                  -0.12776772677898407,
+                  -0.12776772677898407,
+                  -0.12776772677898407,
+                  -0.1657758355140686,
+                  -0.1657758355140686,
+                  -0.1657758355140686,
+                  -0.39491477608680725,
+                  -0.3921971619129181,
+                  -0.3894939124584198,
+                  -0.3872746229171753,
+                  -0.21079376339912415,
+                  -0.21079376339912415,
+                  -0.38455405831336975,
+                  -0.38232946395874023,
+                  -0.3800159990787506,
+                  -0.37761732935905457,
+                  -0.3751369118690491,
+                  -0.3725782632827759,
+                  -0.36994490027427673,
+                  -0.36724016070365906,
+                  -0.36446744203567505,
+                  -0.36163008213043213,
+                  -0.35873129963874817,
+                  -0.3557743430137634,
+                  -0.3527624309062958,
+                  -0.3496985137462616,
+                  -0.34658586978912354,
+                  -0.34342727065086365,
+                  -0.3402257561683655,
+                  -0.33698418736457825,
+                  -0.3337053060531616,
+                  -0.33039194345474243,
+                  -0.32704678177833557,
+                  -0.32367244362831116,
+                  -0.320271372795105,
+                  13.411103248596191,
+                  -0.41865408420562744,
+                  -0.4137541651725769,
+                  -0.40922975540161133,
+                  -0.405489057302475,
+                  -0.4016774296760559,
+                  0.38448794952064924
+                ],
+                [
+                  -0.12984783947467804,
+                  -0.19937527179718018,
+                  -0.19937527179718018,
+                  -0.21948330104351044,
+                  -0.15058647096157074,
+                  -0.15058647096157074,
+                  -0.13239115476608276,
+                  -0.13239115476608276,
+                  -0.13239115476608276,
+                  -0.13239115476608276,
+                  -0.16691139340400696,
+                  -0.16691139340400696,
+                  -0.16691139340400696,
+                  -0.397555947303772,
+                  -0.3942621946334839,
+                  -0.39156147837638855,
+                  -0.3888706564903259,
+                  -0.21474479138851166,
+                  -0.21474479138851166,
+                  -0.38598525524139404,
+                  -0.3839028477668762,
+                  -0.3816835582256317,
+                  -0.3793756663799286,
+                  -0.3769826889038086,
+                  -0.3745081126689911,
+                  -0.3719555139541626,
+                  -0.36932826042175293,
+                  -0.36662980914115906,
+                  -0.363863468170166,
+                  -0.361032634973526,
+                  -0.3581404983997345,
+                  -0.3551902770996094,
+                  -0.35218507051467896,
+                  -0.3491281270980835,
+                  -0.34602227807044983,
+                  -0.34287068247795105,
+                  -0.339676171541214,
+                  -0.33644160628318787,
+                  -0.3331698775291443,
+                  -0.32986363768577576,
+                  -0.32652559876441956,
+                  -0.3231583535671234,
+                  -0.31976446509361267,
+                  13.411603927612305,
+                  -0.4184023141860962,
+                  -0.41348570585250854,
+                  -0.4089451730251312,
+                  -0.40476366877555847,
+                  0.38392233709023205
+                ],
+                [
+                  -0.13408952951431274,
+                  -0.20625697076320648,
+                  -0.20625697076320648,
+                  -0.22377462685108185,
+                  -0.15133222937583923,
+                  -0.15133222937583923,
+                  -0.13717752695083618,
+                  -0.13717752695083618,
+                  -0.13717752695083618,
+                  -0.13717752695083618,
+                  -0.17227651178836823,
+                  -0.17227651178836823,
+                  -0.17227651178836823,
+                  -0.4004611074924469,
+                  -0.3968750536441803,
+                  -0.393596351146698,
+                  -0.3909154534339905,
+                  -0.21805062890052795,
+                  -0.21805062890052795,
+                  -0.3874732255935669,
+                  -0.3853112459182739,
+                  -0.38324129581451416,
+                  -0.3810269832611084,
+                  -0.37872421741485596,
+                  -0.37633657455444336,
+                  -0.37386757135391235,
+                  -0.3713206350803375,
+                  -0.36869925260543823,
+                  -0.3660067915916443,
+                  -0.3632465600967407,
+                  -0.3604219853878021,
+                  -0.3575362265110016,
+                  -0.3545924723148346,
+                  -0.35159385204315186,
+                  -0.3485434949398041,
+                  -0.3454444110393524,
+                  -0.34229961037635803,
+                  -0.3391120135784149,
+                  -0.3358844220638275,
+                  -0.33261966705322266,
+                  -0.32932043075561523,
+                  -0.3259894549846649,
+                  -0.3226293623447418,
+                  -0.31924253702163696,
+                  13.412117958068848,
+                  -0.41813167929649353,
+                  -0.41319799423217773,
+                  -0.4086410701274872,
+                  0.3833445547422791
+                ],
+                [
+                  -0.13408268988132477,
+                  -0.21064752340316772,
+                  -0.21064752340316772,
+                  -0.23161359131336212,
+                  -0.15642069280147552,
+                  -0.15642069280147552,
+                  -0.14213240146636963,
+                  -0.14213240146636963,
+                  -0.14213240146636963,
+                  -0.14213240146636963,
+                  -0.1777881234884262,
+                  -0.1777881234884262,
+                  -0.1777881234884262,
+                  -0.40366312861442566,
+                  -0.3997615873813629,
+                  -0.39619314670562744,
+                  -0.39293092489242554,
+                  -0.22124473750591278,
+                  -0.22124473750591278,
+                  -0.38912010192871094,
+                  -0.38678058981895447,
+                  -0.3846416771411896,
+                  -0.38258373737335205,
+                  -0.38037386536598206,
+                  -0.3780757486820221,
+                  -0.3756929039955139,
+                  -0.37322890758514404,
+                  -0.37068718671798706,
+                  -0.3680712580680847,
+                  -0.3653843402862549,
+                  -0.36262986063957214,
+                  -0.35981109738349915,
+                  -0.35693132877349854,
+                  -0.35399365425109863,
+                  -0.3510013520717621,
+                  -0.3479573130607605,
+                  -0.3448646664619446,
+                  -0.3417263627052307,
+                  -0.3385453224182129,
+                  -0.33532437682151794,
+                  -0.33206629753112793,
+                  -0.3287738859653473,
+                  -0.32544973492622375,
+                  -0.32209646701812744,
+                  -0.3187166154384613,
+                  13.412638664245605,
+                  -0.417847216129303,
+                  -0.41289615631103516,
+                  0.38276509999894387
+                ],
+                [
+                  -0.13883735239505768,
+                  -0.21831434965133667,
+                  -0.21831434965133667,
+                  -0.23971103131771088,
+                  -0.1616649180650711,
+                  -0.1616649180650711,
+                  -0.14726144075393677,
+                  -0.14726144075393677,
+                  -0.14726144075393677,
+                  -0.14726144075393677,
+                  -0.18345332145690918,
+                  -0.18345332145690918,
+                  -0.18345332145690918,
+                  -0.40674200654029846,
+                  -0.40294796228408813,
+                  -0.3990660309791565,
+                  -0.39551588892936707,
+                  -0.22610917687416077,
+                  -0.22610917687416077,
+                  -0.39126166701316833,
+                  -0.3886314034461975,
+                  -0.38609108328819275,
+                  -0.3839746415615082,
+                  -0.3819282054901123,
+                  -0.3797224164009094,
+                  -0.3774285614490509,
+                  -0.37505027651786804,
+                  -0.3725910782814026,
+                  -0.3700542449951172,
+                  -0.36744341254234314,
+                  -0.3647617697715759,
+                  -0.3620128035545349,
+                  -0.3591996431350708,
+                  -0.35632559657096863,
+                  -0.3533938527107239,
+                  -0.3504074513912201,
+                  -0.347369521856308,
+                  -0.3442831039428711,
+                  -0.3411511480808258,
+                  -0.3379765450954437,
+                  -0.3347620964050293,
+                  -0.3315105736255646,
+                  -0.328224778175354,
+                  -0.32490724325180054,
+                  -0.32156071066856384,
+                  -0.3181875944137573,
+                  13.413159370422363,
+                  -0.41755130887031555,
+                  0.3821842312116051
+                ],
+                [
+                  -0.14375494420528412,
+                  -0.22625309228897095,
+                  -0.22625309228897095,
+                  -0.24808110296726227,
+                  -0.16707533597946167,
+                  -0.16707533597946167,
+                  -0.15257059037685394,
+                  -0.15257059037685394,
+                  -0.15257059037685394,
+                  -0.15257059037685394,
+                  -0.18928512930870056,
+                  -0.18928512930870056,
+                  -0.18928512930870056,
+                  -0.4106108248233795,
+                  -0.4060179591178894,
+                  -0.40225133299827576,
+                  -0.3983894884586334,
+                  -0.22944048047065735,
+                  -0.22944048047065735,
+                  -0.3936566710472107,
+                  -0.39054879546165466,
+                  -0.3879479467868805,
+                  -0.3854231834411621,
+                  -0.3833279609680176,
+                  -0.38129210472106934,
+                  -0.37908992171287537,
+                  -0.376800000667572,
+                  -0.37442582845687866,
+                  -0.37197089195251465,
+                  -0.36943864822387695,
+                  -0.3668324649333954,
+                  -0.3641558289527893,
+                  -0.36141183972358704,
+                  -0.35860389471054077,
+                  -0.35573524236679077,
+                  -0.35280898213386536,
+                  -0.34982824325561523,
+                  -0.34679609537124634,
+                  -0.3437155485153198,
+                  -0.3405895233154297,
+                  -0.33742091059684753,
+                  -0.33421263098716736,
+                  -0.33096736669540405,
+                  -0.3276878297328949,
+                  -0.3243767023086548,
+                  -0.32103654742240906,
+                  -0.31766989827156067,
+                  13.413670539855957,
+                  0.38161736807765334
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "intentDomains": {},
+    "extraSentences": [
+      [
+        "en",
+        "goodbye for now"
+      ],
+      [
+        "en",
+        "bye bye take care"
+      ],
+      [
+        "en",
+        "okay see you later"
+      ],
+      [
+        "en",
+        "bye for now"
+      ],
+      [
+        "en",
+        "i must go"
+      ],
+      [
+        "en",
+        "hello"
+      ],
+      [
+        "en",
+        "hi"
+      ],
+      [
+        "en",
+        "howdy"
+      ],
+      [
+        "en",
+        "start"
+      ],
+      [
+        "en",
+        "Need help"
+      ],
+      [
+        "en",
+        "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2"
+      ],
+      [
+        "en",
+        "c3d12fd5-19e3-44b6-8852-30fde8545ed2"
+      ],
+      [
+        "en",
+        "8241fecd-f648-4ece-96d8-58374c6e7097"
+      ],
+      [
+        "en",
+        "3634cf75-0d5a-43a0-8515-983fa8c47646"
+      ],
+      [
+        "en",
+        "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd"
+      ],
+      [
+        "en",
+        "ca0b4d71-ee3e-466e-af8e-0e548f28c803"
+      ],
+      [
+        "en",
+        "24b96328-0cb2-458e-bd9d-ae0a68a0686a"
+      ],
+      [
+        "en",
+        "e6901434-ad37-4dff-97b6-1d12616fc326"
+      ],
+      [
+        "en",
+        "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47"
+      ],
+      [
+        "en",
+        "ce0ccb51-e793-44fe-91b8-f6d21f5436d8"
+      ],
+      [
+        "en",
+        "b42f6af9-16ba-4e0a-ad0b-b2514260346b"
+      ],
+      [
+        "en",
+        "bcf59278-48f4-4e04-9e76-acefcd9b501c"
+      ],
+      [
+        "en",
+        "3499f7c8-356b-4c8d-8578-71c91740da11"
+      ],
+      [
+        "en",
+        "36f5c654-76b3-48ca-abe4-bef52da62761"
+      ],
+      [
+        "en",
+        "4c73259d-a2ce-433e-8108-c53907de6e48"
+      ],
+      [
+        "en",
+        "a8d407c1-8313-45fc-8e60-821dad4de945"
+      ],
+      [
+        "en",
+        "92044808-f5db-4166-945b-f1433a274eb9"
+      ],
+      [
+        "en",
+        "6650eae9-fdbf-4b5a-99ba-46d1a7971746"
+      ],
+      [
+        "en",
+        "a0a000b0-b7ee-4c9c-974e-e061a142d4eb"
+      ],
+      [
+        "en",
+        "10716821-852f-44fd-b163-25161be690f8"
+      ],
+      [
+        "en",
+        "7712f552-fbd7-4675-836c-635133fe3bfb"
+      ],
+      [
+        "en",
+        "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58"
+      ],
+      [
+        "en",
+        "8ea96fae-49af-49e7-8afc-663e3a1c8b35"
+      ],
+      [
+        "en",
+        "1092abc5-801d-49b1-8312-a18ae8c60b7e"
+      ],
+      [
+        "en",
+        "bf1ea06b-2fe9-4242-9435-9e207464ccc7"
+      ],
+      [
+        "en",
+        "6566cc18-b1c2-492d-8802-efc9bdc9607c"
+      ],
+      [
+        "en",
+        "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805"
+      ],
+      [
+        "en",
+        "c79c5880-4f0e-45cd-8984-9d14c825fa19"
+      ],
+      [
+        "en",
+        "fcb53414-3537-4d89-a70a-918bf309dbed"
+      ]
+    ]
+  },
+  "ner": {
+    "settings": {
+      "tag": "ner",
+      "entityPreffix": "%",
+      "entitySuffix": "%"
+    },
+    "rules": {}
+  },
+  "nlgManager": {
+    "settings": {
+      "tag": "nlg-manager"
+    },
+    "responses": {
+      "en": {
+        "greetings.bye": [
+          {
+            "answer": "Till next time"
+          },
+          {
+            "answer": "see you soon!"
+          }
+        ],
+        "greetings.hello": [
+          {
+            "answer": "Hey there!"
+          },
+          {
+            "answer": "Greetings!"
+          }
+        ],
+        "welcome": [
+          {
+            "answer": {
+              "text": "Please indicate service type",
+              "optionRadio": [
+                {
+                  "actual": "Complaint",
+                  "forRespond": "24289b8b-9a7a-48d7-8fe1-ed7e23543fa2"
+                },
+                {
+                  "actual": "Request",
+                  "forRespond": "5beaf986-0907-4f79-bd8f-7e8de39a8089"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "complaint": [
+          {
+            "answer": {
+              "text": "Please select nature of complaint",
+              "optionRadio": [],
+              "optionSelect": [
+                {
+                  "actual": "Not able to login using CROP number",
+                  "forRespond": "c3d12fd5-19e3-44b6-8852-30fde8545ed2"
+                },
+                {
+                  "actual": "Not able to login using Mobile number",
+                  "forRespond": "8241fecd-f648-4ece-96d8-58374c6e7097"
+                },
+                {
+                  "actual": "Not able to login using Email",
+                  "forRespond": "3634cf75-0d5a-43a0-8515-983fa8c47646"
+                },
+                {
+                  "actual": "Order Confirmed but not able to Pay",
+                  "forRespond": "fcb53414-3537-4d89-a70a-918bf309dbed"
+                },
+                {
+                  "actual": "Payment made bur E-Voucher not received",
+                  "forRespond": "c1194f73-1b39-44e2-b5f2-c429e70b2111"
+                },
+                {
+                  "actual": "CROPs not credited – Order or Purchase",
+                  "forRespond": "3a130070-6315-4307-a1b0-e222582051cb"
+                },
+                {
+                  "actual": "Not able to redeem",
+                  "forRespond": "df26051d-09fb-4f72-b0c0-5e7d99fb53e2"
+                }
+              ],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.croplogin": [
+          {
+            "answer": {
+              "text": "Please select error message",
+              "optionRadio": [],
+              "optionSelect": [
+                {
+                  "actual": "Login and Pin combination is not correct",
+                  "forRespond": "f1d663ea-3f8d-4dc4-9b00-a0f6418dc6cd"
+                },
+                {
+                  "actual": "Login temporarily disabled",
+                  "forRespond": "e6901434-ad37-4dff-97b6-1d12616fc326"
+                },
+                {
+                  "actual": "Membership deactivated",
+                  "forRespond": "b42f6af9-16ba-4e0a-ad0b-b2514260346b"
+                }
+              ],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.mobilelogin": [
+          {
+            "answer": {
+              "text": "Please select error message",
+              "optionRadio": [],
+              "optionSelect": [
+                {
+                  "actual": "Login and Pin combination is not correct",
+                  "forRespond": "ca0b4d71-ee3e-466e-af8e-0e548f28c803"
+                },
+                {
+                  "actual": "Login temporarily disabled",
+                  "forRespond": "e3d9c011-e9d6-4ff5-bcc9-9899ad9e6d47"
+                },
+                {
+                  "actual": "Membership deactivated",
+                  "forRespond": "bcf59278-48f4-4e04-9e76-acefcd9b501c"
+                }
+              ],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.emaillogin": [
+          {
+            "answer": {
+              "text": "Please select error message",
+              "optionRadio": [],
+              "optionSelect": [
+                {
+                  "actual": "Login and Pin combination is not correct",
+                  "forRespond": "24b96328-0cb2-458e-bd9d-ae0a68a0686a"
+                },
+                {
+                  "actual": "Login temporarily disabled",
+                  "forRespond": "ce0ccb51-e793-44fe-91b8-f6d21f5436d8"
+                },
+                {
+                  "actual": "Membership deactivated",
+                  "forRespond": "3499f7c8-356b-4c8d-8578-71c91740da11"
+                }
+              ],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.croploginerr": [
+          {
+            "answer": {
+              "text": "Have you forgotten your Pin?",
+              "optionRadio": [
+                {
+                  "actual": "Yes",
+                  "forRespond": "36f5c654-76b3-48ca-abe4-bef52da62761"
+                },
+                {
+                  "actual": "No",
+                  "forRespond": "92044808-f5db-4166-945b-f1433a274eb9"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.mobileloginerr": [
+          {
+            "answer": {
+              "text": "Have you forgotten your Pin?",
+              "optionRadio": [
+                {
+                  "actual": "Yes",
+                  "forRespond": "4c73259d-a2ce-433e-8108-c53907de6e48"
+                },
+                {
+                  "actual": "No",
+                  "forRespond": "6650eae9-fdbf-4b5a-99ba-46d1a7971746"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.emailloginerr": [
+          {
+            "answer": {
+              "text": "Have you forgotten your Pin?",
+              "optionRadio": [
+                {
+                  "actual": "Yes",
+                  "forRespond": "a8d407c1-8313-45fc-8e60-821dad4de945"
+                },
+                {
+                  "actual": "No",
+                  "forRespond": "a0a000b0-b7ee-4c9c-974e-e061a142d4eb"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.cropforgetpinyes": [
+          {
+            "answer": {
+              "text": "Please Reset your Pin. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.mobileforgetpinyes": [
+          {
+            "answer": {
+              "text": "Please Reset your Pin. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.emailforgetpinyes": [
+          {
+            "answer": {
+              "text": "Please Reset your Pin. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.cropforgetpinno": [
+          {
+            "answer": {
+              "text": "You would need to enter crop number without any space in the Login screen. Can you confirm that your entry is correct and without any space?",
+              "optionRadio": [
+                {
+                  "actual": "yes",
+                  "forRespond": "10716821-852f-44fd-b163-25161be690f8"
+                },
+                {
+                  "actual": "No",
+                  "forRespond": "8ea96fae-49af-49e7-8afc-663e3a1c8b35"
+                },
+                {
+                  "actual": "Sure",
+                  "forRespond": "6566cc18-b1c2-492d-8802-efc9bdc9607c"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.mobileforgetpinno": [
+          {
+            "answer": {
+              "text": "You would need to enter the Mobile number that was used for sign up. The mobile number should be entered with the prefix ‘0’. Eg. if your mobile number is 123456789 then your entry should be 0123456789 without any space. Can you confirm that your entry is correct and without any space?",
+              "optionRadio": [
+                {
+                  "actual": "yes",
+                  "forRespond": "7712f552-fbd7-4675-836c-635133fe3bfb"
+                },
+                {
+                  "actual": "No",
+                  "forRespond": "1092abc5-801d-49b1-8312-a18ae8c60b7e"
+                },
+                {
+                  "actual": "Sure",
+                  "forRespond": "a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.emailforgetpinno": [
+          {
+            "answer": {
+              "text": "You would need to enter the Email ID that was used for sign up. Can you confirm that your entry is correct?",
+              "optionRadio": [
+                {
+                  "actual": "yes",
+                  "forRespond": "68dfe3bf-7634-4514-8ec0-8cd0b22b8c58"
+                },
+                {
+                  "actual": "No",
+                  "forRespond": "bf1ea06b-2fe9-4242-9435-9e207464ccc7"
+                },
+                {
+                  "actual": "Sure",
+                  "forRespond": "c79c5880-4f0e-45cd-8984-9d14c825fa19"
+                }
+              ],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "loggedrequestyes": [
+          {
+            "answer": {
+              "text": "We have lodged a ticket for your complaint. You will receive a notification from us once its resolved. Thank You!",
+              "optionRadio": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "mobileloggedrequestyes": [
+          {
+            "answer": {
+              "text": "We have lodged a ticket for your complaint. You will receive a notification from us once its resolved. Thank You!",
+              "optionRadio": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "emailloggedrequestyes": [
+          {
+            "answer": {
+              "text": "We have lodged a ticket for your complaint. You will receive a notification from us once its resolved. Thank You!",
+              "optionRadio": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "loggedrequestno": [
+          {
+            "answer": {
+              "text": "Please try again. Enter your correct eight-digit CROP number on the Login screen without any space. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "mobileloggedrequestno": [
+          {
+            "answer": {
+              "text": "Please try again. Enter your correct Mobile number that was used for sign up on the Login screen without any space.",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "emailloggedrequestno": [
+          {
+            "answer": {
+              "text": "Please try again. Enter your correct Email ID that was used for sign up on the Login screen without any space.",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "loggedrequestsure": [
+          {
+            "answer": {
+              "text": "Please try again. Enter your correct eight-digit CROP number on the Login screen without any space. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "mobileloggedrequestsure": [
+          {
+            "answer": {
+              "text": "Please try again. Enter your correct Mobile number that was used for sign up on the Login screen without any space.",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "emailloggedrequestsure": [
+          {
+            "answer": {
+              "text": "Please try again. Enter your correct Email ID that was used for sign up on the Login screen without any space.",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.tempdisabled": [
+          {
+            "answer": {
+              "text": "Your membership is temporarily disabled. Please refer to our notification and Email communication sent earlier requesting necessary action  at your end. Please act on this Email and send us a line of confirmation for service reinstatement. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.mobiletempdisabled": [
+          {
+            "answer": {
+              "text": "Your membership is temporarily disabled. Please refer to our notification and Email communication sent earlier requesting necessary action  at your end. Please act on this Email and send us a line of confirmation for service reinstatement. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.emailtempdisabled": [
+          {
+            "answer": {
+              "text": "Your membership is temporarily disabled. Please refer to our notification and Email communication sent earlier requesting necessary action  at your end. Please act on this Email and send us a line of confirmation for service reinstatement. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.accountdeactive": [
+          {
+            "answer": {
+              "text": "Your membership is discontinued, and you will no longer be able to access our service using your existing login. Please refer to our notification and Email communication sent earlier requesting necessary action  at your end. Please act on this Email and send us a line of confirmation. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.mobileaccountdeactive": [
+          {
+            "answer": {
+              "text": "Your membership is discontinued, and you will no longer be able to access our service using your existing login. Please refer to our notification and Email communication sent earlier requesting necessary action  at your end. Please act on this Email and send us a line of confirmation. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "issue.emailaccountdeactive": [
+          {
+            "answer": {
+              "text": "Your membership is discontinued, and you will no longer be able to access our service using your existing login. Please refer to our notification and Email communication sent earlier requesting necessary action  at your end. Please act on this Email and send us a line of confirmation. Thank You!",
+              "optionRadio": [],
+              "optionSelect": [],
+              "optSelect": false
+            }
+          }
+        ],
+        "order.payunable": [
+          {
+            "answer": {
+              "text": "Please select the error type",
+              "optionRadio": [],
+              "optionSelect": [
+                {
+                  "actual": "Screen not refreshing to payment page",
+                  "forRespond": "78f976a4-03b9-4fe9-82a4-d9983349fa91"
+                },
+                {
+                  "actual": "Payment authentication error",
+                  "forRespond": "52cc4c6f-0dfb-47c9-ab6b-7a3118e63390"
+                },
+                {
+                  "actual": "Payment declined",
+                  "forRespond": "6ec23a1c-8d7d-4dd9-9078-05cfa3bd7000"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "actionManager": {
+    "settings": {
+      "tag": "action-manager"
+    },
+    "actions": {}
+  },
+  "slotManager": {}
+}

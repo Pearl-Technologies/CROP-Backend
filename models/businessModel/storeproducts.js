@@ -35,7 +35,7 @@ const storeProductSchema = mongoose.Schema(
     status: {
       type: String,
       default: "inActive",
-      enum: ["active", "inActive", "scheduled"],
+      enum: ["active", "inActive", "rejected"],
     },
     customiseMsg: { type: String, required: true },
     slot: { type: String },

@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("express")
 const {
   addProduct,
   addAllProducts,
@@ -38,7 +38,9 @@ const {
   getPromoEarnAndRedeemProducts,
   getEarnAndRedeemProducts,
   getSingleProductByBusiness,
-  checkProductLike,
+  createMarketProducts,
+  getAllProductCommentAndRatingsByBusiness,
+  getMarketProductsByBusiness,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -53,6 +55,7 @@ router.get(
   "/get-promo-earn-redeem-products/:page/:limit",
   getPromoEarnAndRedeemProducts
 )
+router.get("/market", authorization, getMarketProductsByBusiness)
 router.put("/putProductCommentLike", putProductCommentLike)
 router.put("/putProductCommentDetails", putProductCommentDetails)
 router.put("/putProductCommentPaticularLike", putProductCommentPaticularLike)
@@ -61,7 +64,6 @@ router.get("/get-redeem-products", authorization, getRedeemProducts)
 router.get("/get-promo-products", authorization, getPromoProductsByBusiness)
 router.get("/get-promo-products/:page/:limit", getPromoProducts)
 router.get("/get-all-products/:page/:limit", getAllProducts)
-router.get("/checkProductLike",checkProductLike)
 
 // router.get("/get-earncrop-products", getEarnCropProducts)
 // router.get("/get-redeemcrop-products", getRedeemCropProducts)
@@ -81,6 +83,11 @@ router.get(
   "/get-all-products-by-business",
   authorization,
   getAllProductsByBusiness
+)
+router.get(
+  "/get-all-product-comments-ratings",
+  authorization,
+  getAllProductCommentAndRatingsByBusiness
 )
 router.get("/relatedProduct", getRelatedProducts)
 router.get("/single-product/:id", getSingleProductByBusiness)
@@ -121,6 +128,6 @@ router.get(
   authorization,
   getProductCommentAndRatingsByBusiness
 )
+router.post("/market/:id", authorization, createMarketProducts)
 
-
-module.exports = router;
+module.exports = router

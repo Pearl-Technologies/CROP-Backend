@@ -63,6 +63,7 @@ const businessServices = mongoose.model("Business_Services", {
       },
     },
   },
+  listOfHolidays: [],
   businessId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "business",
