@@ -9,50 +9,46 @@ const {
   updatePaymentInfo,
 } = require("../PaymentController/payment");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
-const NodeGeocoder = require("node-geocoder")
-const moment = require('moment');
-
-// Your AccountSID and Auth Token from console.twilio.com
-const accountSid = process.env.TWILIO_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-
-const client = require("twilio")(accountSid, authToken);
+const NodeGeocoder = require("node-geocoder");
+const moment = require("moment");
 
 const getAllProduct = async (req, res) => {
-  const {businessId} = req.body;
+  const { businessId } = req.body;
   console.log(businessId);
   try {
-    if(businessId){
+    if (businessId) {
       // const productList = await Product.find({user:businessId}).sort({updatedAt:-1});
       // return res.status(200).json({ productList });
-      const productList = await Product.aggregate(
-        [
-          {
-            '$match': {
-              'user': ObjectId(businessId)
-            }
-          }, {
-            '$lookup': {
-              'from': 'products_comments', 
-              'localField': '_id', 
-              'foreignField': 'product_id', 
-              'as': 'pd'
-            }
-          }, {
-            '$project': {
-              'title': 1, 
-              'image': 1, 
-              'pd': 1, 
-              'updatedAt': 1
-            }
-          }, {
-            '$sort': {
-              'updatedAt': -1
-            }
-          }
-        ])
-        console.log(productList);
-        return res.status(200).json({ productList });
+      const productList = await Product.aggregate([
+        {
+          $match: {
+            user: ObjectId(businessId),
+          },
+        },
+        {
+          $lookup: {
+            from: "products_comments",
+            localField: "_id",
+            foreignField: "product_id",
+            as: "pd",
+          },
+        },
+        {
+          $project: {
+            title: 1,
+            image: 1,
+            pd: 1,
+            updatedAt: 1,
+          },
+        },
+        {
+          $sort: {
+            updatedAt: -1,
+          },
+        },
+      ]);
+      console.log(productList);
+      return res.status(200).json({ productList });
     }
     // const productList = await Product.find({}).sort({updatedAt:-1});
     // return res.status(200).json({ productList });
@@ -62,37 +58,36 @@ const getAllProduct = async (req, res) => {
   }
 };
 const getAllMostPopularProduct = async (req, res) => {
-  let applyType=req.query.applyType;
+  let applyType = req.query.applyType;
   try {
-    const productList = await Product.aggregate(
-      [
-        {
-          '$match': {
-            'mktOfferFor': 'topRank'
-          }
+    const productList = await Product.aggregate([
+      {
+        $match: {
+          mktOfferFor: "topRank",
         },
-        {
-          '$match': {
-            'mktDate.end': 'earnCrop'
-          }
+      },
+      {
+        $match: {
+          "mktDate.end": "earnCrop",
         },
-        {
-          '$match': {
-            'apply': 'earnCrop'
-          }
+      },
+      {
+        $match: {
+          apply: "earnCrop",
         },
-         {
-          '$sort': {
-            'updatedAt': -1
-          }
-        }, {
-          '$sort': {
-            'bidPrice': -1
-          }
-        }
-      ]
-    )
-    
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+      {
+        $sort: {
+          bidPrice: -1,
+        },
+      },
+    ]);
+
     res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
@@ -100,27 +95,25 @@ const getAllMostPopularProduct = async (req, res) => {
   }
 };
 
-
-
 const getAllPromoProduct = async (req, res) => {
   try {
-    const productList = await Product.aggregate(
-      [
-        {
-          '$match': {
-            'mktOfferFor': 'promo'
-          }
-        }, {
-          '$sort': {
-            'updatedAt': -1
-          }
-        }, {
-          '$sort': {
-            'bidPrice': -1
-          }
-        }
-      ]
-    )
+    const productList = await Product.aggregate([
+      {
+        $match: {
+          mktOfferFor: "promo",
+        },
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+      {
+        $sort: {
+          bidPrice: -1,
+        },
+      },
+    ]);
     res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
@@ -130,16 +123,19 @@ const getAllPromoProduct = async (req, res) => {
 const getAllProductAndSendNotification = async (count) => {
   try {
     let commingWeekDay = () => {
-      let today = Date.now() + 1000 * 60 * 60 * 24 * 8;
-      if (new Date(today).getDay() !== 6 || new Date(today).getDay() !== 0) {
-        return today;
+      const currentDate = moment().add(7, "day");
+      const nextWeekday = getNextWeekday(currentDate);
+      return nextWeekday.format("YYYY-MM-DD");
+
+      function getNextWeekday(date) {
+        const dayOfWeek = date.day();
+        const daysToAdd = dayOfWeek === 5 ? 3 : dayOfWeek === 6 ? 2 : 1;
+        return moment(date).add(daysToAdd, "days");
       }
-      return Date.now();
     };
-
-    let dailyMarketStartDate = new Date(commingWeekDay()).toLocaleDateString();
-    //weekdayTopRankProduct
-
+    let dailyMarketStartDate = commingWeekDay();
+    // console.log(dailyMarketStartDate);
+     //weekdayProduct
     let TopRankProductForWeekday = await Product.aggregate([
       {
         $match: {
@@ -147,6 +143,8 @@ const getAllProductAndSendNotification = async (count) => {
             { mktOfferFor: "topRank" },
             { status: "active" },
             { slot: "weekday" },
+            {bid:true},
+            {market:false},
             { "mktDate.fromDate": dailyMarketStartDate },
           ],
         },
@@ -173,92 +171,16 @@ const getAllProductAndSendNotification = async (count) => {
         },
       },
     ]);
-    //weekdayTopRankProduct
     let PromoProductForWeekday = await Product.aggregate([
-      {
-        $match: {
-          $and: [
-            { mktOfferFor: "Promo" },
-            { status: "active" },
-            { slot: "weekday" },
-            { "mktDate.fromDate": dailyMarketStartDate },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: "businesses",
-          localField: "user",
-          foreignField: "_id",
-          as: "business",
-        },
-      },
-      { $unwind: "$business" },
-      { $sort: { bidPrice: -1 } },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          bidPrice: 1,
-          business: { email: 1, fName: 1, _id: 1 },
-          image: 1,
-          mktOfferFor: 1,
-          slot: 1,
-        },
-      },
-    ]);
-
-    let commingMonthlyDay = () => {
-      let today = Date.now() + 1000 * 60 * 60 * 24 * 8;
-      if (new Date(today).getDate() === 1) {
-        return today;
-      }
-      return Date.now();
-    };
-    let monthlyMarketStartDate = new Date(
-      commingMonthlyDay()
-    ).toLocaleDateString();
-    // monthlyTopRankProduct
-    let TopRankProductForMontly = await Product.aggregate([
-      {
-        $match: {
-          $and: [
-            { mktOfferFor: "topRank" },
-            { status: "active" },
-            { slot: "monthly" },
-            { "mktDate.fromDate": monthlyMarketStartDate },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: "businesses",
-          localField: "user",
-          foreignField: "_id",
-          as: "business",
-        },
-      },
-      { $unwind: "$business" },
-      { $sort: { bidPrice: -1 } },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          bidPrice: 1,
-          business: { email: 1, fName: 1, _id: 1 },
-          image: 1,
-        },
-      },
-    ]);
-    //monthlyPromoProduct
-    let PromoProductForMontly = await Product.aggregate([
       {
         $match: {
           $and: [
             { mktOfferFor: "promo" },
             { status: "active" },
-            { slot: "monthly" },
-            { "mktDate.fromDate": monthlyMarketStartDate },
+            { slot: "weekday" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": dailyMarketStartDate },
           ],
         },
       },
@@ -279,21 +201,186 @@ const getAllProductAndSendNotification = async (count) => {
           bidPrice: 1,
           business: { email: 1, fName: 1, _id: 1 },
           image: 1,
+          mktOfferFor: 1,
+          slot: 1,
         },
       },
     ]);
-    let commingWeeklyDay = () => {
-      let today = Date.now() + 1000 * 60 * 60 * 24 * 8;
-      if (new Date(today).getDay() === 1) {
-        return today;
-      }
-      return Date.now();
-    };
+    let ComboProductForWeekday = await Product.aggregate([
+      {
+        $match: {
+          $and: [
+            { mktOfferFor: "both" },
+            { status: "active" },
+            { slot: "weekday" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": dailyMarketStartDate },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "businesses",
+          localField: "user",
+          foreignField: "_id",
+          as: "business",
+        },
+      },
+      { $unwind: "$business" },
+      { $sort: { bidPrice: -1 } },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          bidPrice: 1,
+          business: { email: 1, fName: 1, _id: 1 },
+          image: 1,
+          mktOfferFor: 1,
+          slot: 1,
+        },
+      },
+    ]);
+        //weekendProduct
+    let commingWeekEndDate = () => {
+      const currentDate = moment().add(7, "day");
+      const nextWeekend = getNextWeekend(currentDate);
+      // if (
+      //   moment(nextWeekend).subtract(8, "day").format("YYYY-MM-DD") ===
+      //   moment().format("YYYY-MM-DD")
+      // ) {
+      //   return nextWeekend.format("YYYY-MM-DD");
+      // }
+      return nextWeekend.format("YYYY-MM-DD");
 
-    let weeklyMarketStartDate = new Date(
-      commingWeeklyDay()
-    ).toLocaleDateString();
-    //weeklyTopRankProduct
+      function getNextWeekend(date) {
+        let nextDay = date.clone().startOf("isoWeek").add(5, "days");
+        if (date.isoWeekday() >= 6) {
+          nextDay = nextDay.add(7, "days");
+        }
+        return nextDay;
+      }
+    };
+    let dailyMarketStartDateForWeekend = commingWeekEndDate();
+    console.log(dailyMarketStartDateForWeekend, 'weekend')
+    let TopRankProductForWeekend = await Product.aggregate([
+      {
+        $match: {
+          $and: [
+            { mktOfferFor: "topRank" },
+            { status: "active" },
+            { slot: "weekend" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": dailyMarketStartDateForWeekend },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "businesses",
+          localField: "user",
+          foreignField: "_id",
+          as: "business",
+        },
+      },
+      { $unwind: "$business" },
+      { $sort: { bidPrice: -1 } },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          bidPrice: 1,
+          business: { email: 1, fName: 1, _id: 1 },
+          image: 1,
+          mktOfferFor: 1,
+          slot: 1,
+        },
+      },
+    ]);
+    let PromoProductForWeekend = await Product.aggregate([
+      {
+        $match: {
+          $and: [
+            { mktOfferFor: "promo" },
+            { status: "active" },
+            { slot: "weekend" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": dailyMarketStartDateForWeekend },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "businesses",
+          localField: "user",
+          foreignField: "_id",
+          as: "business",
+        },
+      },
+      { $unwind: "$business" },
+      { $sort: { bidPrice: -1 } },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          bidPrice: 1,
+          business: { email: 1, fName: 1, _id: 1 },
+          image: 1,
+          mktOfferFor: 1,
+          slot: 1,
+        },
+      },
+    ]);
+    let ComboProductForWeekend = await Product.aggregate([
+      {
+        $match: {
+          $and: [
+            { mktOfferFor: "both" },
+            { status: "active" },
+            { slot: "weekend" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": dailyMarketStartDateForWeekend },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "businesses",
+          localField: "user",
+          foreignField: "_id",
+          as: "business",
+        },
+      },
+      { $unwind: "$business" },
+      { $sort: { bidPrice: -1 } },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          bidPrice: 1,
+          business: { email: 1, fName: 1, _id: 1 },
+          image: 1,
+          mktOfferFor: 1,
+          slot: 1,
+        },
+      },
+    ]);
+    // weeklyProduct
+    let commingWeeklyDate = () => {
+      const currentDate = moment().add(7,'day')
+      const nextWeekDate = getNextWeekDate(currentDate);
+      if(moment(nextWeekDate).add(1, 'day').subtract(8, 'day').format("YYYY-MM-DD") === moment().format('YYYY-MM-DD')){
+        return moment().format('YYYY-MM-DD')
+      }
+      return moment().format('YYYY-MM-DD')
+      function getNextWeekDate(date) {
+        return date.clone().add(1, "week").startOf("week");
+      }
+    };
+    let commingWeeklyStartDate = commingWeeklyDate();
     let TopRankProductForWeekly = await Product.aggregate([
       {
         $match: {
@@ -301,7 +388,9 @@ const getAllProductAndSendNotification = async (count) => {
             { mktOfferFor: "topRank" },
             { status: "active" },
             { slot: "weekly" },
-            { "mktDate.fromDate": weeklyMarketStartDate },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": commingWeeklyStartDate },
           ],
         },
       },
@@ -322,10 +411,11 @@ const getAllProductAndSendNotification = async (count) => {
           bidPrice: 1,
           business: { email: 1, fName: 1, _id: 1 },
           image: 1,
+          mktOfferFor: 1,
+          slot: 1,
         },
       },
     ]);
-    //weeklyPromoProduct
     let PromoProductForWeekly = await Product.aggregate([
       {
         $match: {
@@ -333,7 +423,9 @@ const getAllProductAndSendNotification = async (count) => {
             { mktOfferFor: "promo" },
             { status: "active" },
             { slot: "weekly" },
-            { "mktDate.fromDate": weeklyMarketStartDate },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": commingWeeklyStartDate },
           ],
         },
       },
@@ -354,27 +446,69 @@ const getAllProductAndSendNotification = async (count) => {
           bidPrice: 1,
           business: { email: 1, fName: 1, _id: 1 },
           image: 1,
+          mktOfferFor: 1,
+          slot: 1,
         },
       },
     ]);
-    let commingWeekEnd = () => {
-      let today = Date.now() + 1000 * 60 * 60 * 24 * 8;
-      if (new Date(today).getDay() === 6) {
-        return today;
+    let ComboProductForWeekly = await Product.aggregate([
+      {
+        $match: {
+          $and: [
+            { mktOfferFor: "both" },
+            { status: "active" },
+            { slot: "weekly" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": commingWeeklyStartDate },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "businesses",
+          localField: "user",
+          foreignField: "_id",
+          as: "business",
+        },
+      },
+      { $unwind: "$business" },
+      { $sort: { bidPrice: -1 } },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          bidPrice: 1,
+          business: { email: 1, fName: 1, _id: 1 },
+          image: 1,
+          mktOfferFor: 1,
+          slot: 1,
+        },
+      },
+    ]);
+    //monthlyProduct
+    let commingMonthlyDate = () => {
+      const currentDate = moment();
+      const nextMonthDate = getNextMonthDate(currentDate);
+      if(nextMonthDate.subtract(7, 'day').format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')){
+        return moment().format('YYYY-MM-DD');
       }
-      return Date.now();
+      return moment().format('YYYY-MM-DD');
+      function getNextMonthDate(date) {
+        return date.clone().add(1, 'month').startOf('month');
+      }
     };
-    let newDate = new Date(commingWeekEnd()).toLocaleDateString();
-    
-    //weekendTopRankProduct
-    let TopRankProductForWeekend = await Product.aggregate([
+    let commingMonthlyStartDate = commingMonthlyDate();
+    let TopRankProductForMonthly = await Product.aggregate([
       {
         $match: {
           $and: [
             { mktOfferFor: "topRank" },
             { status: "active" },
-            { slot: "weekday" },
-            { "mktDate.fromDate": newDate },
+            { slot: "monthly" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": commingMonthlyStartDate},
           ],
         },
       },
@@ -398,15 +532,16 @@ const getAllProductAndSendNotification = async (count) => {
         },
       },
     ]);
-    //weekendPromoProduct
-    let PromoProductForWeekend = await Product.aggregate([
+    let PromoProductForMonthly = await Product.aggregate([
       {
         $match: {
           $and: [
             { mktOfferFor: "promo" },
             { status: "active" },
-            { slot: "weekday" },
-            { "mktDate.fromDate": newDate },
+            { slot: "monthly" },
+            {bid:true},
+            {market:false},
+            { "mktDate.fromDate": commingMonthlyStartDate },
           ],
         },
       },
@@ -430,10 +565,17 @@ const getAllProductAndSendNotification = async (count) => {
         },
       },
     ]);
-    let TopRankProductForPublicHoliday = await Product.aggregate([
+    let ComboProductForMonthly = await Product.aggregate([
       {
         $match: {
-          $and: [{ mktOfferFor: "topRank" }, { status: "active" }],
+          $and: [
+            { mktOfferFor: "both" },
+            { status: "active" },
+            {bid:true},
+            {market:false},
+            { slot: "weekly" },
+            { "mktDate.fromDate": commingMonthlyStartDate },
+          ],
         },
       },
       {
@@ -453,19 +595,26 @@ const getAllProductAndSendNotification = async (count) => {
           bidPrice: 1,
           business: { email: 1, fName: 1, _id: 1 },
           image: 1,
+          mktOfferFor: 1,
+          slot: 1,
         },
       },
     ]);
 
+
     let marketProduct = [
       TopRankProductForWeekday,
-      TopRankProductForMontly,
-      TopRankProductForWeekly,
-      TopRankProductForWeekend,
       PromoProductForWeekday,
-      PromoProductForMontly,
-      PromoProductForWeekly,
+      ComboProductForWeekday,
+      TopRankProductForWeekend,
       PromoProductForWeekend,
+      ComboProductForWeekend,
+      TopRankProductForWeekly,
+      PromoProductForWeekly,
+      ComboProductForWeekly,
+      TopRankProductForMonthly,
+      PromoProductForMonthly,
+      ComboProductForMonthly
     ];
     const sendNotification = (
       email,
@@ -515,7 +664,7 @@ const getAllProductAndSendNotification = async (count) => {
             // id:user._id.toString(),
           });
           const price = await stripe.prices.create({
-            unit_amount: user.bidPrice*100,
+            unit_amount: user.bidPrice * 100,
             currency: "aud",
             product: product.id,
             tax_behavior: "inclusive",
@@ -540,7 +689,9 @@ const getAllProductAndSendNotification = async (count) => {
             },
             after_completion: {
               type: "redirect",
-              redirect: { url: `https://business.${process.env.HOST}/business/market/payment/success` },
+              redirect: {
+                url: `https://business.${process.env.HOST}/business/market/payment/success`,
+              },
             },
           });
           let link = paymentLink.url;
@@ -563,7 +714,7 @@ const getAllProductAndSendNotification = async (count) => {
             link,
             user?.business?.fName,
             user.slot,
-            user.mktOfferFor,
+            user.mktOfferFor
           );
         } else {
           if (
@@ -573,7 +724,7 @@ const getAllProductAndSendNotification = async (count) => {
           ) {
             await Product.findByIdAndUpdate(
               { _id: findProduct.productId },
-              { $set: { bidPrice: 1, bid: false } }
+              { $set: { bid: false } }
             );
             //unsuccessfull message for bid loss
           }
@@ -599,36 +750,42 @@ const getAllProductAndSendNotification = async (count) => {
 };
 
 var count = 1;
+var dayCount=1
 const job = schedule.scheduleJob("0 0 * * *", function () {
-  console.log('This job runs at midnight every day!');
+  console.log("This job runs at midnight every day!");
   if (count == 1) {
-    getAllProductAndSendNotification(count)
-    count++
+    getAllProductAndSendNotification(count);
+    count++;
   } else if (count == 2) {
-    getAllProductAndSendNotification(count)
-    count = 1
+    getAllProductAndSendNotification(count);
+    count = 1;
   }
 });
 
-const getNearMeProducts=async (req,res)=>{
+const getNearMeProducts = async (req, res) => {
   const geocoder = NodeGeocoder({
     provider: "openstreetmap",
-  })
-  const lat = parseFloat(req.params.lat)
-  const long = parseFloat(req.params.long)
-  console.log({ lat }, { long })
-  let city = ""
+  });
+  const lat = parseFloat(req.params.lat);
+  const long = parseFloat(req.params.long);
+  console.log({ lat }, { long });
+  let city = "";
   await geocoder
     .reverse({ lat, lon: long })
-    .then(res => {
-      city = res[0].city
-      console.log(city)
+    .then((res) => {
+      city = res[0].city;
+      console.log(city);
     })
-    .catch(err => {
-      console.error(err)
-    })
-}
-// getAllProductAndSendNotification(1)
+    .catch((err) => {
+      console.error(err);
+    });
+};
+getAllProductAndSendNotification(1);
 // start the job
 job.schedule();
-module.exports = { getAllProduct, getAllMostPopularProduct, getAllPromoProduct, getNearMeProducts };
+module.exports = {
+  getAllProduct,
+  getAllMostPopularProduct,
+  getAllPromoProduct,
+  getNearMeProducts,
+};

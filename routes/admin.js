@@ -92,7 +92,7 @@ const {createBusinessPurchaseAndRedeemNotification, getBusinessPurchaseAndRedeem
 const {createBusinessRequestAndComplaintNotification, getBusinessRequestAndComplaintNotification, updateBusinessRequestAndComplaintNotification} = require("../controller/adminController/Notification/businessRequestAndComplainNotification")
 const updateTier = require("../controller/adminController/updateTier");
 const {getAllCustomerForPropPayment} = require("../controller/adminController/CustomerData/customer")
-const {payToBusiness}=require("../controller/adminController/PaymentController/payment")
+
 //customer
 const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
 const{getAllCropTrasactionByAdmin} = require('../controller/customerCropTransaction');
@@ -101,7 +101,7 @@ const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransact
 
 //Business
 
-const {createEveryDayPromotionSlot, getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
+const {getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
 
 const {getAllBusinessByContent, 
   getAllBusiness, 
@@ -116,10 +116,9 @@ const {getAllBusinessByContent,
   addHoiday,
   updateHoliday, 
   deleteHoliday} = require("../controller/adminController/BusinessData/business");
-const {SavePaymentInfo} = require('../controller/adminController/PaymentController/payment')
 //
 const {createCategory, getCategories, updateCategory, getCategoryById, deleteCategory} =  require("../controller/adminController/admin_product_category")
-const {findBusinessInvoice} = require("../controller/adminController/PaymentController/payment")
+const {findBusinessInvoice, payToBusiness} = require("../controller/adminController/PaymentController/payment")
 const {productPurchaseTrasaction, pointPurchaseTrasaction, getAllLikedProductByUser, getAllRatedProductByUser} =require('../controller/adminController/CustomerData/customer')
 const {addLoyaltyProgramme, getLoyaltyProgramme, updateLoyaltyProgramme, deleteLoyaltyProgramme} = require('../controller/adminController/loyaltyList/loyaltyProgramme');
 const {addInterestName, getInterestList, updateInterest, deleteInterest} =require("../controller/adminController/InterestList/interestList")
@@ -292,7 +291,6 @@ router.post("/deleteHoliday", verifyToken, deleteHoliday)
 router.post("/getAllBusiness", getAllBusiness)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
-router.post("/createEveryDayPromotionSlot", createEveryDayPromotionSlot)
 router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
 router.post('/findBusinessInvoice', findBusinessInvoice);
