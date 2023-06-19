@@ -31,10 +31,16 @@ const createCategory = async (req, res) => {
     }
 }
 
+
 const getCategories = async (req, res) => {
     try {
-        const categories = await ProductCategory.find({});
-        return res.status(200).send({success: true, categories})
+        const { page, limit } = req.query;
+        const pages = Number(page) || 1;
+        const limits = Number(limit) || 4;
+        const skip = (pages - 1) * limits;
+        const categories = await ProductCategory.find().sort({ _id: -1 }).skip(skip).limit(limits);
+        const categoriesCount = await ProductCategory.count();
+        return res.status(200).send({success: true, categories, count: categoriesCount})
     } catch (error) {
         console.log(error)
         return res.status(500).send("Internal Server Error")

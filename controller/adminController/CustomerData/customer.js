@@ -1,13 +1,14 @@
-const stripe = require("stripe")(process.env.STRIPE_KEY);
 const { User } = require("../../../models/User");
 const mongoose = require('mongoose');
 const Order = require("../../../models/Order");
 const adminCustomerCrop = require("../../../models/admin/admin_customer_crop");
 const adminCustomerProp = require("../../../models/admin/admin_customer_prop");
-const schedule = require("node-schedule");
-const adminPropValuation =require("../../../models/admin/admin_prop_valuation")
-const {adminPropPaymentOnMilestoneTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
 const ObjectId = mongoose.Types.ObjectId;
+const random = require("alphanumeric");
+const {
+  SaveMyPropTrasaction,
+} = require("../../../controller/customerPropTransaction");
+let orderNumber = random(7);
 const {
   customerPaymentTracker,
   customerRedeemTracker,
@@ -265,66 +266,59 @@ const propPayment = async (message, quantity, user_id, milestone) => {
   if(!message || !quantity || !user_id ||!milestone){
     console.log("message, quantity, userId is required");
   } 
-  let details = await adminPropValuation.find({})
-  let value = details[0].purchaseProp
     try {
-      let findOneLink = await adminPropPaymentOnMilestoneTracker.findOne({$and:[{user:user_id}, {milestone}]})
-      if(findOneLink){
-        console.log("already exist")
-        return       
-      } 
-      
-      const product = await stripe.products.create({
-        name: message,
-      });
-      const price = await stripe.prices.create({
-        unit_amount: value*100,
-        currency: "aud",
-        product: product.id,
-        tax_behavior: "inclusive",
-      });
-
-      const payment_Link = await stripe.paymentLinks.create({
-        line_items: [
+      let findAnUser = await User.findOne({ _id: user_id },{proppoints:1});
+      let newPropPoint = findAnUser.proppoints
+      if(findAnUser){
+        newPropPoint += quantity
+      }
+      SaveMyPropTrasaction(
+        quantity,
+        quantity,
+        "credit",
+        message,
+        orderNumber,
+        user_id
+      );
+      if (milestone === 5000) {
+        await User.findByIdAndUpdate(
+          { _id: user_id },
+          { $set: { fiveKCropMileStone: true, proppoints:newPropPoint } },
+        );
+      } else if (
+        milestone === 10000
+      ) {
+        await User.findByIdAndUpdate(
+          { _id: user_id },
+          { $set: { tenKCropMileStone: true, proppoints:newPropPoint } }
+        );
+      } else if (
+        milestone === 25000
+      ) {
+        await User.findByIdAndUpdate(
+          { _id: user_id },
+          { $set: { twentyFiveKCropMileStone: true, proppoints:newPropPoint } }
+        );
+      } else if (
+        milestone >= 30000
+      ) {
+        await User.findByIdAndUpdate(
+          { _id: user_id },
           {
-            price: price.id,
-            quantity: quantity,
-          },
-        ],
-        invoice_creation: {
-          enabled: true,
-          invoice_data: {
-            rendering_options: {
-              amount_tax_display: "include_inclusive_tax",
+            $set: {
+              newMileStone:
+                milestone + 5000,
+                proppoints:newPropPoint
             },
-            footer: "milestone",
-          },
-        },
-        after_completion: {
-          type: "redirect",
-          redirect: { url: "http://localhost:3000/success" },
-        },
-      });
-
-      if(payment_Link){
-        await adminPropPaymentOnMilestoneTracker.create(
-          {
-            paymentLink: payment_Link.id,
-            status:"unpaid",
-            paymentUrl:payment_Link.url,
-            type:message,
-            amount: quantity*value,
-            quantity:quantity,
-            user:user_id,
-            milestone,            
           }
         );
+      } else {
+        console.log("milestone flag updation failed");
       }
-      console.log("created")
+      console.log("milestone payment transferred")
     } catch (err) {
       console.log(err)
     }
-
 };
 const PropPaymentNotification = async () => {
   let userDetails = await User.aggregate([
@@ -741,8 +735,9 @@ console.log(error);
 return res.status(500).send({msg:"internal error"})
 }
 }
-PropPaymentNotification();
+
 module.exports = {
+  PropPaymentNotification,
   getAllCustomerByContent,
   getAllCustomer,
   getAllOrders,
