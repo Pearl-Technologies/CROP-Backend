@@ -64,7 +64,11 @@ const {
   getProductsSaleCountByMonthlyWise,
   getProductsSaleCountByYear,
   getProductsSaleCountByMonth,
+  getEarnAndRedeemProductsPoints,
 } = require("../../controller/businessController/dasboard.js")
+const {
+  productImage,
+} = require("../../controller/businessController/productImageController.js")
 
 router.post("/email-register-otp", emailRegisterOtp)
 router.post("/mobile-register-otp", mobileRegisterOtp)
@@ -180,7 +184,12 @@ router.get(
   authorization,
   getProductsSaleCountByMonthlyWise
 )
+router.get(
+  "/dashboard-get-earned-redeemed-points",
+  authorization,
+  getEarnAndRedeemProductsPoints
+)
 router.get("/get-holiday-list", authorization, getHolidayListByBusiness)
-
+router.post("/design-image", productImage)
 
 module.exports = router

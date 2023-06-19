@@ -68,6 +68,7 @@ const businessStoreServices = mongoose.model("Business_Store_Services", {
     ref: "business",
     unique: true,
   },
+  listOfHolidays: [],
 })
 
 module.exports = businessStoreServices

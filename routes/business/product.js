@@ -44,6 +44,11 @@ const {
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
+const {
+  productImage,
+  getProductDesignedImage,
+  updateSelectedImages,
+} = require("../../controller/businessController/productImageController")
 
 // router
 const router = express.Router()
@@ -78,6 +83,7 @@ router.get(
   authorization,
   getBiddingSelectedProductsDetailsByBusiness
 )
+
 router.get("/get-bidded-products", authorization, getBiddedProductsByBusiness)
 router.get(
   "/get-all-products-by-business",
@@ -96,6 +102,9 @@ router.put("/:id", updateProduct)
 router.delete("/:id", removeProduct)
 router.post("/image/:productId", upload.array("file", 20), uploadProductImages)
 router.get("/image/:id", getProductImage)
+router.post("/design-image", productImage)
+router.put("/update-images/:productId/:imageName", updateSelectedImages)
+router.get("/designed-image/:productId/:imageName", getProductDesignedImage)
 
 router.post("/product-comment", productComment)
 router.get("/get-Product-Comment", getProductComment)

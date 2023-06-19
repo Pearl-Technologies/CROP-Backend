@@ -157,7 +157,7 @@ const getRedeemNotification = async (req, res) => {
     },
     {
       $match: {
-        user: businessId,
+        // user: businessId,
         type: "Redeem Crop",
       },
     },
