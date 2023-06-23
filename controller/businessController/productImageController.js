@@ -5,6 +5,7 @@ const { Rembg } = require("rembg-node")
 const sharp = require("sharp")
 const fs = require("fs")
 const { Product } = require("../../models/businessModel/product")
+const { StoreProduct } = require("../../models/businessModel/storeproducts")
 
 const app = express()
 
@@ -24,6 +25,7 @@ const productImage = (req, res) => {
     const text = fields.text
     const count = fields.count
     const productId = fields.productId
+    const type = fields.type
     const filename = inputFile.newFilename
     console.log({ inputFile })
     const input = sharp(`${inputFile.filepath}`)
@@ -52,6 +54,7 @@ const productImage = (req, res) => {
             text,
             productId,
             filename,
+            type,
             i
           )
         })
@@ -115,7 +118,7 @@ const mergeImage2 = (first, second, index) => {
       console.error(err)
     })
 }
-const mergetext = async (image1, text, productId, filename, index) => {
+const mergetext = async (image1, text, productId, filename, type, index) => {
   let image = sharp(image1)
 
   const textOptions = {
@@ -170,14 +173,27 @@ const mergetext = async (image1, text, productId, filename, index) => {
     console.log(`Folder '${folderPath}' already exists.`)
   }
   // const imageUrl = ""
-  await Product.findByIdAndUpdate(
-    { _id: productId },
-    {
-      $push: {
-        image: filename + index,
-      },
-    }
-  )
+  if (type == 1) {
+    await Product.findByIdAndUpdate(
+      { _id: productId },
+      {
+        $push: {
+          image: filename + index,
+        },
+      }
+    )
+  }
+  if (type == 2) {
+    await StoreProduct.findByIdAndUpdate(
+      { _id: productId },
+      {
+        $push: {
+          image: filename + index,
+        },
+      }
+    )
+  }
+
   image.toFile(`${folderPath}/${filename + index}.jpg`, err => {
     if (err) {
       console.error(err)
