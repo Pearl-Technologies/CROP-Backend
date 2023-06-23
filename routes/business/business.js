@@ -65,6 +65,8 @@ const {
   getProductsSaleCountByYear,
   getProductsSaleCountByMonth,
   getEarnAndRedeemProductsPoints,
+  getMostSoldProducts,
+  getRedeemMostSoldProducts,
 } = require("../../controller/businessController/dasboard.js")
 const {
   productImage,
@@ -190,6 +192,12 @@ router.get(
   getEarnAndRedeemProductsPoints
 )
 router.get("/get-holiday-list", authorization, getHolidayListByBusiness)
+router.get("/get-most-sold-products", authorization, getMostSoldProducts)
+router.get(
+  "/get-most-sold-redeem-products",
+  authorization,
+  getRedeemMostSoldProducts
+)
 router.post("/design-image", productImage)
 
 module.exports = router
