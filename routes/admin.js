@@ -30,7 +30,7 @@ const {
 const {
   publishOffer,
 } = require("../controller/adminController/publishedOffer");
-const {getAllProduct, getAllMostPopularProduct, getAllPromoProduct, getNearMeProducts} = require("../controller/adminController/BusinessData/product")
+const {getAllProduct, getAllMostPopularProduct, getAllProductByZipCode, getNearMeProducts} = require("../controller/adminController/BusinessData/product")
 const {
   createAudit,
   getAuditReport,
@@ -164,7 +164,7 @@ router.post("/updateBasePrice", updateBasePrice)
 router.post("/publishOffer", publishOffer)
 router.post("/getAllProduct", getAllProduct);
 router.post("/getAllMostPopularProduct", getAllMostPopularProduct);
-router.post("/getAllPromoProduct", getAllPromoProduct);
+router.post("/getAllProductByZipCode", getAllProductByZipCode);
 router.post("/createAudit", createAudit);
 router.post("/getAuditReport", getAuditReport);
 router.post("/createMilestoneData", createMilestoneData);
