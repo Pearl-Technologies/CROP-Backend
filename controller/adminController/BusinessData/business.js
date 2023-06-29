@@ -9,6 +9,7 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 const {customerPaymentTracker} = require("../../../models/admin/PaymentTracker/paymentIdTracker")
 const {BusinessHolidays} = require("../../../models/businessModel/businessHolidays")
 const Admin = require("../../../models/superAdminModel/user");
+const moment = require('moment');
 const getAllBusiness = async (req, res) => {
   try {
     const businesses = await business.find({});
@@ -210,6 +211,77 @@ const getPurchasedProductStatement = async (req, res) => {
         },
       }
     ])
+    return res.status(200).send({ statement })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send({msg:"Internal Server Error"})
+  }
+}
+const getAllPurchasedProductStatementByDateRange = async (req, res) => {
+  let {businessId, fromDate, toDate} = req.body
+  let user_id = (req.user.user.id);
+  let today=moment().format('YYYY-MM-DD');
+  if(!fromDate){
+    fromDate=today
+  }
+  if(!toDate){
+    toDate = today
+  }
+  let findUser = await Admin.findOne({_id:user_id})
+    if(!findUser){
+      return res.status(401).send({"msg":"sorry, you are not authorize"})
+    }
+  
+  try {
+    const statement = await invoiceAndPaymentNotification.aggregate([
+      {
+        $match: {
+          businessId: new ObjectId(businessId),
+        },
+      },
+      {
+        $match:{
+          createdAt: {
+            $gte: new Date(fromDate),
+            $lte: new Date(toDate)
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "customer_payment_trackers",
+          localField: "purchaseOrder.orderId",
+          foreignField: "_id",
+          as: "orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders",
+        },
+      },
+      {
+        $unwind: {
+          path: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          item: "$orders.cartDetails.cartItems",
+        },
+      },
+      {
+        $addFields: {
+          user: "$item.user",
+        },
+      },
+      {
+        $match: {
+          user: businessId,
+        },
+      }
+    ])
+    console.log(statement);
     return res.status(200).send({ statement })
   } catch (error) {
     console.log(error)
@@ -504,6 +576,7 @@ module.exports = {
   getAllBusinessCrop,
   updateBusinessAccountStatus,
   getPurchasedProductStatement,
+  getAllPurchasedProductStatementByDateRange,
   getBusinessCropStatement,
   getBusinessProductRated,
   getBusinessProductRatedAll,

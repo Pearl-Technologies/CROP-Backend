@@ -111,6 +111,7 @@ const {getAllBusinessByContent,
   getBusinessProductRated, 
   getBusinessProductRatedAll, 
   getPurchasedProductStatement, 
+  getAllPurchasedProductStatementByDateRange,
   getBusinessCropStatement, 
   getAllHolidays,
   addHoiday,
@@ -295,6 +296,7 @@ router.get("/getSlot", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
 router.post('/findBusinessInvoice', findBusinessInvoice);
 router.post('/getPurchasedProductStatement', getPurchasedProductStatement);
+router.post('/getAllPurchasedProductStatementByDateRange',verifyToken, getAllPurchasedProductStatementByDateRange);
 
 //admin update
 const {sendMail, sendMassNotification}  = require("../controller/adminController/Notification/sendMail");
