@@ -123,22 +123,6 @@ const fulfillOrder = async (session) => {
   } else {
     console.log("record is not found for update payment intent purchase point");
   }
-
-  let findRecordForMilestonePaymentProp =
-    await adminPropPaymentOnMilestoneTracker.findOne({
-      paymentLink: session.payment_link,
-    });
-  if (findRecordForMilestonePaymentProp) {
-    await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate(
-      { _id: findRecordForMilestonePaymentProp._id },
-      { $set: { status: "paid", payment_intent: session.payment_intent } }
-    );
-    await stripe.paymentLinks.update(
-      findRecordForMilestonePaymentProp.paymentLink,
-      { active: false }
-    );
-    console.log("payment intent updated on milestone prop payment");
-  }
   let findOneForRedeem = await customerRedeemTracker.findOne({
     paymentId: session.id,
   });
@@ -167,8 +151,8 @@ app.post(
     } catch (err) {
       return response.status(400).send(`Webhook Error: ${err.message}`);
     }
-    console.log(event);
     switch (event.type) {
+    
       case "checkout.session.completed": {
         const session = event.data.object;
         // Save an order in your database, marked as 'awaiting payment'
@@ -304,7 +288,6 @@ app.post(
           console.log("finding customer");
           console.log(customer);
           let findOneCustomer = await User.findOne({ _id: customer });
-          // let findOneCustomer = await User.findOne({ _id: customer });
           if (findOneCustomer) {
             let customerNewCropPoint =
               findOneCustomer.croppoints + customerCropPoint;
@@ -538,6 +521,7 @@ app.post(
               session.number,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             )
+            
           }
           findOneForRedeemInvoiceUpdate.cartDetails.cartItems.map(
             async (data) => {
