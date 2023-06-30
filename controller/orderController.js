@@ -1,3 +1,4 @@
+const {sendSMS} = require('../utils/smsOtp')
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Order = require("../models/Order");
 const { User } = require("../models/User");
@@ -7,7 +8,7 @@ const StateSchema = require("../models/State");
 const random = require("alphanumeric");
 const { Product } = require("../models/businessModel/product");
 const { StoreProduct } = require("../models/businessModel/storeproducts");
-
+const {createVoucher}  = require("../controller/adminController/VoucherController/voucher")
 const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
 const {
   InvoicePaymentNotificationCustomer,
@@ -265,6 +266,7 @@ module.exports.RedeemCrop = async (req, res) => {
         { _id: findUser._id },
         { $set: { croppoints: newCropPoint } }
       );
+      
       cart.map(async (data) => {
         let findProduct = await Product.findOne({ _id: data._id });
         let newQuatity = findProduct.quantity - data.cartQuantity;
@@ -278,6 +280,7 @@ module.exports.RedeemCrop = async (req, res) => {
         );
       });
       let orderNumber = random(7);
+      let invoiceNumber = random(5)
       await customerRedeemTracker.create({
         number: orderNumber,
         cartDetails: {
@@ -298,6 +301,12 @@ module.exports.RedeemCrop = async (req, res) => {
         orderNumber,
         user_id
       );
+      createVoucher(
+        orderNumber,
+        invoiceNumber,
+        user_id
+      )
+      sendSMS(findUser.mobileNumber, `${redeemCropPoints} CROP spent on purchasing of product and your ${redeemCropPoints} CROP is debited from your account`)
       let notification =
         await adminCustomerPurchaseAndRedeemtionNotification.find();
       notification = notification[0]._doc;
@@ -437,6 +446,7 @@ module.exports.RedeemProp = async (req, res) => {
         );
       });
       let orderNumber = random(7);
+      let invoiceNumber = random(5);
       await customerRedeemTracker.create({
         number: orderNumber,
         cartDetails: {
@@ -457,6 +467,13 @@ module.exports.RedeemProp = async (req, res) => {
         orderNumber,
         user_id
       );
+      createVoucher(
+        orderNumber,
+        invoiceNumber,
+        user_id
+      )
+      sendSMS(findUser.mobileNumber, `${redeemPropPoints} PROP spent on purchasing of product and your ${redeemPropPoints} PROP is debited from your account`)
+          
       let notification =
         await adminCustomerPurchaseAndRedeemtionNotification.find();
       notification = notification[0]._doc;

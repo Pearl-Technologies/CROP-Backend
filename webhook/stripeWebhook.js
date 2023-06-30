@@ -314,7 +314,7 @@ app.post(
               { new: true }
             );
           //sending sms
-          sendSMS(findOneCustomer.mobileNumber, `${session.subtotal / 100} spent on purchasing of product and you owned ${customerNewCropPoint} is credited on`)
+          sendSMS(findOneCustomer.mobileNumber, `${session.subtotal / 100} spent on purchasing of product and you owned ${customerNewCropPoint} is credited on your account`)
           }
 
           console.log("Check Invoice", session);
@@ -534,9 +534,7 @@ app.post(
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
             createVoucher(
-              "",
               session.payment_intent,
-              "code_voucher",
               session.number,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             )

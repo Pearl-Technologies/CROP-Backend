@@ -6,6 +6,7 @@ const vouchers = mongoose.model('admin_vouchers', {
       type: mongoose.Schema.Types.ObjectId,
       ref: "customer",
     },
+    createdAt:{type:Date, default:Date.now()}
  });
 
 module.exports = vouchers
