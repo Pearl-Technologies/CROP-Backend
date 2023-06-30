@@ -31,5 +31,36 @@ const smsOTP = async (mobile, otp) => {
     console.log(error)
   }
 }
+const sendSMS = async (mobile, message) => {
+  
+  const url = "https://cellcast.com.au/api/v3/send-sms"
+  const headers = {
+    "Content-Type": "application/json",
+    APPKEY: "CELLCAST38f2ad77666863f413da970180dcb7cb",
+  }
+  try {
+    const date = new Date();
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    };
 
-module.exports = { smsOTP }
+    const formattedDateTime = date.toLocaleString('en-US', options);
+    const data = {
+      sms_text: `${message}`,
+      numbers: [`${mobile}`],
+      from: "CROP",
+    }
+    const smsResponse = await axios.post(url, data, { headers })
+    console.log("sms response", smsResponse)
+    return smsResponse
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+module.exports = { smsOTP, sendSMS }

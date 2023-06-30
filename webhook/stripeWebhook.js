@@ -4,6 +4,7 @@ const { User } = require("../models/User");
 const pdfkit = require("pdfkit");
 const fs = require("fs");
 const pdfPath = process.cwd() + "/uploads/";
+const {sendSMS} = require('../utils/smsOtp')
 const nodemailer = require("nodemailer");
 const invoiceAndPaymentNotification = require("../models/businessModel/businessNotification/invoiceAndPaymentNotification");
 const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
@@ -312,7 +313,10 @@ app.post(
               { $set: { croppoints: customerNewCropPoint } },
               { new: true }
             );
+          //sending sms
+          sendSMS(findOneCustomer.mobileNumber, `${session.subtotal / 100} spent on purchasing of product and you owned ${customerNewCropPoint} is credited on`)
           }
+
           console.log("Check Invoice", session);
           SaveMyCropTrasaction(
             session.subtotal / 100,
@@ -326,9 +330,7 @@ app.post(
             session.invoice_pdf
           );
           createVoucher(
-            "",
             session.payment_intent,
-            "code_voucher",
             session.number,
             customer
           )
@@ -379,6 +381,7 @@ app.post(
                 { $set: { croppoints: customerNewCropPoint } },
                 { new: true }
               );
+              sendSMS(findUser.mobileNumber, `${findOneCustomerPointPurchasePaymentRequest.quantity} spent on purchasing of CROP and ${findOneCustomerPointPurchasePaymentRequest.quantity} is credited from your account`)
             }
             sendMail(
               session.customer_email,
@@ -413,6 +416,7 @@ app.post(
                 { $set: { proppoints: customerNewPropPoint } },
                 { new: true }
               );
+              sendSMS(findUser.mobileNumber, `${findOneCustomerPointPurchasePaymentRequest.quantity} spent on purchasing of PROP and ${findOneCustomerPointPurchasePaymentRequest.quantity} is credited from your account`)
             }
           }
           console.log("customer purchase point invoices successfully updated");
@@ -420,74 +424,6 @@ app.post(
           console.log(
             "record is not found for updating purchase point invoice details"
           );
-        }
-
-        let findCustomerForMilestonePropPaymentInvoice =
-          await adminPropPaymentOnMilestoneTracker.findOne({
-            payment_intent: session.payment_intent,
-          });
-        if (findCustomerForMilestonePropPaymentInvoice) {
-          await adminPropPaymentOnMilestoneTracker.findByIdAndUpdate(
-            { _id: findCustomerForMilestonePropPaymentInvoice._id },
-            {
-              $set: {
-                invoice_paid_time: session.created,
-                customer_email: session.customer_email,
-                invoice_id: session.id,
-                invoice_url: session.hosted_invoice_url,
-                invoice_pdf: session.invoice_pdf,
-                number: session.number,
-                name: session.customer_name,
-              },
-            }
-          );
-          sendMail(
-            session.customer_email,
-            "you have sent milestone PROPS",
-            `<p>Thank you for payment you can download invoice <a href=${session.invoice_pdf}>Here</a></p>`
-          );
-          SaveMyPropTrasaction(
-            findCustomerForMilestonePropPaymentInvoice.amount,
-            findCustomerForMilestonePropPaymentInvoice.quantity,
-            "credit",
-            findCustomerForMilestonePropPaymentInvoice.type,
-            findCustomerForMilestonePropPaymentInvoice.payment_intent,
-            findCustomerForMilestonePropPaymentInvoice.user
-          );
-          if (findCustomerForMilestonePropPaymentInvoice.milestone === 5000) {
-            await User.findByIdAndUpdate(
-              { _id: findCustomerForMilestonePropPaymentInvoice.user },
-              { $set: { fiveKCropMileStone: true } }
-            );
-          } else if (
-            findCustomerForMilestonePropPaymentInvoice.milestone === 10000
-          ) {
-            await User.findByIdAndUpdate(
-              { _id: findCustomerForMilestonePropPaymentInvoice.user },
-              { $set: { tenKCropMileStone: true } }
-            );
-          } else if (
-            findCustomerForMilestonePropPaymentInvoice.milestone === 25000
-          ) {
-            await User.findByIdAndUpdate(
-              { _id: findCustomerForMilestonePropPaymentInvoice.user },
-              { $set: { twentyFiveKCropMileStone: true } }
-            );
-          } else if (
-            findCustomerForMilestonePropPaymentInvoice.milestone >= 30000
-          ) {
-            await User.findByIdAndUpdate(
-              { _id: findCustomerForMilestonePropPaymentInvoice.user },
-              {
-                $set: {
-                  newMileStone:
-                    findCustomerForMilestonePropPaymentInvoice.milestone + 5000,
-                },
-              }
-            );
-          } else {
-            console.log("milestone flag updation failed");
-          }
         }
 
         let findOneForRedeemInvoiceUpdate = await customerRedeemTracker.findOne(
@@ -530,6 +466,7 @@ app.post(
               { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
               { $set: { croppoints: newCropPoint } }
             );
+
             SaveMyCropTrasaction(
               session.total,
               findOneForRedeemInvoiceUpdate.redeemCropPoints,
@@ -539,12 +476,12 @@ app.post(
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
             createVoucher(
-              "",
               session.payment_intent,
-              "code_voucher",
               session.number,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             )
+            sendSMS(findUserForRedeem.mobileNumber, `${findOneForRedeemInvoiceUpdate.redeemCropPoints} crop spent on purchasing of product and ${findOneForRedeemInvoiceUpdate.redeemCropPoints} is debited from your account`)
+
             console.log("First Initial Transaction");
             const cropDebitCredit = await customerCropTransaction.find({expired: false, transactionType: "credit"}).sort( { "createdAt": -1 } );
             console.log(`First Transaction ${cropDebitCredit}`);
@@ -618,6 +555,7 @@ app.post(
               );
             }
           );
+
         }
         break;
       }

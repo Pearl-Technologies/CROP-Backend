@@ -8,9 +8,7 @@ const createVoucher = async (
 ) => {
     try {
         let newVoucher = await vouchers.create({
-            image,
             orderNumber,
-            code,
             invoiceNumber,
             user,
           });

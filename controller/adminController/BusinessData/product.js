@@ -12,8 +12,6 @@ const getAllProduct = async (req, res) => {
   const { businessId } = req.body;
   try {
     if (businessId) {
-      // const productList = await Product.find({user:businessId}).sort({updatedAt:-1});
-      // return res.status(200).json({ productList });
       const productList = await Product.aggregate([
         {
           $match: {
@@ -42,10 +40,9 @@ const getAllProduct = async (req, res) => {
           },
         },
       ]);
+      
       return res.status(200).json({ productList });
     }
-    // const productList = await Product.find({}).sort({updatedAt:-1});
-    // return res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error" });
