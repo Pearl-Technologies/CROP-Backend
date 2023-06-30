@@ -1,118 +1,41 @@
-const customerPropTransaction = require('../models/PropTransaction');
-const mongoose = require('mongoose');
+const customerPropTransaction = require("../models/PropTransaction");
+const mongoose = require("mongoose");
 const { User } = require("../models/User");
-const {Token} = require("../models/User");
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
+const { Token } = require("../models/User");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
 const pdfPath = process.cwd() + "/uploads/";
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
-const getMyPropTrasaction = async(req, res)=>{
-    const { startDate, endDate, search } = req.query;
-    let token= req.headers.authorization
-    const token_data = await Token.findOne({ token });
-    let user= token_data.user;
-    try {
-      let findone = await customerPropTransaction.find({
-        user: mongoose.Types.ObjectId(`${user}`),
-      });
-      if (!findone.length) {
-        return res
-          .status(200)
-          .send({ msg: "no order", data: findone, status: 200 });
-      }
-      if (search && startDate && endDate) {
-        const trasactionDetails = await customerPropTransaction.aggregate([
-          {
-            $match: {
-              user: { $eq: findone[0].user },
-              createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
-              }
-            },
-          },
-          {
-            $project: {
-              orderNumber: 1,
-              transactionType: 1,
-              prop: 1,
-              amount: 1,
-              description: 1,
-              createdAt: 1,
-            },
-          },
-          {
-            $match: {
-              orderNumber: search,
-            },
-          },
-          { $sort: { createdAt: -1 } },
-        ]);
-        return res.status(200).send({ data: trasactionDetails, status: 200 });
-      }
-      if (search) {
-        const trasactionDetails = await customerPropTransaction.aggregate([
-          {
-            $match: {
-              user: { $eq: findone[0].user },
-            },
-          },
-          {
-            $project: {
-              orderNumber: 1,
-              transactionType: 1,
-              prop: 1,
-              amount: 1,
-              description: 1,
-              createdAt: 1,
-            },
-          },
-          {
-            $match: {
-              orderNumber: search,
-            },
-          },
-          { $sort: { createdAt: -1 } },
-        ]);
-        return res.status(200).send({ data: trasactionDetails, status: 200 });
-      }
-      if (startDate && endDate) {
-        const trasactionDetails = await customerPropTransaction.aggregate([
-          {
-            $match: {
-              user: { $eq: findone[0].user },
-            },
-          },
-          {
-            $match: {
-              createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
-              },
-            },
-          },
-        
-          {
-            $project: {
-              orderNumber: 1,
-              transactionType: 1,
-              prop: 1,
-              amount: 1,
-              description: 1,
-              createdAt: 1,
-            },
-          },
-          { $sort: { createdAt: -1 } },
-        ]);
-        return res.status(200).send({ data: trasactionDetails, status: 200 });
-      }
-      
-  
+const getMyPropTrasaction = async (req, res) => {
+  const { startDate, endDate, search } = req.query;
+  let token = req.headers.authorization;
+  const token_data = await Token.findOne({ token });
+  let user = token_data.user;
+  try {
+    let findone = await customerPropTransaction.find({
+      user: mongoose.Types.ObjectId(`${user}`),
+    });
+    if (!findone.length) {
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
+    }
+    if (search && startDate && endDate) {
       const trasactionDetails = await customerPropTransaction.aggregate([
         {
           $match: {
             user: { $eq: findone[0].user },
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "orderNumber",
+            as: "voucher",
           },
         },
         {
@@ -123,30 +46,136 @@ const getMyPropTrasaction = async(req, res)=>{
             amount: 1,
             description: 1,
             createdAt: 1,
+            voucher: 1,
+          },
+        },
+        {
+          $match: {
+            orderNumber: search,
           },
         },
         { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).send({ data: trasactionDetails, status: 200 });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({ msg: "internal server error", status: 500 });
+    }
+    if (search) {
+      const trasactionDetails = await customerPropTransaction.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "orderNumber",
+            as: "voucher",
+          },
+        },
+        {
+          $project: {
+            orderNumber: 1,
+            transactionType: 1,
+            prop: 1,
+            amount: 1,
+            description: 1,
+            createdAt: 1,
+            voucher: 1,
+          },
+        },
+        {
+          $match: {
+            orderNumber: search,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
+    }
+    if (startDate && endDate) {
+      const trasactionDetails = await customerPropTransaction.aggregate([
+        {
+          $match: {
+            user: { $eq: findone[0].user },
+          },
+        },
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "orderNumber",
+            as: "voucher",
+          },
+        },
+        {
+          $project: {
+            orderNumber: 1,
+            transactionType: 1,
+            prop: 1,
+            amount: 1,
+            description: 1,
+            createdAt: 1,
+            voucher: 1,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ]);
+      return res.status(200).send({ data: trasactionDetails, status: 200 });
     }
 
-}
+    const trasactionDetails = await customerPropTransaction.aggregate([
+      {
+        $match: {
+          user: { $eq: findone[0].user },
+        },
+      },
+      {
+        $lookup: {
+          from: "admin_vouchers",
+          localField: "orderNumber",
+          foreignField: "orderNumber",
+          as: "voucher",
+        },
+      },
+      {
+        $project: {
+          orderNumber: 1,
+          transactionType: 1,
+          prop: 1,
+          amount: 1,
+          description: 1,
+          createdAt: 1,
+          voucher: 1,
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+    return res.status(200).send({ data: trasactionDetails, status: 200 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ msg: "internal server error", status: 500 });
+  }
+};
 const getMyPropTrasactionForDownloadStatement = async (req, res) => {
   const { startDate, endDate, search } = req.query;
-  let token= req.headers.authorization
+  let token = req.headers.authorization;
   const token_data = await Token.findOne({ token });
-  let user= token_data.user;
+  let user = token_data.user;
   try {
     let findone = await customerPropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerPropTransaction.aggregate([
@@ -252,15 +281,13 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
   let token = req.headers.authorization;
   const token_data = await Token.findOne({ token });
   let user = token_data.user;
-  let adddata = await User.find({_id:user})
+  let adddata = await User.find({ _id: user });
   try {
     let findone = await customerPropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerPropTransaction.aggregate([
@@ -290,17 +317,16 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
         { $sort: { createdAt: -1 } },
       ]);
 
-      
       // Create a new PDF document
       const doc = new PDFDocument();
 
       // Pipe the PDF document to a file
-      const pdfPath = 'transaction_statement.pdf';
+      const pdfPath = "transaction_statement.pdf";
       const writeStream = fs.createWriteStream(pdfPath);
       doc.pipe(writeStream);
 
       // Add content to the PDF document
-      doc.fontSize(14).text('Transaction Statement', { align: 'center' });
+      doc.fontSize(14).text("Transaction Statement", { align: "center" });
       doc.fontSize(12).text(`User: ${user}`);
       doc.fontSize(10).text(`Start Date: ${startDate}`);
       doc.fontSize(10).text(`End Date: ${endDate}`);
@@ -337,7 +363,7 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: adddata[0].email,
-        subject: 'My Crop Transactions',
+        subject: "My Crop Transactions",
         text: `Hi ${adddata[0].name}\nPlease find attached the PDF of your crop transactions\n\nCheers,\nTeam CROP`,
         attachments: [
           {
@@ -360,29 +386,25 @@ const getEmailStatementMyPropTrasaction = async (req, res) => {
 
       // Delete the PDF file after sending the email
       // fs.unlinkSync(filename);
-    }
-    else{
-      return res.status(500).send({message: "Please sent start date and end date" });  
+    } else {
+      return res.status(500).send({ message: "Please sent start date and end date" });
     }
   } catch (error) {
     console.log(error);
     return res.status(500).send({ error });
   }
-}
+};
 
 const getAllPropTrasactionByAdmin = async (req, res) => {
-
   const { user, startDate, endDate, search } = req.query;
-  
+
   try {
     let findone = await customerPropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
-    
+
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerPropTransaction.aggregate([
@@ -426,8 +448,8 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
             transactionType: 1,
             prop: 1,
             amount: 1,
-            description: 1,          
-            _id:1,
+            description: 1,
+            _id: 1,
             createdAt: 1,
           },
         },
@@ -453,17 +475,17 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
           transactionType: 1,
           prop: 1,
           amount: 1,
-          description: 1,          
-          _id:1,
-          invoiceNumber:1,
-          invoiceUrl:1,
-          invoicePdf:1,
+          description: 1,
+          _id: 1,
+          invoiceNumber: 1,
+          invoiceUrl: 1,
+          invoicePdf: 1,
           createdAt: 1,
         },
       },
       { $sort: { createdAt: -1 } },
     ]);
-    
+
     return res.status(200).send({ trasactionDetails, status: 200 });
   } catch (error) {
     console.log(error);
@@ -471,26 +493,26 @@ const getAllPropTrasactionByAdmin = async (req, res) => {
   }
 };
 
-const SaveMyPropTrasaction=async(amount, prop, transactionType, description, orderNumber, user, invoiceNumber, invoiceUrl, invoicePdf,)=>{  
-    if(!prop || !transactionType|| !orderNumber || !user ){
-        return console.log("all field is required"); 
-    }  
-    try {
-        await customerPropTransaction.create({
-            orderNumber,
-            transactionType,
-            prop,
-            description,
-            amount,
-            user,
-            invoiceNumber,
-            invoiceUrl,
-            invoicePdf,
-        });
-        console.log("trasaction created")
-    } catch (error) {
-        console.log(error);
-    }
-}
+const SaveMyPropTrasaction = async (amount, prop, transactionType, description, orderNumber, user, invoiceNumber, invoiceUrl, invoicePdf) => {
+  if (!prop || !transactionType || !orderNumber || !user) {
+    return console.log("all field is required");
+  }
+  try {
+    await customerPropTransaction.create({
+      orderNumber,
+      transactionType,
+      prop,
+      description,
+      amount,
+      user,
+      invoiceNumber,
+      invoiceUrl,
+      invoicePdf,
+    });
+    console.log("trasaction created");
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = { getMyPropTrasaction, SaveMyPropTrasaction, getMyPropTrasactionForDownloadStatement, getEmailStatementMyPropTrasaction, getAllPropTrasactionByAdmin };

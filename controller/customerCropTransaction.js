@@ -3,27 +3,25 @@ const customerCropTransactionExpiry = require("../models/CropTransactionExpiry")
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const { User } = require("../models/User");
-const {Token} = require("../models/User");
-const PDFDocument = require('pdfkit');
-const table = require('table');
+const { Token } = require("../models/User");
+const PDFDocument = require("pdfkit");
+const table = require("table");
 
-const fs = require('fs');
+const fs = require("fs");
 const pdfPath = process.cwd() + "/uploads/";
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 const getMyCropTrasaction = async (req, res) => {
   const { startDate, endDate, search } = req.query;
-  let token= req.headers.authorization
+  let token = req.headers.authorization;
   const token_data = await Token.findOne({ token });
-  let user= token_data.user;
+  let user = token_data.user;
   try {
     let findone = await customerCropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (search && startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
@@ -37,6 +35,14 @@ const getMyCropTrasaction = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "orderNumber",
+            as: "voucher",
+          },
+        },
+        {
           $project: {
             orderNumber: 1,
             transactionType: 1,
@@ -44,6 +50,7 @@ const getMyCropTrasaction = async (req, res) => {
             amount: 1,
             description: 1,
             createdAt: 1,
+            voucher: 1,
           },
         },
         {
@@ -63,6 +70,14 @@ const getMyCropTrasaction = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "orderNumber",
+            as: "voucher",
+          },
+        },
+        {
           $project: {
             orderNumber: 1,
             transactionType: 1,
@@ -70,6 +85,7 @@ const getMyCropTrasaction = async (req, res) => {
             amount: 1,
             description: 1,
             createdAt: 1,
+            voucher: 1,
           },
         },
         {
@@ -96,7 +112,14 @@ const getMyCropTrasaction = async (req, res) => {
             },
           },
         },
-      
+        {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "orderNumber",
+            as: "voucher",
+          },
+        },
         {
           $project: {
             orderNumber: 1,
@@ -105,18 +128,26 @@ const getMyCropTrasaction = async (req, res) => {
             amount: 1,
             description: 1,
             createdAt: 1,
+            voucher: 1,
           },
         },
         { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).send({ data: trasactionDetails, status: 200 });
     }
-    
 
     const trasactionDetails = await customerCropTransaction.aggregate([
       {
         $match: {
           user: { $eq: findone[0].user },
+        },
+      },
+      {
+        $lookup: {
+          from: "admin_vouchers",
+          localField: "orderNumber",
+          foreignField: "orderNumber",
+          as: "voucher",
         },
       },
       {
@@ -127,6 +158,7 @@ const getMyCropTrasaction = async (req, res) => {
           amount: 1,
           description: 1,
           createdAt: 1,
+          voucher: 1,
         },
       },
       { $sort: { createdAt: -1 } },
@@ -139,17 +171,15 @@ const getMyCropTrasaction = async (req, res) => {
 };
 const getMyCropTrasactionForDownloadStatement = async (req, res) => {
   const { startDate, endDate, search } = req.query;
-  let token= req.headers.authorization
+  let token = req.headers.authorization;
   const token_data = await Token.findOne({ token });
-  let user= token_data.user;
+  let user = token_data.user;
   try {
     let findone = await customerCropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
@@ -298,28 +328,21 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
       const doc = new PDFDocument();
 
       // Pipe the PDF document to a file
-      const pdfPath = 'transaction_statement.pdf';
+      const pdfPath = "transaction_statement.pdf";
       const writeStream = fs.createWriteStream(pdfPath);
       doc.pipe(writeStream);
 
       // Add content to the PDF document
-      doc.fontSize(14).text('Transaction Statement', { align: 'center' });
+      doc.fontSize(14).text("Transaction Statement", { align: "center" });
       doc.fontSize(12).text(`User: ${user}`);
       doc.fontSize(10).text(`Start Date: ${startDate}`);
       doc.fontSize(10).text(`End Date: ${endDate}`);
       doc.moveDown();
 
       // Convert transaction details to a table
-      const data = [['Order Number', 'Transaction Type', 'Crop', 'Amount', 'Description', 'Created At']];
+      const data = [["Order Number", "Transaction Type", "Crop", "Amount", "Description", "Created At"]];
       trasactionDetails.forEach((transaction) => {
-        data.push([
-          transaction.orderNumber,
-          transaction.transactionType,
-          transaction.crop,
-          transaction.amount,
-          transaction.description,
-          transaction.createdAt.toString(),
-        ]);
+        data.push([transaction.orderNumber, transaction.transactionType, transaction.crop, transaction.amount, transaction.description, transaction.createdAt.toString()]);
       });
 
       // Configure table options
@@ -358,12 +381,12 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
       // Define the email options
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: 'p.santhosh8888@gmail.com',
-        subject: 'My Crop Transactions',
+        to: "p.santhosh8888@gmail.com",
+        subject: "My Crop Transactions",
         text: `Hi ${nameCus},\nPlease find attached the PDF of your crop transactions.\n\nCheers,\nTeam CROP`,
         attachments: [
           {
-            filename: 'transaction_statement.pdf',
+            filename: "transaction_statement.pdf",
             path: pdfPath,
           },
         ],
@@ -389,21 +412,18 @@ const getEmailStatementMyCropTrasaction = async (req, res) => {
     console.log(error);
     return res.status(500).send({ error });
   }
-}
+};
 
 const getAllCropTrasactionByAdmin = async (req, res) => {
-
   const { user, startDate, endDate, search } = req.query;
-  
+
   try {
     let findone = await customerCropTransaction.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
-    
+
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerCropTransaction.aggregate([
@@ -427,9 +447,9 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
             crop: 1,
             amount: 1,
             description: 1,
-            invoiceNumber:1,
-            invoiceUrl:1,
-            invoicePdf:1,
+            invoiceNumber: 1,
+            invoiceUrl: 1,
+            invoicePdf: 1,
             createdAt: 1,
           },
         },
@@ -450,8 +470,8 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
             transactionType: 1,
             crop: 1,
             amount: 1,
-            description: 1,          
-            _id:1,
+            description: 1,
+            _id: 1,
             createdAt: 1,
           },
         },
@@ -477,17 +497,17 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
           transactionType: 1,
           crop: 1,
           amount: 1,
-          description: 1,          
-          _id:1,
-          invoiceNumber:1,
-          invoiceUrl:1,
-          invoicePdf:1,
+          description: 1,
+          _id: 1,
+          invoiceNumber: 1,
+          invoiceUrl: 1,
+          invoicePdf: 1,
           createdAt: 1,
         },
       },
       { $sort: { createdAt: -1 } },
     ]);
-    
+
     return res.status(200).send({ trasactionDetails, status: 200 });
   } catch (error) {
     console.log(error);
@@ -495,17 +515,7 @@ const getAllCropTrasactionByAdmin = async (req, res) => {
   }
 };
 
-const SaveMyCropTrasaction = async (
-  amount,
-  crop,
-  transactionType,
-  description,
-  orderNumber,
-  user,
-  invoiceNumber,
-  invoiceUrl,
-  invoicePdf,
-) => {
+const SaveMyCropTrasaction = async (amount, crop, transactionType, description, orderNumber, user, invoiceNumber, invoiceUrl, invoicePdf) => {
   if (!crop || !transactionType || !orderNumber || !user) {
     return console.log("all field is required");
   }
@@ -527,17 +537,7 @@ const SaveMyCropTrasaction = async (
   }
 };
 
-const SaveMyCropExpiry = async (
-  amount,
-  crop,
-  transactionType,
-  description,
-  orderNumber,
-  user,
-  invoiceNumber,
-  invoiceUrl,
-  invoicePdf,
-) => {
+const SaveMyCropExpiry = async (amount, crop, transactionType, description, orderNumber, user, invoiceNumber, invoiceUrl, invoicePdf) => {
   if (!crop || !transactionType || !orderNumber || !user) {
     return console.log("all field is required");
   }
@@ -558,6 +558,5 @@ const SaveMyCropExpiry = async (
     console.log(error);
   }
 };
-
 
 module.exports = { getMyCropTrasaction, SaveMyCropTrasaction, SaveMyCropExpiry, getEmailStatementMyCropTrasaction, getAllCropTrasactionByAdmin, getMyCropTrasactionForDownloadStatement };

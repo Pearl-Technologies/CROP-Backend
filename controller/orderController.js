@@ -1,4 +1,4 @@
-const {sendSMS} = require('../utils/smsOtp')
+const { sendSMS } = require("../utils/smsOtp");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Order = require("../models/Order");
 const { User } = require("../models/User");
@@ -8,23 +8,12 @@ const StateSchema = require("../models/State");
 const random = require("alphanumeric");
 const { Product } = require("../models/businessModel/product");
 const { StoreProduct } = require("../models/businessModel/storeproducts");
-const {createVoucher}  = require("../controller/adminController/VoucherController/voucher")
+const { createVoucher } = require("../controller/adminController/VoucherController/voucher");
 const adminCustomerPurchaseAndRedeemtionNotification = require("../models/admin/notification/customerPurchaseAndRedeemtionNotification");
-const {
-  InvoicePaymentNotificationCustomer,
-} = require("../models/notification");
-const {
-  customerPaymentTracker,
-  customerRedeemTracker,
-  customerPropRedeemTracker,
-  customerPurchsedTracker,
-} = require("../models/admin/PaymentTracker/paymentIdTracker");
-const {
-  SaveMyCropTrasaction,
-} = require("../controller/customerCropTransaction");
-const {
-  SaveMyPropTrasaction,
-} = require("../controller/customerPropTransaction");
+const { InvoicePaymentNotificationCustomer } = require("../models/notification");
+const { customerPaymentTracker, customerRedeemTracker, customerPropRedeemTracker, customerPurchsedTracker } = require("../models/admin/PaymentTracker/paymentIdTracker");
+const { SaveMyCropTrasaction } = require("../controller/customerCropTransaction");
+const { SaveMyPropTrasaction } = require("../controller/customerPropTransaction");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 // create-payment-intent
@@ -42,10 +31,7 @@ module.exports.addOrder = async (req, res) => {
 
     const points = userData.croppoints + croppoints;
 
-    const result = await User.updateOne(
-      { _id: userid },
-      { $set: { croppoints: points } }
-    );
+    const result = await User.updateOne({ _id: userid }, { $set: { croppoints: points } });
     const order = await newOrders.save();
     res.status(200).send({
       success: true,
@@ -129,8 +115,7 @@ module.exports.paymentIntent = async (req, res) => {
           },
           delivery_address: obj,
         });
-        let notification =
-          await adminCustomerPurchaseAndRedeemtionNotification.find();
+        let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
         notification = notification[0]._doc;
         await new InvoicePaymentNotificationCustomer({
           user_id: user_id,
@@ -211,9 +196,7 @@ module.exports.RedeemCrop = async (req, res) => {
       });
       let findUser = await User.findOne({ _id: user_id });
       if (redeemCropPoints > findUser.croppoints) {
-        return res
-          .status(200)
-          .send({ msg: "sorry insoffient CROP in your account" });
+        return res.status(200).send({ msg: "sorry insoffient CROP in your account" });
       }
       const session = await stripe.checkout.sessions.create(params);
       if (session.id) {
@@ -257,30 +240,19 @@ module.exports.RedeemCrop = async (req, res) => {
       });
       let findUser = await User.findOne({ _id: user_id });
       if (redeemCropPoints > findUser.croppoints) {
-        return res
-          .status(200)
-          .send({ msg: "sorry insoffient CROP in your account" });
+        return res.status(200).send({ msg: "sorry insoffient CROP in your account" });
       }
       let newCropPoint = findUser.croppoints - redeemCropPoints;
-      await User.findByIdAndUpdate(
-        { _id: findUser._id },
-        { $set: { croppoints: newCropPoint } }
-      );
-      
+      await User.findByIdAndUpdate({ _id: findUser._id }, { $set: { croppoints: newCropPoint } });
+
       cart.map(async (data) => {
         let findProduct = await Product.findOne({ _id: data._id });
         let newQuatity = findProduct.quantity - data.cartQuantity;
-        await Product.findByIdAndUpdate(
-          { _id: findProduct._id },
-          { $set: { quantity: newQuatity } }
-        );
-        await Cart.updateMany(
-          { user_id: user_id },
-          { $pull: { cart: { _id: data._id } } }
-        );
+        await Product.findByIdAndUpdate({ _id: findProduct._id }, { $set: { quantity: newQuatity } });
+        await Cart.updateMany({ user_id: user_id }, { $pull: { cart: { _id: data._id } } });
       });
       let orderNumber = random(7);
-      let invoiceNumber = random(5)
+      let invoiceNumber = random(5);
       await customerRedeemTracker.create({
         number: orderNumber,
         cartDetails: {
@@ -293,22 +265,10 @@ module.exports.RedeemCrop = async (req, res) => {
         status: "paid",
       });
 
-      SaveMyCropTrasaction(
-        0,
-        redeemCropPoints,
-        "debit",
-        "purchase product by redeem CROP",
-        orderNumber,
-        user_id
-      );
-      createVoucher(
-        orderNumber,
-        invoiceNumber,
-        user_id
-      )
-      sendSMS(findUser.mobileNumber, `${redeemCropPoints} CROP spent on purchasing of product and your ${redeemCropPoints} CROP is debited from your account`)
-      let notification =
-        await adminCustomerPurchaseAndRedeemtionNotification.find();
+      SaveMyCropTrasaction(0, redeemCropPoints, "debit", "purchase product by redeem CROP", orderNumber, user_id);
+      createVoucher(orderNumber, invoiceNumber, user_id);
+      sendSMS(findUser.mobileNumber, `${redeemCropPoints} CROP spent on purchasing of product and your ${redeemCropPoints} CROP is debited from your account`);
+      let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
       notification = notification[0]._doc;
       await new InvoicePaymentNotificationCustomer({
         user_id: user_id,
@@ -332,7 +292,7 @@ module.exports.RedeemProp = async (req, res) => {
     if (!token_data) {
       return res.status(500).send({ msg: "Token Not There", status: 500 });
     }
-    
+
     const { deliverycharges, cart, _id, address_id, email_id } = req.body;
 
     if (deliverycharges) {
@@ -378,9 +338,7 @@ module.exports.RedeemProp = async (req, res) => {
       });
       let findUser = await User.findOne({ _id: user_id });
       if (redeemPropPoints > findUser.proppoints) {
-        return res
-          .status(200)
-          .send({ msg: "sorry insoffient PROP in your account" });
+        return res.status(200).send({ msg: "sorry insoffient PROP in your account" });
       }
       const session = await stripe.checkout.sessions.create(params);
       if (session.id) {
@@ -424,26 +382,15 @@ module.exports.RedeemProp = async (req, res) => {
       });
       let findUser = await User.findOne({ _id: user_id });
       if (redeemPropPoints > findUser.proppoints) {
-        return res
-          .status(200)
-          .send({ msg: "sorry insoffient PROP in your account" });
+        return res.status(200).send({ msg: "sorry insoffient PROP in your account" });
       }
       let newPropPoint = findUser.proppoints - redeemPropPoints;
-      await User.findByIdAndUpdate(
-        { _id: findUser._id },
-        { $set: { proppoints: newPropPoint } }
-      );
+      await User.findByIdAndUpdate({ _id: findUser._id }, { $set: { proppoints: newPropPoint } });
       cart.map(async (data) => {
         let findProduct = await StoreProduct.findOne({ _id: data._id });
         let newQuatity = findProduct.quantity - data.cartQuantity;
-        await StoreProduct.findByIdAndUpdate(
-          { _id: findProduct._id },
-          { $set: { quantity: newQuatity } }
-        );
-        await Cart.updateMany(
-          { user_id: user_id },
-          { $pull: { cart: { _id: data._id } } }
-        );
+        await StoreProduct.findByIdAndUpdate({ _id: findProduct._id }, { $set: { quantity: newQuatity } });
+        await Cart.updateMany({ user_id: user_id }, { $pull: { cart: { _id: data._id } } });
       });
       let orderNumber = random(7);
       let invoiceNumber = random(5);
@@ -459,23 +406,11 @@ module.exports.RedeemProp = async (req, res) => {
         status: "paid",
       });
 
-      SaveMyPropTrasaction(
-        0,
-        redeemPropPoints,
-        "debit",
-        "purchase product by redeem PROP",
-        orderNumber,
-        user_id
-      );
-      createVoucher(
-        orderNumber,
-        invoiceNumber,
-        user_id
-      )
-      sendSMS(findUser.mobileNumber, `${redeemPropPoints} PROP spent on purchasing of product and your ${redeemPropPoints} PROP is debited from your account`)
-          
-      let notification =
-        await adminCustomerPurchaseAndRedeemtionNotification.find();
+      SaveMyPropTrasaction(0, redeemPropPoints, "debit", "purchase product by redeem PROP", orderNumber, user_id);
+      createVoucher(orderNumber, invoiceNumber, user_id);
+      sendSMS(findUser.mobileNumber, `${redeemPropPoints} PROP spent on purchasing of product and your ${redeemPropPoints} PROP is debited from your account`);
+
+      let notification = await adminCustomerPurchaseAndRedeemtionNotification.find();
       notification = notification[0]._doc;
       await new InvoicePaymentNotificationCustomer({
         user_id: user_id,
@@ -572,9 +507,7 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
       "cartDetails.user_id": mongoose.Types.ObjectId(`${user}`),
     });
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerPaymentTracker.aggregate([
@@ -597,6 +530,14 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "payment_intent",
+            as: "voucher",
+          },
+        },
+        {
           $unwind: {
             path: "$cartDetails.cartItems",
           },
@@ -615,6 +556,7 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
             cartDetails: 1,
             updatedAt: 1,
             "cartDetails.cartItems": 1,
+            voucher:1
           },
         },
         { $sort: { createdAt: -1 } },
@@ -642,6 +584,14 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "admin_vouchers",
+            localField: "orderNumber",
+            foreignField: "payment_intent",
+            as: "voucher",
+          },
+        },
+        {
           $unwind: {
             path: "$cartDetails.cartItems",
           },
@@ -660,6 +610,7 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
             cartDetails: 1,
             updatedAt: 1,
             "cartDetails.cartItems": 1,
+            voucher:1,
           },
         },
         {
@@ -692,6 +643,14 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "admin_vouchers",
+          localField: "orderNumber",
+          foreignField: "payment_intent",
+          as: "voucher",
+        },
+      },
+      {
         $unwind: {
           path: "$cartDetails.cartItems",
         },
@@ -710,6 +669,7 @@ module.exports.productPurchaseTrasaction = async (req, res) => {
           cartDetails: 1,
           updatedAt: 1,
           "cartDetails.cartItems": 1,
+          voucher:1
         },
       },
       { $sort: { createdAt: -1 } },
@@ -726,18 +686,14 @@ module.exports.pointPurchaseTrasaction = async (req, res) => {
   const token_data = await Token.findOne({ token });
   let user = token_data?.user;
   if (!user) {
-    return res
-      .status(401)
-      .send({ msg: "sorry you are not authorize", status: 401 });
+    return res.status(401).send({ msg: "sorry you are not authorize", status: 401 });
   }
   try {
     let findone = await customerPurchsedTracker.find({
       user: mongoose.Types.ObjectId(`${user}`),
     });
     if (!findone.length) {
-      return res
-        .status(200)
-        .send({ msg: "no order", data: findone, status: 200 });
+      return res.status(200).send({ msg: "no order", data: findone, status: 200 });
     }
     if (startDate && endDate) {
       const trasactionDetails = await customerPurchsedTracker.aggregate([
