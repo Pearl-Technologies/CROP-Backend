@@ -43,6 +43,14 @@ manager.addDocument('en','6566cc18-b1c2-492d-8802-efc9bdc9607c','loggedrequestsu
 manager.addDocument('en','a7f5f9d7-6cc8-4df2-9d60-7b167d0a3805','mobileloggedrequestsure')
 manager.addDocument('en','c79c5880-4f0e-45cd-8984-9d14c825fa19','emailloggedrequestsure')
 manager.addDocument('en','fcb53414-3537-4d89-a70a-918bf309dbed','order.payunable')
+manager.addDocument('en','78f976a4-03b9-4fe9-82a4-d9983349fa91','payment.refresh')
+manager.addDocument('en','e525151b-fdec-49ea-aa06-79934bdf745e','payment.refreshyes')
+manager.addDocument('en','d7317b57-6881-4774-9990-104c46c01b3e','payment.refreshno')
+manager.addDocument('en','52cc4c6f-0dfb-47c9-ab6b-7a3118e63390','payment.authenticateError')
+manager.addDocument('en','6ec23a1c-8d7d-4dd9-9078-05cfa3bd7000','payment.declined')
+manager.addDocument('en','fc2d0d1a-2374-42bc-83fd-8fe91f063b44','payment.OTPissued')
+manager.addDocument('en','badd6923-ade7-4abe-b212-fa25cf73e171','payment.systemTimeout')
+manager.addDocument('en','c1194f73-1b39-44e2-b5f2-c429e70b2111','payment.evoucher')
 
 
 manager.addAnswer('en', 'greetings.bye', 'Till next time');
@@ -64,7 +72,7 @@ optionSelect:[
         {actual:"Not able to login using Mobile number",forRespond:"8241fecd-f648-4ece-96d8-58374c6e7097"},
         {actual:"Not able to login using Email",forRespond:"3634cf75-0d5a-43a0-8515-983fa8c47646"},
         {actual:"Order Confirmed but not able to Pay",forRespond:"fcb53414-3537-4d89-a70a-918bf309dbed"},
-        {actual:"Payment made bur E-Voucher not received",forRespond:"c1194f73-1b39-44e2-b5f2-c429e70b2111"},
+        {actual:"Payment made but E-Voucher not received",forRespond:"c1194f73-1b39-44e2-b5f2-c429e70b2111"},
         {actual:"CROPs not credited – Order or Purchase",forRespond:"3a130070-6315-4307-a1b0-e222582051cb"},
         {actual:"Not able to redeem",forRespond:"df26051d-09fb-4f72-b0c0-5e7d99fb53e2"}],
 optSelect:false});
@@ -288,8 +296,63 @@ manager.addAnswer('en','order.payunable',{
     optionSelect:[
         {actual:"Screen not refreshing to payment page",forRespond:"78f976a4-03b9-4fe9-82a4-d9983349fa91"},
         {actual:"Payment authentication error",forRespond:"52cc4c6f-0dfb-47c9-ab6b-7a3118e63390"},
-        {actual:"Payment declined",forRespond:"6ec23a1c-8d7d-4dd9-9078-05cfa3bd7000"}
-    ]
+        {actual:"Payment declined",forRespond:"6ec23a1c-8d7d-4dd9-9078-05cfa3bd7000"},
+        {actual:"OTP not received",forRespond:"fc2d0d1a-2374-42bc-83fd-8fe91f063b44"},
+        {actual:"system timed out",forRespond:"badd6923-ade7-4abe-b212-fa25cf73e171"}
+    ],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.refresh',{
+    text:"Have you selected Proceed to Pay on your confirm order screen?",
+    optionRadio:[
+        {actual:"Yes",forRespond:"e525151b-fdec-49ea-aa06-79934bdf745e"},
+        {actual:"No",forRespond:"d7317b57-6881-4774-9990-104c46c01b3e"}
+    ],
+    optionSelect:[],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.refreshyes',{
+    text:"We would request you to refresh the screen and try again. If still not resolved, please place a new order. Thank You!",
+    optionRadio:[],
+    optionSelect:[],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.refreshno',{
+    text:"Please select Proceed to Pay on confirm order screen to move ahead to the payment screen. Thank You!",
+    optionRadio:[],
+    optionSelect:[],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.authenticateError',{
+    text:"Please reverify the card details entered. If the problem still persist, contact your bank or payment partner for a resolution. Use an alternate payment option for the time being. Thank You!",
+    optionRadio:[],
+    optionSelect:[],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.declined',{
+    text:"Please reverify the card details entered. If the problem still persist, contact your bank or payment partner for a resolution. Use an alternate payment option for the time being. Thank You!",
+    optionRadio:[],
+    optionSelect:[],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.OTPissued',{
+    text:"Please verify your mobile number and/or Email ID with your bank or payment partner. Use an alternate payment option for the time being. Thank You!",
+    optionRadio:[],
+    optionSelect:[],
+    optSelect:false
+})
+
+manager.addAnswer('en','payment.systemTimeout',{
+    text:"Please reattempt the transaction. You would need to complete the transaction within the time limit displayed. Thank You!",
+    optionRadio:[],
+    optionSelect:[],
+    optSelect:false
 })
 
 const chatControl = async (req, res) => {
