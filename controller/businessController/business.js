@@ -785,17 +785,27 @@ const getHolidayByState = async (req, res) => {
 //     })
 // }
 
-// updateProductImage()
+// updateProductImage(
 
 const getPurchasedProductStatement = async (req, res) => {
   const businessId = req.user.user.id
-  console.log({ businessId })
+  const { fromDate, toDate } = req.query
+  let matchStage = {
+    businessId: new ObjectId(businessId)
+  };
+  if (fromDate && toDate) {
+    const fDate = new Date(fromDate.replace(/-/g, "/"))
+    const tDate = new Date(toDate.replace(/-/g, "/"))
+    tDate.setDate(tDate.getDate() + 1)
+    matchStage.createdAt= {
+      $gte: fDate,  
+      $lte: tDate,
+    }
+  }
   try {
     const statement = await invoiceAndPaymentNotification.aggregate([
       {
-        $match: {
-          businessId: new ObjectId(businessId),
-        },
+        $match: matchStage
       },
       {
         $lookup: {
@@ -841,7 +851,6 @@ const getPurchasedProductStatement = async (req, res) => {
 const getSinglePurchasedProductStatement = async (req, res) => {
   const businessId = req.user.user.id
   const { itemId, oId } = req.params
-  console.log({ itemId, oId, businessId })
   try {
     const statement = await invoiceAndPaymentNotification.aggregate([
       {

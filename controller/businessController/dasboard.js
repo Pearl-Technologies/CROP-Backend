@@ -152,9 +152,129 @@ const getEarnAndRedeemProductsPoints = async (req, res) => {
   }
 }
 
+const getMostSoldProducts = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const products = await invoiceAndPaymentNotification.aggregate([
+      {
+        $match: {
+          businessId: ObjectId(businessId),
+        },
+      },
+      {
+        $lookup: {
+          from: "customer_payment_trackers",
+          localField: "purchaseOrder.orderId",
+          foreignField: "_id",
+          as: "purchasedEarnProducts",
+        },
+      },
+      {
+        $unwind: "$purchasedEarnProducts",
+      },
+      {
+        $unwind: "$purchasedEarnProducts.cartDetails.cartItems",
+      },
+      {
+        $group: {
+          _id: "$purchasedEarnProducts.cartDetails.cartItems._id",
+          // productTitle: "$purchasedEarnProducts.cartDetails.cartItems.title",
+          totalQuantity: {
+            $sum: "$purchasedEarnProducts.cartDetails.cartItems.cartQuantity",
+          },
+          title: {
+            $first: "$purchasedEarnProducts.cartDetails.cartItems.title",
+          },
+        },
+      },
+      {
+        $sort: {
+          totalQuantity: -1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          cartItemId: "$_id",
+          title: 1,
+          totalQuantity: 1,
+        },
+      },
+      {
+        $limit: 5,
+      },
+    ])
+    return res.status(200).send({ products })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+const getRedeemMostSoldProducts = async (req, res) => {
+  const businessId = req.user.user.id
+  try {
+    const products = await invoiceAndPaymentNotification.aggregate([
+      {
+        $match: {
+          businessId: ObjectId(businessId),
+        },
+      },
+      {
+        $lookup: {
+          from: "customerpropredeemtrackers",
+          localField: "redemptionOrder.orderId",
+          foreignField: "_id",
+          as: "purchasedRedeemProducts",
+        },
+      },
+      {
+        $unwind: "$purchasedRedeemProducts",
+      },
+      {
+        $unwind: "$purchasedRedeemProducts.cartDetails.cartItems",
+      },
+      {
+        $group: {
+          _id: "$purchasedRedeemProducts.cartDetails.cartItems._id",
+          // productTitle: "$purchasedEarnProducts.cartDetails.cartItems.title",
+          totalQuantity: {
+            $sum: "$purchasedRedeemProducts.cartDetails.cartItems.cartQuantity",
+          },
+          title: {
+            $first: "$purchasedRedeemProducts.cartDetails.cartItems.title",
+          },
+        },
+      },
+      {
+        $sort: {
+          totalQuantity: -1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          cartItemId: "$_id",
+          title: 1,
+          totalQuantity: 1,
+        },
+      },
+      {
+        $limit: 5,
+      },
+    ])
+    return res.status(200).send({ products })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
 module.exports = {
   getProductsSaleCountByMonth,
   getProductsSaleCountByYear,
   getProductsSaleCountByMonthlyWise,
   getEarnAndRedeemProductsPoints,
+  getMostSoldProducts,
+  getRedeemMostSoldProducts,
 }
