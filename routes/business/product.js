@@ -41,6 +41,7 @@ const {
   createMarketProducts,
   getAllProductCommentAndRatingsByBusiness,
   getMarketProductsByBusiness,
+  getUniqueMarketProductDetails,
 } = require("../../controller/businessController/product")
 const authorization = require("../../middleware/verifyToken")
 const { upload } = require("../../utils/imageUpload")
@@ -61,6 +62,11 @@ router.get(
   getPromoEarnAndRedeemProducts
 )
 router.get("/market", authorization, getMarketProductsByBusiness)
+router.get(
+  "/get-market-product/:marketId",
+  authorization,
+  getUniqueMarketProductDetails
+)
 router.put("/putProductCommentLike", putProductCommentLike)
 router.put("/putProductCommentDetails", putProductCommentDetails)
 router.put("/putProductCommentPaticularLike", putProductCommentPaticularLike)
@@ -102,9 +108,9 @@ router.put("/:id", updateProduct)
 router.delete("/:id", removeProduct)
 router.post("/image/:productId", upload.array("file", 20), uploadProductImages)
 router.get("/image/:id", getProductImage)
+router.get("/designed-image/:productId/:imageName", getProductDesignedImage)
 router.post("/design-image", productImage)
 router.put("/update-images/:productId/:imageName", updateSelectedImages)
-router.get("/designed-image/:productId/:imageName", getProductDesignedImage)
 
 router.post("/product-comment", productComment)
 router.get("/get-Product-Comment", getProductComment)

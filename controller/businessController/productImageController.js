@@ -23,7 +23,7 @@ const productImage = (req, res) => {
     }
     const inputFile = files.file
     const text = fields.text
-    const count = fields.count
+    // const count = fields.count
     const productId = fields.productId
     const type = fields.type
     const filename = inputFile.newFilename
@@ -35,10 +35,7 @@ const productImage = (req, res) => {
     const output = await rembg.remove(input)
     await output.png().toFile("test-output.png")
     await output.trim().png().toFile("test-output-trimmed.png")
-    let arr = []
-    for (let i = 1; i <= count; i++) {
-      arr.push(i)
-    }
+    let arr = [1, 2, 3, 4, 5, 6, 7]
     if (arr.length > 0) {
       await arr.map((x, i) => {
         mergeImage2(
@@ -47,18 +44,16 @@ const productImage = (req, res) => {
           i
         )
       })
-      await setTimeout(() => {
-        arr.map((x, i) => {
-          mergetext(
-            `${innerFolderPath}/newImage/${x}.jpg`,
-            text,
-            productId,
-            filename,
-            type,
-            i
-          )
-        })
-      }, 3000)
+      await arr.map((x, i) => {
+        mergetext(
+          `${innerFolderPath}/newImage/${x}.jpg`,
+          text,
+          productId,
+          filename,
+          type,
+          i
+        )
+      })
       return res.status(200).send("Product Images Created Successfully")
     }
   })
@@ -172,7 +167,6 @@ const mergetext = async (image1, text, productId, filename, type, index) => {
   } else {
     console.log(`Folder '${folderPath}' already exists.`)
   }
-  // const imageUrl = ""
   if (type == 1) {
     await Product.findByIdAndUpdate(
       { _id: productId },
@@ -217,7 +211,6 @@ const getProductDesignedImage = async (req, res) => {
         function (err, data) {
           if (err) console.log(err)
           else {
-            console.log(data)
             res.end(data)
           }
         }
@@ -225,7 +218,6 @@ const getProductDesignedImage = async (req, res) => {
     } else {
       return res.status(404).send("Image Not Exist")
     }
-    // return res.status(200).send("success")
   } catch (error) {
     console.log(error)
   }
@@ -233,7 +225,7 @@ const getProductDesignedImage = async (req, res) => {
 
 const updateSelectedImages = async (req, res) => {
   const { productId, imageName } = req.params
-  const filePath = `./controller/businessController/productimages/${productId}/${imageName}`
+  const filePath = `./controller/businessController/productimages/${productId}/${imageName}.jpg`
   try {
     fs.unlink(filePath, err => {
       if (err) {
@@ -241,9 +233,16 @@ const updateSelectedImages = async (req, res) => {
         return res.status(404).send("given image not found")
       } else {
         console.log(`File ${filePath} successfully deleted`)
-        return res.status(200).send("selected images updated in product")
       }
     })
+    console.log({ imageName })
+    const updatedPRoduct = await Product.findByIdAndUpdate(
+      { _id: productId },
+      { $pull: { image: imageName } },
+      { new: true }
+    )
+    console.log({ updatedPRoduct })
+    return res.status(200).send("selected images updated in product")
   } catch (error) {}
 }
 

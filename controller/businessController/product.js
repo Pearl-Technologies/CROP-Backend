@@ -19,7 +19,7 @@ const ObjectId = mongoose.Types.ObjectId
 // addAllProducts
 module.exports.addProduct = async (req, res) => {
   try {
-    console.log("user", req.user.user)
+    // console.log("user", req.user.user)
     const id = req.user.user.id
     const busi = await business.findById(id)
     req.body.user = id
@@ -28,7 +28,7 @@ module.exports.addProduct = async (req, res) => {
     console.log(req.body.city, "city")
     const newProduct = new Product(req.body)
     const product = await newProduct.save()
-    console.log({ product })
+    // console.log({ product })
     const adminProductCreateNotification =
       await adminBusinessGeneralNotification.findOne({})
     let desc =
@@ -50,6 +50,7 @@ module.exports.addProduct = async (req, res) => {
       productId: newProduct._id,
     })
   } catch (err) {
+    console.log(err)
     res.status(500).send({
       message: err.message,
     })
@@ -109,6 +110,53 @@ module.exports.getMarketProductsByBusiness = async (req, res) => {
       },
     ])
     return res.status(200).send({ marketProducts })
+  } catch (error) {
+    res.status(500).send("Internal Server Error")
+  }
+}
+
+module.exports.getUniqueMarketProductDetails = async (req, res) => {
+  const { marketId } = req.params
+  try {
+    const marketProduct = await businessMarketOffer.aggregate([
+      {
+        $match: { _id: ObjectId(marketId) },
+      },
+      {
+        $lookup: {
+          from: "business_products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $lookup: {
+          from: "admin_payment_trackers",
+          localField: "productId",
+          foreignField: "productId",
+          as: "payment",
+        },
+      },
+      { $unwind: "$payment" },
+      {
+        $project: {
+          product: 1,
+          payment: 1,
+          _id: 1,
+          marketOfferFor: 1,
+          slot: 1,
+          marketDate: 1,
+          bidPrice: 1,
+          basePrice: 1,
+          market: 1,
+          bid: 1,
+          createdAt: 1,
+        },
+      },
+    ])
+    return res.status(200).send({ marketProduct: marketProduct[0] })
   } catch (error) {
     res.status(500).send("Internal Server Error")
   }
@@ -1526,6 +1574,8 @@ module.exports.getEarnCropProductsBySector = async (req, res) => {
           ruleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
           happyHoursDiscountPercentage: "$happyHoursDiscountPercentage",
+          buyOneGetOne: { $arrayElemAt: ["$happyHours.buyOneGetOne", 0] },
+          discountVoucher: { $arrayElemAt: ["$happyHours.discountVoucher", 0] },
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
@@ -2172,6 +2222,8 @@ module.exports.getEarnCropSingleProductById = async (req, res) => {
           happyHoursAndExtendBonusAddedPercentage:
             "$happyHoursAndExtendBonusAddedPercentage",
           cropRulesWithBonus: "$cropRulesWithBonus",
+          buyOneGetOne: { $arrayElemAt: ["$happyHours.buyOneGetOne", 0] },
+          discountVoucher: { $arrayElemAt: ["$happyHours.discountVoucher", 0] },
           bonusCrops: 1,
           happyHours: 1,
           services: { $arrayElemAt: ["$services", 0] },
@@ -2284,6 +2336,33 @@ module.exports.getRedeemCropSingleProductById = async (req, res) => {
               then: { $sum: `$slashRedemption.slashRedemptionPercentage` },
               else: 0,
             },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          cropRulesWithSlashRedemption: {
+            $cond: [
+              { $eq: ["$slashRedemptionDiscountPercentage", 0] },
+              "$ruleAppliedCrops",
+              {
+                $subtract: [
+                  "$ruleAppliedCrops",
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          "$ruleAppliedCrops",
+                          "$slashRedemptionDiscountPercentage",
+                        ],
+                      },
+                      100,
+                    ],
+                  },
+                ],
+              },
+            ],
           },
         },
       },
@@ -2565,7 +2644,7 @@ module.exports.getEarnAndRedeemProducts = async (req, res) => {
                 $and: [
                   [{ $lte: ["$happyHours.happyHoursDates.fromDate", today] }],
                   [{ $gte: ["$happyHours.happyHoursDates.toDate", today] }],
-                  // [`$happyHours.happyHoursDays.${day}`]
+                  [`$happyHours.happyHoursDays.${day}`],
                   [{ $lte: ["$happyHours.happyHoursTime.startTime", time] }],
                   [{ $gte: ["$happyHours.happyHoursTime.endTime", time] }],
                 ],
@@ -2632,6 +2711,8 @@ module.exports.getEarnAndRedeemProducts = async (req, res) => {
           rating: 1,
           likes: 1,
           cropRules: { cropPerAudCredit: 1, cropPerAudDebit: 1 },
+          buyOneGetOne: { $arrayElemAt: ["$happyHours.buyOneGetOne", 0] },
+          discountVoucher: { $arrayElemAt: ["$happyHours.discountVoucher", 0] },
           earnRuleAppliedCrops: "$ruleAppliedCrops",
           bonusCropsDiscountPercentage: "$bonusCropsDiscountPercentage",
           happyHoursDiscountPercentage: "$happyHoursDiscountPercentage",
@@ -2704,4 +2785,3 @@ module.exports.getAllProductCommentAndRatingsByBusiness = async (req, res) => {
     return res.status(500).send("Internal Server Error")
   }
 }
-

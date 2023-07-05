@@ -20,6 +20,15 @@ const businessHappyHours = mongoose.model("Business_HappyHours", {
     sat: { type: Boolean, default: false },
   },
   happyHoursPercentage: { type: Number },
+  buyOneGetOne: { type: Boolean, default: false },
+  discountVoucher: { type: Boolean, default: false },
+  discountVouchers: [
+    {
+      spendAmount: Number,
+      discountPercentage: Number,
+      expiryDuration: Number,
+    },
+  ],
   happyHoursProducts: [
     { productId: mongoose.Schema.Types.ObjectId, productName: String },
   ],
