@@ -27,7 +27,7 @@ module.exports = async (req, res, next) => {
     // console.log(decoded, "decoded")
 
     // const user = User.findOne({ email: decoded.email })
-
+    req.token = token
     req.user = decoded
 
     next()
