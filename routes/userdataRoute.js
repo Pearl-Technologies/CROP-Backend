@@ -42,7 +42,47 @@ var storage = multer.diskStorage({
   },
 })
 
+let avatarStorage = multer.diskStorage({
+  destination: (req, file, cb)=>{
+    cb(null,"avataruploads")
+  },
+  filename: async (req,file,cb)=>{
+    let token = req.headers.authorization
+    const token_data = await Token.findOne({ token: token })
+    let filename=Date.now()
+    req.filename=`${token_data.user}-${filename}${path.extname(file.originalname)}`;
+    cb(null,`${token_data.user}-${filename}${path.extname(file.originalname)}`)
+  }
+})
+
 var upload = multer({ storage: storage })
+
+let avatarUpload = multer({ storage: avatarStorage })
+
+router.post("/uploadavatar",avatarUpload.single("avatarImage"),async (req,res)=>{
+  try{
+  let filename=req.filename;
+  let pathname=`/avataruploads/${filename}`;
+  let token = req.headers.authorization
+  const token_data = await Token.findOne({ token: token })
+  const result = await User.updateOne(
+      { _id: token_data.user },
+      {
+        $set: {
+          avatar: filename ? pathname : null,
+        },
+      }
+    )
+    res.status(200).send({
+      message: "Profile pic Updated successfully",
+      status: "true",
+      data: [],
+    })
+  }
+  catch(err){
+    res.status(500).send({ message: "Internal Server error", status: "false", data: [] })
+  }
+})
 
 router.put("/uploadpicture", async (req, res) => {
   try {
@@ -1085,7 +1125,7 @@ router.get("/profile", async (req, res) => {
     if (profile.avatar === null) {
       base64 = null
     } else {
-      const imageBuffer = fs.readFileSync(profile.avatar)
+      const imageBuffer = fs.readFileSync(`${process.cwd()}${profile.avatar}`)
       base64 = imageBuffer.toString("base64")
     }
 
@@ -1103,6 +1143,7 @@ router.get("/profile", async (req, res) => {
       image: base64,
       address: profile.address,
       mktNotification: profile.mktNotification,
+      avatar:profile.avatar
     }
 
     res.status(200).json({ profile: details, status: "true", data: [] })
@@ -1113,7 +1154,7 @@ router.get("/profile", async (req, res) => {
   }
 })
 
-router.put("/updateprofile", async (req, res) => {
+router.put("/updateprofile",async (req, res) => {
   let token = req.headers.authorization
   const token_data = await Token.findOne({ token: token })
   const currentDate = new Date()
@@ -1159,6 +1200,8 @@ router.put("/updateprofile", async (req, res) => {
 
     //  const bbb = await User.updateOne({_id:token_data.user,"address._id": ObjectId("64424f6a47b817d4e2523827")},
     //  {$set:{"address.$.address": {address:req.body.address[0]}}})
+
+    
       if (result) {
         createCustomerAudit(result._id, "Profile Updated successfully")
       }

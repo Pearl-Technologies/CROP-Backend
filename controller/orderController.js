@@ -16,7 +16,7 @@ const { SaveMyCropTrasaction } = require("../controller/customerCropTransaction"
 const { SaveMyPropTrasaction } = require("../controller/customerPropTransaction");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
-// create-payment-intent
+// create-ent
 
 module.exports.addOrder = async (req, res) => {
   try {
