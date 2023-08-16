@@ -886,7 +886,7 @@ router.post("/login", async (req, res) => {
       if (req.body.login_method === 1) {
         method = 1
         userToken = jwt.sign({ email: userData.email }, "CROP@12345", {
-          expiresIn: "1h",
+          expiresIn: "1d",
         })
         await new Token({
           user: userData._id,
