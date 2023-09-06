@@ -382,7 +382,7 @@ const PropPaymentNotification = async () => {
     let mileStone=0;
     if (data.total >= 5000 && data.total < 10000 && data.fiveKCropMileStone===false) {
       mileStone=5000;
-      if (data.UserTier == "Base" || data.UserTier == "Silver") {
+      if (data.UserTier == "Blue" || data.UserTier == "Silver") {
         quantity = 50;
       } else if (data.UserTier == "Gold") {
         quantity = 55;
@@ -391,7 +391,7 @@ const PropPaymentNotification = async () => {
       }
     } else if (data.total >= 10000 && data.total < 25000 && data.tenKCropMileStone===false) {
       mileStone=10000;
-      if (data.UserTier == "Base" || data.UserTier == "Silver") {
+      if (data.UserTier == "Blue" || data.UserTier == "Silver") {
         quantity = 120;
       } else if (data.UserTier == "Gold") {
         quantity = 132;
@@ -400,7 +400,7 @@ const PropPaymentNotification = async () => {
       }
     } else if (data.total >= 25000 && data.total < 30000 && data.twentyFiveKCropMileStone===false) {
       mileStone =25000
-      if (data.UserTier == "Base" || data.UserTier == "Silver") {
+      if (data.UserTier == "Blue" || data.UserTier == "Silver") {
         quantity = 300;
       } else if (data.UserTier == "Gold") {
         quantity = 330;
@@ -412,7 +412,7 @@ const PropPaymentNotification = async () => {
       qty = data.total - data.newMileStone;
       qty = qty / 5000;
       qty = Math.floor(qty);
-      if (data.UserTier == "Base" || data.UserTier == "Silver") {
+      if (data.UserTier == "Blue" || data.UserTier == "Silver") {
         quantity = 60 * qty;
       } else if (data.UserTier == "Gold") {
         quantity = 66 * qty;

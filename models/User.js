@@ -124,7 +124,7 @@ const UserSchema=new mongoose.Schema({
   mobileNumber:{type:String,default:null},
   email:{type:String,default:null},
   UserTitle:{type:String, required:true},
-  UserTier:{type:String, default:"Base"},
+  UserTier:{type:String, default:"blue"},
   gender:{type:String,default:null},
   terms:{type:Boolean, default:false},
   biometricterms:{type:Boolean, default:false},
