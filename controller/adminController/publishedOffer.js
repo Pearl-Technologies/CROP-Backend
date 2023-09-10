@@ -20,7 +20,7 @@ const publishOffer = async (req, res) => {
       }
       await product.findByIdAndUpdate({_id},{ $set: newData }, { new: true } );
 
-        res.json({ success:true, message:"published offer updated" });
+        res.json({ success:true, message:"scheduled offer updated" });
 
     } catch (error) {
       //for log in console

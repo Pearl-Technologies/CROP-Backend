@@ -25,6 +25,16 @@ const getAllCustomer = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+const getCustomerById = async (req, res) => {
+  try {
+    const customers = await User.find({cropid:req.params.id});
+    res.status(200).json({ customers });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
 const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find({});
@@ -740,6 +750,7 @@ module.exports = {
   PropPaymentNotification,
   getAllCustomerByContent,
   getAllCustomer,
+  getCustomerById,
   getAllOrders,
   customerProp,
   customerCrop,

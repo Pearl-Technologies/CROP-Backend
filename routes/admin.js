@@ -94,7 +94,7 @@ const updateTier = require("../controller/adminController/updateTier");
 const {getAllCustomerForPropPayment} = require("../controller/adminController/CustomerData/customer")
 
 //customer
-const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop} =require("../controller/adminController/CustomerData/customer");
+const {getAllCustomerByContent, updateCustomerStatus, getAllCustomer, getAllOrders, customerProp, customerCrop, getAllCustomerProp, getAllCustomerCrop, getCustomerById} =require("../controller/adminController/CustomerData/customer");
 const{getAllCropTrasactionByAdmin} = require('../controller/customerCropTransaction');
 const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransaction');
 //
@@ -104,7 +104,8 @@ const{getAllPropTrasactionByAdmin} = require('../controller/customerPropTransact
 const {getSlot} =  require("../controller/adminController/Bidding/biddingProcess");
 
 const {getAllBusinessByContent, 
-  getAllBusiness, 
+  getAllBusiness,
+  getBusinessById, 
   businessCrop, 
   getAllBusinessCrop, 
   updateBusinessAccountStatus, 
@@ -271,6 +272,7 @@ router.post("/deleteInterest", verifyToken, deleteInterest)
 //customer data
 
 router.post("/getAllCustomer", getAllCustomer)
+router.get('/getCustomerById/:id', getCustomerById)
 router.post("/getAllOrders", getAllOrders)
 router.post("/customerProp", verifyToken, customerProp)
 router.post("/customerCrop", verifyToken, customerCrop)
@@ -290,6 +292,7 @@ router.post("/deleteHoliday", verifyToken, deleteHoliday)
 //
 //Business data
 router.post("/getAllBusiness", getAllBusiness)
+router.get("/getBusinessById/:id", getBusinessById)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
 router.get("/getSlot", getSlot)
