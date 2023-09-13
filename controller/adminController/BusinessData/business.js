@@ -19,6 +19,15 @@ const getAllBusiness = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+const getBusinessById = async (req, res) => {
+  try {
+    const businesses = await business.find({cropId:req.params.id});
+    res.status(200).json({ businesses });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 const businessCrop = async (req, res) => {
   try {
@@ -571,6 +580,7 @@ const deleteHoliday = async(req, res)=>{
 }
 module.exports = {
   getAllBusinessByContent,
+  getBusinessById,
   getAllBusiness,
   businessCrop,
   getAllBusinessCrop,

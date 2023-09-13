@@ -49,7 +49,7 @@ const productSchema = mongoose.Schema(
     status: {
       type: String,
       default: "active",
-      enum: ["active", "inActive", "published"],
+      enum: ["active", "inActive", "scheduled"],
     },
     customiseMsg: { type: String, required: true },
 
