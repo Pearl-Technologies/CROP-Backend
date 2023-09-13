@@ -23,6 +23,23 @@ const getCropNumber = async (token,chats)=>{
     }
 }
 
+const tempChatData = (token)=>{
+    return ["Hi","Hello","Man","What","Are","You","Doing"]
+}
+
+const tempSqaureData = (token,data)=>{
+    let dependData = data(token);
+    let finalData = dependData.filter((datum)=>{
+        if(datum=="Hi"){
+            return [datum,"Hi and Hello"]
+        }
+        else{
+            return [datum,datum]
+        }
+    })
+    return finalData;
+}
+
 const getPaymentRefId = async (token,chats)=>{
     try{
         let response = await Token.findOne({token:token});
@@ -63,4 +80,4 @@ const getPaymentRefId = async (token,chats)=>{
     }
 }
 
-module.exports={ getCropNumber, getPaymentRefId };
+module.exports={ getCropNumber, getPaymentRefId, tempChatData, tempSqaureData };
