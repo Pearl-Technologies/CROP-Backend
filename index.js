@@ -60,7 +60,6 @@ app.use(express.json())
 app.use(cors(corsOptions));
 // app.use(cors())
 ConnectDb()
-
 app.use("/api/earncrop", categoryRoutes)
 app.use("/api/redeemcrop", categoryRoutes)
 app.use("/api/category", categoryRoutes)

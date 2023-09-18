@@ -5,7 +5,7 @@ const { User } = require("../models/User");
 const { Cart } = require("../models/Cart");
 const { Token } = require("../models/User");
 const StateSchema = require("../models/State");
-const random = require("alphanumeric");
+const { num_uuid, num_uuidV2 } = require('num-uuid');
 const { Product } = require("../models/businessModel/product");
 const { StoreProduct } = require("../models/businessModel/storeproducts");
 const { createVoucher } = require("../controller/adminController/VoucherController/voucher");
@@ -251,8 +251,8 @@ module.exports.RedeemCrop = async (req, res) => {
         await Product.findByIdAndUpdate({ _id: findProduct._id }, { $set: { quantity: newQuatity } });
         await Cart.updateMany({ user_id: user_id }, { $pull: { cart: { _id: data._id } } });
       });
-      let orderNumber = random(7);
-      let invoiceNumber = random(5);
+      let orderNumber = num_uuidV2(3, 6);
+      let invoiceNumber = num_uuidV2(3, 6);
       await customerRedeemTracker.create({
         number: orderNumber,
         cartDetails: {
@@ -392,8 +392,8 @@ module.exports.RedeemProp = async (req, res) => {
         await StoreProduct.findByIdAndUpdate({ _id: findProduct._id }, { $set: { quantity: newQuatity } });
         await Cart.updateMany({ user_id: user_id }, { $pull: { cart: { _id: data._id } } });
       });
-      let orderNumber = random(7);
-      let invoiceNumber = random(5);
+      let orderNumber = num_uuidV2(3, 6);
+      let invoiceNumber = num_uuidV2(3, 6);
       await customerRedeemTracker.create({
         number: orderNumber,
         cartDetails: {

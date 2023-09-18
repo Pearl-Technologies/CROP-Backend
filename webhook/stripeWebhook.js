@@ -13,6 +13,7 @@ const customerPropTransaction = require("../models/PropTransaction");
 const express = require("express");
 const bodyParser = require("body-parser");
 const ConnectDb = require("../config/db");
+const { num_uuid, num_uuidV2 } = require('num-uuid');
 const {
   InvoicePaymentNotificationCustomer,
 } = require("../models/notification");
@@ -81,7 +82,7 @@ const fulfillOrder = async (session) => {
   if (findOne) {
     await Product.findByIdAndUpdate(
       { _id: findOne.productId },
-      { $set: { status: "scheduled", market: true } }
+      { $set: { status: "scheduled", market: true, ranking:"active"} }
     );
     await adminPaymentTracker.findByIdAndUpdate(
       { _id: findOne._id },
@@ -301,12 +302,13 @@ app.post(
           }
 
           console.log("Check Invoice", session);
+          let orderNumber = num_uuidV2(3, 6);
           SaveMyCropTrasaction(
             session.subtotal / 100,
             customerCropPoint,
             "credit",
             "purchase product",
-            findOneRecord.payment_intent,
+            orderNumber,
             findOneRecord.cartDetails.user_id,
             session.number,
             session.hosted_invoice_url,
@@ -346,13 +348,14 @@ app.post(
           findUser = await User.findOne({
             _id: findOneCustomerPointPurchasePaymentRequest.user,
           });
+          let orderNumber = num_uuidV2(3, 6);
           if (findOneCustomerPointPurchasePaymentRequest.type == "CROP") {
             SaveMyCropTrasaction(
               findOneCustomerPointPurchasePaymentRequest.amount,
               findOneCustomerPointPurchasePaymentRequest.quantity,
               "credit",
               "purchased CROP",
-              findOneCustomerPointPurchasePaymentRequest.payment_intent,
+              orderNumber,
               findOneCustomerPointPurchasePaymentRequest.user
             );
             if (findUser) {
@@ -374,12 +377,14 @@ app.post(
           } else if (
             findOneCustomerPointPurchasePaymentRequest.type == "PROP"
           ) {
+            let orderNumber = num_uuidV2(3, 6); 
             SaveMyPropTrasaction(
               findOneCustomerPointPurchasePaymentRequest.amount,
               findOneCustomerPointPurchasePaymentRequest.quantity,
               "credit",
               "purchased PROP",
-              findOneCustomerPointPurchasePaymentRequest.payment_intent,
+              // findOneCustomerPointPurchasePaymentRequest.payment_intent,
+              orderNumber,
               findOneCustomerPointPurchasePaymentRequest.user,
               session.number,
               session.hosted_invoice_url,
@@ -449,13 +454,13 @@ app.post(
               { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
               { $set: { croppoints: newCropPoint } }
             );
-
+            let orderNumber = num_uuidV2(3, 6);
             SaveMyCropTrasaction(
               session.total,
               findOneForRedeemInvoiceUpdate.redeemCropPoints,
               "debit",
               "purchase product by redeem CROP",
-              session.payment_intent,
+              orderNumber,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
             createVoucher(
@@ -508,12 +513,14 @@ app.post(
               { _id: findOneForRedeemInvoiceUpdate.cartDetails.user_id },
               { $set: { proppoints: newPropPoint } }
             );
+            let orderNumber = num_uuidV2(3, 6); 
             SaveMyPropTrasaction(
               session.total,
               findOneForRedeemInvoiceUpdate.redeemPropPoints,
               "debit",
               "purchase product by redeem PROP",
-              session.payment_intent,
+              // session.payment_intent,
+              orderNumber,
               findOneForRedeemInvoiceUpdate.cartDetails.user_id
             );
             createVoucher(

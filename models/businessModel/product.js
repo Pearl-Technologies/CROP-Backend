@@ -70,6 +70,11 @@ const productSchema = mongoose.Schema(
     zipcode: { type: Number },
     rating: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
+    ranking:{
+      type: String,
+      default: "open",
+      enum: ["open", "progress", "active", "cancelled"],
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "business",

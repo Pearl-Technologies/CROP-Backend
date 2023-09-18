@@ -4,11 +4,13 @@ const Order = require("../../../models/Order");
 const adminCustomerCrop = require("../../../models/admin/admin_customer_crop");
 const adminCustomerProp = require("../../../models/admin/admin_customer_prop");
 const ObjectId = mongoose.Types.ObjectId;
-const random = require("alphanumeric");
+// const random = require("alphanumeric");
+const { num_uuid, num_uuidV2 } = require('num-uuid');
 const {
   SaveMyPropTrasaction,
 } = require("../../../controller/customerPropTransaction");
-let orderNumber = random(7);
+// let orderNumber = random(7);
+let orderNumber = num_uuidV2(3, 6)
 const {
   customerPaymentTracker,
   customerRedeemTracker,
@@ -17,9 +19,12 @@ const {
 } = require("../../../models/admin/PaymentTracker/paymentIdTracker");
 const {productComment} = require("../../../models/businessModel/product")
 const getAllCustomer = async (req, res) => {
+  let {page}=req.body
+  let limit=10
   try {
-    const customers = await User.find({});
-    res.status(200).json({ customers });
+    const customers = await User.find({}).limit(limit).skip((page-1)*limit);
+    const customerCount = await User.find({}).count();
+    res.status(200).json({ customers, customerCount });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");

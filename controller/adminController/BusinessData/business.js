@@ -11,9 +11,12 @@ const {BusinessHolidays} = require("../../../models/businessModel/businessHolida
 const Admin = require("../../../models/superAdminModel/user");
 const moment = require('moment');
 const getAllBusiness = async (req, res) => {
+  let limit=10;
+  let {page}= req.body
   try {
-    const businesses = await business.find({});
-    res.status(200).json({ businesses });
+    const businesses = await business.find({}).limit(limit).skip((page-1)*limit);
+    const businessesCount = await business.find({}).count();
+    res.status(200).json({ businesses, businessesCount });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -299,6 +302,7 @@ const getAllPurchasedProductStatementByDateRange = async (req, res) => {
 }
 const getBusinessCropStatement = async (req, res) => {
   const {businessId} = req.body
+  console.log(req.body)
   try {
     const statement = await invoiceAndPaymentNotification.aggregate([
       {
@@ -337,9 +341,21 @@ const getBusinessCropStatement = async (req, res) => {
       {
         $match: {
           user: businessId,
-        },
-      },{$sort: {createdAt:-1}}
+        },        
+      },{$sort: {createdAt:-1}},
+      {
+        $project:{
+          _id:1,
+          createdAt:1,
+          "item.tempPrice":1,
+          desc:1,
+          type:1,
+          "item.cropRulesWithBonus":1,
+          "orders.number":1
+        }
+      }
     ])
+    console.log({statement})
     return res.status(200).send({ statement })
   } catch (error) {
     console.log(error)

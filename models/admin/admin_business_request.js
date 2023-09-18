@@ -13,6 +13,10 @@ const adminBusinessRequest = mongoose.model("Admin_business_request", {
     type: mongoose.Schema.Types.ObjectId,
     ref: "business_user",
   },
+  handler:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin_admin",
+  }
 });
 
 module.exports = adminBusinessRequest;

@@ -201,6 +201,7 @@ const sendMassNotification = (req, res) => {
 };
 
 const passwordResetEmail = async (req, res) => {
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(401).json({ msg: "Enter a valid email" });
@@ -219,7 +220,7 @@ const passwordResetEmail = async (req, res) => {
       },
     };
 
-    const authtoken = jwt.sign(data, JWT_SECRET);
+    const authtoken = jwt.sign(data, JWT_SECRET, { expiresIn: '1h' });
     const subject = "CROP notification";
     // const mailData = {
     //   from: process.env.EMAIL_USER,
