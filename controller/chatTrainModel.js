@@ -2,18 +2,38 @@ const mongoose=require("mongoose");
 const ChatQuestions=require("./../models/chatQuestionModel");
 const ChatModal=require("./../models/chatModel");
 const { v4:uuid } = require("uuid");
-const actionTrain = require("./actionsController/actionTrain");
+const { actionTrain, actionDepends } = require("./actionsController/actionTrain");
 const ref_number = require("../addons/uuIdGen");
+
+const getActionDepends = (data)=>{
+    try{
+        let dependData = Object.keys(actionDepends);
+        if(Array.isArray(data)){
+            const commonValues = data.filter((value) => dependData.includes(value));
+
+            if(commonValues.length==1){
+                return commonValues.toString();
+            }
+            else if(commonValues.length <= 0){
+                return ""
+            }
+            else{
+                throw new Error("Requested data contains two dependents");
+            }
+        }
+        else{
+            return ""
+        }
+    }
+    catch(err){
+        console.log(err);
+        throw err;
+    }
+}
 
 const chatTrainModel = async (req,res)=>{
     try{
     const { questionText,foreignKey,text,optionRadio : optionRadioArray,optionSelect : optionSelectArray,optInput,optInputName,optSelect,action } = req.body;
-    // console.log(optionRadio);
-    // const modifiedOptionRadio = optionRadio.replace(/'/g, '"');
-    // const optionRadioArray = JSON.parse(modifiedOptionRadio)
-
-    // const modifiedOptionSelect = optionSelect.replace(/'/g, '"');
-    // const optionSelectArray = JSON.parse(modifiedOptionSelect)
 
     let radioData = optionRadioArray.map((data)=>{
         return({
@@ -344,19 +364,86 @@ const deleteTrainModel = async (req,res)=>{
 
 const getUserTrainedFeedback = async (req,res)=>{
     try{
-    const { foreignKey } = req.query;
-    let getChats = await ChatModal.findOne({foreignKey:foreignKey});
+    const { foreignKey } = req.body;
+    const actionData = req.actionData;
+    
+    let getChats = await ChatModal.findOne({foreignKey:foreignKey}).lean();
     if(getChats){
         let messagetext=getChats.text;
-        let optionSelect=getChats.optionSelect.length > 0 ? getChats.optionSelect[0] : {actual:"",forRespond:""};
+        let optionFilter=getChats.optionRadio.length > 0 ? getChats.optionRadio : getChats.optionSelect;
+        let filteredData=optionFilter && optionFilter.length > 0 ? optionFilter : {actual:"",forRespond:""};
         const regex = /\$\$(.*?)\$\$/g;
             if(getChats.action.trim()){
                 const subActions = [...messagetext.matchAll(regex)].map(data=>data[1]);
-                const subSelectActions = [...optionSelect.actual.matchAll(regex)].map(data=>data[1]);
+                let tempArr=[];
+                if(filteredData && filteredData.length > 0){
+                const subSelectActions = await Promise.all(
+                    filteredData.map(async (datum) => {
+                      const text = [...datum.actual.matchAll(regex)].map((data) => data[1]);
+                      console.log(text);
+                      console.log(getActionDepends(text));
+
+                      if(getActionDepends(text)){
+                        async function fetchData(selectedData) {
+                            let responseData = await actionTrain[getChats.action][getActionDepends(text)](req.token, selectedData,actionData);
+                            console.log(responseData);
+                            const replacedData = responseData.map(item => {
+                                const replacedString = {
+                                    actual:datum.actual.replace(/\$\$(.*?)\$\$/g, (match, matchString) => item[matchString]),
+                                    forRespond:datum.forRespond,
+                                    _id:datum._id
+                                };
+                                return replacedString;
+                              });
+                              return replacedData;
+                        }
+                        const datatext = await fetchData(text);
+                        return datatext;
+                      }
+                      else if (text.length > 0) {
+                        async function fetchData(selectedData) {
+                          const result = await Promise.all(
+                            selectedData.map(async (data) => {
+                              const responseData = await actionTrain[getChats.action][data](req.token, getChats);
+                              let updatedDatum = {};
+                              if(Array.isArray(responseData) && responseData.length > 0){
+                                responseData.forEach((resdata)=>{
+                                    let finalText = datum.actual.replaceAll(`$$${data}$$`, resdata.toString());
+                                    let tempObj={ ...datum, actual: finalText };
+                                    tempArr.push(tempObj); 
+                                })
+                                updatedDatum=tempArr;
+                              }
+                              else{
+                                const finalText = datum.actual.replaceAll(`$$${data}$$`, responseData.toString());
+                                updatedDatum = { ...datum, actual: finalText };
+                              }
+                  
+                              return updatedDatum;
+                            })
+                          );
+                          return result;
+                        }
+                  
+                        const datatext = await fetchData(text);
+                        return datatext;
+                      }
+                    })
+                  );
+                  
+                  const flattenedOptionSelect = subSelectActions.flatMap((subArray) => subArray.flat());
+
+                  if(getChats.optionRadio && getChats.optionRadio.length > 0){
+                    getChats["optionRadio"]=flattenedOptionSelect;
+                  }
+                  else if(getChats.optionSelect && getChats.optionSelect.length > 0){}
+                  getChats["optionSelect"]=flattenedOptionSelect;
+                }
+                
                 if(subActions.length>0){
                     let result = await Promise.all(subActions.map(async (data)=>{
                         let reponseData = {};
-                        reponseData[data] = await actionTrain[getChats.action][data](req.token,getChats)
+                        reponseData[data] = await actionTrain[getChats.action][data](req.token,getChats,actionData)
                         return reponseData;
                     }));
 
@@ -366,24 +453,7 @@ const getUserTrainedFeedback = async (req,res)=>{
                         messagetext=finalText;
                     })
                     })
-                    console.log(messagetext);
                     getChats["text"]=messagetext;
-                }
-                else if(subSelectActions.length>0 && getChats.optSelect){
-                    let result = await Promise.all(subSelectActions.map(async (data)=>{
-                        let reponseData = await actionTrain[getChats.action][data](req.token,getChats)
-                        return reponseData;
-                    }));
-                    if(result.length>0){
-                        getChats["optionSelect"]=result[0]
-                    }
-
-                    // result.forEach((datum)=>{
-                    //     Object.keys(datum).map((data)=>{
-                    //         let finalText = messagetext.replaceAll(`$$${data}$$`,datum[data])
-                    //         messagetext=finalText;
-                    //     })
-                    // })
                 }
             }
             res.status(200).json({
