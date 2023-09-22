@@ -4,9 +4,15 @@ const { PropPaymentNotification } = require("../CustomerData/customer");
 const schedule = require("node-schedule");
 const moment = require("moment");
 const getSlot = async (req, res) => {
+  let {date} = req.params
+  console.log(date);
   try {
-    const allSlot = await slot.find({});
-    res.status(200).json({ allSlot });
+    if(date){
+      const allSlot = await slot.find({published_start_date:date});
+      res.status(200).json({ allSlot });
+    }else{
+      res.status(200).json({ allSlot:[] });
+    }
   } catch (error) {
     console.log(error);
   }

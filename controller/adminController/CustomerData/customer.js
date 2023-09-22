@@ -32,9 +32,13 @@ const getAllCustomer = async (req, res) => {
 };
 
 const getCustomerById = async (req, res) => {
+  let id=getCustomerById;
   try {
-    const customers = await User.find({cropid:req.params.id});
-    res.status(200).json({ customers });
+    if(id){
+            const customers = await User.find({cropid:req.params.id});
+            return res.status(200).json({ customers });
+    }
+    return res.status(200).json({ customers:"no data found" });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -135,88 +139,110 @@ const updateCustomerStatus = async (req, res) => {
 };
 const getAllCustomerByContent = async (req, res) => {
   let customerDetails;
+  let {  customerName, address, email, ageGroup} = req.body
+  console.log(req.body)
   try {
-    // let { customerName, email, pincode } = req.body;
-    // if (customerName && email && pincode) {
-    //   Zip_code = parseInt(Zip_code)
-    //   customerDetails = await business.aggregate([
-    //     {
-    //       $unwind: {
-    //         'path':'$address'
-    //       },
-    //     },
-    //     {
-    //       $match: {
-    //         "address.pincode": Zip_code,
-    //         'natureOfBusiness':{'$regex':natureOfBusiness},
-    //         'businessName':{'$regex':businessName}
-    //       },
-    //     },
-    //   ]);
-    //   return res.status(200).json({ businessDetails });
-    // }
-    // if (natureOfBusiness && businessName) {
-    //   businessDetails = await business.aggregate([
-    //     {
-    //       $unwind: {
-    //         'path':'$address'
-    //       },
-    //     },
-    //     {
-    //       $match: {
-    //         'natureOfBusiness':{'$regex':natureOfBusiness},
-    //         'businessName':{'$regex':businessName}
-    //       },
-    //     },
-    //   ]);
-    //   return res.status(200).json({ businessDetails });
-    // }
-    // if (natureOfBusiness && Zip_code) {
-    //   Zip_code = parseInt(Zip_code)
-    //   businessDetails = await business.aggregate([
-    //     {
-    //       $unwind: {
-    //         'path':'$address'
-    //       },
-    //     },
-    //     {
-    //       $match: {
-    //         "address.pincode": Zip_code,
-    //         "natureOfBusiness":{'$regex':natureOfBusiness}
-    //       },
-    //     },
-    //   ]);
-    //   return res.status(200).json({ businessDetails });
-    // }
-    // if (natureOfBusiness) {
-    //   let businessDetails = await business.find({ natureOfBusiness:{$regex:natureOfBusiness} });
-    //   return res.status(200).json({ businessDetails });
-    // }
-    // if (businessName) {
-    //   businessDetails = await business.find({
-    //     businessName:{$regex:businessName}
-    //   });
-    //   return res.status(200).json({ businessDetails });
-    // }
-    // if (Zip_code) {
-    //   Zip_code = parseInt(Zip_code)
-    //   businessDetails = await business.aggregate([
-    //     {
-    //       '$unwind': {
-    //         'path':'$address'
-    //       }
-    //     },
-    //     {
-    //       '$match': {
-    //         "address.pincode": Zip_code,
-    //       },
-    //     },
-    //   ]);
-
-    //   return res.status(200).json({ businessDetails });
-    // }
-    customerDetails = await User.find({}, { name: 1, address: 1, email: 1 });
-    res.status(200).json({ customerDetails });
+      
+    if(customerName){
+      customerDetails = await User.aggregate(
+        [
+           {
+              '$match': {
+                  '$or': [
+                      {
+                          'name.fName': {
+                              '$regex': customerName
+                          }
+                      }, {
+                          'name.mName': {
+                              '$regex': customerName
+                          }
+                      }, {
+                          'name.lName': {
+                              '$regex': customerName
+                          }
+                      }
+                  ]
+              }
+          },
+          {
+            '$project':{
+              'name':1,
+              'email':1,
+              "address":1,
+              "mobileNumber":1
+            }
+          }
+      ]
+      )
+     return res.status(200).json({ customerDetails });
+    }else if(address){
+      customerDetails = await User.aggregate(
+        [
+          {
+              '$unwind': {
+                  'path': '$address'
+              }
+          }, {
+              '$match': {
+                  '$or': [
+                      {
+                          'address.line1': {
+                              '$regex': address
+                          }
+                      }, {
+                          'address.line2': {
+                              '$regex': address
+                          }
+                      }, {
+                          'address.line3': {
+                              '$regex': address
+                          }
+                      }, {
+                          'address.state': {
+                              '$regex': address
+                          }
+                      },
+                      {
+                        '$project':{
+                          'name':1,
+                          'email':1,
+                          "address":1,
+                          "mobileNumber":1
+                        }
+                      }
+                  ]
+              }
+          }
+      ]
+      );
+      return res.status(200).json({ customerDetails });
+    }else if(email){
+      customerDetails = await User.find({email: {$regex:email}}, { name: 1, address: 1, email: 1, mobileNumber:1 });
+     return res.status(200).json({ customerDetails });
+    }else if(ageGroup){
+      customerDetails = await User.aggregate(
+        [
+          {
+            '$match': {
+              'agegroup': {
+                '$regex': ageGroup
+              }
+            }
+          },{
+            '$project':{
+              'name':1,
+              'email':1,
+              "address":1,
+              "mobileNumber":1
+            }
+          }
+        ]
+      )
+      return res.status(200).json({ customerDetails });
+    }
+    customerDetails = await User.find({}, { name: 1, address: 1, email: 1 }).limit(100);
+    return res.status(200).json({ customerDetails });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ msg: "internal error" });

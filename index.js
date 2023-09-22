@@ -1,10 +1,12 @@
 require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
-// const multer = require("multer")
+const morgan = require("morgan")
 const ConnectDb = require("./config/db")
+const createError = require('http-errors')
 const app = express()
 const bodyParser = require("body-parser")
+
 app.use(bodyParser.json())
 
 const categoryRoutes = require("./routes/categoryRoutes")
@@ -57,6 +59,7 @@ const corsOptions = {
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json())
+app.use(morgan('dev'))
 app.use(cors(corsOptions));
 // app.use(cors())
 ConnectDb()
@@ -83,7 +86,7 @@ app.use("/api",chatRoute);
 
 
 app.get("/", (req, res) => {
-  res.send("Apps worked successfullyssss")
+  res.send("Apps worked successfully")
 })
 
 // global.TextEncoder = require('text-encoding').TextEncoder;
@@ -92,6 +95,9 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   res.status(400).json({ message: err.message });
 });
+app.use(async(req, res, next)=>{
+  next(createError.NotFound("this route doesn't exist"))
+})
 
 const PORT = process.env.PORT; 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`))

@@ -77,7 +77,7 @@ const updateBasePrice = async (req, res) => {
   console.log(req.body);
 
   try {
-    const { _id, weekday, weekend, publicHoliday, weekly, monthly, top_offers, top_promo, top_storeOffer, massNotification, surveyDesign, earnCropValuation, earnPropValuation, redeemCropValuation, redeemPropValuation, purchasePropValuation, user } = req.body;
+    const { _id, weekday, weekend, publicHoliday, weekly, monthly, top_offers, top_promo, top_storeOffer, massNotification, surveyDesign, earnCropValuation, earnPropValuation, redeemCropValuation, redeemPropValuation, purchasePropValuation, local, regional, national, user } = req.body;
     // let user = req.user.user.id;
     
     let findBasePrice = await basePrice.findOne({_id});
@@ -131,7 +131,15 @@ const updateBasePrice = async (req, res) => {
     if (purchasePropValuation) {
       newData.purchasePropValuation = purchasePropValuation;
     }
-
+    if (local) {
+      newData.local = local;
+    }
+    if (regional) {
+      newData.regional = regional;
+    }
+    if (national) {
+      newData.national = national;
+    }
     if(findBasePrice.user.toString() !== user){
       return res.send({ success: false, message: "you are not authorize" });  
     };

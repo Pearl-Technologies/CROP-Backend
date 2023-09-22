@@ -45,7 +45,7 @@ const dashboard = async (req, res) => {
     if(paymentTrackerForCustomerPurchase.length>0){
 
       empData =  await business.find({_id:paymentTrackerForCustomerPurchase[0]._id});
-      console.log(empData)
+      // console.log(empData)
       res.status(200).json({ data: empData,status:200 });
     }
     else{

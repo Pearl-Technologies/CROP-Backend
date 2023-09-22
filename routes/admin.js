@@ -295,7 +295,7 @@ router.post("/getAllBusiness", getAllBusiness)
 router.get("/getBusinessById/:id", getBusinessById)
 router.post("/businessCrop", verifyToken, businessCrop)
 router.post("/updateBusinessAccountStatus", updateBusinessAccountStatus)
-router.get("/getSlot", getSlot)
+router.get("/getSlot/:date", getSlot)
 router.post('/getAllBusinessByContent', getAllBusinessByContent)
 router.post('/findBusinessInvoice', findBusinessInvoice);
 router.post('/getPurchasedProductStatement', getPurchasedProductStatement);
