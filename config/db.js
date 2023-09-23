@@ -5,17 +5,6 @@ mongoose.set('strictQuery', false);
 const databasename = "test";
 const MONGO_URI = process.env.MONGO_URI;
 
-// MongoClient.connect(MONGO_URI).then((client) => {
-
-//   const connect = client.db(databasename);
-//   // Connect to collection
-//   const collection = connect.collection("products_customers");
-//   // Rename the collection name
-//   collection.rename("business_products");
-//   console.log("Updation successful");
-// }).catch((err) => {
-//   console.log(err.Message);
-// })
 
 const connectDB = async () => {
   try { 
@@ -26,5 +15,19 @@ const connectDB = async () => {
   }
 
 };
+mongoose.connection.on('connected', ()=>{
+  console.log("server is connected to mongodb")
+})
+mongoose.connection.on('error', ()=>{
+  console.log(`connection error: ${error.message}` )
+})
+mongoose.connection.on('disconnected', async()=>{
+  console.log("mongodb successfully disconnected")
+})
+
+process.on('SIGINT', async()=>{
+  await mongoose.connection.close();
+  process.kill(0)
+})
 
 module.exports = connectDB;
