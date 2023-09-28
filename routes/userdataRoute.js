@@ -1358,8 +1358,6 @@ router.post("/mate", async (req, res) => {
   let token = req.headers.authorization
   let email = req.body.email
 
-  console.log("sridhar", email)
-
   console.log({ token })
   const token1 = await Token.findOne({ token })
   const findUser = await User.findById(token1.user)
