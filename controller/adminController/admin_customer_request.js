@@ -21,7 +21,7 @@ const createCustomerRequest = async (req, res) => {
       expectedOutcoms,
       requestType,
       preferredMediumContact,
-      requestNumber:`R-${id}`,
+      requestNumber:`R- ${id}`,
       user
     });
     res.json({ success: true, message: "updated" });

@@ -10,6 +10,8 @@ const {
   getProductsBySubCatagory,
   updateProduct,
   getAllProductsByBusiness,
+  getallproduct,
+  getsectorbasedproduct,
   putProductCommentDetails,
   putProductCommentPaticularLike,
   getCalculatedProducts,
@@ -93,9 +95,11 @@ router.get(
 router.get("/get-bidded-products", authorization, getBiddedProductsByBusiness)
 router.get(
   "/get-all-products-by-business",
-  authorization,
-  getAllProductsByBusiness
-)
+  getAllProductsByBusiness)
+  //new
+router.get("/getallproduct",getallproduct)
+router.get("/getsectorproduct/:sector",getsectorbasedproduct)
+
 router.get(
   "/get-all-product-comments-ratings",
   authorization,

@@ -376,9 +376,8 @@ module.exports.removeProduct = async (req, res) => {
 }
 
 module.exports.getAllProductsByBusiness = async (req, res) => {
-  console.log("running")
   const user = req.user.user.id
-  console.log("userID", user)
+
   try {
     const products = await Product.find({ user }).sort({ _id: -1 })
     res.status(200).json({ count: products.length, products })
@@ -389,7 +388,46 @@ module.exports.getAllProductsByBusiness = async (req, res) => {
     })
   }
 }
-// End Sridhar
+
+//new 
+module.exports.getallproduct = async (req, res) => {
+  try {
+    const products = await Product.find({});
+    res.status(200).json({ products })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+      message: error.message,
+    })
+  }
+}
+
+//getsectorbasedproduct
+module.exports.getsectorbasedproduct = async (req, res) => {
+  const { sector } = req.params;
+  console.log('sector!@#', sector)
+  const value = sector === "Dines"?"Dine" : sector === "Shop"?"Shops":sector === "Hotel"?"Hotel":sector === "Service"?"Service":sector
+  console.log('value!@#', value)
+  try {
+    const products = await Product.find({ sector: value });
+    console.log('products', products)
+    res.status(200).json({ products });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
 
 module.exports.getEarnCropProducts = async (req, res) => {
   try {

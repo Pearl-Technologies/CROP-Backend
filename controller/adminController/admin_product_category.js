@@ -4,7 +4,7 @@ const ProductCategory = require("../../models/admin/admin_product_category")
 const Admin = require("../../models/superAdminModel/user")
 const {Product} = require("../../models/businessModel/product")
 const createCategory = async (req, res) => {
-    const {sectorName}= req.body;
+    const {sectorName,gst}= req.body;
     let image=undefined;
     if(req.file){
       image = req.file.filename;
@@ -21,7 +21,8 @@ const createCategory = async (req, res) => {
         }
         const category = new ProductCategory({
             image,
-            categoryName
+            categoryName,
+            gst
         })
         await category.save();
         return res.status(201).send({msg:"Category Created"})

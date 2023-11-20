@@ -22,6 +22,8 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 var shortid = require("shortid");
 var fs = require("fs-extra");
+
+// const fs = require('fs');
 const { readFileSync } = require("fs");
 const accountSid = "AC31efbb78567dcc30e05243f5193c6da6";
 const authToken = "160b8a1bf927b3fb4a71f8a4a7dff449";
@@ -59,30 +61,103 @@ var upload = multer({ storage: storage })
 
 let avatarUpload = multer({ storage: avatarStorage })
 
-router.post("/uploadavatar",avatarUpload.single("avatarImage"),async (req,res)=>{
-  try{
-  let filename=req.filename;
-  let pathname=`/avataruploads/${filename}`;
-  let token = req.headers.authorization
-  const token_data = await Token.findOne({ token: token })
-  const result = await User.updateOne(
-      { _id: token_data.user },
+
+
+
+
+
+// router.post("/uploadavatar",avatarUpload.single("avatarImage"),async (req,res)=>{
+//   console.log('req.filename', req.filename)
+//   try{
+//   let filename=req.filename;
+//   let pathname=`uploads/avataruploads/${filename}`;
+//   console.log('pathname', pathname)
+//   let token = req.headers.authorization
+//   const token_data = await Token.findOne({ token: token })
+//   const result = await User.updateOne(
+//       { _id: token_data.user },
+//       {
+//         $set: {
+//           avatar: filename ? pathname : null,
+//         },
+//       }
+//     )
+//     res.status(200).send({
+//       message: "Profile pic Updated successfully",
+//       status: "true",
+//       data:result,
+//     })
+//   }
+//   catch(err){
+//     res.status(500).send({ message: "Internal Server error", status: "false", data: [] })
+//   }
+// })
+
+//new
+
+// Middleware for verifying the token
+const verifyToken = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization;
+    const token_data = await Token.findOne({ token });
+
+    if (!token_data) {
+      return res.status(401).json({ message: 'Invalid token', status: 'false', data: [] });
+    }
+
+    req.userId = token_data.user;
+    next();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal Server error', status: 'false', data: [] });
+  }
+};
+
+router.post('/uploadavatar', avatarUpload.single('avatarImage'), async (req, res) => {
+  // console.log('req', req)
+  // console.log('req.file', req.file)
+  // console.log('req.body', req.body)
+  // console.log("ln118")
+  try {
+    // console.log("ln120")
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded', status: 'false', data: [] });
+    }
+
+    // File type validation
+    const fileTypeResult = fileType(req.file.buffer);
+    if (!fileTypeResult || !fileTypeResult.mime.startsWith('image/')) {
+      return res.status(400).json({ message: 'Invalid file type', status: 'false', data: [] });
+    }
+
+    const { filename } = req.file;
+    // const pathname = `uploads/avataruploads/${filename}`;
+    let pathname = `./../uploads/avataruploads`;
+
+    if (!fs.existsSync('./../uploads/avataruploads')) {
+      fs.mkdirSync('./../uploads/avataruploads', { recursive: true });
+    }
+    // console.log("ln138")
+    const result = await User.updateOne(
+      { _id: req.userId },
       {
         $set: {
           avatar: filename ? pathname : null,
         },
       }
-    )
-    res.status(200).send({
-      message: "Profile pic Updated successfully",
-      status: "true",
-      data: [],
-    })
+    );
+    // console.log("ln147")
+    res.status(200).json({
+      message: 'Profile pic updated successfully',
+      status: 'true',
+      data: result,
+    });
+  } catch (err) {
+    // console.log("ln154")
+    console.error(err);
+    res.status(500).json({ message: 'Internal Server error', status: 'false', data: [] });
   }
-  catch(err){
-    res.status(500).send({ message: "Internal Server error", status: "false", data: [] })
-  }
-})
+});
 
 router.put("/uploadpicture", async (req, res) => {
   try {
@@ -307,17 +382,21 @@ router.post("/emailphone", async (req, res) => {
           data: [],
         })
         const emailExists = await Otp.findOne({ email: email })
+        console.log('otp ln 310', otp)
         if (emailExists) {
           const result = await Otp.updateOne(
             { email: email },
             { $set: { otp: otp, status: false } }
           )
+          console.log('result', result)
         } else {
+          console.log('otp ln 317', otp)
           const otpdata = new Otp({
             email: email,
             otp: otp,
             status: false,
           }).save()
+          console.log('otpdata', otpdata)
         }
       }
     })
