@@ -5,6 +5,18 @@ const { v4:uuid } = require("uuid");
 const { actionTrain, actionDepends } = require("./actionsController/actionTrain");
 const ref_number = require("../addons/uuIdGen");
 
+function generateRandomString(length) {
+    let randomString = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      randomString += characters[randomIndex];
+    }
+  
+    return randomString;
+  }
+
 const getActionDepends = (data)=>{
     try{
         let dependData = Object.keys(actionDepends);
@@ -180,9 +192,9 @@ const feedbackTrainedModel = async (req,res)=>{
     }
 
     let radioData = optionRadioArray.map((data)=>{
-        if(data.forRespond && data.forRespond==""){
+        if(data && data.forRespond==""){
             return({
-                actual:data,
+                actual:data.actual,
                 forRespond:mongoose.Types.ObjectId()
             })   
         }
@@ -192,7 +204,7 @@ const feedbackTrainedModel = async (req,res)=>{
     })
 
    let selectData = optionSelectArray.map((data)=>{
-        if(data.forRespond==""){
+        if(data && data.forRespond==""){
             return({
                 actual:data.actual,
                 forRespond:mongoose.Types.ObjectId()
@@ -365,7 +377,7 @@ const deleteTrainModel = async (req,res)=>{
 const getUserTrainedFeedback = async (req,res)=>{
     try{
     const { foreignKey } = req.body;
-    const actionData = req.actionData;
+    const actionData =  req.actionData;
     
     let getChats = await ChatModal.findOne({foreignKey:foreignKey}).lean();
     if(getChats){
@@ -408,9 +420,16 @@ const getUserTrainedFeedback = async (req,res)=>{
                               let updatedDatum = {};
                               if(Array.isArray(responseData) && responseData.length > 0){
                                 responseData.forEach((resdata)=>{
-                                    let finalText = datum.actual.replaceAll(`$$${data}$$`, resdata.toString());
-                                    let tempObj={ ...datum, actual: finalText };
-                                    tempArr.push(tempObj); 
+                                    if(Array.isArray(resdata) || typeof resdata == "string"){
+                                        let finalText = datum.actual.replaceAll(`$$${data}$$`, resdata.toString());
+                                        let tempObj={ ...datum, actual: finalText };
+                                        tempArr.push(tempObj); 
+                                    }
+                                    // else{
+                                    //     let finalText = datum.actual.replaceAll(`$$${data}$$`, resdata[data]);
+                                    //     let tempObj={ ...datum, actual: finalText };
+                                    //     tempArr.push(tempObj); 
+                                    // }
                                 })
                                 updatedDatum=tempArr;
                               }
@@ -428,16 +447,22 @@ const getUserTrainedFeedback = async (req,res)=>{
                         const datatext = await fetchData(text);
                         return datatext;
                       }
+                      else{
+                        return datum;
+                      }
                     })
                   );
                   
-                  const flattenedOptionSelect = subSelectActions.flatMap((subArray) => subArray.flat());
+                //   const flattenedOptionSelect = subSelectActions.flatMap((subArray) => subArray.flat());
+                const flattenedOptionSelect = subSelectActions.reduce((acc, subArray) => acc.concat(subArray), []);
+
 
                   if(getChats.optionRadio && getChats.optionRadio.length > 0){
-                    getChats["optionRadio"]=flattenedOptionSelect;
+                    getChats["optionRadio"]=[].concat(...flattenedOptionSelect);
                   }
-                  else if(getChats.optionSelect && getChats.optionSelect.length > 0){}
-                  getChats["optionSelect"]=flattenedOptionSelect;
+                  else if(getChats.optionSelect && getChats.optionSelect.length > 0){
+                  getChats["optionSelect"]=[].concat(...flattenedOptionSelect);
+                  }
                 }
                 
                 if(subActions.length>0){
